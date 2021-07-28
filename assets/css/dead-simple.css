@@ -69,6 +69,16 @@ a:hover {
     color: #F7F7F7;
 }
 
+::-moz-selection {
+  color: #f7f7f7;
+  background: #1a1a1a;
+}
+
+::selection {
+  color: #f7f7f7;
+  background: #1a1a1a;
+}
+
 header {
   text-align: center;
 }
