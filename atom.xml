@@ -23,7 +23,7 @@
 &lt;li&gt;&lt;p&gt;The installation and update process is painful on Linux: you need to run some shell script to get a proper install with shortcuts and icons, or you&amp;#39;re stuck with an AppImage and all the related issues accompanying it. You could also use flatpak, but at the end of the day I&amp;#39;d just rather &lt;code&gt;sudo apt install joplin&lt;/code&gt; and move on with my life.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Uninstallation is even more painful. Have fun running &lt;code&gt;sudo find / -iname &amp;quot;*joplin*&amp;quot; 2&amp;gt;/dev/null&lt;/code&gt; and sort things out on your own, which is sadly a common occurence with Linux apps.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;No autocapitalisation. This is not a very common feature with most text editors, which I find surprising because this doesn&amp;#39;t &lt;em&gt;seem&lt;/em&gt; hard to implement?&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;Joplin cloud plans. I&amp;#39;m not interested in this and just wish to keep things simple. Syncing files with syncthing is free and works amazingly well.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Joplin cloud plans. I&amp;#39;m not interested in this and just wish to keep things simple. Syncing files with &lt;a href="syncthing" rel="nofollow"&gt;https://syncthing.net/&lt;/a&gt; is free and works amazingly well.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Having to use a GUI to write text. Yes I know, a specific nerd problem, but I&amp;#39;d rather not leave the CLI for my drafts and notes.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -351,7 +351,7 @@ augroup END
 filetypelugin &lt;span class="k"&gt;on&lt;/span&gt;
 &lt;span class="nb"&gt;syntax&lt;/span&gt; &lt;span class="k"&gt;on&lt;/span&gt;
 
-&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_list&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="s1"&gt;'path'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'~/ovelwiki/'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_list&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="s1"&gt;'path'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'~/wiki/'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
 &lt;span class="se"&gt;                      \&lt;/span&gt; &lt;span class="s1"&gt;'syntax'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'markdown'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'ext'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'.md.gpg'&lt;/span&gt;&lt;span class="p"&gt;}]&lt;/span&gt;
 &lt;span class="c"&gt;" Automatically insert a header when creating a new link&lt;/span&gt;
 &lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_auto_header&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;
