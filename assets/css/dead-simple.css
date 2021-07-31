@@ -140,7 +140,7 @@ code {
 
 :not(.highlight) > code {
     color: #1A1A1A;
-    background-color: #E4E4E4;
+    background-color: #DDD;
     font-weight: unset;
 }
 
