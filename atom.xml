@@ -2,13 +2,386 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:base="https://ovelny.sh/">
   <id>https://ovelny.sh/</id>
   <title>ovelny</title>
-  <updated>2021-03-11T23:00:00Z</updated>
+  <updated>2021-07-30T22:00:00Z</updated>
   <link rel="alternate" href="https://ovelny.sh/" type="text/html"/>
   <link rel="self" href="https://ovelny.sh/atom.xml" type="application/atom+xml"/>
   <author>
     <name>ovelny</name>
     <uri>https://ovelny.sh</uri>
   </author>
+  <entry>
+    <id>tag:ovelny.sh,2021-07-30:/blog/switching-from-joplin-to-vimwiki/</id>
+    <title type="html">Switching from Joplin to vimwiki</title>
+    <published>2021-07-30T22:00:00Z</published>
+    <updated>2021-07-30T22:00:00Z</updated>
+    <link rel="alternate" href="https://ovelny.sh/blog/switching-from-joplin-to-vimwiki/" type="text/html"/>
+    <content type="html">&lt;p&gt;I&amp;#39;ve been using Joplin for a while now, and have been mostly happy with it. It features a simple but sufficient Vim keyboard mode, notes are encrypted, and images are easily pasted in Markdown.&lt;/p&gt;
+
+&lt;p&gt;All in all this is great, but the following pain points made me reconsider this solution:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;The installation and update process is painful on Linux: you need to run some shell script to get a proper install with shortcuts and icons, or you&amp;#39;re stuck with an AppImage and all the related issues accompanying it. You could also use flatpak, but at the end of the day I&amp;#39;d just rather &lt;code&gt;sudo apt install joplin&lt;/code&gt; and move on with my life.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Uninstallation is even more painful. Have fun running &lt;code&gt;sudo find / -iname &amp;quot;*joplin*&amp;quot; 2&amp;gt;/dev/null&lt;/code&gt; and sort things out on your own, which is sadly a common occurence with Linux apps.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;No autocapitalisation. This is not a very common feature with most text editors, which I find surprising because this doesn&amp;#39;t &lt;em&gt;seem&lt;/em&gt; hard to implement?&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Joplin cloud plans. I&amp;#39;m not interested in this and just wish to keep things simple. Syncing files with syncthing is free and works amazingly well.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Having to use a GUI to write text. Yes I know, a specific nerd problem, but I&amp;#39;d rather not leave the CLI for my drafts and notes.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;And last but certainly not least: Electron. The only apps built with it that didn&amp;#39;t end up eating a frightening amount of RAM on my systems are VSCode and Discord, no other exceptions. I&amp;#39;m not too eager to sacrifice this just to simply type text.&lt;/p&gt;
+
+&lt;p&gt;Vimwiki has been around for a while and has always intrigued me. As the name implies, this plugin allows you to maintain your own wiki via linked text files, with Markdown support. But I would also need the following features to truly make it similar to Joplin:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Seamless note encryption&lt;/li&gt;
+&lt;li&gt;Syntax highlighting&lt;/li&gt;
+&lt;li&gt;Markdown preview&lt;/li&gt;
+&lt;li&gt;Easy way of pasting / linking images in markdown notes&lt;/li&gt;
+&lt;li&gt;Autocapitalisation&lt;/li&gt;
+&lt;li&gt;Easy syncing (already covered by syncthing)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Seems like some kind of deranged dream to expect all of these features from vim, but this is very doable with the following plugins:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;vim-markdown: &lt;a href="https://github.com/plasticboy/vim-markdown" rel="nofollow"&gt;https://github.com/plasticboy/vim-markdown&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;markdown-preview: &lt;a href="https://github.com/iamcco/markdown-preview.nvim" rel="nofollow"&gt;https://github.com/iamcco/markdown-preview.nvim&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;markdown-image-paste: &lt;a href="https://github.com/ferrine/md-img-paste.vim" rel="nofollow"&gt;https://github.com/ferrine/md-img-paste.vim&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Note encryption will be done via some vim scripting. Let&amp;#39;s roll and set up everything!&lt;/p&gt;
+
+&lt;h2&gt;Plugins installation&lt;/h2&gt;
+
+&lt;p&gt;First things first, let&amp;#39;s install all the plugins with your &lt;code&gt;.vimrc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;Plug &lt;span class="s1"&gt;'plasticboy/vim-markdown'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="s1"&gt;'for'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'markdown'&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+Plug &lt;span class="s1"&gt;'ferrine/md-img-paste.vim'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="s1"&gt;'for'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'markdown'&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+Plug &lt;span class="s1"&gt;'vimwiki/vimwiki'&lt;/span&gt;
+Plug &lt;span class="s1"&gt;'iamcco/markdown-preview.nvim'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="s1"&gt;'do'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="p"&gt;-&amp;gt;&lt;/span&gt; mkdp#util#install&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="s1"&gt;'for'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;'markdown'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'vim-plug'&lt;/span&gt;&lt;span class="p"&gt;]}&lt;/span&gt;
+Plug &lt;span class="s1"&gt;'junegunn/goyo.vim'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Goyo is optional but provides an amazing, minimalist interface for notes—I highly recommend it. Note that the following snippet is based on vim-plug: adapt it accordingly if you use another plugin manager, and run the appropriate install command (&lt;code&gt;:PlugInstall&lt;/code&gt; in my case).&lt;/p&gt;
+
+&lt;h2&gt;Setting up encryption with Markdown&lt;/h2&gt;
+
+&lt;p&gt;Let&amp;#39;s populate our .vimrc with a few more settings to get seamless encryption. First we&amp;#39;re going to assign the .md.gpg extension to the markdown filetype, so vim can apply highlighting and other features like it normally would:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;BufEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="k"&gt;setlocal&lt;/span&gt; &lt;span class="k"&gt;filetype&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;markdown
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The seamless editing of gpg files will be handled by an edited mix of the following scripts:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://vim.fandom.com/wiki/Encryption" rel="nofollow"&gt;https://vim.fandom.com/wiki/Encryption&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://vim.fandom.com/wiki/Edit_gpg_encrypted_files#Comments" rel="nofollow"&gt;https://vim.fandom.com/wiki/Edit_gpg_encrypted_files#Comments&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Be aware that nothing is foolproof here, as vim uses temporary files when dealing with data from external programs. While those scripts harden everything as much as possible, you still might be able to retrieve some of your data with forensics—which is an accepted risk in my case.&lt;/p&gt;
+
+&lt;p&gt;One issue with those scripts used in conjunction with vimwiki is the management of buffers: vimwiki will open tons of them, and closing / saving them individually can prevent remaining files to remain tightly encrypted at rest.&lt;/p&gt;
+
+&lt;p&gt;The most practical solution I found is to always quit the wiki entirely, trust its autosaving feature and treat the bunch of buffers as a unique group this way. As such and to enforce this, I opted to remap &lt;code&gt;:wq&lt;/code&gt;, &lt;code&gt;:q&lt;/code&gt;, and disable &lt;code&gt;:w&lt;/code&gt; and &lt;code&gt;:q&lt;/code&gt; for the &lt;code&gt;.md.gpg&lt;/code&gt; filetype exclusively:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":cabbrev wq wqa"&lt;/span&gt;
+&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":cabbrev q qa"&lt;/span&gt;
+&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":cabbrev w &amp;lt;Nop&amp;gt;"&lt;/span&gt;
+&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":cabbrev wa &amp;lt;Nop&amp;gt;"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Some people will find this to be cursed, and if you hate autosaving I feel you. On my end that solution works perfectly but I&amp;#39;m always open to suggestions!&lt;/p&gt;
+
+&lt;p&gt;Next comes the automatic handling and editing of gpg files:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="c"&gt;" First make sure nothing is written to ~/.viminfo or backups while editing&lt;/span&gt;
+&lt;span class="c"&gt;" an encrypted file.&lt;/span&gt;
+&lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="nb"&gt;backupskip&lt;/span&gt;&lt;span class="p"&gt;+=&lt;/span&gt;*&lt;span class="p"&gt;.&lt;/span&gt;gpg
+&lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="nb"&gt;viminfo&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;
+
+augroup encrypted
+  &lt;span class="k"&gt;au&lt;/span&gt;&lt;span class="p"&gt;!&lt;/span&gt;
+  &lt;span class="c"&gt;" Disable swap file, undo file and backups, and set binary file format&lt;/span&gt;
+  &lt;span class="c"&gt;" before reading the file&lt;/span&gt;
+  autocmd &lt;span class="nb"&gt;BufReadPre&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nb"&gt;FileReadPre&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;gpg
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="k"&gt;setlocal&lt;/span&gt; &lt;span class="k"&gt;noswapfile&lt;/span&gt; &lt;span class="nb"&gt;noundofile&lt;/span&gt; &lt;span class="nb"&gt;nobackup&lt;/span&gt; &lt;span class="nb"&gt;bin&lt;/span&gt;
+  &lt;span class="c"&gt;" Decrypt contents after reading the file, reset binary file format&lt;/span&gt;
+  &lt;span class="c"&gt;" and run any BufReadPost autocmds matching the filename without .gpg&lt;/span&gt;
+  autocmd &lt;span class="nb"&gt;BufReadPost&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nb"&gt;FileReadPost&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;gpg
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;"%!gpg --decrypt --default-recipient-self 2&amp;gt;/dev/null"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="k"&gt;setlocal&lt;/span&gt; &lt;span class="nb"&gt;nobin&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;"redraw!"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;"doautocmd BufReadPost "&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt; &lt;span class="nb"&gt;expand&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"%:r"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="c"&gt;" Set binary file format and encrypt contents when leaving vim&lt;/span&gt;
+  autocmd Vimleave *&lt;span class="p"&gt;.&lt;/span&gt;gpg
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="k"&gt;setlocal&lt;/span&gt; &lt;span class="nb"&gt;bin&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="k"&gt;bufdo&lt;/span&gt; &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;"%!gpg --encrypt --armor --default-recipient-self"&lt;/span&gt;
+  &lt;span class="c"&gt;" Contrary to the original scripts, we are not handling an undo command&lt;/span&gt;
+  &lt;span class="c"&gt;" to revert encryption in buffer: vimwiki auto-saves contents when quitting,&lt;/span&gt;
+  &lt;span class="c"&gt;" so we rather leave it at that and disable :w and :wa for .md.gpg files.&lt;/span&gt;
+  &lt;span class="c"&gt;" If you don't like auto-saving, sorry!&lt;/span&gt;
+augroup END
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;You will need to have a GPG keypair present on your system for this to work. If you don&amp;#39;t already have one, here&amp;#39;s how to do it:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Run &lt;code&gt;gpg --full-generate-key&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Select the default key type at the prompt&lt;/li&gt;
+&lt;li&gt;Pick at least a key size of 4096 bits&lt;/li&gt;
+&lt;li&gt;Set your key to never expire, which is the default length of time at the prompt&lt;/li&gt;
+&lt;li&gt;Check your settings&lt;/li&gt;
+&lt;li&gt;Add your ID information&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This part should be working now! Create a &lt;code&gt;.md.gpg&lt;/code&gt; file, open it with vim, insert something and save it. If you &lt;code&gt;cat&lt;/code&gt; the file, this should return the encrypted, ASCII-armored content which roughly looks like the following:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nt"&gt;-----BEGIN&lt;/span&gt; PGP MESSAGE-----
+
+hQIMA4RrtUt4dcSyAQ/8DAdDoYkJE8d4kq+dsZykX9qR2cEVjy99RLaaeT22HffP
+SKc3zKXMz6IDVEx1+KBD0zsDR1EZA6tiOoXwqjZnU/CXwuGpE6yYrIjQZiyVsDhV
+zeYupkji0z8JTg8QfAfgW2TvEpctuX7DaXyn26qmg6x1KVhmxDAaaaqQzJIu2dXg
+mM8gnU8Qgx0/hPUf9Axm4lTU/iqZLEFOr+ysRn7BX4OSnkfWUIKGOASLqX7l42/+
+s8YxKRSsJEAf/vdUxgEABTRKQ7Z/ciMn7Lp8gqz4hhLvgwG7gZz6dYgO5f3F0L+h
+oMJnTKOHxkcYPRJODA7jclYqTapSkHXTs1Gl0/d2vjuzYOS9izs6p+iG5eXaZ93a
+83gc4FgVAsxnLPx+M8KmmgQBM2f91NUbYdcA/8sGmzSpHBm7vVhCqm9iZLmqFgtW
+C2Ygwek5KTNuQ0kNYaGz88047oaQn6jYTR146YWxZBkTOO/9xsEQxlrwBOVLW9vX
+qpnRI6Bj0c7Gnb5eh3TBBKJyfKB1r41PBzAoMCr4LBFNjJhtFQmrcV/h+6kqYpE9
+xSju2Ux72H3Nq1UBmGO8u2Or8BgQXRnWmTjaGFKetUac1KuHVdSl6gkTkK2TVSJh
+dwMiPavB4hf6onJqGlW9746glNTRdfmHU9Bvsz6iBJ3HV6EOTCG2XLyU2fr6vvXS
+UQEWWmozZNWc75PUQBSwXDeLUTZU7n3QG0O2dx6brjxbx0hrv3oYYAersvX3NrPK
+mgkSHV0XVcSVvG4uLma1ilDMWKb9+DjiZDt2FvqVFV7E3A&lt;span class="o"&gt;==&lt;/span&gt;
+&lt;span class="o"&gt;=&lt;/span&gt;zjQv
+&lt;span class="nt"&gt;-----END&lt;/span&gt; PGP MESSAGE-----
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Open it again with vim, and you should see the plaintext message. Perfect, moving on!&lt;/p&gt;
+
+&lt;h2&gt;Setting up vimwiki&lt;/h2&gt;
+
+&lt;p&gt;By default, vimwiki uses its own syntax. Markdown is however supported with a few option changes.&lt;/p&gt;
+
+&lt;p&gt;The plugin also needs some specific settings to be set, so let&amp;#39;s do both:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="nb"&gt;nocompatible&lt;/span&gt;
+filetypelugin &lt;span class="k"&gt;on&lt;/span&gt;
+&lt;span class="nb"&gt;syntax&lt;/span&gt; &lt;span class="k"&gt;on&lt;/span&gt;
+
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_list&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="s1"&gt;'path'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'~/wiki/'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="se"&gt;                      \&lt;/span&gt; &lt;span class="s1"&gt;'syntax'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'markdown'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'ext'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'.md.gpg'&lt;/span&gt;&lt;span class="p"&gt;}]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;Now vimwiki will identify &lt;code&gt;.md.gpg&lt;/code&gt; as its default filetype, and the directory for your entire wiki will be located at &lt;code&gt;~/wiki/&lt;/code&gt;. Easy enough.&lt;/p&gt;
+
+&lt;p&gt;Learning everything about vimwiki is beyond the scope of this post, but we can still mention a few things. First, you need to create an index by running &lt;code&gt;vim&lt;/code&gt; and press &lt;code&gt;&amp;lt;Leader&amp;gt;ww&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Edit the document as you like, and press &lt;code&gt;&amp;lt;enter&amp;gt;&lt;/code&gt; with your cursor placed on a word of your choosing: you just made a link! If you press &lt;code&gt;&amp;lt;enter&amp;gt;&lt;/code&gt; again, you&amp;#39;ll open a new file which you can edit to your linking. Press backspace, and you&amp;#39;re back to your index.&lt;/p&gt;
+
+&lt;p&gt;This hierarchical way of handling files makes vimwiki very suitable for personal notes and even a Zettelkasten system (there is an &lt;a href="https://github.com/michal-h21/vim-zettel" rel="nofollow"&gt;additional plugin&lt;/a&gt; for it). You can learn more about it in the &lt;a href="https://github.com/vimwiki/vimwiki" rel="nofollow"&gt;repo&amp;#39;s README&lt;/a&gt; and &lt;a href="https://vimwiki.github.io/vimwikiwiki/" rel="nofollow"&gt;vimwiki&amp;#39;s wiki&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;We&amp;#39;re done with setting the plugin, but these are some options I like to tweak:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="c"&gt;" Automatically insert a header when creating a new link&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_auto_header&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;
+&lt;span class="c"&gt;" Use underscores to replace spaces in the file names&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_links_space_char&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;'_'&lt;/span&gt;
+&lt;span class="c"&gt;" Disable all concealing&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_conceal_onechar_markers&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt;
+&lt;span class="c"&gt;" Disable URL shortening&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_url_maxsave&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt; 
+&lt;span class="c"&gt;" Don't load vimwiki for markdown files located somewhere else&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_global_ext&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt;
+&lt;span class="c"&gt;" Bold headers&lt;/span&gt;
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader1 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; 
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader2 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; 
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader3 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; 
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader4 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; 
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader5 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; 
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader6 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2&gt;Autocapitalisation&lt;/h2&gt;
+
+&lt;p&gt;This feature will be quick to implement. The following function will handle autocapitalisation wherever we want to:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;func&lt;span class="p"&gt;!&lt;/span&gt; AutoCapitalisation&lt;span class="p"&gt;()&lt;/span&gt; 
+    augroup SENTENCES 
+        &lt;span class="k"&gt;au&lt;/span&gt;&lt;span class="p"&gt;!&lt;/span&gt; 
+        autocmd &lt;span class="nb"&gt;InsertCharPre&lt;/span&gt; * &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;search&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'\v(%^|[.!?]\_s+|\_^\-\s|\_^\*\s|\_^#+\s|\n\n)%#'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'bcnw'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;!=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="k"&gt;v&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;char &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;toupper&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;v&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;char&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="k"&gt;endif&lt;/span&gt; 
+    augroup END 
+endfu
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;It has been tweaked from the following source and does a really nice job:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://davidxmoody.com/2014/vim-auto-capitalisation/" rel="nofollow"&gt;https://davidxmoody.com/2014/vim-auto-capitalisation/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;(Thanks David Moody for sharing it!)&lt;/p&gt;
+
+&lt;p&gt;To enable the function with vimwiki, all we need to do is the following:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;autocmd &lt;span class="nb"&gt;FileType&lt;/span&gt; markdown &lt;span class="k"&gt;call&lt;/span&gt; AutoCapitalisation&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2&gt;Easily pasting images in Markdown files&lt;/h2&gt;
+
+&lt;p&gt;The &lt;code&gt;md-img-paste&lt;/code&gt; plugin uses &lt;code&gt;xclip&lt;/code&gt; to work, so let&amp;#39;s install it first:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;sudo &lt;/span&gt;apt &lt;span class="nb"&gt;install &lt;/span&gt;xclip
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The following options can be tweaked to your liking. By default, the plugin will create your image folder at the same location of the currently edited file, which works great for us:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;autocmd &lt;span class="nb"&gt;FileType&lt;/span&gt; markdown nmap &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;buffer&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;silent&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;leader&lt;span class="p"&gt;&amp;gt;,&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;call&lt;/span&gt; mdip#MarkdownClipboardImage&lt;span class="p"&gt;()&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="c"&gt;" there are some defaults for image directory and image name, you can change them&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:mdip_imgdir&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;'images'&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:mdip_imgname&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;'image'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2&gt;Markdown preview&lt;/h2&gt;
+
+&lt;p&gt;This plugin works splendidly well out of the box. Just use &lt;code&gt;:MarkdownPreview&lt;/code&gt; for a live preview and &lt;code&gt;:MarkdownPreviewStop&lt;/code&gt; to stop the service. I only added this shortcut for easy toggling:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;autocmd &lt;span class="nb"&gt;FileType&lt;/span&gt; markdown nmap &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;leader&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;&lt;span class="k"&gt;n&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt;MarkdownPreviewToggle&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;It also supports preview of diagrams written with mermaid, katex, and others, really an amazing plugin.&lt;/p&gt;
+
+&lt;h2&gt;Optional (but amazing): Goyo&lt;/h2&gt;
+
+&lt;p&gt;Goyo is a vim plugin that provides a clutter-free interface for writing in vim: I really enjoyed using it for a long time now, and nothing else quite matched the experience. I recommend checking out the &lt;a href="https://github.com/junegunn/goyo.vim" rel="nofollow"&gt;GitHub repo&lt;/a&gt; to get a general feel of the interface.&lt;/p&gt;
+
+&lt;p&gt;If you want to use it automatically with vimwiki, add the following line in your &lt;code&gt;.vimrc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":Goyo"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2&gt;Caveats&lt;/h2&gt;
+
+&lt;p&gt;Switching to vimwiki has a few caveats, at least with my current settings:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;File names are not encrypted&lt;/li&gt;
+&lt;li&gt;Images are not encrypted&lt;/li&gt;
+&lt;li&gt;Encrypting things through vim is... a peculiar experience to say the least&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;But in my use case, I can live with that.&lt;/p&gt;
+
+&lt;p&gt;I&amp;#39;m always open to suggestions and my vim scripting is not the best, but so far the experience is really pleasant. Being able to quickly write notes from the CLI with the full power of vim available is way better than any alternative I could find!&lt;/p&gt;
+
+&lt;h2&gt;TL;DR: just give me the script!&lt;/h2&gt;
+
+&lt;p&gt;Sure thing:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="c"&gt;" Plugins will be downloaded under the specified directory.&lt;/span&gt;
+&lt;span class="k"&gt;call&lt;/span&gt; plug#begin&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'~/.vim/plugged'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c"&gt;" Declare the list of plugins.&lt;/span&gt;
+Plug &lt;span class="s1"&gt;'plasticboy/vim-markdown'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="s1"&gt;'for'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'markdown'&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+Plug &lt;span class="s1"&gt;'ferrine/md-img-paste.vim'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="s1"&gt;'for'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'markdown'&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+Plug &lt;span class="s1"&gt;'vimwiki/vimwiki'&lt;/span&gt;
+Plug &lt;span class="s1"&gt;'iamcco/markdown-preview.nvim'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="s1"&gt;'do'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="p"&gt;-&amp;gt;&lt;/span&gt; mkdp#util#install&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="s1"&gt;'for'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;'markdown'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'vim-plug'&lt;/span&gt;&lt;span class="p"&gt;]}&lt;/span&gt;
+&lt;span class="c"&gt;" Optional: goyo&lt;/span&gt;
+&lt;span class="c"&gt;" Plug 'junegunn/goyo.vim'&lt;/span&gt;
+&lt;span class="c"&gt;" List ends here. Plugins become visible to Vim after this call.&lt;/span&gt;
+&lt;span class="k"&gt;call&lt;/span&gt; plug#end&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="c"&gt;" autocapitalisation tweaked from the following sources:&lt;/span&gt;
+&lt;span class="c"&gt;" https://davidxmoody.com/2014/vim-auto-capitalisation/&lt;/span&gt;
+&lt;span class="c"&gt;" https://github.com/davidxmoody/dotfiles/blob/master/dotfiles/config/nvim/init.vim&lt;/span&gt;
+func&lt;span class="p"&gt;!&lt;/span&gt; AutoCapitalisation&lt;span class="p"&gt;()&lt;/span&gt;
+    augroup SENTENCES
+        &lt;span class="k"&gt;au&lt;/span&gt;&lt;span class="p"&gt;!&lt;/span&gt;
+        autocmd &lt;span class="nb"&gt;InsertCharPre&lt;/span&gt; * &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;search&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'\v(%^|[.!?]\_s+|\_^\-\s|\_^\*\s|\_^#+\s|\n\n)%#'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'bcnw'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;!=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="k"&gt;v&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;char &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;toupper&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;v&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;char&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="k"&gt;endif&lt;/span&gt;
+    augroup END
+endfu
+
+autocmd &lt;span class="nb"&gt;FileType&lt;/span&gt; markdown &lt;span class="k"&gt;call&lt;/span&gt; AutoCapitalisation&lt;span class="p"&gt;()&lt;/span&gt;
+
+&lt;span class="c"&gt;" encryption with markdown for vimwiki&lt;/span&gt;
+&lt;span class="c"&gt;" you need to have gpg installed with an existing keypair&lt;/span&gt;
+&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;BufEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="k"&gt;setlocal&lt;/span&gt; &lt;span class="k"&gt;filetype&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;markdown
+&lt;span class="c"&gt;" Optional: always run vimwiki files with Goyo toggled on&lt;/span&gt;
+&lt;span class="c"&gt;" au VimEnter *.md.gpg execute ':Goyo'&lt;/span&gt;
+
+&lt;span class="c"&gt;" Vimwiki opens many buffers, which can be tedious to handle&lt;/span&gt;
+&lt;span class="c"&gt;" seamlessly with the gpg augroup below. Even though this is&lt;/span&gt;
+&lt;span class="c"&gt;" a hack, it is way easier to wrap your head around this if&lt;/span&gt;
+&lt;span class="c"&gt;" the vimwiki session relies entirely on its autosaving, and&lt;/span&gt;
+&lt;span class="c"&gt;" is also quit entirely with no buffers left unclosed. To&lt;/span&gt;
+&lt;span class="c"&gt;" achieve this, we remap :wq and :q to :wqa and :qa,&lt;/span&gt;
+&lt;span class="c"&gt;" and disable :w and :wa.&lt;/span&gt;
+&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":cabbrev wq wqa"&lt;/span&gt;
+&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":cabbrev q qa"&lt;/span&gt;
+&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":cabbrev w &amp;lt;Nop&amp;gt;"&lt;/span&gt;
+&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":cabbrev wa &amp;lt;Nop&amp;gt;"&lt;/span&gt;
+
+&lt;span class="c"&gt;" First make sure nothing is written to ~/.viminfo or backups while editing&lt;/span&gt;
+&lt;span class="c"&gt;" an encrypted file.&lt;/span&gt;
+&lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="nb"&gt;backupskip&lt;/span&gt;&lt;span class="p"&gt;+=&lt;/span&gt;*&lt;span class="p"&gt;.&lt;/span&gt;gpg
+&lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="nb"&gt;viminfo&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;
+
+augroup encrypted
+  &lt;span class="k"&gt;au&lt;/span&gt;&lt;span class="p"&gt;!&lt;/span&gt;
+  &lt;span class="c"&gt;" Disable swap file, undo file and backups, and set binary file format&lt;/span&gt;
+  &lt;span class="c"&gt;" before reading the file&lt;/span&gt;
+  autocmd &lt;span class="nb"&gt;BufReadPre&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nb"&gt;FileReadPre&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;gpg
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="k"&gt;setlocal&lt;/span&gt; &lt;span class="k"&gt;noswapfile&lt;/span&gt; &lt;span class="nb"&gt;noundofile&lt;/span&gt; &lt;span class="nb"&gt;nobackup&lt;/span&gt; &lt;span class="nb"&gt;bin&lt;/span&gt;
+  &lt;span class="c"&gt;" Decrypt contents after reading the file, reset binary file format&lt;/span&gt;
+  &lt;span class="c"&gt;" and run any BufReadPost autocmds matching the filename without .gpg&lt;/span&gt;
+  autocmd &lt;span class="nb"&gt;BufReadPost&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nb"&gt;FileReadPost&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;gpg
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;"%!gpg --decrypt --default-recipient-self 2&amp;gt;/dev/null"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="k"&gt;setlocal&lt;/span&gt; &lt;span class="nb"&gt;nobin&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;"redraw!"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;"doautocmd BufReadPost "&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt; &lt;span class="nb"&gt;expand&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"%:r"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="c"&gt;" Set binary file format and encrypt contents when leaving vim&lt;/span&gt;
+  autocmd Vimleave *&lt;span class="p"&gt;.&lt;/span&gt;gpg
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="k"&gt;setlocal&lt;/span&gt; &lt;span class="nb"&gt;bin&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="k"&gt;bufdo&lt;/span&gt; &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;"%!gpg --encrypt --armor --default-recipient-self"&lt;/span&gt;
+  &lt;span class="c"&gt;" Contrary to the original scripts, we are not handling an undo command&lt;/span&gt;
+  &lt;span class="c"&gt;" to revert encryption in buffer: vimwiki auto-saves contents when quitting,&lt;/span&gt;
+  &lt;span class="c"&gt;" so we rather leave it at that and disable :w and :wa for .md.gpg files.&lt;/span&gt;
+  &lt;span class="c"&gt;" If you don't like auto-saving, sorry!&lt;/span&gt;
+augroup END
+
+&lt;span class="c"&gt;" vimwiki settings&lt;/span&gt;
+&lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="nb"&gt;nocompatible&lt;/span&gt;
+filetypelugin &lt;span class="k"&gt;on&lt;/span&gt;
+&lt;span class="nb"&gt;syntax&lt;/span&gt; &lt;span class="k"&gt;on&lt;/span&gt;
+
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_list&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="s1"&gt;'path'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'~/ovelwiki/'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="se"&gt;                      \&lt;/span&gt; &lt;span class="s1"&gt;'syntax'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'markdown'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'ext'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'.md.gpg'&lt;/span&gt;&lt;span class="p"&gt;}]&lt;/span&gt;
+&lt;span class="c"&gt;" Automatically insert a header when creating a new link&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_auto_header&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;
+&lt;span class="c"&gt;" Use underscores to replace spaces in the file names&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_links_space_char&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;'_'&lt;/span&gt;
+&lt;span class="c"&gt;" Disable all concealing&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_conceal_onechar_markers&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt;
+&lt;span class="c"&gt;" Disable URL shortening&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_url_maxsave&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt; 
+&lt;span class="c"&gt;" Don't load vimwiki for markdown files located somewhere else&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_global_ext&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt;
+
+&lt;span class="c"&gt;" Bold headers&lt;/span&gt;
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader1 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt;
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader2 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt;
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader3 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt;
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader4 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt;
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader5 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt;
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader6 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt;
+
+&lt;span class="c"&gt;" md-img-paste settings for vimwiki and markdown files&lt;/span&gt;
+autocmd &lt;span class="nb"&gt;FileType&lt;/span&gt; markdown nmap &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;buffer&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;silent&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;leader&lt;span class="p"&gt;&amp;gt;,&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;call&lt;/span&gt; mdip#MarkdownClipboardImage&lt;span class="p"&gt;()&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:mdip_imgdir&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;'images'&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:mdip_imgname&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;'image'&lt;/span&gt;
+
+&lt;span class="c"&gt;" Markdown preview&lt;/span&gt;
+autocmd &lt;span class="nb"&gt;FileType&lt;/span&gt; markdown nmap &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;leader&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;&lt;span class="k"&gt;n&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt;MarkdownPreviewToggle&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</content>
+  </entry>
   <entry>
     <id>tag:ovelny.sh,2021-03-11:/blog/tryhackme-writeup-relevant/</id>
     <title type="html">TryHackMe writeup: Relevant</title>
