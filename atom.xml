@@ -24,7 +24,7 @@
 &lt;li&gt;&lt;p&gt;Uninstallation is even more painful. Have fun running &lt;code&gt;sudo find / -iname &amp;quot;*joplin*&amp;quot; 2&amp;gt;/dev/null&lt;/code&gt; and sort things out on your own, which is sadly a common occurence with Linux apps.&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;No autocapitalisation. This is not a very common feature with most text editors, which I find surprising because this doesn&amp;#39;t &lt;em&gt;seem&lt;/em&gt; hard to implement?&lt;/p&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;Joplin cloud plans. I&amp;#39;m not interested in this and just wish to keep things simple. Syncing files with &lt;a href="https://syncthing.net/" rel="nofollow"&gt;syncthing&lt;/a&gt; is free and works amazingly well.&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;Having to use a GUI to write text. Yes I know, a specific nerd problem, but I&amp;#39;d rather not leave the CLI for my drafts and notes.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Having to use a GUI to write text. Joplin does have a CLI interface, but learning a whole new system that mixes up custom commands with only a subset of vim commands doesn&amp;#39;t sound ideal to me.&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;And last but certainly not least: Electron. The only apps built with it that didn&amp;#39;t end up eating a frightening amount of RAM on my systems are VSCode and Discord, no other exceptions. I&amp;#39;m not too eager to sacrifice this just to simply type text.&lt;/p&gt;
