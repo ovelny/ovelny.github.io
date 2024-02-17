@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - amulet/tutorials/personal-debian-setup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - amulet/tutorials/personal-debian-setup"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-minimal-logo.jpg"
+            alt="ovelny logo"
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/amulet/">amulet</a>
+        <a href="/presage/">presage</a>
+        <a
+          href="https://github.com/Ovelny"
+          target="_blank"
+          rel="noopener noreferrer"
+          >github</a
+        >
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/contact/">contact</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>personal debian setup</h1>
+
+<p>this document is a step-by-step process to reproduce the setup i like for a fresh debian install. as such, it is unlikely to fit your needs and preferences and is mainly aimed for me.</p>
+
+<p>sections marked as <code>deprecated</code> at the end of this document don&#39;t mean that the tools / apps mentioned are out-of-date. it means i&#39;m not using them anymore, but prefer to keep those notes around just in case.</p>
+
+<p>some other sections might begin with a <code>todo</code> note, meaning they are being updated.</p>
+
+<h2>installing debian stable with FDE</h2>
+
+<p><a href="https://ovelny.sh/amulet/tutorials/true-FDE-debian-install/" rel="nofollow">follow the detailed guide here.</a></p>
+
+<h2>add current user to sudo group</h2>
+
+<p>your default user might not be part of the sudo group at first:</p>
+
+<ul>
+<li>be root: <code>su -</code></li>
+<li>run <code>usermod -aG sudo &lt;username&gt;</code> and <code>exit</code></li>
+<li>reboot</li>
+<li>run <code>sudo whoami</code> and <code>groups</code> to ensure your user is added</li>
+</ul>
+
+<h2>enable debian backports and edit sources.list</h2>
+
+<p>debian backports are useful to get the latest packages for non-critical tools. to install it, follow the instructions on <a href="https://backports.debian.org/Instructions/" rel="nofollow">https://backports.debian.org/Instructions/</a> which are simply:</p>
+
+<ul>
+<li>add the following lines in /etc/apt/sources.list:
+
+<ul>
+<li><code>deb http://deb.debian.org/debian bookworm-backports main</code> (check that bookworm is indeed your current version)</li>
+</ul></li>
+<li>run <code>sudo apt update</code> and <code>sudo apt upgrade</code></li>
+</ul>
+
+<p>to search / install a package from the backports, just add the flag <code>-t bookworm-backports</code> to your usual <code>apt</code> commands:</p>
+
+<ul>
+<li><code>sudo apt install -t bookworm-backports &lt;package-name&gt;</code></li>
+<li><code>apt search -t bookworm-backports &lt;package-name&gt;</code></li>
+</ul>
+
+<p>in case your <code>sources.list</code> file gets messed up, refer to the examples here: <a href="https://wiki.debian.org/SourcesList#Example_sources.list" rel="nofollow">https://wiki.debian.org/SourcesList#Example_sources.list</a> </p>
+
+<p><strong>make sure that every line except the backports one in <code>sources.list</code> uses <code>main contrib non-free non-free-firmware</code>.</strong></p>
+
+<h2>install base packages</h2>
+
+<p>this bash one-liner will check if all packages i use are present, and if not, will append them to a <code>sudo apt install</code> command that will be ready to paste:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nv">dependencies</span><span class="o">=(</span><span class="s2">"whois"</span> <span class="s2">"calibre"</span> <span class="s2">"lame"</span> <span class="s2">"parallel"</span> <span class="s2">"clang-format-16"</span> <span class="s2">"krita"</span> <span class="s2">"pulseaudio-utils"</span> <span class="s2">"newsboat"</span> <span class="s2">"optipng"</span> <span class="s2">"libssl-dev"</span> <span class="s2">"cmake"</span> <span class="s2">"inxi"</span> <span class="s2">"poppler-utils"</span> <span class="s2">"khal"</span> <span class="s2">"aerc"</span> <span class="s2">"p7zip-rar"</span> <span class="s2">"jq"</span> <span class="s2">"peco"</span> <span class="s2">"hdparm"</span> <span class="s2">"transmission-cli"</span> <span class="s2">"id3v2"</span> <span class="s2">"xinput"</span> <span class="s2">"wmctrl"</span> <span class="s2">"i3lock"</span> <span class="s2">"acpi"</span> <span class="s2">"sxhkd"</span> <span class="s2">"evilwm"</span> <span class="s2">"rofi"</span> <span class="s2">"strace"</span> <span class="s2">"openssh-server"</span> <span class="s2">"arp-scan"</span> <span class="s2">"aria2"</span> <span class="s2">"npm"</span> <span class="s2">"pass"</span> <span class="s2">"needrestart"</span> <span class="s2">"firejail"</span> <span class="s2">"firejail-profiles"</span> <span class="s2">"python3-pip"</span> <span class="s2">"vim-nox"</span> <span class="s2">"vim-gtk3"</span> <span class="s2">"syncthing"</span> <span class="s2">"restic"</span> <span class="s2">"keepassxc"</span> <span class="s2">"qemu-system"</span> <span class="s2">"fzf"</span> <span class="s2">"ufw"</span> <span class="s2">"zsh"</span> <span class="s2">"zsh-autosuggestions"</span> <span class="s2">"zsh-syntax-highlighting"</span> <span class="s2">"imagemagick"</span> <span class="s2">"libimage-exiftool-perl"</span> <span class="s2">"ffmpeg"</span> <span class="s2">"mpv"</span> <span class="s2">"xsct"</span> <span class="s2">"age"</span> <span class="s2">"htop"</span> <span class="s2">"tree"</span> <span class="s2">"tmux"</span> <span class="s2">"curl"</span> <span class="s2">"easyeffects"</span> <span class="s2">"rsync"</span> <span class="s2">"ncdu"</span> <span class="s2">"wipe"</span> <span class="s2">"tldr"</span> <span class="s2">"ruby-dev"</span> <span class="s2">"xclip"</span> <span class="s2">"screenfetch"</span> <span class="s2">"gparted"</span> <span class="s2">"nmap"</span> <span class="s2">"grc"</span> <span class="s2">"gpick"</span> <span class="s2">"libjs-pdf"</span> <span class="s2">"pdftk"</span> <span class="s2">"scdoc"</span> <span class="s2">"unrar"</span> <span class="s2">"bitlbee"</span> <span class="s2">"bitlbee-dev"</span> <span class="s2">"bitlbee-plugin-mastodon"</span> <span class="s2">"autoconf"</span> <span class="s2">"libtool"</span> <span class="s2">"libglib2.0-dev"</span> <span class="s2">"gawk"</span> <span class="s2">"okular"</span> <span class="s2">"libncurses5"</span> <span class="s2">"gamemode"</span> <span class="s2">"ncal"</span> <span class="s2">"sqlite3"</span> <span class="s2">"libsqlite3-dev"</span> <span class="s2">"shellcheck"</span> <span class="s2">"asciidoc"</span> <span class="s2">"libgraph-easy-perl"</span> <span class="s2">"libldap2-dev"</span> <span class="s2">"libidn11-dev"</span> <span class="s2">"xsel"</span> <span class="s2">"espeak"</span> <span class="s2">"apt-transport-https"</span> <span class="s2">"anacron"</span> <span class="s2">"qalc"</span> <span class="s2">"pandoc"</span> <span class="s2">"feh"</span> <span class="s2">"sox"</span> <span class="s2">"php"</span> <span class="s2">"php-mbstring"</span> <span class="s2">"dnsmasq"</span> <span class="s2">"sonic-pi"</span> <span class="s2">"flatpak"</span> <span class="s2">"w3m"</span> <span class="s2">"w3m-img"</span> <span class="s2">"ranger"</span> <span class="s2">"rxvt-unicode"</span> <span class="s2">"docker"</span> <span class="s2">"docker-compose"</span> <span class="s2">"minify"</span> <span class="s2">"xdotool"</span> <span class="s2">"smartmontools"</span> <span class="s2">"earlyoom"</span> <span class="s2">"pipx"</span> <span class="s2">"7zip"</span> <span class="s2">"ruby"</span> <span class="s2">"gnome-tweaks"</span> <span class="s2">"git"</span> <span class="s2">"gpg"</span> <span class="s2">"chrome-gnome-shell"</span><span class="o">)</span><span class="p">;</span> <span class="nv">missing_deps</span><span class="o">=()</span><span class="p">;</span> <span class="k">for </span>dep <span class="k">in</span> <span class="s2">"</span><span class="k">${</span><span class="nv">dependencies</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span><span class="p">;</span> <span class="k">do if</span> <span class="o">[[</span> <span class="si">$(</span>dpkg-query <span class="nt">-W</span> <span class="nt">-f</span><span class="o">=</span><span class="s1">'${Status}'</span> <span class="s2">"</span><span class="nv">$dep</span><span class="s2">"</span> 2&gt;/dev/null | <span class="nb">grep</span> <span class="nt">-c</span> <span class="s2">"ok installed"</span><span class="si">)</span> <span class="nt">-eq</span> 0 <span class="o">]]</span><span class="p">;</span> <span class="k">then </span><span class="nb">echo</span> <span class="s2">"</span><span class="se">\"</span><span class="nv">$dep</span><span class="se">\"</span><span class="s2"> package not installed: appending it to list..."</span><span class="p">;</span> missing_deps+<span class="o">=(</span><span class="s2">"</span><span class="nv">$dep</span><span class="s2">"</span><span class="o">)</span><span class="p">;</span> <span class="k">fi</span><span class="p">;</span> <span class="k">done</span><span class="p">;</span> <span class="nb">printf</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">run this:</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">;</span> <span class="nb">echo</span> <span class="s2">"sudo apt install"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">missing_deps</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span><span class="p">;</span> <span class="nb">printf</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">but check first which packages should be installed from backports on your wiki</span><span class="se">\!\n</span><span class="s2">and then append them with '/&lt;distro-version&gt;-backports', i.e. 'pipx/bookworm-backports'</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">;</span> <span class="nb">echo</span> <span class="s2">"don't forget to run 'sudo ufw enable' and 'tldr -u' if necessary"</span>
+</code></pre></div>
+
+<h2>python packages with pipx</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="k">for </span>pkg <span class="k">in</span> <span class="s2">"glances"</span> <span class="s2">"yt-dlp"</span> <span class="s2">"frida-tools"</span> <span class="s2">"objection"</span> <span class="s2">"pex"</span> <span class="s2">"tuir"</span><span class="p">;</span> <span class="k">do </span>pipx <span class="nb">install</span> <span class="s2">"</span><span class="nv">$pkg</span><span class="s2">"</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></div>
+
+<h2>flatpak packages</h2>
+
+<p>sometimes flatpak is the right answer. especially when you don&#39;t want to configure additional repositories.</p>
+
+<ul>
+<li>set up flatpak: <a href="https://flatpak.org/setup/Debian" rel="nofollow">https://flatpak.org/setup/Debian</a></li>
+<li>install flatseal: <a href="https://flathub.org/apps/details/com.github.tchx84.Flatseal" rel="nofollow">https://flathub.org/apps/details/com.github.tchx84.Flatseal</a></li>
+<li>install ungoogled-chromium: <a href="https://flathub.org/apps/com.github.Eloston.UngoogledChromium" rel="nofollow">https://flathub.org/apps/com.github.Eloston.UngoogledChromium</a></li>
+<li>install signal: <a href="https://flathub.org/apps/details/org.signal.Signal" rel="nofollow">https://flathub.org/apps/details/org.signal.Signal</a></li>
+<li>install ripcord: <a href="https://flathub.org/apps/fm.cancel.Ripcord" rel="nofollow">https://flathub.org/apps/fm.cancel.Ripcord</a></li>
+<li>install floorp: <a href="https://flathub.org/apps/one.ablaze.floorp" rel="nofollow">https://flathub.org/apps/one.ablaze.floorp</a></li>
+<li>install librewolf: <a href="https://flathub.org/apps/io.gitlab.librewolf-community" rel="nofollow">https://flathub.org/apps/io.gitlab.librewolf-community</a></li>
+<li>install telegram: <a href="https://flathub.org/apps/org.telegram.desktop" rel="nofollow">https://flathub.org/apps/org.telegram.desktop</a></li>
+<li>install nheko: <a href="https://flathub.org/apps/io.github.NhekoReborn.Nheko" rel="nofollow">https://flathub.org/apps/io.github.NhekoReborn.Nheko</a></li>
+<li>install tor browser: <a href="https://flathub.org/apps/com.github.micahflee.torbrowser-launcher" rel="nofollow">https://flathub.org/apps/com.github.micahflee.torbrowser-launcher</a></li>
+</ul>
+
+<h2>other packages fetched elsewhere</h2>
+
+<p>those programs are to be found manually on the interwebs, installation is straightforward:</p>
+
+<ul>
+<li>mullvad</li>
+<li>steam</li>
+<li>scrcpy</li>
+<li>croc</li>
+</ul>
+
+<p>steam still needs <code>i386</code> architecture and some additional packages however. run this:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>dpkg <span class="nt">--add-architecture</span> i386
+<span class="nb">sudo </span>apt update
+<span class="nb">sudo </span>apt <span class="nb">install </span>libgl1-mesa-dri:i386 libgl1:i386
+<span class="nb">sudo </span>apt upgrade steam <span class="nt">-f</span>
+<span class="nb">sudo </span>apt <span class="nb">install </span>nvidia-driver-libs:i386
+</code></pre></div>
+
+<h2>VPN settings</h2>
+
+<ul>
+<li>enable <code>launch app on start-up</code></li>
+<li>enable <code>auto-connect</code></li>
+<li>enable <code>local network sharing</code></li>
+<li>check that all <code>DNS content blockers</code> are disabled</li>
+<li>enable <code>enable Ipv6</code></li>
+<li>enable <code>kill switch</code> and <code>lockdown mode</code></li>
+<li>choose <code>wireguard</code> as tunnel protocol</li>
+<li><p>check that <code>custom DNS server</code> is disabled</p></li>
+<li><p>in wireguard settings:</p>
+
+<ul>
+<li>set port to <code>51820</code></li>
+<li>set obfuscation to <code>automatic</code></li>
+<li>set quantum resistant nonsense to <code>automatic</code></li>
+<li>check that multihop is disabled</li>
+<li>set IP version to <code>automatic</code></li>
+</ul></li>
+</ul>
+
+<h2>configure DNS</h2>
+
+<p>i want the following:</p>
+
+<ul>
+<li>without using a VPN, use quad9 nameservers (or any others you want)</li>
+<li>with a VPN active, let it use its own DNS</li>
+</ul>
+
+<p>to make this work, follow those steps:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># first make sure your VPN is off, then:</span>
+
+<span class="c"># ensure resolvconf is installed:</span>
+apt search resolvconf
+
+<span class="c"># append the following lines in /etc/resolvconf/resolv.conf.d/head:</span>
+nameserver 9.9.9.9
+nameserver 149.112.112.112
+
+<span class="c"># disable and stop systemd-resolved, if present:</span>
+<span class="nb">sudo </span>systemctl disable systemd-resolved.service
+<span class="nb">sudo </span>systemctl stop systemd-resolved
+
+<span class="c"># add the following line in the [main] section of /etc/NetworkManager/NetworkManager.conf:</span>
+<span class="nv">dns</span><span class="o">=</span>none
+
+<span class="c"># edit /etc/resolv.conf with the same settings added to resolvconf:</span>
+nameserver 9.9.9.9
+nameserver 149.112.112.112
+
+<span class="c"># reboot:</span>
+<span class="nb">sudo </span>poweroff <span class="nt">--reboot</span>
+
+<span class="c"># ensure everything works by switching your VPN on/off, and check the content of /etc/resolv.conf. you can make sure this is working with ipleak.net too, for instance.</span>
+</code></pre></div>
+
+<h2>enable ping from guest machines in QEMU</h2>
+
+<p>permissions need to be enabled to ping from your attack box:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># get your current user's GID (will likely be 1000)</span>
+<span class="nb">id</span>
+
+<span class="c"># give ping permissions to this gid by adding</span>
+<span class="c"># the following line in /etc/sysctl.conf</span>
+net.ipv4.ping_group_range <span class="o">=</span> &lt;gid&gt; &lt;gid&gt; <span class="c"># replace &lt;gid&gt; with number found with 'id'</span>
+
+<span class="c"># apply changes</span>
+<span class="nb">sudo</span> /sbin/sysctl <span class="nt">-p</span>
+</code></pre></div>
+
+<h2>disable PC speaker</h2>
+
+<p>ugh. create a <code>/etc/modprobe.d/nobeep.conf</code> file with the following content:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>blacklist pcspkr
+blacklist snd_pcsp
+</code></pre></div>
+
+<h2>take care of graphics drivers</h2>
+
+<p>depending on your machine, setting up graphics drivers will probably need to enable nonfree and contrib repos. check documentation online for debian + your graphic card.</p>
+
+<p>if using nvidia, the <code>nvidia-detect</code> package in apt can be useful to know what to install. once done, check you&#39;re using the driver you intend to with <code>inxi -Gx</code> output.</p>
+
+<h2>add noatime options for disks</h2>
+
+<p>append the <code>noatime</code> option to each disk listed in <code>/etc/fstab</code>. easy optimization no matter if you&#39;re using a SSD or HDD. reboot and continue.</p>
+
+<h2>disable system sounds</h2>
+
+<p>in <code>sound</code>, mute system sounds. that&#39;s it.</p>
+
+<h2>adjust mouse sensitivity</h2>
+
+<p>self-explanatory.</p>
+
+<h2>enable touchpad tap for evilwm</h2>
+
+<p>create the following <code>/etc/X11/xorg.conf.d/touchpad-tap.conf</code> file:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>Section <span class="s2">"InputClass"</span>
+        Identifier <span class="s2">"libinput touchpad catchall"</span>
+        MatchIsTouchpad <span class="s2">"on"</span>
+        MatchDevicePath <span class="s2">"/dev/input/event*"</span>
+        Driver <span class="s2">"libinput"</span>
+        Option <span class="s2">"Tapping"</span> <span class="s2">"on"</span>
+EndSection
+</code></pre></div>
+
+<p>this will enable touchpad tap for all WMs installed.</p>
+
+<h2>change power menu settings</h2>
+
+<p>in <code>power</code>, choose:</p>
+
+<ul>
+<li>blank screen: never</li>
+<li>automatic suspend: off</li>
+<li>power button behavior: power off</li>
+</ul>
+
+<h2>change default programs</h2>
+
+<p>set music + video to mpv. that&#39;s it.</p>
+
+<h2>change shell to zsh</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>chsh <span class="nt">-s</span> <span class="si">$(</span>which zsh<span class="si">)</span>
+</code></pre></div>
+
+<p>reboot and check with <code>echo $ZSH_VERSION</code> that it worked.</p>
+
+<h2>set urxvt as default terminal</h2>
+
+<p>run <code>sudo update-alternatives --config x-terminal-emulator</code> and pick <code>urxvt</code> from the list.</p>
+
+<h2>disable wayland</h2>
+
+<p>even though i only use gnome when everything else fails, using wayland with it is asking for trouble, even in <del>2022</del> <del>2023</del> 2024. to disable it, edit <code>/etc/gdm3/daemon.conf</code> and uncomment the <code>WaylandEnable=false</code>, save and reboot.</p>
+
+<p>to check if X11 is now used, run <code>loginctl</code> to grab the session ID, then run <code>loginctl show-session &lt;ID&gt; -p Type</code>.</p>
+
+<h2>restore dotfiles</h2>
+
+<p>start by restoring dotfiles: we&#39;ll have to launch syncthing manually once, before the autostart file takes over after this step.</p>
+
+<p>run <code>syncthing</code> (remove default folder too) and start syncing the <code>~/.dotfiles</code> directory. in advanced options, choose to ignore syncing permissions.</p>
+
+<p>then sync the <code>~/bin</code> in the same way and run <code>chmod +x ~/bin/dot</code>. also sync the <code>~/sync</code> directory while you&#39;re at it.</p>
+
+<p>run <code>~/bin/dot install</code> and reboot. the updated zsh theme and automatic syncthing startup should be proof enough that your dotfiles are restored. if you are stuck in a login loop, always going back to the prompt screen, this might be due to my current config and is nothing to fear: press <code>ctrl + alt + F2</code> and login in <code>tty</code>, then type <code>exit</code> to quit tmux and use <code>startx</code>.</p>
+
+<p>this workaround is only temporary: finishing the present setup fixes it for good.</p>
+
+<p>because we ignore syncing permissions, we have to restore the execute bit for all scripts in <code>~/bin</code>. this can be done easily with <code>cd ~/bin &amp;&amp; while read f; do chmod +x &quot;$f&quot;; done &lt; &lt;(find . -type f ! -name &quot;*.*&quot;)</code></p>
+
+<h2>restore SSH and GPG keys</h2>
+
+<p>you know where to find your keys.</p>
+
+<p>for SSH:</p>
+
+<ul>
+<li>place your keys in <code>~/.ssh</code></li>
+<li><code>chmod 600 ~/.ssh/id_rsa</code></li>
+<li><code>chmod 600 ~/.ssh/id_rsa.pub</code></li>
+<li><code>ssh-add</code></li>
+</ul>
+
+<p>for GPG:</p>
+
+<ul>
+<li>save secret &amp; public keys in a temporary location</li>
+<li><code>gpg --import &lt;mygpgkey_pub.gpg&gt;</code></li>
+<li><code>gpg --allow-secret-key-import --import &lt;mygpgkey_sec.gpg&gt;</code></li>
+<li>run <code>gpg --edit-key ovelny@protonmail.com</code></li>
+<li>run <code>trust</code> in gpg prompt and select ultimate trust (5)</li>
+<li>run <code>gpg --list-secret-keys</code> to check trust has changed</li>
+<li>delete keys in temporary location</li>
+</ul>
+
+<h2>switch to evilwm</h2>
+
+<p>now that dotfiles are restored, we can use evilwm! gnome can be kept as a backup DE but we don&#39;t need it for daily use. create a <code>/usr/share/xsessions/evilwm.desktop</code> file with the following:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="o">[</span>Desktop Entry]
+<span class="nv">Name</span><span class="o">=</span>evilwm
+<span class="nv">Comment</span><span class="o">=</span>this session logs you into evilwm
+<span class="nv">Exec</span><span class="o">=</span>/usr/bin/evilwm <span class="nt">--snap</span> 10 <span class="nt">--term</span> urxvt
+<span class="nv">Icon</span><span class="o">=</span>
+<span class="nv">Type</span><span class="o">=</span>Application
+</code></pre></div>
+
+<p>reboot, choose your user in the display manager, then in bottom-right settings, pick <code>evilwm</code>. enjoy using (nearly) all of your RAM.</p>
+
+<h2>setup aerc with protonmail-bridge</h2>
+
+<p>aerc should already be installed from <code>apt</code>. to set it up with protonmail-bridge, download the <code>.deb</code> at this address: <a href="https://proton.me/mail/bridge" rel="nofollow">https://proton.me/mail/bridge</a></p>
+
+<p>install it with <code>sudo dpkg -i</code> and log to your account from the app. instructions to set it up with your email client should appear. click <code>continue</code> and once in the main menu, go to <code>settings -&gt; advanced settings -&gt; export TLS certificates</code>. certificates should now be in your <code>~/Downloads</code> directory.</p>
+
+<p>you can delete <code>key.pem</code>, only <code>cert.pem</code> is needed. to trust this certificate, move the certificate to <code>/usr/local/share/ca-certificates</code> and rename it to <code>cert.crt</code>.</p>
+
+<p>run <code>sudo update-ca-certificates</code> and check that protonmail has been added.</p>
+
+<p>you can now run <code>aerc</code> from the command-line and follow the wizard with protonmail-bridge&#39;s settings. be sure to enter the bridge&#39;s password that is shown in the app, <em>not</em> your account&#39;s password. check if your mails appear. exit the app and check your account&#39;s config at <code>~/.config/aerc/accounts.conf</code>, it should look like the following:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="o">[</span>protonmail]
+<span class="nb">source</span>   <span class="o">=</span> imap://&lt;address&gt;%40protonmail.com:&lt;bridge-password&gt;@127.0.0.1:1143
+outgoing <span class="o">=</span> smtp://&lt;address&gt;%40protonmail.com:&lt;bridge-password&gt;@127.0.0.1:1025
+default  <span class="o">=</span> INBOX
+from     <span class="o">=</span> &lt;full name&gt; <span class="o">&lt;&lt;</span><span class="no">address</span><span class="sh">&gt;@protonmail.com&gt;
+copy-to  = Sent
+smtp-starttls = yes # important line to add with current debian's version
+</span></code></pre></div>
+
+<h2>enable systemd user services</h2>
+
+<p>your user systemd services are located in <code>~/.config/systemd/user</code> but need to be enabled once restored from dotfiles:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>systemctl <span class="nt">--user</span> <span class="nb">enable </span>syncthing <span class="o">&amp;&amp;</span> systemctl <span class="nt">--user</span> start syncthing <span class="o">&amp;&amp;</span> <span class="se">\</span>
+systemctl <span class="nt">--user</span> <span class="nb">enable </span>chmod-execute-ovelny-bin.service <span class="o">&amp;&amp;</span> systemctl <span class="nt">--user</span> start chmod-execute-ovelny-bin.service <span class="o">&amp;&amp;</span> <span class="se">\</span>
+systemctl <span class="nt">--user</span> <span class="nb">enable </span>auto-pull-vessel.service <span class="o">&amp;&amp;</span> systemctl <span class="nt">--user</span> start auto-pull-vessel.service <span class="o">&amp;&amp;</span> <span class="se">\</span>
+systemctl <span class="nt">--user</span> <span class="nb">enable </span>auto-pull-vimrc.service <span class="o">&amp;&amp;</span> systemctl <span class="nt">--user</span> start auto-pull-vimrc.service <span class="o">&amp;&amp;</span> <span class="se">\</span>
+systemctl <span class="nt">--user</span> <span class="nb">enable </span>auto-symlink-dotfiles.service <span class="o">&amp;&amp;</span> systemctl <span class="nt">--user</span> start auto-symlink-dotfiles.service <span class="o">&amp;&amp;</span> <span class="se">\</span>
+systemctl <span class="nt">--user</span> <span class="nb">enable </span>protonmail-bridge.service <span class="o">&amp;&amp;</span> systemctl <span class="nt">--user</span> start protonmail-bridge.service
+</code></pre></div>
+
+<h2>restore config for ripcord</h2>
+
+<p>ripcord doesn&#39;t seem to understand symlinks for its config file, sigh. it is backed up in <code>~/sync/ripcord_settings</code>. the file has to be copied in <code>~/.var/app/fm.cancel.Ripcord/data/Ripcord</code>.</p>
+
+<h2>quick setup for nheko (matrix client)</h2>
+
+<p>start the app, login, verify your device through another device or passphrase, then go to settings:</p>
+
+<ul>
+<li>enable dark theme</li>
+<li>disable read receipts</li>
+<li>disable typing status</li>
+<li>set font size to 10.5</li>
+<li>enable reduce or disable animations</li>
+<li>disable all notifications</li>
+</ul>
+
+<h2>install golang with g</h2>
+
+<p>install g by following the repo instructions: <a href="https://github.com/stefanmaric/g" rel="nofollow">https://github.com/stefanmaric/g</a></p>
+
+<p>your <code>~/.zshrc</code> should already have the required line to update the <code>$PATH</code> appropriately for golang.</p>
+
+<p>then run <code>g install latest</code> to install go&#39;s last version. exit your shell and start a new one, then check if <code>go version</code> does return the latest version.</p>
+
+<h2>install go packages</h2>
+
+<p>install the following go packages:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>go <span class="nb">install </span>github.com/nao1215/gup@latest
+go <span class="nb">install </span>github.com/gopasspw/gopass@latest
+</code></pre></div>
+
+<h2>rust and rust packages</h2>
+
+<p>install rust with rustup: <a href="https://www.rust-lang.org/tools/install" rel="nofollow">https://www.rust-lang.org/tools/install</a></p>
+
+<p>use cargo to install those packages next:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>cargo <span class="nb">install </span>cargo-update bottom shellcaster libreddit hunt onefetch magnetfinder
+</code></pre></div>
+
+<p>your <code>~/.zshrc</code> should already have the appropriate <code>$PATH</code> for rust.</p>
+
+<h2>install ueberzugpp</h2>
+
+<p>ueberzugpp is used by several apps (ranger, ytfzf, etc) to preview images and thumbnails in your terminal. the <code>.deb</code> file is already present in <code>~/bin</code>, just run <code>sudo dpkg -i ~/bin/&lt;ueberzugpp-version&gt;.deb</code> to install it.</p>
+
+<p>if it fails, try to run <code>sudo apt install libopencv-dev</code>. you will most likely have unmet dependencies. fix them with <code>sudo apt --fix-broken install</code> and you should be good to go.</p>
+
+<h2>configure custom shortcuts</h2>
+
+<ul>
+<li>set launch calculator to super + c</li>
+<li>set text editor to super + t (with command <code>gnome-text-editor</code>)</li>
+<li>set launch terminal to ctrl + alt + t (with command <code>urxvt</code>)</li>
+<li>set switch applications to disabled</li>
+<li>set switch windows to alt + tab</li>
+<li>set lock screen to ctrl + alt + l</li>
+<li>set maximize window to ctrl + alt + y</li>
+</ul>
+
+<p>in the screenshots category, disable all default shortcuts.</p>
+
+<h2>screenshots</h2>
+
+<p>gnome being gnome, they&#39;re having a blast changing every 3 years how screenshots are taken. i got <em>extremely</em> tired of this.</p>
+
+<p>there is only one way i take screenshots: selecting an area and pasting it into the clipboard. because accidentally entering a shorcut should never, ever lead to a random screenshot being created somewhere. this, should remain under your control.</p>
+
+<p>thankfully i stumbled on several tools (unix-style, doing only one thing) that provide exactly what i need:</p>
+
+<ul>
+<li><a href="https://codeberg.org/NRK/sx4" rel="nofollow">sx4, selection tool for X11</a></li>
+<li><a href="https://codeberg.org/NRK/sxot" rel="nofollow">sxot, screenshot tool for X11</a></li>
+<li><a href="https://codeberg.org/NRK/sxot/src/branch/master/etc/optipng-pipe" rel="nofollow">optipng with optipng pipe, to convert into an optimized .png</a></li>
+</ul>
+
+<p>this all lead to the following command for my use case:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>sxot <span class="nt">-g</span> <span class="si">$(</span>sx4 2&gt;/dev/null<span class="si">)</span> | optipng-pipe | xclip <span class="nt">-selection</span> clipboard <span class="nt">-target</span> image/png
+</code></pre></div>
+
+<p>everything is almost set up for this. <code>sx4</code>, <code>sxot</code> and <code>optipng-pipe</code> are already all in <code>~/bin</code>, and <code>optipng</code> should be installed on a default debian system. the command above is already in the <code>~/bin/screenshot</code> wrapper.</p>
+
+<p>all you need to do is to set up a custom shortcut in gnome, binding <code>PrtScn</code> to <code>/home/ovelny/bin/screenshot</code>. that&#39;s all.</p>
+
+<p>should you need to recompile <code>sxot</code> and <code>sx4</code> for a different architecture, you already copied them you-know-where.</p>
+
+<p>should you need to output your clipboard&#39;s content to a <code>.png</code> file, you have your <code>~/bin/clipste</code> script for this.</p>
+
+<h2>fspdf installation</h2>
+
+<p><a href="https://github.com/kaiec/fspdf" rel="nofollow">fspdf</a> is a fantastic tool to fill and sign PDFs. with less than 500 LOCs, this python app manages to be infinitely more intuitive and reliable than okular or others for this task.</p>
+
+<p>the app only needed to be updated for recent versions of pillow. clone the fork with <code>git clone git@github.com:ovelny/fspdf.git</code>, go to the directory and install it with <code>pipx install .</code>.</p>
+
+<p>system dependencies should already be there, but in case of issues check the repo for information. another thing needed for the app to work is to edit imagemagick&#39;s security policy for PDFs: in <code>/etc/ImageMagick-{version}/policy.xml</code>, find the following line:</p>
+
+<div class="highlight"><pre class="highlight xml"><code><span class="nt">&lt;policy</span> <span class="na">domain=</span><span class="s">"coder"</span> <span class="na">rights=</span><span class="s">"none"</span> <span class="na">pattern=</span><span class="s">"PDF"</span> <span class="nt">/&gt;</span>
+</code></pre></div>
+
+<p>and replace it with:</p>
+
+<div class="highlight"><pre class="highlight xml"><code><span class="nt">&lt;policy</span> <span class="na">domain=</span><span class="s">"coder"</span> <span class="na">rights=</span><span class="s">"read | write"</span> <span class="na">pattern=</span><span class="s">"PDF"</span> <span class="nt">/&gt;</span>
+</code></pre></div>
+
+<p>fspdf should now be set up and working.</p>
+
+<h2>automount drives</h2>
+
+<p>set your secondary hard drive and others to automount: when using <code>gnome-disks</code>, this is simply done by selecting your drive -&gt; click on settings -&gt; edit mount options -&gt; disable user session defaults. reboot to check this is working once done.</p>
+
+<p>the process is the same with encrypted drives, go to encryption options -&gt; disable user session defaults -&gt; set auto-decryption at startup and reboot to check if it works. if it does, go to the now decrypted partition and set automount as described in previous paragraph.</p>
+
+<p>keep in mind that permissions might be messed up, and you might have to reassign them with <code>take ownership</code> setting (always in <code>gnome-disks</code>), recursively or not.</p>
+
+<h2>configure gnome tweaks</h2>
+
+<ul>
+<li>go to gnome tweaks &gt; appearance &gt; applications and select adwaita dark.</li>
+<li>go to gnome tweaks &gt; fonts and select hinting: full and antialiasing: subpixel.</li>
+</ul>
+
+<p>also in <code>appearance</code> settings, pick dark style.</p>
+
+<h2>restic config and restore</h2>
+
+<p>restic&#39;s &quot;key&quot; is already present in <code>~/.dotfiles</code>, and its symlink can be found in <code>~/.config/restic/restic_key.gpg</code> after running the previous steps.</p>
+
+<p>you can use that key to decrypt restic&#39;s repo with the following flag:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>restic <span class="nt">--password-command</span> <span class="s2">"gpg --decrypt --default-recipient-self /home/ovelny/.config/restic/restic_key.gpg"</span> &lt;rest-of-the-command&gt;...
+</code></pre></div>
+
+<p>ensure that your restic repository is intact by running <code>restic --password-command &quot;&lt;...&gt;&quot; -r /&lt;repo-path&gt; check</code>.</p>
+
+<p>since we&#39;re aiming for a fresh install, we&#39;re not going to restore the entire /home directory. only the following should be restored:</p>
+
+<ul>
+<li><code>~/Documents</code></li>
+<li><code>~/qemu</code></li>
+<li><code>~/Videos</code></li>
+<li><code>~/roms</code></li>
+</ul>
+
+<p>the rest is either already present thanks to syncthing or located in the second drive — at the time of writing this document.</p>
+
+<p>the second drive — whatever its location is — can be restored entirely with the exception of the <code>Steam</code> directory. that one can be kept away unless you need to restore a save someday.</p>
+
+<p>use the following to restore a specific file or directory with restic, which should also work nicely for the entire 2nd drive:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># grab the ID of the snapshot you wanna use</span>
+restic <span class="nt">--password-command</span> <span class="s2">"gpg --decrypt --default-recipient-self /home/ovelny/.config/restic/restic_key.gpg"</span> <span class="nt">-r</span> /&lt;path-of-restic-repo&gt; snapshots 
+
+<span class="c"># restore a directory or file</span>
+restic <span class="nt">--password-command</span> <span class="s2">"gpg --decrypt --default-recipient-self /home/ovelny/.config/restic/restic_key.gpg"</span> <span class="nt">-r</span> /&lt;path-of-restic-repo&gt; restore &lt;ID&gt; <span class="nt">--target</span> /&lt;where-to-restore-directory&gt; <span class="nt">--include</span> /&lt;path-of-directory-to-restore&gt; 
+</code></pre></div>
+
+<p>keep in mind however that the absolute path is restored, not only the directory&#39;s content. this is how restic works and there is currently no way around it (except for mounting restic&#39;s repo somewhere else, but i don&#39;t like that). just <code>mv</code> the files accordingly and remove the emptied absolute path.</p>
+
+<h2>load nanoc docker image</h2>
+
+<p>this site is built with nanoc, which used to be installed through ruby gems with all of its dependencies. not anymore. it worked for the time being but will it remain stable 15 years from now? i&#39;m not fond about taking that bet.</p>
+
+<p>i don&#39;t need new features from this static-site generator so i just saved a docker image that contains everything i&#39;ll ever need.</p>
+
+<p>set up docker first:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>groupadd docker
+<span class="nb">sudo </span>usermod <span class="nt">-aG</span> docker <span class="nv">$USER</span>
+newgrp docker
+</code></pre></div>
+
+<p>decrypt the <code>~/bin/nanoc.tar.gz.gpg</code> and load it into docker:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>gpg <span class="nt">--decrypt</span> <span class="nt">--default-recipient-self</span> ~/bin/nanoc.tar.gz.gpg <span class="o">&gt;</span> /tmp/nanoc.tar.gz
+docker load &lt; /tmp/nanoc.tar.gz
+<span class="nb">rm</span> /tmp/nanoc.tar.gz
+</code></pre></div>
+
+<p>done. your <code>vessel</code> scripts in <code>~/bin</code> are already handling the site generation by using this image.</p>
+
+<h2>symlink Music directory</h2>
+
+<p>your music directory is currently located on your secondary hard drive: after restic restore, delete <code>~/Music</code> and use a symlink to said drive&#39;s directory.</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">ln</span> <span class="nt">-s</span> /&lt;second-drive-path&gt;/Music /home/ovelny/Music
+</code></pre></div>
+
+<h2>sync main directories with syncthing</h2>
+
+<p>the following directories should be synced with syncthing:</p>
+
+<ul>
+<li><code>~/.dotfiles</code> (with phone set as <strong>untrusted</strong> device,already done)</li>
+<li><code>~/Pictures</code> (with phone set as <strong>trusted</strong> device)</li>
+<li><code>~/bin</code> (with phone set as <strong>untrusted</strong> device, already done)</li>
+<li><code>/home/ovelny/.config/unity3d/Freehold Games/CavesOfQud/Saves</code> (with phone set as <strong>untrusted</strong> device, optional, with label &#39;caves-of-qud-saves&#39;)</li>
+<li><code>/home/ovelny/.local/share/khal</code> (with phone set as <strong>untrusted</strong> device, with label &#39;khal&#39;)</li>
+<li><code>~/flashcards</code> (with phone set as <strong>untrusted</strong> device)</li>
+<li><code>~/journal</code> (with phone set as <strong>untrusted</strong> device)</li>
+<li><code>~/Music</code> (with phone set as <strong>trusted</strong> device, directory is symlinked to 2nd HDD)</li>
+<li><code>~/ovelwiki</code> (with phone set as <strong>untrusted</strong> device)</li>
+<li><code>~/livecoding</code> (with phone set as <strong>untrusted</strong> device)</li>
+<li><code>~/sync</code> (with phone set as <strong>trusted</strong> device, already done)</li>
+</ul>
+
+<p>for those that are not synced already, the most pratical way is to delete the default directory if it already exists (like <code>~/Pictures</code>). That way you&#39;re sure you won&#39;t sync anything the other way around, from your new machine to the &quot;original&quot; device — a bit brutal but feels safer.</p>
+
+<p>for all directories, <strong>make sure to disable syncing permissions in advanced options</strong> and <strong>disable file versioning</strong>.</p>
+
+<p>a few words of advice for android use:</p>
+
+<ul>
+<li>pick the <code>syncthing-fork</code> app on f-droid.</li>
+<li>in settings -&gt; connections, set listening addresses to <code>quic://0.0.0.0:22000</code></li>
+<li>use the normal interface to watch for changes / sync and restart the service.</li>
+<li>use the web interface for everything else, especially configuration.</li>
+<li>local discovery is a mess with non-rooted android 11: give up on it. everything will most likely be done through relays.</li>
+<li>give up on the idea of syncing large files through android: been there, done that, it&#39;s just awful because of the previous reason.</li>
+</ul>
+
+<h2>local SSH config</h2>
+
+<p>i use a local SSH config to sync some large files with rsync. nearly everything is taken care of once the following is done:</p>
+
+<ul>
+<li><code>cat ~/.ssh/config</code> and see what addresses are bound to the local machines</li>
+<li>set up static DHCP addresses on your router, binding the addresses to the machines as shown in the SSH config</li>
+<li>copy your <code>sshd_config</code> (you know where to find it) in <code>/etc/ssh/sshd_config</code></li>
+<li>change <code>ListenAddress</code> line in <code>sshd_config</code> so it matches your machine&#39;s address</li>
+<li>restart the SSH server with <code>sudo systemctl restart ssh</code></li>
+</ul>
+
+<p>syncing with <code>rsync</code> is already configured with <code>city_ruins_sync</code> in <code>~/bin</code>. even if the <code>sshd_config</code> is pretty hardened, we have <code>openlocalssh</code> and <code>closelocalssh</code> aliases to open/close the port easily before/after syncing what we need.</p>
+
+<p>it&#39;s important that the SSH service <strong>remains disabled</strong>, as our config listen to local addresses that aren&#39;t present yet during the boot process.</p>
+
+<h2>clone some repositories, including this blog</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">mkdir</span> ~/code <span class="o">&amp;&amp;</span> <span class="nb">cd</span> ~/code
+git clone git@github.com:ovelny/vim-cursed.git
+git clone git@github.com:ovelny/amulet.git
+git clone git@github.com:ovelny/vessel.git
+<span class="nb">cd </span>vessel <span class="o">&amp;&amp;</span> <span class="nb">mkdir </span>output
+git clone git@github.com:ovelny/ovelny.github.io.git output
+</code></pre></div>
+
+<h2>set up .vimrc and install vim plugins</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># symlink vim config</span>
+<span class="nb">ln</span> <span class="nt">-s</span> /home/ovelny/code/vim-cursed/.vimrc /home/ovelny/.vimrc
+
+<span class="c"># vim-plug installation</span>
+curl <span class="nt">-fLo</span> ~/.vim/autoload/plug.vim <span class="nt">--create-dirs</span> <span class="se">\</span>
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+</code></pre></div>
+
+<p>next, run vim and execute <code>:PlugInstall</code> to install all plugins listed in <code>~/.vimrc</code>.</p>
+
+<p>finally, the youcompleteme plugin requires a few more steps for a full installation, but everything should be covered by running <code>~/bin/ycm_update</code>. if not, refer to the documentation: <a href="https://github.com/ycm-core/YouCompleteMe#linux-64-bit" rel="nofollow">https://github.com/ycm-core/YouCompleteMe#linux-64-bit</a></p>
+
+<p>pylint and black are also required with the previous config:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">--user</span> pylint <span class="nt">--break-system-packages</span>
+python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">--user</span> black <span class="nt">--break-system-packages</span>
+</code></pre></div>
+
+<h2>configure easyeffects</h2>
+
+<p>find bass enhancing + perfect eq json file in <code>~/sync/easyeffects</code>.</p>
+
+<p>import it and apply it in the app. don&#39;t forget to set easyeffects to launch automatically at startup in settings.</p>
+
+<h2>configure certs</h2>
+
+<p>you know where to find your certs.<br>
+once copied in say, <code>~/Downloads</code>, create the directory that will host the certificate database:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>apt <span class="nb">install </span>libnss3-tools
+<span class="nb">mkdir</span> <span class="nt">-p</span> <span class="nv">$HOME</span>/.pki/nssdb
+certutil <span class="nt">-d</span> <span class="nv">$HOME</span>/.pki/nssdb <span class="nt">-N</span> <span class="c"># enter your password</span>
+
+<span class="c"># then, add the certificate with this command</span>
+certutil <span class="nt">-d</span> <span class="s2">"sql:</span><span class="nv">$HOME</span><span class="s2">/.pki/nssdb"</span> <span class="nt">-A</span> <span class="nt">-i</span> ~/Downloads/&lt;your-burp-cert&gt; <span class="nt">-n</span> <span class="s2">"Burp Suite CA"</span> <span class="nt">-t</span> C,,
+
+<span class="c"># repeat last command for zaproxy cert and delete them from their temporary location</span>
+</code></pre></div>
+
+<h2>setup daily backups</h2>
+
+<p>the <code>backup_moon</code> script is already present in <code>~/bin</code>. ensure that it is executable with <code>chmod +x ~/bin/backup_moon</code> and add the following line with <code>crontab -e</code>:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># 0 4 * * * /home/ovelny/bin/backup_moon</span>
+0 7-17 <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> /usr/sbin/anacron <span class="nt">-s</span> <span class="nt">-t</span> <span class="nv">$HOME</span>/.anacron/etc/anacrontab <span class="nt">-S</span> <span class="nv">$HOME</span>/.anacron/spool
+</code></pre></div>
+
+<p>first line is kept for legacy purposes, just in case anacron isn&#39;t suitable later on.</p>
+
+<p>you should also check if all the paths in <code>backup_moon</code> are still the same with your new install to manage backups, and change them accordingly. also check <code>~/bin/restic</code> and <code>~/bin/restic-b2</code> which are just wrappers to easily run restic with its key. paths might need to be updated there too.</p>
+
+<h2>manage passwords locally with gopass</h2>
+
+<p>first, install <a href="https://github.com/gopasspw/gopass" rel="nofollow">gopass</a> if you haven&#39;t already with:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>go <span class="nb">install </span>github.com/gopasspw/gopass@latest
+</code></pre></div>
+
+<p>then, to import your password database (you know which one), install <code>pass-import</code> and <code>pykeepass</code>:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">--user</span> pass-import <span class="nt">--break-system-packages</span>
+python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">--user</span> pykeepass <span class="nt">--break-system-packages</span>
+</code></pre></div>
+
+<p>you&#39;ll need to install <code>pass</code> for importing as well:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>apt <span class="nb">install </span>pass
+</code></pre></div>
+
+<p>then, generate the gopass repository without using git:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>gopass init <span class="nt">-p</span> ~/.password-store <span class="nt">--storage</span><span class="o">=</span>fs
+</code></pre></div>
+
+<p>from this point, importing / syncing your password from keepass can be done automatically from <code>~/bin/keepass_sync</code>.</p>
+
+<h2>set up vim-anywhere</h2>
+
+<p>install gvim: <code>sudo apt install vim-gtk3</code></p>
+
+<p>then install <a href="https://github.com/cknadler/vim-anywhere" rel="nofollow">vim-anywhere</a>.</p>
+
+<h2>set up floorp browser</h2>
+
+<p>floorp surprised me as a browser, especially its speed. and i&#39;m glad to be using a browser forked from firefox.</p>
+
+<p>launch flatseal first and allow GPU acceleration.</p>
+
+<p>start the browser that you already installed through flatpak, pick expert layout (whatever that means), don&#39;t sync anything and take note of the <code>default-release</code> profile in use in <code>about:profiles</code>. this is where we will copy everything we already configured. exit the browser for now.</p>
+
+<p>the entire profile can be found in <code>~/sync/floorp-profile</code>. it has been backed up with the following command:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">tar</span> <span class="nt">-zcvf</span> /tmp/floorp-profile.tar.gz ~/.var/app/one.ablaze.floorp/.floorp/<span class="o">{</span>PROFILE_NAME<span class="o">}</span>.default-release <span class="o">&amp;&amp;</span> gpg <span class="nt">--encrypt</span> <span class="nt">--default-recipient-self</span> /tmp/floorp-profile.tar.gz <span class="o">&amp;&amp;</span> <span class="nb">rm</span> /tmp/floorp-profile.tar.gz <span class="o">&amp;&amp;</span> <span class="nb">mv</span> /tmp/floorp-profile.tar.gz.gpg ~/sync/floorp-profile
+</code></pre></div>
+
+<p>you can restore it with the following commands:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">rm</span> <span class="nt">-rf</span> ~/.var/app/one.ablaze.floorp/.floorp/<span class="o">{</span>PROFILE_NAME<span class="o">}</span>.default-release/<span class="k">*</span>
+gpg <span class="nt">--decrypt</span> <span class="nt">--default-recipient-self</span> ~/sync/floorp-profile/floorp-profile.tar.gz.gpg <span class="o">&gt;</span> /tmp/floorp-profile.tar.gz
+<span class="nb">tar </span>xzvf /tmp/floor-profile.tar.gz <span class="nt">--directory</span><span class="o">=</span>~/.var/app/one.ablaze.floorp/.floorp/<span class="o">{</span>PROFILE_NAME<span class="o">}</span>.default-release
+</code></pre></div>
+
+<p>move the files from the nested path back to <code>~/.var/app/one.ablaze.floorp/cache/floorp/{PROFILE_NAME}.default-release</code>, <code>rm /tmp/floor-profile.tar.gz</code> and you&#39;re good to go.</p>
+
+<p>finally, set floorp as your default browser with <code>xdg-settings set default-web-browser one.ablaze.floorp.desktop</code>.</p>
+
+<h2>set up libreddit</h2>
+
+<p>libreddit is an alternative front-end for reddit, that still seems to work despite reddit&#39;s new API subscription model. install it with <code>cargo install libreddit</code>, then make sure the service file is present in <code>~/.config/systemd/user/libreddit.service</code>.</p>
+
+<p>then run the following to add the service to systemd:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>systemctl daemon-reload
+systemctl <span class="nt">--user</span> <span class="nb">enable </span>libreddit
+systemctl <span class="nt">--user</span> start libreddit
+</code></pre></div>
+
+<p>a redirect is already set up in qutebrowser&#39;s config.</p>
+
+<h2>uninstall brave-browser</h2>
+
+<p>in case you made the mistake of installing brave browser on your machine:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>apt purge brave-browser brave-keyring
+<span class="nb">rm</span> /etc/apt/sources.list.d/brave-browser-release.list
+<span class="nb">sudo </span>apt update
+</code></pre></div>
+
+<h2>all done!</h2>
+
+<p>congrats, add a wallpaper and you have a system you can call home now. grab a coffee and enjoy.</p>
+
+<p>the next sections are for tools i don&#39;t use anymore, but still want to keep documentation around.</p>
+
+<h2>set up whoogle (deprecated)</h2>
+
+<p>whoogle-search is great. to set it up, run <code>pipx install whoogle-search</code> (installing directly from the repo is not a safe bet at the moment). everything else is already handled in <code>~/.config/systemd/user/whoogle.service</code> (present in your dotfiles), but just in case, here is the unit file:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="o">[</span>Unit]
+<span class="nv">Description</span><span class="o">=</span>Whoogle
+
+<span class="o">[</span>Service]
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">WHOOGLE_RESULTS_PER_PAGE</span><span class="o">=</span>30
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">WHOOGLE_CONFIG_DISABLE</span><span class="o">=</span>1
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">WHOOGLE_CONFIG_THEME</span><span class="o">=</span>dark
+<span class="nv">Environment</span><span class="o">=</span><span class="nv">WHOOGLE_CONFIG_GET_ONLY</span><span class="o">=</span>1
+<span class="nv">Type</span><span class="o">=</span>simple
+<span class="nv">ExecStart</span><span class="o">=</span>/home/ovelny/.local/pipx/venvs/whoogle-search/bin/python /home/ovelny/.local/bin/whoogle-search
+<span class="nv">ExecReload</span><span class="o">=</span>/bin/kill <span class="nt">-HUP</span> <span class="nv">$MAINPID</span>
+<span class="nv">Restart</span><span class="o">=</span>always
+<span class="nv">RestartSec</span><span class="o">=</span>3
+<span class="nv">SyslogIdentifier</span><span class="o">=</span>whoogle
+
+<span class="o">[</span>Install]
+<span class="nv">WantedBy</span><span class="o">=</span>default.target
+</code></pre></div>
+
+<p>run the following to add the service to systemd:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>systemctl daemon-reload
+systemctl <span class="nt">--user</span> <span class="nb">enable </span>whoogle
+systemctl <span class="nt">--user</span> start whoogle
+</code></pre></div>
+
+<p>and that should be it. run <code>systemctl --user status whoogle</code> to make sure it&#39;s running.</p>
+
+<p>to add it as a default engine in librewolf, make a search at <code>127.0.0.1:5000</code>, then right-click and add the engine. you can then make it the default search in settings.</p>
+
+<p>keep in mind that using this locally without a VPN <em>will</em> link your searches to your personal IP address for google.</p>
+
+<h2>install and configure qutebrowser (deprecated)</h2>
+
+<p>i&#39;m back to using qutebrowser for the ease of use and configuration. everything is ready for it after syncing your dotfiles, as long as you install a few packages. take a look at the official repo in case <code>pyqt</code> version changes, but as of 2024 those are the required packages:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>apt <span class="nb">install </span>python3-pyqt6 python3-pyqt6.qtqml python3-pyqt6.qtwebengine
+</code></pre></div>
+
+<p>an environment variable is also defined in your <code>~/.zshrc</code>, <code>QUTE_QT_WRAPPER=PyQt6</code>. it&#39;s needed for the installation and version should be updated if it changes, too.</p>
+
+<p>all that is left to do is to run <code>qutebrowser-update</code> to install / update it, and <code>xdg-settings set default-web-browser qutebrowser.desktop</code> to make it your default browser (<code>qutebrowser.desktop</code> is also among your dotfiles).</p>
+
+<p>the browser will prompt you to run <code>:adblock-update</code> at launch, and that&#39;s it. you&#39;re done.</p>
+
+<h2>install and configure librewolf (deprecated)</h2>
+
+<p>librewolf settings:</p>
+
+<ul>
+<li><p>settings:</p>
+
+<ul>
+<li>general settings:</li>
+<li>check &quot;open previous windows and tabs&quot;</li>
+<li>uncheck &quot;confirm quitting&quot;</li>
+<li>search settings:</li>
+<li>set default search engine to duckduckgo lite</li>
+<li>in search shortcuts, set duckduckgo lite to &quot;d&quot;</li>
+<li>disable all search suggestions</li>
+<li>privacy and security settings:</li>
+<li>uncheck delete cookies and site data when librewolf is closed</li>
+<li>check remember browsing and download history</li>
+<li>check remember search and form history</li>
+<li>librewolf settings:</li>
+<li>uncheck middle click paste</li>
+<li>uncheck &quot;enable ipv6&quot;</li>
+</ul></li>
+<li><p>re-enable compact mode:</p>
+
+<ul>
+<li>in <code>about:config</code>, set <code>browser.compactmode.show</code> to <code>true</code></li>
+<li>go to <code>more tools</code> -&gt; <code>customize toolbar</code>, then pick compact mode in the density tab</li>
+</ul></li>
+<li><p>fix weird font rendering from flatpak install:</p>
+
+<ul>
+<li>make sure you find the installation path of librewolf, it should be <code>~/.var/app/io.gitlab.librewolf-community</code></li>
+<li>create the following directory path: <code>mkdir -p ~/.var/app/io.gitlab.librewolf-community/config/fontconfig/conf.d</code></li>
+<li>then copy the following rule: <code>cp /usr/share/fontconfig/conf.avail/70-no-bitmaps.conf ~/.var/app/io.gitlab.librewolf-community/config/fontconfig/conf.d</code></li>
+</ul></li>
+<li><p>extensions:</p>
+
+<ul>
+<li>set up medium mode in ublock (optional): <a href="https://github.com/gorhill/uBlock/wiki/Blocking-mode:-medium-mode" rel="nofollow">https://github.com/gorhill/uBlock/wiki/Blocking-mode:-medium-mode</a></li>
+<li>install vimium</li>
+<li>install darkreader, set site list to <code>invert listed only</code></li>
+<li>install sponsorblock for youtube, set autoskip for intros / outros and filler.</li>
+<li>install cookie editor</li>
+<li>install violentmonkey, import your scripts located in <code>~/sync</code></li>
+<li>install unhook youtube and enable everything except:</li>
+<li>hide video sidebar -&gt; hide playlist</li>
+<li>hide comments</li>
+<li>hide video info</li>
+<li>hide top header</li>
+<li>install medium to scribe.rip redirector</li>
+<li>install redirector</li>
+<li>install youtube nonstop</li>
+<li>install shinigami eyes</li>
+<li>install i still don&#39;t care about cookies</li>
+<li>install foxyproxy:</li>
+<li>set up burp with protocol HTTP, address 127.0.0.1 and port 8080</li>
+<li>set up zap with protocol HTTP, address 127.0.0.1 and port 8081</li>
+</ul></li>
+</ul>
+
+<p>then make librewolf your default browser on debian.</p>
+
+<p>and keep a chrome browser on the side (ungoogled-chromium in flathub works fine), in case you stumble on a website where firefox was not even considered as a possibility.</p>
+
+<h2>set up containers for librewolf (deprecated)</h2>
+
+<p>temporary containers + multi-account containers are already set up. for temporary containers, import the config file in <code>~/sync</code>.</p>
+
+<p>for multi-account containers, this is slightly more annoying:</p>
+
+<ul>
+<li>open <code>about:profiles</code> in librewolf</li>
+<li>make a mental note of the default-release&#39;s profile name</li>
+<li>copy <code>containers.json</code> in <code>~/sync</code> to <code>~/.var/app/io.gitlab.librewolf-community/.librewolf/&lt;profile-name&gt;.default-release</code></li>
+</ul>
+
+<p>this should be it. sites that you need to log to will be linked to their containers.</p>
+
+<h2>install tidal cycles and samples (deprecated)</h2>
+
+<p>make sure your user is part of the audio group:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">groups</span> | <span class="nb">grep </span>audio
+</code></pre></div>
+
+<p>make sure all dependencies are installed:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>git jackd2 qjackctl zlib1g-dev gcc g++ cabal-install
+</code></pre></div>
+
+<p>make sure supercollider and sc3 are installed:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>supercollider sc3-plugins sc3-plugins-language sc3-plugins-server
+</code></pre></div>
+
+<p>install superdirt in SuperCollider:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>include("SuperDirt");
+</code></pre></div>
+
+<p>then, fetch current version of superdirt:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>git ls-remote https://github.com/musikinformatik/SuperDirt.git | grep tags | tail -n1 | awk -F/ '{print $NF}'
+</code></pre></div>
+
+<p>in supercollider, update superdirt with the version you found, using this line:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>Quarks.checkForUpdates({Quarks.install("SuperDirt", "v1.7.3"); thisProcess.recompile()})
+</code></pre></div>
+
+<p>it executes immediately but needs to run in the background for a while. after the logs update, you can safely exit supercollider.</p>
+
+<p>install tidal with cabal:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>cabal update<span class="p">;</span> cabal <span class="nb">install </span>tidal <span class="nt">--lib</span>
+</code></pre></div>
+
+<p>from there, things start to get ugly. if you installed vim earlier with all the plugins, go to <code>~/.vim/plugged/vim-tidal</code> and run <code>sudo make install</code>.</p>
+
+<p>ignore the <code>tidalvim</code> command it provides since it tries to automate too much. Get the path to run tidal with:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>ghci <span class="nt">-e</span> Paths_tidal.getDataDir | <span class="nb">sed</span> <span class="s1">'s/"//g'</span>
+</code></pre></div>
+
+<p>edit the <code>default</code> file and make sure that there are no duplicate <code>tidal</code> entries.</p>
+
+<p>start <code>supercollider-pulseaudio</code> from your <code>~/bin</code> scripts. if you see the line <code>SuperDirt: listening to Tidal on port 57120</code> in the logs, you&#39;re all set. if not, run <code>SuperDirt.start;</code>.</p>
+
+<p>then, run <code>tidal</code>, which is a script provided with <code>tidalvim</code>. if you see <code>Connected to SuperDirt.</code>, you should be set. exit ghci with Ctrl + D.</p>
+
+<p>create a <code>.tidal</code> file, open it with vim, add the line <code>d1 $ sound &quot;bd sn&quot;</code> and run it with Ctrl + E. if the tidal interpreter appears and you hear something, you&#39;re good to go.</p>
+
+<p>next, let&#39;s install samples. download them here: <a href="https://slab.org/tmp/samples-extra.zip" rel="nofollow">https://slab.org/tmp/samples-extra.zip</a></p>
+
+<p>our setup assumes that we&#39;re downloading them at <code>~/livecoding</code>. unzip them, then run the following command in supercollider:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>~dirt.loadSoundFiles("/home/ovelny/livecoding/samples-extra/*")
+</code></pre></div>
+
+<p>run <code>d1 $ sound &quot;cpu:2&quot;</code> in vim to check if the samples are working correctly.</p>
+
+<p>to set up a more elaborate configuration for tidal and those samples, edit the supercollider&#39;s startup file with <code>file -&gt; open startup file</code>. it should already have a line with <code>~dirt.loadSoundFiles</code>. add our previous line under it (don&#39;t forget the semicolon), and save it.</p>
+
+<p>then run <code>language -&gt; recompile class library</code> and the logs should show that everything is all good.</p>
+
+<p>in case the startup file is empty, here&#39;s what it looks like in the end:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>/*
+This is an ansible generated startup file.
+Modifications will be overwritten on next run,
+but a backup copy will exist in the same dir as this file
+*/
+
+
+(
+s.reboot { // server options are only updated on reboot
+    // configure the sound server: here you could add hardware specific options
+    // see http://doc.sccode.org/Classes/ServerOptions.html
+    s.options.numBuffers = 1024 * 256; // increase this if you need to load more samples
+    s.options.memSize = 8192 * 32; // increase this if you get "alloc failed" messages
+    s.options.numWireBufs = 64; // increase this if you get "exceeded number of interconnect buffers" messages
+    s.options.maxNodes = 1024*32; // increase this if you are getting drop outs and the message "too many nodes"
+    s.options.numOutputBusChannels = 2; // set this to your hardware output channel size, if necessary
+    s.options.numInputBusChannels = 2; // set this to your hardware output channel size, if necessary
+    s.options.maxLogins = 8; // optional, required to enable feedforward VU meter
+    // boot the server and start SuperDirt
+    s.waitForBoot {
+        ~dirt = SuperDirt(2, s); // two output channels, increase if you want to pan across more channels
+        ~dirt.doNotReadYet = true; // load samples on demand, memory saving
+        ~dirt.loadSoundFiles;   // load samples (path containing a wildcard can be passed in)
+        ~dirt.loadSoundFiles("/home/ovelny/livecoding/samples-extra/*");
+        // for example: ~dirt.loadSoundFiles("/Users/myUserName/Dirt/samples/*");
+
+        // s.sync; // optionally: wait for samples to be read
+        ~dirt.start(57120, 0 ! 12);   // start listening on port 57120, create two busses each sending audio to channel 0
+
+        // optional, enable feedforward vu meter
+        ~dirt.startSendRMS;
+
+
+        // optional, needed for convenient access from sclang:
+        (
+            ~d1 = ~dirt.orbits[0]; ~d2 = ~dirt.orbits[1]; ~d3 = ~dirt.orbits[2];
+            ~d4 = ~dirt.orbits[3]; ~d5 = ~dirt.orbits[4]; ~d6 = ~dirt.orbits[5];
+            ~d7 = ~dirt.orbits[6]; ~d8 = ~dirt.orbits[7]; ~d9 = ~dirt.orbits[8];
+            ~d10 = ~dirt.orbits[9]; ~d11 = ~dirt.orbits[10]; ~d12 = ~dirt.orbits[11];
+        );
+
+
+    };
+
+    s.latency = 0.3; // increase this if you get "late" messages
+};
+);
+</code></pre></div>
+
+<h2>set up 6cord (deprecated, discord TUI)</h2>
+
+<p>install it, if not already present in <code>~/bin</code>:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>git clone https://gitlab.com/diamondburned/6cord
+<span class="nb">cd </span>6cord <span class="o">&amp;&amp;</span> go build
+<span class="nv">TERM</span><span class="o">=</span>xterm-256color ./6cord
+</code></pre></div>
+
+<p>if it runs, things should work smoothly with your <code>6cord</code> dotfiles and <code>discord</code> alias in <code>~/.zshrc</code>. you&#39;ll know.</p>
+
+<h2>configure sonic pi with vim (deprecated)</h2>
+
+<p><strong>todo</strong>: this is probably not necessary anymore with pipewire. check with a default install.</p>
+
+<p>TL;DR: after installing sonic pi from the official packages, you should also have <code>sonic-pi-pulseaudio</code> and <code>sonic-pi-server</code> in <code>~/bin</code>, which are based on this script: <a href="https://github.com/SebiderSushi/sonic-pi-via-pulseaudio" rel="nofollow">https://github.com/SebiderSushi/sonic-pi-via-pulseaudio</a></p>
+
+<p>make sure <code>pulseaudio-module-jack</code> is installed as well from apt.</p>
+
+<p>then, install <code>sonic-pi-tool</code>: <a href="https://github.com/lpil/sonic-pi-tool" rel="nofollow">https://github.com/lpil/sonic-pi-tool</a></p>
+
+<div class="highlight"><pre class="highlight shell"><code>cargo <span class="nb">install</span> <span class="nt">--git</span> https://github.com/lpil/sonic-pi-tool/ <span class="nt">--force</span>
+</code></pre></div>
+
+<p>it should work out of the box with <code>sonicpi.vim</code> in your <code>.vimrc</code>. Just run <code>sonic-pi-server</code> to pipe jack running on a dummy device to pulseaudio and try it out.</p>
+
+<h2>set up gomuks (deprecated, matrix TUI)</h2>
+
+<p>install gomuks and its dependencies, if not already present as <code>matrix</code> in <code>~/bin</code>:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>apt <span class="nb">install </span>libolm-dev
+git clone https://github.com/tulir/gomuks.git <span class="o">&amp;&amp;</span> <span class="nb">cd </span>gomuks
+./build.sh <span class="c"># check if first, it's just a fancy go build command</span>
+</code></pre></div>
+
+<p>to set it up with previous message decrypted:</p>
+
+<ul>
+<li>go to element web</li>
+<li>all settings -&gt; security &amp; privacy -&gt; export e2e room keys</li>
+<li>login with <code>gomuks</code> then type <code>/import &lt;path-of-keys-file&gt;</code></li>
+</ul>
+
+<p>to verify the session:</p>
+
+<ul>
+<li>on element web, click on info in any conversation</li>
+<li>select yourself and the unverified gomuks session</li>
+<li>click on verify then verify yourself manually</li>
+<li>compare the fingerprint with the <code>/fingerprint</code> command output in gomuks</li>
+<li>verify it, done</li>
+</ul>
+
+<h2>set up tut (deprecated, mastodon TUI)</h2>
+
+<p>install it with <code>go install github.com/RasmusLindroth/tut@latest</code></p>
+
+<p>you should be all set with the synced dotfiles, <code>gopass</code> and <code>keepass_sync</code> once executed. just run <code>tut</code> to check.</p>
+
+<h2>set up opensnitch (deprecated)</h2>
+
+<p>first, go to your VPN settings and set wireguard&#39;s port to 51820. you can then install opensnitch with <code>sudo apt install opensnitch</code>. after that, unzip your opensnitch settings from <code>~/sync/opensnitch-settings</code> to <code>/etc/opensnitchd/</code>, including the <code>rules</code> directory, check that everything has proper root permissions, and run <code>systemctl restart opensnitch</code>.</p>
+
+<p>for info, the settings in <code>/etc/opensnitchd/</code> are backed up with this command:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">tar</span> <span class="nt">-zcvf</span> /tmp/opensnitch-settings.tar.gz /etc/opensnitchd <span class="o">&amp;&amp;</span> gpg <span class="nt">--encrypt</span> <span class="nt">--default-recipient-self</span> /tmp/opensnitch-settings.tar.gz <span class="o">&amp;&amp;</span> <span class="nb">rm</span> /tmp/opensnitch-settings.tar.gz <span class="o">&amp;&amp;</span> <span class="nb">mv</span> /tmp/opensnitch-settings.tar.gz.gpg ~/sync/opensnitch-settings
+</code></pre></div>
+
+<p>restore your settings:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo rm</span> <span class="nt">-rf</span> /etc/opensnitchd/<span class="k">*</span>
+gpg <span class="nt">--decrypt</span> <span class="nt">--default-recipient-self</span> ~/sync/opensnitch-settings/opensnitch-settings.tar.gz.gpg <span class="o">&gt;</span> /tmp/opensnitch-settings.tar.gz
+<span class="nb">sudo tar </span>xzvf /tmp/opensnitch-settings.tar.gz <span class="nt">--directory</span><span class="o">=</span>/etc/opensnitchd
+<span class="nb">sudo mv</span> /etc/opensnitchd/etc/opensnitchd/<span class="k">*</span> /etc/opensnitchd
+<span class="nb">sudo rm</span> <span class="nt">-rf</span> /etc/opensnitchd/etc
+<span class="nb">rm</span> /tmp/opensnitch-settings.tar.gz
+</code></pre></div>
+
+<p>and the permissions once restored should be:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>4.0K <span class="nt">-rw-r--r--</span>   1 root root  360 Aug 22 14:05 default-config.json
+4.0K <span class="nt">-rw-r--r--</span>   1 root root 1.9K Aug 22 14:28 system-fw.json
+4.0K drwxr-xr-x   3 root root 4.0K Aug 22 14:28 <span class="nb">.</span>
+ 48K drwxr-xr-x   2 root root  44K Sep 16 20:57 rules <span class="c"># same perms for files in this dir</span>
+ 12K drwxr-xr-x 174 root root  12K Sep 17 10:59 ..
+</code></pre></div>
+
+<p>once restored, the settings should take care of your VPN settings with wireguard, and essential system commands so that your system does boot up normally.</p>
+
+<p>...actually, now would be a good time to reboot to make sure of that.</p>
+
+<p>the rest of the settings will already be synced from your dotfiles with <code>~/.config/opensnitch</code>. the nice thing with your current settings is how easy it is to deny/allow directly with your keyboard.</p>
+
+<h2>set up gnome extensions on firefox ESR (deprecated)</h2>
+
+<p>gnome extensions don&#39;t work on librewolf via flatpak (not sure why at the moment). firefox ESR is fine to install gnome extensions in order to customize our desktop. download the extension here: <a href="https://addons.mozilla.org/en-US/firefox/addon/gnome-shell-integration/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search" rel="nofollow">https://addons.mozilla.org/en-US/firefox/addon/gnome-shell-integration/?utm_source=addons.mozilla.org&amp;utm_medium=referral&amp;utm_content=search</a></p>
+
+<p>then get the following extensions:</p>
+
+<ul>
+<li><a href="https://extensions.gnome.org/extension/3843/just-perfection/" rel="nofollow">https://extensions.gnome.org/extension/3843/just-perfection/</a></li>
+<li><a href="https://extensions.gnome.org/extension/723/pixel-saver/" rel="nofollow">https://extensions.gnome.org/extension/723/pixel-saver/</a></li>
+</ul>
+
+<p><code>pixel saver</code> doesn&#39;t need configuration, but <code>just perfection</code> does: open the settings in the extensions menu, go to customize then set the following:</p>
+
+<ul>
+<li>panel size: 25px</li>
+<li>panel position: bottom</li>
+<li>animation: no animation</li>
+</ul>
+
+<p>go to visibility and disable <code>take screenshot in windows menu</code>. not sure who thought that was a good idea. in the same tab, disable <code>workspace popup</code>, <code>workspace switcher</code>, <code>workspaces app grid</code>, <code>accessibility menu</code>.</p>
+
+<p>in <code>behavior</code> tab, disable <code>workspace wraparound</code>, <code>workspace peek</code>, <code>window demands attention focus</code>, <code>always show workspace switcher</code>.</p>
+
+<p>congrats, you now have a DE that makes sense. we love gnome and their default choices.</p>
+
+<h2>connect to the TUIs (deprecated)</h2>
+
+<p>Connect / login to the TUIs you&#39;re using:</p>
+
+<ul>
+<li>discord</li>
+<li>reddit</li>
+<li>matrix</li>
+</ul>
+
+<p>all of those are actual aliases present in <code>~/bin</code> or <code>~/.zshrc</code> for their respective apps.</p>
+
+<h2>set up bitlbee (deprecated)</h2>
+
+<p>uncomment and change the following lines in <code>/etc/bitlbee/bitlbee.conf</code>:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>DaemonInterface = 127.0.0.1
+DaemonPort = 6667
+</code></pre></div>
+
+<p>restore the <code>/var/lib/bitlbee/ovelny.xml</code> file (you know where to find it) and then run <code>systemctl enable bitlbee</code> and <code>systemctl restart bitlbee</code>. the only thing left is to set up the discord plugin, follow the instructions here: <a href="https://github.com/sm00th/bitlbee-discord" rel="nofollow">https://github.com/sm00th/bitlbee-discord</a></p>
+
+<p>for weird reasons however, the plugin files have unnecessary permissions after install, fix this with the following:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo chmod </span>644 /usr/lib/bitlbee/discord.so
+<span class="nb">sudo chmod </span>644 /usr/lib/bitlbee/discord.la
+</code></pre></div>
+
+<p>everything else should be working with the dotfiles you restored earlier, which include irssi config files.</p>
+
+<h2>install faereld (deprecated)</h2>
+
+<p>faereld is a time tracking tool. to install it, clone and install the repo i forked to fix a numpy dependency version issue:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>git@github.com:ovelny/faereld.git
+<span class="nb">cd </span>faereld
+pipx <span class="nb">install</span> <span class="nb">.</span>
+</code></pre></div>
+
+<p>the database and settings will be synced with dotfiles, later on in this document.</p>
+
+<h2>symlink youtube-dl to yt-dlp (deprecated, not necessary anymore)</h2>
+
+<p>streaming youtube videos through youtube-dl with mpv can be slow: there are command flags to use yt-dlp instead, but this doesn&#39;t always work with old versions of mpv.</p>
+
+<p>the most straightforward option is to just symlink <code>youtube-dl</code> to <code>yt-dlp</code>:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>which youtube-dl <span class="c"># /usr/bin/youtube-dl</span>
+which yt-dlp <span class="c"># /home/ovelny/.local/bin/yt-dlp</span>
+<span class="nb">sudo rm</span> /usr/bin/youtube-dl
+<span class="nb">sudo ln</span> <span class="nt">-s</span> /home/ovelny/.local/bin/yt-dlp /usr/bin/youtube-dl
+</code></pre></div>
+
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

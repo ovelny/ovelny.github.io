@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - amulet/tutorials/true-FDE-debian-install</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - amulet/tutorials/true-FDE-debian-install"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-minimal-logo.jpg"
+            alt="ovelny logo"
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/amulet/">amulet</a>
+        <a href="/presage/">presage</a>
+        <a
+          href="https://github.com/Ovelny"
+          target="_blank"
+          rel="noopener noreferrer"
+          >github</a
+        >
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/contact/">contact</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>True FDE with Debian install</h1>
+
+<p>this guide provides step by step instructions for a FDE install on debian, <em>including</em> the <code>/boot</code> partition which is usually left unencrypted. it has been tested with debian bullseye and updated for debian bookworm.</p>
+
+<p><strong>keep in mind that this is a legacy / old-school method: your partition scheme on your boot drive must be MBR and the live USB must be started with BIOS, not UEFI. if you don&#39;t see &quot;pri/log&quot; prepended to your free space during the partitioning step, this means those requirements haven&#39;t been met and you should abort.</strong></p>
+
+<p>there are ways to avoid typing the passphrase twice at boot, but i personally don&#39;t care. see the references section if you&#39;re interesting in setting this up.</p>
+
+<p>be aware that the first passphrase prompt will ignore your keyboard layout and use qwerty: if you can&#39;t type your passphrase with this, you&#39;re in trouble.</p>
+
+<h2>debian install</h2>
+
+<p>while booting up with debian ISO, select graphical install. the first part is pretty straightforward: select your region, keyboard layout etc until you reach the partition screen. from there, select manual partitioning.</p>
+
+<p>we will partition our system in the simplest way: a main partition and a <code>/boot</code> partition, nothing else. setting up a swap partition is easy if you want to (see references if interested).</p>
+
+<p>select your device, confirm and then follow the next steps:</p>
+
+<ul>
+<li>create /boot partition:
+
+<ul>
+<li>select <code>pri/log - FREE SPACE</code></li>
+<li>choose &quot;create a new partition&quot;</li>
+<li>pick an appropriate size for a /boot partition: 512 MB is a bit overkill but ensures that you won&#39;t ever have to resize it</li>
+<li>choose &quot;Primary&quot;</li>
+<li>choose &quot;Beginning&quot;</li>
+<li>change the mount point to &quot;/boot&quot;</li>
+<li>choose &quot;done setting up the partition&quot;</li>
+</ul></li>
+<li>create main partition:
+
+<ul>
+<li>select again <code>pri/log - FREE SPACE</code></li>
+<li>choose &quot;create a new partition&quot;</li>
+<li>since this our last and main partition, select all available space with &quot;max&quot;</li>
+<li>choose &quot;primary&quot;</li>
+<li>change &quot;use as: Ext4...&quot; to &quot;physical volume for encryption&quot;</li>
+<li>choose &quot;Bootable flag: on&quot;</li>
+<li>choose &quot;Erase data: yes&quot;</li>
+<li>choose &quot;done setting up the partition&quot;</li>
+</ul></li>
+<li>encrypt the main partition:
+
+<ul>
+<li>choose &quot;configure encrypted volumes&quot;</li>
+<li>choose &quot;yes&quot;</li>
+<li>choose &quot;create encrypted volumes&quot;</li>
+<li>choose your main partition and press &quot;continue&quot;</li>
+<li>choose &quot;finish&quot;</li>
+<li>choose &quot;yes&quot;</li>
+<li>pick a good encryption passphrase</li>
+<li>choose your disk under the &quot;Encrypted volume...&quot; section</li>
+<li>change the mount point to &quot;/&quot; (root file system)</li>
+<li>choose &quot;done setting up the partition&quot;</li>
+</ul></li>
+<li>choose &quot;finish partitioning and write changes to disk&quot;</li>
+<li>a warning about swap will appear, simply ignore it and choose &quot;no&quot; to continue</li>
+<li>choose &quot;yes&quot;</li>
+</ul>
+
+<p>the rest of the installation will prompt you about additional packages you might want to install, your preferred DE etc. all of this is up to you, proceed until the end.</p>
+
+<p>finally, choose &quot;yes&quot; when prompted to install GRUB to your primary drive, and choose your device.</p>
+
+<h2>encrypting the /boot partition</h2>
+
+<p>reboot and login as your normally would on your fresh system.</p>
+
+<p>then follow those steps:</p>
+
+<ul>
+<li>launch a terminal and use <code>su</code></li>
+<li>run <code>lsblk</code> and find your encrypted device (which should be just above *_crypt partition)</li>
+<li>run the following command according to your device <code>sudo cryptsetup luksDump /dev/&lt;something&gt;</code></li>
+<li>confirm that luks doesn&#39;t use pbkdf2 yet</li>
+</ul>
+
+<p>to embed /boot with GRUB being able to decrypt it, we need to use pbkdf2. reboot the system and press <code>e</code> at the GRUB menu, add <code>break=mount</code> to the end at the linux line for the kernel and press <code>F10</code>. you will drop into a initramfs shell.</p>
+
+<p>then run the following commands, one by one:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>cryptsetup luksConvertKey <span class="nt">--pbkdf</span> pbkdf2 /dev/&lt;something&gt;
+cryptsetup luksDump /dev/&lt;something&gt;
+</code></pre></div>
+
+<p>the last command should now show that luks is using pbkdf2. for reference, we used to need to convert the whole drive from <code>luks2</code> to <code>luks1</code> before, but this is not necessary anymore. GRUB can handle <code>luks2</code> as long as it&#39;s using pbkdf2.</p>
+
+<p>continue with boot by typing <code>exit</code> and login.</p>
+
+<p>open a terminal and run the following commands:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>su
+mount <span class="nt">-o</span> remount,ro /boot
+<span class="nb">cp</span> <span class="nt">-axT</span> /boot /boot.tmp
+umount /boot
+<span class="nb">rmdir</span> /boot
+<span class="nb">mv</span> <span class="nt">-T</span> /boot.tmp /boot
+</code></pre></div>
+
+<p>next, edit <code>/etc/fstab</code> and comment out the <code>/boot</code> mountpoint entry:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># UUID=... /boot &lt;bla bla bla...&gt;</span>
+</code></pre></div>
+
+<p>we&#39;re almost there. run the following:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">echo</span> <span class="s2">"GRUB_ENABLE_CRYPTODISK=y"</span> <span class="o">&gt;&gt;</span> /etc/default/grub
+<span class="nb">sudo </span>update-grub
+<span class="nb">sudo </span>grub-install /dev/sda
+</code></pre></div>
+
+<p>reboot and you should now need to enter your passphrase before entering GRUB. all done.</p>
+
+<h2>bonus: managing the old /boot partition and SSD disk tweak</h2>
+
+<p>you&#39;ll notice that the initial /boot partition is still there, and you can mount it with <code>disks</code> or any similar tool. what of it?</p>
+
+<p>you could always keep it: it doesn&#39;t take a lot of space and comparing the original partition with the copy made in the /boot directory could be useful. you could even keep a sha256sum of the original kernel and compare it with the directory one with a script after booting up.</p>
+
+<p>if you don&#39;t mind those checks, you can also ditch the partition. for this, you&#39;ll need to boot on a live USB drive with any flavor of linux, run gparted (for instance), delete the partition and use that free space with your main / partition.</p>
+
+<p>once that choice is made, keeping it or not, there is one last edit you can do in <code>/etc/default/grub</code> if you have a SSD disk. boot up normally and run <code>ls /dev/mapper</code> to identify your encrypted partition&#39;s name (for instance, sda2_crypt).</p>
+
+<p>then edit the <code>GRUB_CMDLINE_LINUX=&quot;&quot;</code> line in <code>/etc/default/grub</code> and replace it with the following, making sure to use the correct partition:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nv">GRUB_CMDLINE_LINUX</span><span class="o">=</span><span class="s2">"cryptdevice=/dev/sda2:sda2_crypt:allow-discards"</span>
+</code></pre></div>
+
+<h2>references</h2>
+
+<ul>
+<li><a href="https://www.unixsheikh.com/tutorials/real-full-disk-encryption-using-grub-on-debian-linux-for-bios.html" rel="nofollow">https://www.unixsheikh.com/tutorials/real-full-disk-encryption-using-grub-on-debian-linux-for-bios.html</a></li>
+<li><a href="https://www.dwarmstrong.org/fde-debian/" rel="nofollow">https://www.dwarmstrong.org/fde-debian/</a></li>
+<li><a href="https://xo.tc/setting-up-full-disk-encryption-on-debian-jessie.html" rel="nofollow">https://xo.tc/setting-up-full-disk-encryption-on-debian-jessie.html</a></li>
+</ul>
+
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
