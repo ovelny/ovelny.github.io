@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ovelny - tutorials</title>
+    <title>ovelny - amulet/tutorials/sieve-filters</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
@@ -20,7 +20,7 @@
     <script src="/assets/js/scramble-text.min.js" defer></script>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:site" content="@ovelny"/>
-    <meta name="twitter:title" content="ovelny - tutorials"/>
+    <meta name="twitter:title" content="ovelny - amulet/tutorials/sieve-filters"/>
     <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
     <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
   </head>
@@ -53,56 +53,20 @@
     </header>
     <main>
 
+    
+    <h1>sieve filters</h1>
 
-    <h2>tutorials</h2>
-    <ul>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/amulet/tutorials/bluetoothctl/>bluetoothctl</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/amulet/tutorials/mirroring-Beej's-guides/>mirroring Beej's guides</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/amulet/tutorials/personal-debian-setup/>personal debian setup</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/amulet/tutorials/pi-hole-setup-on-raspberry-pi-zero-w/>pi hole setup on raspberry pi zero w</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/amulet/tutorials/retroid-pocket-3-plus-setup/>retroid pocket 3 plus setup</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/amulet/tutorials/sieve-filters/>sieve filters</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/amulet/tutorials/smartctl-usage/>smartctl usage</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/amulet/tutorials/true-FDE-debian-install/>true FDE debian install</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/amulet/tutorials/tryhackme/>tryhackme</a>
-            </li>
-        
-    </ul>
+<p>sieve rule to send everything in spam unless the address is already in your allowlist:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>require ["fileinto", "extlists"];
+
+# if the address is not in the allowlist,
+# send to spam. that's it.
+if not header :list "from" ":incomingdefaults:inbox"
+{
+  fileinto "Spam";
+}
+</code></pre></div>
 
     </main>
     <footer id="footer">
