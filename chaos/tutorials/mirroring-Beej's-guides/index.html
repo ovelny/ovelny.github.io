@@ -50,7 +50,7 @@
     
     <h1>mirroring Beej&#39;s guides</h1>
 
-<p>Beej&#39;s guides are great. it is mentioned that <a href="https://beej.us/guide/bgc/html/split/foreword.html#mirroring" rel="nofollow">mirroring them is okay</a> so i really wanted to add them in amulet as raw markdown files, for consistency with my own theme.</p>
+<p>Beej&#39;s guides are great. it is mentioned that <a href="https://beej.us/guide/bgc/html/split/foreword.html#mirroring" rel="nofollow">mirroring them is okay</a> so i really wanted to add them on chaos as raw markdown files, for consistency with my own theme.</p>
 
 <p>here&#39;s how i did it for <code>Beej&#39;s Guide to C Programming</code>:</p>
 
@@ -80,7 +80,7 @@
 
 <p>(you should still check if there are no empty lines left)</p>
 
-<p>the indexes should also be stripped of their links, they just serve as a reference in amulet:</p>
+<p>the indexes should also be stripped of their links, they just serve as a reference on chaos:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">cat </span>00-index.md | <span class="nb">sed</span> <span class="nt">-e</span> <span class="s1">'s/\[//g'</span> <span class="nt">-e</span> <span class="s1">'s/\].*$//g'</span> <span class="o">&gt;</span> 99-index.md
 <span class="nb">mv </span>99-index.md 00-index.md
@@ -103,7 +103,7 @@ pandoc <span class="nt">-f</span> html <span class="nt">-t</span> gfm-raw_html <
 
 <p>then list all markdown files and edit in place the links of the footnotes:</p>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="k">for </span>file <span class="k">in</span> <span class="k">*</span>.md<span class="p">;</span> <span class="k">do </span><span class="nb">cat</span> <span class="nv">$file</span> | <span class="nb">sed</span> <span class="nt">-i</span> <span class="s2">"s/</span><span class="se">\(</span><span class="s2">footnotes</span><span class="se">\.</span><span class="s2">html</span><span class="se">\#</span><span class="s2">fn[0-9][0-9]</span><span class="se">\?</span><span class="s2">[0-9]</span><span class="se">\?\)</span><span class="s2">/</span><span class="se">\h</span><span class="s2">ttps:</span><span class="se">\/\/</span><span class="s2">ovelny.sh</span><span class="se">\/</span><span class="s2">amulet</span><span class="se">\/</span><span class="s2">beej</span><span class="se">\'</span><span class="s2">s-guide-to-c-programming</span><span class="se">\/</span><span class="s2">99-footnotes</span><span class="se">\/</span><span class="s2">/g"</span> <span class="nv">$file</span><span class="p">;</span> <span class="k">done</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="k">for </span>file <span class="k">in</span> <span class="k">*</span>.md<span class="p">;</span> <span class="k">do </span><span class="nb">cat</span> <span class="nv">$file</span> | <span class="nb">sed</span> <span class="nt">-i</span> <span class="s2">"s/</span><span class="se">\(</span><span class="s2">footnotes</span><span class="se">\.</span><span class="s2">html</span><span class="se">\#</span><span class="s2">fn[0-9][0-9]</span><span class="se">\?</span><span class="s2">[0-9]</span><span class="se">\?\)</span><span class="s2">/</span><span class="se">\h</span><span class="s2">ttps:</span><span class="se">\/\/</span><span class="s2">ovelny.sh</span><span class="se">\/</span><span class="s2">chaos</span><span class="se">\/</span><span class="s2">beej</span><span class="se">\'</span><span class="s2">s-guide-to-c-programming</span><span class="se">\/</span><span class="s2">99-footnotes</span><span class="se">\/</span><span class="s2">/g"</span> <span class="nv">$file</span><span class="p">;</span> <span class="k">done</span>
 </code></pre></div>
 
 <p>change the URL according to the guide, of course. and you should hopefully be done with it.</p>
