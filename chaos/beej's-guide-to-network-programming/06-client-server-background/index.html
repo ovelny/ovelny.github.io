@@ -69,7 +69,7 @@
 
 <p>where <code>remotehostname</code> is the name of the machine you’re running it on.</p>
 
-<p><a href="https://beej.us/guide/bgnet/examples/server.c" rel="nofollow">The server code</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²³</a>:</p>
+<p><a href="https://beej.us/guide/bgnet/examples/server.c" rel="nofollow">The server code</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²³</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cm">/*
 ** server.c -- a stream socket server demo
@@ -216,7 +216,7 @@
 
 <p>This guy’s even easier than the server. All this client does is connect to the host you specify on the command line, port 3490. It gets the string that the server sends.</p>
 
-<p><a href="https://beej.us/guide/bgnet/examples/client.c" rel="nofollow">The client source</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁴</a>:</p>
+<p><a href="https://beej.us/guide/bgnet/examples/client.c" rel="nofollow">The client source</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁴</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cm">/*
 ** client.c -- a stream socket client demo
@@ -323,7 +323,7 @@
 
 <p>Because datagram sockets are connectionless and just fire packets off into the ether with callous disregard for success, we are going to tell the client and server to use specifically IPv6. This way we avoid the situation where the server is listening on IPv6 and the client sends on IPv4; the data simply would not be received. (In our connected TCP stream sockets world, we might still have the mismatch, but the error on <code>connect()</code> for one address family would cause us to retry for the other.)</p>
 
-<p>Here is the <a href="https://beej.us/guide/bgnet/examples/listener.c" rel="nofollow">source for <code>listener.c</code></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁵</a>:</p>
+<p>Here is the <a href="https://beej.us/guide/bgnet/examples/listener.c" rel="nofollow">source for <code>listener.c</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁵</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cm">/*
 ** listener.c -- a datagram sockets "server" demo
@@ -424,7 +424,7 @@
 
 <p>Notice that in our call to <code>getaddrinfo()</code> we’re finally using <code>SOCK_DGRAM</code>. Also, note that there’s no need to <code>listen()</code> or <code>accept()</code>. This is one of the perks of using unconnected datagram sockets!</p>
 
-<p>Next comes the <a href="https://beej.us/guide/bgnet/examples/talker.c" rel="nofollow">source for <code>talker.c</code></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁶</a>:</p>
+<p>Next comes the <a href="https://beej.us/guide/bgnet/examples/talker.c" rel="nofollow">source for <code>talker.c</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁶</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cm">/*
 ** talker.c -- a datagram "client" demo

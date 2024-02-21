@@ -82,7 +82,7 @@
 
 <p>The <code>node</code> parameter is the host name to connect to, or an IP address.</p>
 
-<p>Next is the parameter <code>service</code>, which can be a port number, like “80”, or the name of a particular service (found in <a href="https://www.iana.org/assignments/port-numbers" rel="nofollow">The IANA Port List</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁰</a> or the <code>/etc/services</code> file on your Unix machine) like “http” or “ftp” or “telnet” or “smtp” or whatever.</p>
+<p>Next is the parameter <code>service</code>, which can be a port number, like “80”, or the name of a particular service (found in <a href="https://www.iana.org/assignments/port-numbers" rel="nofollow">The IANA Port List</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁰</a> or the <code>/etc/services</code> file on your Unix machine) like “http” or “ftp” or “telnet” or “smtp” or whatever.</p>
 
 <p>Finally, the <code>hints</code> parameter points to a <code>struct addrinfo</code> that you’ve already filled out with relevant information.</p>
 
@@ -135,7 +135,7 @@
 <span class="c1">// etc.</span>
 </code></pre></div>
 
-<p>I keep saying that <code>servinfo</code> is a linked list with all kinds of address information. Let’s write a quick demo program to show off this information. <a href="https://beej.us/guide/bgnet/examples/showip.c" rel="nofollow">This short program</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²¹</a> will print the IP addresses for whatever host you specify on the command line:</p>
+<p>I keep saying that <code>servinfo</code> is a linked list with all kinds of address information. Let’s write a quick demo program to show off this information. <a href="https://beej.us/guide/bgnet/examples/showip.c" rel="nofollow">This short program</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²¹</a> will print the IP addresses for whatever host you specify on the command line:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cm">/*
 ** showip.c -- show IP addresses for a host given on the command line
@@ -599,7 +599,7 @@ IP addresses for ipv6.example.com:
 
 <p>The function returns <code>-1</code> on error and sets <code>errno</code> accordingly.</p>
 
-<p>Once you have their address, you can use <code>inet_ntop()</code>, <code>getnameinfo()</code>, or <code>gethostbyaddr()</code> to print or get more information. No, you can’t get their login name. (Ok, ok. If the other computer is running an ident daemon, this is possible. This, however, is beyond the scope of this document. Check out <a href="https://tools.ietf.org/html/rfc1413" rel="nofollow">RFC 1413</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²²</a> for more info.)</p>
+<p>Once you have their address, you can use <code>inet_ntop()</code>, <code>getnameinfo()</code>, or <code>gethostbyaddr()</code> to print or get more information. No, you can’t get their login name. (Ok, ok. If the other computer is running an ident daemon, this is possible. This, however, is beyond the scope of this document. Check out <a href="https://tools.ietf.org/html/rfc1413" rel="nofollow">RFC 1413</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²²</a> for more info.)</p>
 
 <h2>5.11 <code>gethostname()</code>—Who am I?</h2>
 

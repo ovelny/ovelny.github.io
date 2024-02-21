@@ -50,11 +50,11 @@
     
     <h1>39 Multithreading</h1>
 
-<p>C11 introduced, formally, multithreading to the C language. It’s very eerily similar to <a href="https://en.wikipedia.org/wiki/POSIX_Threads" rel="nofollow">POSIX threads</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁵</a>, if you’ve ever used those.</p>
+<p>C11 introduced, formally, multithreading to the C language. It’s very eerily similar to <a href="https://en.wikipedia.org/wiki/POSIX_Threads" rel="nofollow">POSIX threads</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁵</a>, if you’ve ever used those.</p>
 
 <p>And if you’ve not, no worries. We’ll talk it through.</p>
 
-<p>Do note, however, that I’m not intending this to be a full-blown classic multithreading how-to<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁶</a>; you’ll have to pick up a different very thick book for that, specifically. Sorry!</p>
+<p>Do note, however, that I’m not intending this to be a full-blown classic multithreading how-to<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁶</a>; you’ll have to pick up a different very thick book for that, specifically. Sorry!</p>
 
 <p>Threading is an optional feature. If a C11+ compiler defines <code>__STDC_NO_THREADS__</code>, threads will <strong>not</strong> be present in the library. Why they decided to go with a negative sense in that macro is beyond me, but there we are.</p>
 
@@ -65,7 +65,7 @@
 #endif
 </span></code></pre></div>
 
-<p>Also, you might need to specify certain linker options when building. In the case of Unix-likes, try appending a <code>-lpthreads</code> to the end of the command line to link the <code>pthreads</code> library<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁷</a>:</p>
+<p>Also, you might need to specify certain linker options when building. In the case of Unix-likes, try appending a <code>-lpthreads</code> to the end of the command line to link the <code>pthreads</code> library<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁷</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="n">gcc</span> <span class="o">-</span><span class="n">std</span><span class="o">=</span><span class="n">c11</span> <span class="o">-</span><span class="n">o</span> <span class="n">foo</span> <span class="n">foo</span><span class="p">.</span><span class="n">c</span> <span class="o">-</span><span class="n">lpthreads</span>
 </code></pre></div>
@@ -100,7 +100,7 @@
 
 <h2>39.3 Data Races and the Standard Library</h2>
 
-<p>Some of the functions in the standard library (e.g. <code>asctime()</code> and <code>strtok()</code>) return or use <code>static</code> data elements that aren’t threadsafe. But in general unless it’s said otherwise, the standard library makes an effort to be so<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁸</a>.</p>
+<p>Some of the functions in the standard library (e.g. <code>asctime()</code> and <code>strtok()</code>) return or use <code>static</code> data elements that aren’t threadsafe. But in general unless it’s said otherwise, the standard library makes an effort to be so<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁸</a>.</p>
 
 <p>But keep an eye out. If a standard library function is maintaining state between calls in a variable you don’t own, or if a function is returning a pointer to a thing that you didn’t pass in, it’s not threadsafe.</p>
 
@@ -127,7 +127,7 @@
 <li> From the main thread, launch a new thread with <code>thrd_create()</code>, and pass it a pointer to the function to run.</li>
 <li> In that function, have the thread do whatever it has to do.</li>
 <li> Meantimes, the main thread can continue doing whatever <em>it</em> has to do.</li>
-<li> When the main thread decides to, it can wait for the child thread to complete by calling <code>thrd_join()</code>. Generally you <strong>must</strong> <code>thrd_join()</code> the thread to clean up after it or else you’ll leak memory<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁹</a></li>
+<li> When the main thread decides to, it can wait for the child thread to complete by calling <code>thrd_join()</code>. Generally you <strong>must</strong> <code>thrd_join()</code> the thread to clean up after it or else you’ll leak memory<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁹</a></li>
 </ol>
 
 <p><code>thrd_create()</code> takes a pointer to the function to run, and it’s of type <code>thrd_start_t</code>, which is <code>int (*)(void *)</code>. That’s Greek for “a pointer to a function that takes an <code>void*</code> as an argument, and returns an <code>int</code>.”</p>
@@ -391,7 +391,7 @@
 
 <p>Each thread copies <code>foo</code> into a local variable <code>x</code> (which is not shared between threads—all the threads have their own call stacks). So they <em>should</em> be the same, right?</p>
 
-<p>And the first time we print them, they are<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁰</a>. But then right after that, we check to make sure they’re still the same.</p>
+<p>And the first time we print them, they are<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁰</a>. But then right after that, we check to make sure they’re still the same.</p>
 
 <p>And they <em>usually</em> are. But not always!</p>
 
@@ -578,11 +578,11 @@
 
 <h2>39.7 Mutexes</h2>
 
-<p>If you want to only allow a single thread into a critical section of code at a time, you can protect that section with a mutex<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰¹</a>.</p>
+<p>If you want to only allow a single thread into a critical section of code at a time, you can protect that section with a mutex<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰¹</a>.</p>
 
 <p>For example, if we had a <code>static</code> variable and we wanted to be able to get and set it in two operations without another thread jumping in the middle and corrupting it, we could use a mutex for that.</p>
 
-<p>You can acquire a mutex or release it. If you attempt to acquire the mutex and succeed, you may continue execution. If you attempt and fail (because someone else holds it), you will <em>block</em><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰²</a> until the mutex is released.</p>
+<p>You can acquire a mutex or release it. If you attempt to acquire the mutex and succeed, you may continue execution. If you attempt and fail (because someone else holds it), you will <em>block</em><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰²</a> until the mutex is released.</p>
 
 <p>If multiple threads are blocked waiting for a mutex to be released, one of them will be chosen to run (at random, from our perspective), and the others will continue to sleep.</p>
 
@@ -760,7 +760,7 @@
 <div class="highlight"><pre class="highlight c"><code><span class="n">mtx_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">serial_mtx</span><span class="p">,</span> <span class="n">mtx_timed</span><span class="p">);</span>
 </code></pre></div>
 
-<p>And then when you wait for it, you have to specify a time in UTC when it will unlock<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰³</a>.</p>
+<p>And then when you wait for it, you have to specify a time in UTC when it will unlock<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰³</a>.</p>
 
 <p>The function <code>timespec_get()</code> from <code>&lt;time.h&gt;</code> can be of assistance here. It’ll get you the current time in UTC in a <code>struct timespec</code> which is just what we need. In fact, it seems to exist merely for this purpose.</p>
 
@@ -832,9 +832,9 @@
 
 <p>It’s a little different on the <code>cnd_signal()</code> side of things. This doesn’t do anything with the mutex. The signaling thread still must manually release the mutex before the waiting threads can wake up.</p>
 
-<p>One more thing on the <code>cnd_wait()</code>. You’ll probably be calling <code>cnd_wait()</code> if some condition<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁴</a> is not yet met (e.g. in this case, if not all the numbers have yet been entered). Here’s the deal: this condition should be in a <code>while</code> loop, not an <code>if</code> statement. Why?</p>
+<p>One more thing on the <code>cnd_wait()</code>. You’ll probably be calling <code>cnd_wait()</code> if some condition<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁴</a> is not yet met (e.g. in this case, if not all the numbers have yet been entered). Here’s the deal: this condition should be in a <code>while</code> loop, not an <code>if</code> statement. Why?</p>
 
-<p>It’s because of a mysterious phenomenon called a <em>spurious wakeup</em>. Sometimes, in some implementations, a thread can be woken up out of a <code>cnd_wait()</code> sleep for seemingly <em>no reason</em>. <em>[X-Files music]</em><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁵</a>. And so we have to check to see that the condition we need is still actually met when we wake up. And if it’s not, back to sleep with us!</p>
+<p>It’s because of a mysterious phenomenon called a <em>spurious wakeup</em>. Sometimes, in some implementations, a thread can be woken up out of a <code>cnd_wait()</code> sleep for seemingly <em>no reason</em>. <em>[X-Files music]</em><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁵</a>. And so we have to check to see that the condition we need is still actually met when we wake up. And if it’s not, back to sleep with us!</p>
 
 <p>So let’s do this thing! Starting with the main thread:</p>
 
@@ -1009,7 +1009,7 @@
 
 <p>Let’s say you have a function that <em>could</em> be run by many threads, but you don’t know when, and it’s not work trying to write all that logic.</p>
 
-<p>There’s a way around it: use <code>call_once()</code>. Tons of threads could try to run the function, but only the first one counts<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁶</a></p>
+<p>There’s a way around it: use <code>call_once()</code>. Tons of threads could try to run the function, but only the first one counts<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁶</a></p>
 
 <p>To work with this, you need a special flag variable you declare to keep track of whether or not the thing’s been run. And you need a function to run, which takes no parameters and returns no value.</p>
 

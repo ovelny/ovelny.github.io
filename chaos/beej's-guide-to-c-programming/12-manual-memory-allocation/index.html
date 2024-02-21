@@ -62,7 +62,7 @@
 
 <p>But what if you want something to persist longer than a particular block? This is where manual memory management comes into play.</p>
 
-<p>You can tell C explicitly to allocate for you a certain number of bytes that you can use as you please. And these bytes will remain allocated until you explicitly free that memory<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁸</a>.</p>
+<p>You can tell C explicitly to allocate for you a certain number of bytes that you can use as you please. And these bytes will remain allocated until you explicitly free that memory<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁸</a>.</p>
 
 <p>It’s important to free the memory you’re done with! If you don’t, we call that a <em>memory leak</em> and your process will continue to reserve that memory until it exits.</p>
 
@@ -410,7 +410,7 @@
 
 <p>The alignment is an integer power of two greater than zero, so <code>2</code>, <code>4</code>, <code>8</code>, <code>16</code>, etc. and you give that to <code>aligned_alloc()</code> before the number of bytes you’re interested in.</p>
 
-<p>The other restriction is that the number of bytes you allocate needs to be a multiple of the alignment. But this might be changing. See <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/summary.htm#dr_460" rel="nofollow">C Defect Report 460</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁹</a></p>
+<p>The other restriction is that the number of bytes you allocate needs to be a multiple of the alignment. But this might be changing. See <a href="http://www.open-std.org/jtc1/sc22/wg14/www/docs/summary.htm#dr_460" rel="nofollow">C Defect Report 460</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁹</a></p>
 
 <p>Let’s do an example, allocating on a 64-byte boundary:</p>
 

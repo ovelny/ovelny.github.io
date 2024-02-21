@@ -306,7 +306,7 @@
 
 <p>Luckily for us, we can still get the same effect with C99 and later, but now it’s legal.</p>
 
-<p>Let’s just change our above definition to have no size for the array<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³³</a>:</p>
+<p>Let’s just change our above definition to have no size for the array<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³³</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">len_string</span> <span class="p">{</span>
     <span class="kt">int</span> <span class="n">length</span><span class="p">;</span>
@@ -336,7 +336,7 @@
 
 <h2>20.5 Padding Bytes</h2>
 
-<p>Beware that C is allowed to add padding bytes within or after a <code>struct</code> as it sees fit. You can’t trust that they will be directly adjacent in memory<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁴</a>.</p>
+<p>Beware that C is allowed to add padding bytes within or after a <code>struct</code> as it sees fit. You can’t trust that they will be directly adjacent in memory<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁴</a>.</p>
 
 <p>Let’s take a look at this program. We output two numbers. One is the sum of the <code>sizeof</code>s the individual field types. The other is the <code>sizeof</code> the entire <code>struct</code>.</p>
 
@@ -423,7 +423,7 @@
 
 <p>Then we are able to pass a pointer to a <code>struct child</code> to a function that expects either that <em>or</em> a pointer to a <code>struct parent</code>!</p>
 
-<p>Because <code>struct parent super</code> is the first item in the <code>struct child</code>, a pointer to any <code>struct child</code> is the same as a pointer to that <code>super</code> field<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁵</a>.</p>
+<p>Because <code>struct parent super</code> is the first item in the <code>struct child</code>, a pointer to any <code>struct child</code> is the same as a pointer to that <code>super</code> field<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁵</a>.</p>
 
 <p>Let’s set up an example here. We’ll make <code>struct</code>s as above, but then we’ll pass a pointer to a <code>struct child</code> to a function that needs a pointer to a <code>struct parent</code>… and it’ll still work.</p>
 
@@ -570,7 +570,7 @@
 
 <p>In some specific circumstances, you might need to reserve some bits for hardware reasons, but not need to use them in code.</p>
 
-<p>For example, let’s say you have a byte where the top 2 bits have a meaning, the bottom 1 bit has a meaning, but the middle 5 bits do not get used by you<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁶</a>.</p>
+<p>For example, let’s say you have a byte where the top 2 bits have a meaning, the bottom 1 bit has a meaning, but the middle 5 bits do not get used by you<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁶</a>.</p>
 
 <p>We <em>could</em> do something like this:</p>
 
@@ -648,7 +648,7 @@
 
 <p>You can non-portably write to one <code>union</code> field and read from another!</p>
 
-<p>Doing so is called <a href="https://en.wikipedia.org/wiki/Type_punning" rel="nofollow">type punning</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁷</a>, and you’d use it if you really knew what you were doing, typically with some kind of low-level programming.</p>
+<p>Doing so is called <a href="https://en.wikipedia.org/wiki/Type_punning" rel="nofollow">type punning</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁷</a>, and you’d use it if you really knew what you were doing, typically with some kind of low-level programming.</p>
 
 <p>Since the members of a union share the same memory, writing to one member necessarily affects the others. And if you read from one what was written to another, you get some weird effects.</p>
 

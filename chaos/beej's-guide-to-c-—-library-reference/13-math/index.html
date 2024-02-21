@@ -412,7 +412,7 @@
 <li>  Raise a floating point exception.</li>
 </ul>
 
-<p>Your system might vary on what happens. You can check it by looking at the value of the variable <code>math_errhandling</code>. It will be equivalent to one of the following<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²²</a>:</p>
+<p>Your system might vary on what happens. You can check it by looking at the value of the variable <code>math_errhandling</code>. It will be equivalent to one of the following<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²²</a>:</p>
 
 <table><thead>
 <tr>
@@ -525,7 +525,7 @@
 </tr>
 </tbody></table>
 
-<p>A discussion of subnormal numbers is beyond the scope of the guide, and is something that most devs go their whole lives without dealing with. In a nutshell, it’s a way to represent really small numbers that might normally round down to zero. If you want to know more, see the Wikipedia page on <a href="https://en.wikipedia.org/wiki/Denormal_number" rel="nofollow">denormal numbers</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²³</a>.</p>
+<p>A discussion of subnormal numbers is beyond the scope of the guide, and is something that most devs go their whole lives without dealing with. In a nutshell, it’s a way to represent really small numbers that might normally round down to zero. If you want to know more, see the Wikipedia page on <a href="https://en.wikipedia.org/wiki/Denormal_number" rel="nofollow">denormal numbers</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²³</a>.</p>
 
 <h3>Example</h3>
 
@@ -557,7 +557,7 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p>Output<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²⁴</a>:</p>
+<p>Output<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²⁴</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code>    <span class="mi">1</span><span class="p">.</span><span class="mi">23</span><span class="o">:</span> <span class="n">normal</span>
      <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="o">:</span> <span class="n">zero</span>
@@ -1267,7 +1267,7 @@
 
 <h3>Description</h3>
 
-<p>Compute \(e<sup>x\)</sup> where \(e\) is <a href="https://en.wikipedia.org/wiki/E_(mathematical_constant)" rel="nofollow">Euler’s number</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²⁵</a>.</p>
+<p>Compute \(e<sup>x\)</sup> where \(e\) is <a href="https://en.wikipedia.org/wiki/E_(mathematical_constant)" rel="nofollow">Euler’s number</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²⁵</a>.</p>
 
 <p>The number \(e\) is named after Leonard Euler, born April 15, 1707, who is responsible, among other things, for making this reference page longer than it needed to be.</p>
 
@@ -1779,7 +1779,7 @@
 
 <p>This function returns the whole number portion of the exponent of the number with radix <code>FLT_RADIX</code>, namely the whole number portion \(\log_r|x|\) where \(r\) is <code>FLT_RADIX</code>. Fractional numbers are truncated.</p>
 
-<p>If the number is <a href="https://en.wikipedia.org/wiki/Denormal_number" rel="nofollow">subnormal</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²⁶</a>, <code>logb()</code> treats it as if it were normalized.</p>
+<p>If the number is <a href="https://en.wikipedia.org/wiki/Denormal_number" rel="nofollow">subnormal</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²⁶</a>, <code>logb()</code> treats it as if it were normalized.</p>
 
 <p>If <code>x</code> is <code>0</code>, there could be a domain error or pole error.</p>
 
@@ -2089,7 +2089,7 @@
 
 <h3>Description</h3>
 
-<p><a href="https://en.wikipedia.org/wiki/Pythagorean_theorem" rel="nofollow">Pythagorean Theorem</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²⁷</a> fans rejoice! This is the function you’ve been waiting for!</p>
+<p><a href="https://en.wikipedia.org/wiki/Pythagorean_theorem" rel="nofollow">Pythagorean Theorem</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²⁷</a> fans rejoice! This is the function you’ve been waiting for!</p>
 
 <p>If you know the lengths of the two sides of a right triangle, <code>x</code> and <code>y</code>, you can compute the length of the hypotenuse (the longest, diagonal side) with this function.</p>
 
@@ -2234,7 +2234,7 @@
 
 <h3>Description</h3>
 
-<p>These functions compute the <a href="https://en.wikipedia.org/wiki/Error_function" rel="nofollow">error function</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²⁸</a> of a value.</p>
+<p>These functions compute the <a href="https://en.wikipedia.org/wiki/Error_function" rel="nofollow">error function</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²⁸</a> of a value.</p>
 
 <h3>Return Value</h3>
 
@@ -2284,7 +2284,7 @@
 
 <h3>Description</h3>
 
-<p>These functions compute the <a href="https://en.wikipedia.org/wiki/Error_function" rel="nofollow">complementary error function</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²⁹</a> of a value.</p>
+<p>These functions compute the <a href="https://en.wikipedia.org/wiki/Error_function" rel="nofollow">complementary error function</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²⁹</a> of a value.</p>
 
 <p>This is the same as:</p>
 
@@ -2341,7 +2341,7 @@
 
 <h3>Description</h3>
 
-<p>Compute the natural log of the absolute value of <a href="https://en.wikipedia.org/wiki/Gamma_function" rel="nofollow">gamma</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³⁰</a> <code>x</code>, \(\log_e|\Gamma(x)|\).</p>
+<p>Compute the natural log of the absolute value of <a href="https://en.wikipedia.org/wiki/Gamma_function" rel="nofollow">gamma</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³⁰</a> <code>x</code>, \(\log_e|\Gamma(x)|\).</p>
 
 <p>A range error can occur if <code>x</code> is too large.</p>
 
@@ -2392,7 +2392,7 @@
 
 <h3>Description</h3>
 
-<p>Computes the <a href="https://en.wikipedia.org/wiki/Gamma_function" rel="nofollow">gamma function</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³¹</a> of <code>x</code>, \(\Gamma(x)\).</p>
+<p>Computes the <a href="https://en.wikipedia.org/wiki/Gamma_function" rel="nofollow">gamma function</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³¹</a> of <code>x</code>, \(\Gamma(x)\).</p>
 
 <p>A domain or pole error might occur if <code>x</code> is non-positive.</p>
 
@@ -2984,7 +2984,7 @@
 
 <p>So… implementing argument reductions… which can exploit a few low-order bits… Ooookay.</p>
 
-<p><a href="https://en.cppreference.com/w/c/numeric/math/remquo" rel="nofollow">CPPReference has this to say</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³²</a> on the matter, which is spoken so well, I will quote wholesale:</p>
+<p><a href="https://en.cppreference.com/w/c/numeric/math/remquo" rel="nofollow">CPPReference has this to say</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³²</a> on the matter, which is spoken so well, I will quote wholesale:</p>
 
 <blockquote>
 <p>This function is useful when implementing periodic functions with the period exactly representable as a floating-point value: when calculating \(\sin(πx)\) for a very large <code>x</code>, calling <code>sin</code> directly may result in a large error, but if the function argument is first reduced with <code>remquo</code>, the low-order bits of the quotient may be used to determine the sign and the octant of the result within the period, while the remainder may be used to calculate the value with high precision.</p>
@@ -3000,7 +3000,7 @@
 
 <h3>Example</h3>
 
-<p>There’s a <a href="https://en.cppreference.com/w/c/numeric/math/remquo" rel="nofollow">great <code>cos()</code> example at CPPReference</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³³</a> that covers a genuine use case.</p>
+<p>There’s a <a href="https://en.cppreference.com/w/c/numeric/math/remquo" rel="nofollow">great <code>cos()</code> example at CPPReference</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³³</a> that covers a genuine use case.</p>
 
 <p>But instead of stealing it, I’ll just post a simple example here and you can visit their site for a real one.</p>
 
@@ -3088,7 +3088,7 @@
 
 <h3>Description</h3>
 
-<p>These functions return a quiet NaN<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³⁴</a>. It is produced as if calling <a href="stdlib.html#man-strtod" rel="nofollow"><code>strtod()</code></a> with <code>&quot;NAN&quot;</code> (or a variant thereof) as an argument.</p>
+<p>These functions return a quiet NaN<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³⁴</a>. It is produced as if calling <a href="stdlib.html#man-strtod" rel="nofollow"><code>strtod()</code></a> with <code>&quot;NAN&quot;</code> (or a variant thereof) as an argument.</p>
 
 <p><code>tagp</code> points to a string which could be several things, including empty. The contents of the string determine which variant of NaN might get returned depending on the implementation.</p>
 

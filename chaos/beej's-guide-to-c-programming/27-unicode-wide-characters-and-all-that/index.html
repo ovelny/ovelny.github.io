@@ -100,7 +100,7 @@
 
 <p>So we have two things: one is the code point which tells us effectively the serial number of a particular character. And we have the encoding which tells us how we’re going to represent that number in memory.</p>
 
-<p>There are plenty of encodings. You can make up your own right now, if you want<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵⁷</a>. But we’re going to look at some really common encodings that are in use with Unicode.</p>
+<p>There are plenty of encodings. You can make up your own right now, if you want<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵⁷</a>. But we’re going to look at some really common encodings that are in use with Unicode.</p>
 
 <table><thead>
 <tr>
@@ -114,7 +114,7 @@
 </tr>
 <tr>
 <td style="text-align: center">UTF-16</td>
-<td style="text-align: left">A 16-bit per character<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵⁸</a> encoding.</td>
+<td style="text-align: left">A 16-bit per character<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵⁸</a> encoding.</td>
 </tr>
 <tr>
 <td style="text-align: center">UTF-32</td>
@@ -122,7 +122,7 @@
 </tr>
 </tbody></table>
 
-<p>With UTF-16 and UTF-32, the byte order matters, so you might see UTF-16BE for big-endian and UTF-16LE for little-endian. Same for UTF-32. Technically, if unspecified, you should assume big-endian. But since Windows uses UTF-16 extensively and is little-endian, sometimes that is assumed<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵⁹</a>.</p>
+<p>With UTF-16 and UTF-32, the byte order matters, so you might see UTF-16BE for big-endian and UTF-16LE for little-endian. Same for UTF-32. Technically, if unspecified, you should assume big-endian. But since Windows uses UTF-16 extensively and is little-endian, sometimes that is assumed<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵⁹</a>.</p>
 
 <p>Let’s look at some examples. I’m going to write the values in hex because that’s exactly two digits per 8-bit byte, and it makes it easier to see how things are arranged in memory.</p>
 
@@ -190,7 +190,7 @@
 </tr>
 </tbody></table>
 
-<p>Look in there for the patterns. Note that UTF-16BE and UTF-32BE are simply the code point represented directly as 16- and 32-bit values<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶⁰</a>.</p>
+<p>Look in there for the patterns. Note that UTF-16BE and UTF-32BE are simply the code point represented directly as 16- and 32-bit values<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶⁰</a>.</p>
 
 <p>Little-endian is the same, except the bytes are in little-endian order.</p>
 
@@ -198,7 +198,7 @@
 
 <p>So as soon as we get above a certain value, UTF-8 starts using additional bytes to store the values. And they don’t appear to correlate with the code point value, either.</p>
 
-<p><a href="https://en.wikipedia.org/wiki/UTF-8" rel="nofollow">The details of UTF-8 encoding</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶¹</a> are beyond the scope of this guide, but it’s enough to know that it has a variable number of bytes per code point, and those byte values don’t match up with the code point <em>except for the first 128 code points</em>. If you really want to learn more, <a href="https://www.youtube.com/watch?v=MijmeoH9LT4" rel="nofollow">Computerphile has a great UTF-8 video with Tom Scott</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶²</a>.</p>
+<p><a href="https://en.wikipedia.org/wiki/UTF-8" rel="nofollow">The details of UTF-8 encoding</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶¹</a> are beyond the scope of this guide, but it’s enough to know that it has a variable number of bytes per code point, and those byte values don’t match up with the code point <em>except for the first 128 code points</em>. If you really want to learn more, <a href="https://www.youtube.com/watch?v=MijmeoH9LT4" rel="nofollow">Computerphile has a great UTF-8 video with Tom Scott</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶²</a>.</p>
 
 <p>That last bit is a neat thing about Unicode and UTF-8 from a North American perspective: it’s backward compatible with 7-bit ASCII encoding! So if you’re used to ASCII, UTF-8 is the same! Every ASCII-encoded document is also UTF-8 encoded! (But not the other way around, obviously.)</p>
 
@@ -239,7 +239,7 @@
 
 <h2>27.5 Unicode in C</h2>
 
-<p>Before I get into encoding in C, let’s talk about Unicode from a code point standpoint. There is a way in C to specify Unicode characters and these will get translated by the compiler into the execution character set<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶³</a>.</p>
+<p>Before I get into encoding in C, let’s talk about Unicode from a code point standpoint. There is a way in C to specify Unicode characters and these will get translated by the compiler into the execution character set<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶³</a>.</p>
 
 <p>So how do we do it?</p>
 
@@ -299,7 +299,7 @@
 <ul>
 <li><p>Things like <code>strlen()</code> report the number of bytes in a string, not the number of characters, necessarily. (The <code>mbstowcs()</code> returns the number of characters in a string when you convert it to wide characters. POSIX extends this so you can pass <code>NULL</code> for the first argument if you just want the character count.)</p></li>
 <li><p>The following won’t work properly with characters of more than one byte: <code>strtok()</code>, <code>strchr()</code> (use <code>strstr()</code> instead), <code>strspn()</code>-type functions, <code>toupper()</code>, <code>tolower()</code>, <code>isalpha()</code>-type functions, and probably more. Beware anything that operates on bytes.</p></li>
-<li><p><code>printf()</code> variants allow for a way to only print so many bytes of a string<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶⁴</a>. You want to make certain you print the correct number of bytes to end on a character boundary.</p></li>
+<li><p><code>printf()</code> variants allow for a way to only print so many bytes of a string<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶⁴</a>. You want to make certain you print the correct number of bytes to end on a character boundary.</p></li>
 <li><p>If you want to <code>malloc()</code> space for a string, or declare an array of <code>char</code>s for one, be aware that the maximum size could be more than you were expecting. Each character could take up to <code>MB_LEN_MAX</code> bytes (from <code>&lt;limits.h&gt;</code>)—except characters in the basic character set which are guaranteed to be one byte.</p></li>
 </ul>
 
@@ -704,7 +704,7 @@
 </tr>
 <tr>
 <td><code>wcsxfrm()</code></td>
-<td>Transform strings into versions such that <code>wcscmp()</code> behaves like <code>wcscoll()</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶⁵</a>.</td>
+<td>Transform strings into versions such that <code>wcscmp()</code> behaves like <code>wcscoll()</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶⁵</a>.</td>
 </tr>
 </tbody></table>
 
@@ -1031,7 +1031,7 @@
 
 <p>(Like I said, though, the result might not be UTF-16 or UTF-32 unless the corresponding macro is set to <code>1</code>.)</p>
 
-<p>All of these functions are restartable (i.e. you pass in your own <code>mbstate_t</code>), and all of them operate character by character<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶⁶</a>.</p>
+<p>All of these functions are restartable (i.e. you pass in your own <code>mbstate_t</code>), and all of them operate character by character<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶⁶</a>.</p>
 
 <table><thead>
 <tr>
@@ -1062,8 +1062,8 @@
 <p>For heavy-duty conversion between different specific encodings, there are a couple mature libraries worth checking out. Note that I haven’t used either of these.</p>
 
 <ul>
-<li>  <a href="https://en.wikipedia.org/wiki/Iconv" rel="nofollow">iconv</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶⁷</a>—Internationalization Conversion, a common POSIX-standard API available on the major platforms.</li>
-<li>  <a href="http://site.icu-project.org/" rel="nofollow">ICU</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶⁸</a>—International Components for Unicode. At least one blogger found this easy to use.</li>
+<li>  <a href="https://en.wikipedia.org/wiki/Iconv" rel="nofollow">iconv</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶⁷</a>—Internationalization Conversion, a common POSIX-standard API available on the major platforms.</li>
+<li>  <a href="http://site.icu-project.org/" rel="nofollow">ICU</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶⁸</a>—International Components for Unicode. At least one blogger found this easy to use.</li>
 </ul>
 
 <p>If you have more noteworthy libraries, let me know.</p>

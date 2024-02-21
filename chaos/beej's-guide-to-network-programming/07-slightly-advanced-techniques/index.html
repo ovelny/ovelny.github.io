@@ -83,7 +83,7 @@
 <p>What you really want to be able to do is somehow monitor a <em>bunch</em> of sockets at once and then handle the ones that have data ready. This way you don’t have to continuously poll all those sockets to see which are ready to read.</p>
 
 <blockquote>
-<p><em>A word of warning: <code>poll()</code> is horribly slow when it comes to giant numbers of connections. In those circumstances, you’ll get better performance out of an event library such as <a href="https://libevent.org/" rel="nofollow">libevent</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁷</a> that attempts to use the fastest possible method availabile on your system.</em></p>
+<p><em>A word of warning: <code>poll()</code> is horribly slow when it comes to giant numbers of connections. In those circumstances, you’ll get better performance out of an event library such as <a href="https://libevent.org/" rel="nofollow">libevent</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁷</a> that attempts to use the fastest possible method availabile on your system.</em></p>
 </blockquote>
 
 <p>So how can you avoid polling? Not slightly ironically, you can avoid polling by using the <code>poll()</code> system call. In a nutshell, we’re going to ask the operating system to do all the dirty work for us, and just let us know when some data is ready to read on which sockets. In the meantime, our process can go to sleep, saving system resources.</p>
@@ -136,7 +136,7 @@
 
 <p>(There’s actually more that you can do with the <code>poll()</code> call. See the <a href="man-pages.html#pollman" rel="nofollow"><code>poll()</code> man page, below</a>, for more details.)</p>
 
-<p>Here’s <a href="https://beej.us/guide/bgnet/examples/poll.c" rel="nofollow">an example</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁸</a> where we’ll wait 2.5 seconds for data to be ready to read from standard input, i.e. when you hit <code>RETURN</code>:</p>
+<p>Here’s <a href="https://beej.us/guide/bgnet/examples/poll.c" rel="nofollow">an example</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁸</a> where we’ll wait 2.5 seconds for data to be ready to read from standard input, i.e. when you hit <code>RETURN</code>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;poll.h&gt;</span><span class="cp">
@@ -188,7 +188,7 @@
 
 <p>And when a connection is ready-to-read, we’ll read the data from it and send that data to all the other connections so they can see what the other users typed.</p>
 
-<p>So give <a href="https://beej.us/guide/bgnet/examples/pollserver.c" rel="nofollow">this poll server</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁹</a> a try. Run it in one window, then <code>telnet localhost 9034</code> from a number of other terminal windows. You should be able to see what you type in one window in the other ones (after you hit RETURN).</p>
+<p>So give <a href="https://beej.us/guide/bgnet/examples/pollserver.c" rel="nofollow">this poll server</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁹</a> a try. Run it in one window, then <code>telnet localhost 9034</code> from a number of other terminal windows. You should be able to see what you type in one window in the other ones (after you hit RETURN).</p>
 
 <p>Not only that, but if you hit <code>CTRL-]</code> and type <code>quit</code> to exit <code>telnet</code>, the server should detect the disconnection and remove you from the array of file descriptors.</p>
 
@@ -417,7 +417,7 @@
 <p><code>select()</code> gives you the power to monitor several sockets at the same time. It’ll tell you which ones are ready for reading, which are ready for writing, and which sockets have raised exceptions, if you really want to know that.</p>
 
 <blockquote>
-<p><em>A word of warning: <code>select()</code>, though very portable, is terribly slow when it comes to giant numbers of connections. In those circumstances, you’ll get better performance out of an event library such as <a href="https://libevent.org/" rel="nofollow">libevent</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁰</a> that attempts to use the fastest possible method availabile on your system.</em></p>
+<p><em>A word of warning: <code>select()</code>, though very portable, is terribly slow when it comes to giant numbers of connections. In those circumstances, you’ll get better performance out of an event library such as <a href="https://libevent.org/" rel="nofollow">libevent</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁰</a> that attempts to use the fastest possible method availabile on your system.</em></p>
 </blockquote>
 
 <p>Without any further ado, I’ll offer the synopsis of <code>select()</code>:</p>
@@ -476,7 +476,7 @@
 
 <p>Other things of interest: If you set the fields in your <code>struct timeval</code> to <code>0</code>, <code>select()</code> will timeout immediately, effectively polling all the file descriptors in your sets. If you set the parameter <code>timeout</code> to NULL, it will never timeout, and will wait until the first file descriptor is ready. Finally, if you don’t care about waiting for a certain set, you can just set it to NULL in the call to <code>select()</code>.</p>
 
-<p><a href="https://beej.us/guide/bgnet/examples/select.c" rel="nofollow">The following code snippet</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³¹</a> waits 2.5 seconds for something to appear on standard input:</p>
+<p><a href="https://beej.us/guide/bgnet/examples/select.c" rel="nofollow">The following code snippet</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³¹</a> waits 2.5 seconds for something to appear on standard input:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cm">/*
 ** select.c -- a select() demo
@@ -526,7 +526,7 @@
 
 <p>But, by popular demand, here is an in-depth example. Unfortunately, the difference between the dirt-simple example, above, and this one here is significant. But have a look, then read the description that follows it.</p>
 
-<p><a href="https://beej.us/guide/bgnet/examples/selectserver.c" rel="nofollow">This program</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³²</a> acts like a simple multi-user chat server. Start it running in one window, then <code>telnet</code> to it (“<code>telnet hostname 9034</code>”) from multiple other windows. When you type something in one <code>telnet</code> session, it should appear in all the others.</p>
+<p><a href="https://beej.us/guide/bgnet/examples/selectserver.c" rel="nofollow">This program</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³²</a> acts like a simple multi-user chat server. Start it running in one window, then <code>telnet</code> to it (“<code>telnet hostname 9034</code>”) from multiple other windows. When you type something in one <code>telnet</code> session, it should appear in all the others.</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cm">/*
 ** selectserver.c -- a cheezy multiperson chat server
@@ -778,7 +778,7 @@
 
 <p>Actually all the methods, above, have their drawbacks and advantages, but, like I said, in general, I prefer the third method. First, though, let’s talk about some of the drawbacks and advantages to the other two.</p>
 
-<p>The first method, encoding the numbers as text before sending, has the advantage that you can easily print and read the data that’s coming over the wire. Sometimes a human-readable protocol is excellent to use in a non-bandwidth-intensive situation, such as with <a href="https://en.wikipedia.org/wiki/Internet_Relay_Chat" rel="nofollow">Internet Relay Chat (IRC)</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³³</a>. However, it has the disadvantage that it is slow to convert, and the results almost always take up more space than the original number!</p>
+<p>The first method, encoding the numbers as text before sending, has the advantage that you can easily print and read the data that’s coming over the wire. Sometimes a human-readable protocol is excellent to use in a non-bandwidth-intensive situation, such as with <a href="https://en.wikipedia.org/wiki/Internet_Relay_Chat" rel="nofollow">Internet Relay Chat (IRC)</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³³</a>. However, it has the disadvantage that it is slow to convert, and the results almost always take up more space than the original number!</p>
 
 <p>Method two: passing the raw data. This one is quite easy (but dangerous!): just take a pointer to the data to send, and call send with it.</p>
 
@@ -804,7 +804,7 @@
 
 <p>But didn’t I just get finished saying there wasn’t any such function for other non-integer types? Yes. I did. And since there’s no standard way in C to do this, it’s a bit of a pickle (that a gratuitous pun there for you Python fans).</p>
 
-<p>The thing to do is to pack the data into a known format and send that over the wire for decoding. For example, to pack <code>float</code>s, here’s <a href="https://beej.us/guide/bgnet/examples/pack.c" rel="nofollow">something quick and dirty with plenty of room for improvement</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁴</a>:</p>
+<p>The thing to do is to pack the data into a known format and send that over the wire for decoding. For example, to pack <code>float</code>s, here’s <a href="https://beej.us/guide/bgnet/examples/pack.c" rel="nofollow">something quick and dirty with plenty of room for improvement</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁴</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdint.h&gt;</span><span class="cp">
 </span>
@@ -857,9 +857,9 @@
 
 <p>On the plus side, it’s small, simple, and fast. On the minus side, it’s not an efficient use of space and the range is severely restricted—try storing a number greater-than 32767 in there and it won’t be very happy! You can also see in the above example that the last couple decimal places are not correctly preserved.</p>
 
-<p>What can we do instead? Well, <em>The</em> Standard for storing floating point numbers is known as <a href="https://en.wikipedia.org/wiki/IEEE_754" rel="nofollow">IEEE-754</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁵</a>. Most computers use this format internally for doing floating point math, so in those cases, strictly speaking, conversion wouldn’t need to be done. But if you want your source code to be portable, that’s an assumption you can’t necessarily make. (On the other hand, if you want things to be fast, you should optimize this out on platforms that don’t need to do it! That’s what <code>htons()</code> and its ilk do.)</p>
+<p>What can we do instead? Well, <em>The</em> Standard for storing floating point numbers is known as <a href="https://en.wikipedia.org/wiki/IEEE_754" rel="nofollow">IEEE-754</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁵</a>. Most computers use this format internally for doing floating point math, so in those cases, strictly speaking, conversion wouldn’t need to be done. But if you want your source code to be portable, that’s an assumption you can’t necessarily make. (On the other hand, if you want things to be fast, you should optimize this out on platforms that don’t need to do it! That’s what <code>htons()</code> and its ilk do.)</p>
 
-<p><a href="https://beej.us/guide/bgnet/examples/ieee754.c" rel="nofollow">Here’s some code that encodes floats and doubles into IEEE-754 format</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁶</a>. (Mostly—it doesn’t encode NaN or Infinity, but it could be modified to do that.)</p>
+<p><a href="https://beej.us/guide/bgnet/examples/ieee754.c" rel="nofollow">Here’s some code that encodes floats and doubles into IEEE-754 format</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁶</a>. (Mostly—it doesn’t encode NaN or Infinity, but it could be modified to do that.)</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#define pack754_32(f) (pack754((f), 32, 8))
 #define pack754_64(f) (pack754((f), 64, 11))
@@ -972,13 +972,13 @@ double after  : 3.14159265358979311600
 
 <p>That’s a lot of work, is what you’re thinking. Yes, it is. One thing you can do is write a helper function to help pack the data for you. It’ll be fun! Really!</p>
 
-<p>In the book <a href="https://beej.us/guide/url/tpop" rel="nofollow"><em>The Practice of Programming</em></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁷</a> by Kernighan and Pike, they implement <code>printf()</code>-like functions called <code>pack()</code> and <code>unpack()</code> that do exactly this. I’d link to them, but apparently those functions aren’t online with the rest of the source from the book.</p>
+<p>In the book <a href="https://beej.us/guide/url/tpop" rel="nofollow"><em>The Practice of Programming</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁷</a> by Kernighan and Pike, they implement <code>printf()</code>-like functions called <code>pack()</code> and <code>unpack()</code> that do exactly this. I’d link to them, but apparently those functions aren’t online with the rest of the source from the book.</p>
 
 <p>(The Practice of Programming is an excellent read. Zeus saves a kitten every time I recommend it.)</p>
 
-<p>At this point, I’m going to drop a pointer to a <a href="https://github.com/protobuf-c/protobuf-c" rel="nofollow">Protocol Buffers implementation in C</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁸</a> which I’ve never used, but looks completely respectable. Python and Perl programmers will want to check out their language’s <code>pack()</code> and <code>unpack()</code> functions for accomplishing the same thing. And Java has a big-ol’ Serializable interface that can be used in a similar way.</p>
+<p>At this point, I’m going to drop a pointer to a <a href="https://github.com/protobuf-c/protobuf-c" rel="nofollow">Protocol Buffers implementation in C</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁸</a> which I’ve never used, but looks completely respectable. Python and Perl programmers will want to check out their language’s <code>pack()</code> and <code>unpack()</code> functions for accomplishing the same thing. And Java has a big-ol’ Serializable interface that can be used in a similar way.</p>
 
-<p>But if you want to write your own packing utility in C, K&amp;P’s trick is to use variable argument lists to make <code>printf()</code>-like functions to build the packets. <a href="https://beej.us/guide/bgnet/examples/pack2.c" rel="nofollow">Here’s a version I cooked up</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁹</a> on my own based on that which hopefully will be enough to give you an idea of how such a thing can work.</p>
+<p>But if you want to write your own packing utility in C, K&amp;P’s trick is to use variable argument lists to make <code>printf()</code>-like functions to build the packets. <a href="https://beej.us/guide/bgnet/examples/pack2.c" rel="nofollow">Here’s a version I cooked up</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁹</a> on my own based on that which hopefully will be enough to give you an idea of how such a thing can work.</p>
 
 <p>(This code references the <code>pack754()</code> functions, above. The <code>packi*()</code> functions operate like the familiar <code>htons()</code> family, except they pack into a <code>char</code> array instead of another integer.)</p>
 
@@ -1378,7 +1378,7 @@ double after  : 3.14159265358979311600
 <span class="p">}</span>
 </code></pre></div>
 
-<p>And <a href="https://beej.us/guide/bgnet/examples/pack2.c" rel="nofollow">here is a demonstration program</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁰</a> of the above code that packs some data into <code>buf</code> and then unpacks it into variables. Note that when calling <code>unpack()</code> with a string argument (format specifier “<code>s</code>”), it’s wise to put a maximum length count in front of it to prevent a buffer overrun, e.g. “<code>96s</code>”. Be wary when unpacking data you get over the network—a malicious user might send badly-constructed packets in an effort to attack your system!</p>
+<p>And <a href="https://beej.us/guide/bgnet/examples/pack2.c" rel="nofollow">here is a demonstration program</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁰</a> of the above code that packs some data into <code>buf</code> and then unpacks it into variables. Note that when calling <code>unpack()</code> with a string argument (format specifier “<code>s</code>”), it’s wise to put a maximum length count in front of it to prevent a buffer overrun, e.g. “<code>96s</code>”. Be wary when unpacking data you get over the network—a malicious user might send badly-constructed packets in an effort to attack your system!</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 </span>
@@ -1417,7 +1417,7 @@ double after  : 3.14159265358979311600
 
 <p>Whether you roll your own code or use someone else’s, it’s a good idea to have a general set of data packing routines for the sake of keeping bugs in check, rather than packing each bit by hand each time.</p>
 
-<p>When packing the data, what’s a good format to use? Excellent question. Fortunately, <a href="https://tools.ietf.org/html/rfc4506" rel="nofollow">RFC 4506</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴¹</a>, the External Data Representation Standard, already defines binary formats for a bunch of different types, like floating point types, integer types, arrays, raw data, etc. I suggest conforming to that if you’re going to roll the data yourself. But you’re not obligated to. The Packet Police are not right outside your door. At least, I don’t <em>think</em> they are.</p>
+<p>When packing the data, what’s a good format to use? Excellent question. Fortunately, <a href="https://tools.ietf.org/html/rfc4506" rel="nofollow">RFC 4506</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴¹</a>, the External Data Representation Standard, already defines binary formats for a bunch of different types, like floating point types, integer types, arrays, raw data, etc. I suggest conforming to that if you’re going to roll the data yourself. But you’re not obligated to. The Packet Police are not right outside your door. At least, I don’t <em>think</em> they are.</p>
 
 <p>In any case, encoding the data somehow or another before you send it is the right way of doing things!</p>
 
@@ -1521,7 +1521,7 @@ sendto: Permission denied
 
 <p>Yes, it’s not happy at all…because we didn’t set the <code>SO_BROADCAST</code> socket option. Do that, and now you can <code>sendto()</code> anywhere you want!</p>
 
-<p>In fact, that’s the <em>only difference</em> between a UDP application that can broadcast and one that can’t. So let’s take the old <code>talker</code> application and add one section that sets the <code>SO_BROADCAST</code> socket option. We’ll call this program <a href="https://beej.us/guide/bgnet/examples/broadcaster.c" rel="nofollow"><code>broadcaster.c</code></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴²</a>:</p>
+<p>In fact, that’s the <em>only difference</em> between a UDP application that can broadcast and one that can’t. So let’s take the old <code>talker</code> application and add one section that sets the <code>SO_BROADCAST</code> socket option. We’ll call this program <a href="https://beej.us/guide/bgnet/examples/broadcaster.c" rel="nofollow"><code>broadcaster.c</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴²</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cm">/*
 ** broadcaster.c -- a datagram "client" like talker.c, except

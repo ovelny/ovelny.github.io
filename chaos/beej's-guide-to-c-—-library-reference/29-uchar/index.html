@@ -186,7 +186,7 @@
 
 <p>Case <code>(size_t)(-3)</code> is an odd one. Basically there are some characters that can’t be represented with 16 bits and so can’t be stored in a <code>char16_t</code>. These characters are store in something called (in the Unicode world) <em>surrogate pairs</em>. That is, there are <em>two</em> 16-bit values back to back that represent a larger Unicode value.</p>
 
-<p>For example, if you want to read the Unicode character <code>\U0001fbc5</code> (which is a <a href="https://en.wikipedia.org/wiki/Symbols_for_Legacy_Computing" rel="nofollow">stick figure</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁷⁶</a>—I’m just not putting it in the text because my font doesn’t render it) that’s more than 16 bits. But each call to <code>mbrtoc16()</code> only returns a single <code>char16_t</code>!</p>
+<p>For example, if you want to read the Unicode character <code>\U0001fbc5</code> (which is a <a href="https://en.wikipedia.org/wiki/Symbols_for_Legacy_Computing" rel="nofollow">stick figure</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁷⁶</a>—I’m just not putting it in the text because my font doesn’t render it) that’s more than 16 bits. But each call to <code>mbrtoc16()</code> only returns a single <code>char16_t</code>!</p>
 
 <p>So subsequent calls to <code>mbrtoc16()</code> resolves the <em>next</em> value in the surrogate pair and returns <code>(size_t)(-3)</code> to let you know this has happened.</p>
 

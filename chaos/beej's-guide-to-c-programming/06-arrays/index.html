@@ -56,7 +56,7 @@
 <p>—Stan Kelly-Bootle, computer scientist</p>
 </blockquote>
 
-<p>Luckily, C has arrays. I mean, I know it’s considered a low-level language<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵²</a> but it does at least have the concept of arrays built-in. And since a great many languages drew inspiration from C’s syntax, you’re probably already familiar with using <code>[</code> and <code>]</code> for declaring and using arrays.</p>
+<p>Luckily, C has arrays. I mean, I know it’s considered a low-level language<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵²</a> but it does at least have the concept of arrays built-in. And since a great many languages drew inspiration from C’s syntax, you’re probably already familiar with using <code>[</code> and <code>]</code> for declaring and using arrays.</p>
 
 <p>But C only <em>barely</em> has arrays! As we’ll find out later, arrays are just syntactic sugar in C—they’re actually all pointers and stuff deep down. <em>Freak out!</em> But for now, let’s just use them as arrays. <em>Phew</em>.</p>
 
@@ -84,7 +84,7 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p>When you declare an array, you have to give it a size. And the size has to be fixed<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵³</a>.</p>
+<p>When you declare an array, you have to give it a size. And the size has to be fixed<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵³</a>.</p>
 
 <p>In the above example, we made an array of 4 <code>float</code>s. The value in the square brackets in the declaration lets us know that.</p>
 
@@ -94,9 +94,9 @@
 
 <h2>6.2 Getting the Length of an Array</h2>
 
-<p>You can’t…ish. C doesn’t record this information<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁴</a>. You have to manage it separately in another variable.</p>
+<p>You can’t…ish. C doesn’t record this information<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁴</a>. You have to manage it separately in another variable.</p>
 
-<p>When I say “can’t”, I actually mean there are some circumstances when you <em>can</em>. There is a trick to get the number of elements in an array in the scope in which an array is declared. But, generally speaking, this won’t work the way you want if you pass the array to a function<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁵</a>.</p>
+<p>When I say “can’t”, I actually mean there are some circumstances when you <em>can</em>. There is a trick to get the number of elements in an array in the scope in which an array is declared. But, generally speaking, this won’t work the way you want if you pass the array to a function<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁵</a>.</p>
 
 <p>Let’s take a look at this trick. The basic idea is that you take the <code>sizeof</code> the array, and then divide that by the size of each element to get the length. For example, if an <code>int</code> is 4 bytes, and the array is 32 bytes long, there must be room for \(\frac{32}{4}\) or \(8\) <code>int</code>s in there.</p>
 
@@ -244,9 +244,9 @@
 
 <p>Yikes! What’s that? Well, turns out printing off the end of an array results in what C developers call <em>undefined behavior</em>. We’ll talk more about this beast later, but for now it means, “You’ve done something bad, and anything could happen during your program run.”</p>
 
-<p>And by anything, I mean typically things like finding zeroes, finding garbage numbers, or crashing. But really the C spec says in this circumstance the compiler is allowed to emit code that does <em>anything</em><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁶</a>.</p>
+<p>And by anything, I mean typically things like finding zeroes, finding garbage numbers, or crashing. But really the C spec says in this circumstance the compiler is allowed to emit code that does <em>anything</em><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁶</a>.</p>
 
-<p>Short version: don’t do anything that causes undefined behavior. Ever<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁷</a>.</p>
+<p>Short version: don’t do anything that causes undefined behavior. Ever<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁷</a>.</p>
 
 <h2>6.5 Multidimensional Arrays</h2>
 
@@ -257,7 +257,7 @@
 <span class="kt">int</span> <span class="n">c</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">5</span><span class="p">][</span><span class="mi">6</span><span class="p">];</span>
 </code></pre></div>
 
-<p>These are stored in memory in <a href="https://en.wikipedia.org/wiki/Row-_and_column-major_order" rel="nofollow">row-major order</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁸</a>. This means with a 2D array, the first index listed indicates the row, and the second the column.</p>
+<p>These are stored in memory in <a href="https://en.wikipedia.org/wiki/Row-_and_column-major_order" rel="nofollow">row-major order</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁸</a>. This means with a 2D array, the first index listed indicates the row, and the second the column.</p>
 
 <p>You can also use initializers on multidimensional arrays by nesting them:</p>
 
@@ -314,7 +314,7 @@
 
 <h3>6.6.1 Getting a Pointer to an Array</h3>
 
-<p>I want to tell you a secret. Generally speaking, when a C programmer talks about a pointer to an array, they’re talking about a pointer <em>to the first element</em> of the array<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁹</a>.</p>
+<p>I want to tell you a secret. Generally speaking, when a C programmer talks about a pointer to an array, they’re talking about a pointer <em>to the first element</em> of the array<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁹</a>.</p>
 
 <p>So let’s get a pointer to the first element of an array.</p>
 
@@ -393,7 +393,7 @@
 
 <p>In usage by C regulars, the first is the most common, by far.</p>
 
-<p>And, in fact, in the latter situation, the compiler doesn’t even care what number you pass in (other than it has to be greater than zero<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁰</a>). It doesn’t enforce anything at all.</p>
+<p>And, in fact, in the latter situation, the compiler doesn’t even care what number you pass in (other than it has to be greater than zero<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁰</a>). It doesn’t enforce anything at all.</p>
 
 <p>Now that I’ve said that, the size of the array in the function declaration actually <em>does</em> matter when you’re passing multidimensional arrays into functions, but let’s come back to that.</p>
 
@@ -461,7 +461,7 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p>But in this case, these two<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶¹</a> are equivalent:</p>
+<p>But in this case, these two<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶¹</a> are equivalent:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="n">print_2D_array</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">3</span><span class="p">])</span>
 <span class="kt">void</span> <span class="n">print_2D_array</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">[][</span><span class="mi">3</span><span class="p">])</span>

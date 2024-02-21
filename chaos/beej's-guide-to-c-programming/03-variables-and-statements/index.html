@@ -69,7 +69,7 @@
 
 <p>We’re going to take a second here and take a peek down the rabbit hole that is pointers. Don’t worry about it.</p>
 
-<p>You can think of memory as a big array of bytes<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³³</a>. Data is stored in this “array”<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁴</a>. If a number is larger than a single byte, it is stored in multiple bytes. Because memory is like an array, each byte of memory can be referred to by its index. This index into memory is also called an <em>address</em>, or a <em>location</em>, or a <em>pointer</em>.</p>
+<p>You can think of memory as a big array of bytes<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³³</a>. Data is stored in this “array”<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁴</a>. If a number is larger than a single byte, it is stored in multiple bytes. Because memory is like an array, each byte of memory can be referred to by its index. This index into memory is also called an <em>address</em>, or a <em>location</em>, or a <em>pointer</em>.</p>
 
 <p>When you have a variable in C, the value of that variable is in memory <em>somewhere</em>, at some address. Of course. After all, where else would it be? But it’s a pain to refer to a value by its numeric address, so we make a name for it instead, and that’s what the variable is.</p>
 
@@ -115,7 +115,7 @@
 <tr>
 <td style="text-align: left">Floating point</td>
 <td style="text-align: right"><code>3.14159</code></td>
-<td style="text-align: left"><code>float</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁵</a></td>
+<td style="text-align: left"><code>float</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁵</a></td>
 </tr>
 <tr>
 <td style="text-align: left">Character (single)</td>
@@ -125,7 +125,7 @@
 <tr>
 <td style="text-align: left">String</td>
 <td style="text-align: right"><code>&quot;Hello, world!&quot;</code></td>
-<td style="text-align: left"><code>char *</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁶</a></td>
+<td style="text-align: left"><code>char *</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁶</a></td>
 </tr>
 </tbody></table>
 
@@ -150,10 +150,10 @@
 
 <p>There! We’ve declared a couple of variables. We haven’t used them yet, and they’re both uninitialized. One holds an integer number, and the other holds a floating point number (a real number, basically, if you have a math background).</p>
 
-<p>Uninitialized variables have indeterminate value<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁷</a>. They have to be initialized or else you must assume they contain some nonsense number.</p>
+<p>Uninitialized variables have indeterminate value<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁷</a>. They have to be initialized or else you must assume they contain some nonsense number.</p>
 
 <blockquote>
-<p>This is one of the places C can “get you”. Much of the time, in my experience, the indeterminate value is zero… but it can vary from run to run! Never assume the value will be zero, even if you see it is. <em>Always</em> explicitly initialize variables to some value before you use them<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁸</a>.</p>
+<p>This is one of the places C can “get you”. Much of the time, in my experience, the indeterminate value is zero… but it can vary from run to run! Never assume the value will be zero, even if you see it is. <em>Always</em> explicitly initialize variables to some value before you use them<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁸</a>.</p>
 </blockquote>
 
 <p>What’s this? You want to store some numbers in those variables? Insanity!</p>
@@ -461,7 +461,7 @@
 
 <p>Since this computes the number of bytes needed to store a type, you might think it would return an <code>int</code>. Or… since the size can’t be negative, maybe an <code>unsigned</code>?</p>
 
-<p>But it turns out C has a special type to represent the return value from <code>sizeof</code>. It’s <code>size_t</code>, pronounced “<em>size tee</em>”<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁹</a>. All we know is that it’s an unsigned integer type that can hold the size in bytes of anything you can give to <code>sizeof</code>.</p>
+<p>But it turns out C has a special type to represent the return value from <code>sizeof</code>. It’s <code>size_t</code>, pronounced “<em>size tee</em>”<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁹</a>. All we know is that it’s an unsigned integer type that can hold the size in bytes of anything you can give to <code>sizeof</code>.</p>
 
 <p><code>size_t</code> shows up a lot of different places where counts of things are passed or returned. Think of it as a value that represents a count.</p>
 
@@ -486,7 +486,7 @@
 <span class="n">printf</span><span class="p">(</span><span class="s">"%zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">char</span><span class="p">));</span>  <span class="c1">// Prints 1 on all systems</span>
 </code></pre></div>
 
-<p>It’s important to note that <code>sizeof</code> is a <em>compile-time</em> operation<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁰</a>. The result of the expression is determined entirely at compile-time, not at runtime.</p>
+<p>It’s important to note that <code>sizeof</code> is a <em>compile-time</em> operation<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁰</a>. The result of the expression is determined entirely at compile-time, not at runtime.</p>
 
 <p>We’ll make use of this later on.</p>
 
@@ -673,7 +673,7 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p>Side note: did you run that more than once? If you did, did you notice the same sequence of numbers came up again. And again. And again? This is because <code>rand()</code> is a pseudorandom number generator that must be <em>seeded</em> with a different number in order to generate a different sequence. Look up the <a href="https://beej.us/guide/bgclr/html/split/stdlib.html#man-srand" rel="nofollow"><code>srand()</code></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴¹</a> function for more details.</p>
+<p>Side note: did you run that more than once? If you did, did you notice the same sequence of numbers came up again. And again. And again? This is because <code>rand()</code> is a pseudorandom number generator that must be <em>seeded</em> with a different number in order to generate a different sequence. Look up the <a href="https://beej.us/guide/bgclr/html/split/stdlib.html#man-srand" rel="nofollow"><code>srand()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴¹</a> function for more details.</p>
 
 <h3>3.3.4 The <code>for</code> statement</h3>
 
@@ -823,7 +823,7 @@
 
 <p>ProTip: <em>ALWAYS</em> put a comment in the code where you intend to fall through, like I did above. It will save other programmers from wondering if you meant to do that.</p>
 
-<p>In fact, this is one of the common places to introduce bugs in C programs: forgetting to put a <code>break</code> in your <code>case</code>. You gotta do it if you don’t want to just roll into the next case<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴²</a>.</p>
+<p>In fact, this is one of the common places to introduce bugs in C programs: forgetting to put a <code>break</code> in your <code>case</code>. You gotta do it if you don’t want to just roll into the next case<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴²</a>.</p>
 
 <p>Earlier I said that <code>switch</code> works with integer types—keep it that way. Don’t use floating point or string types in there. One loophole-ish thing here is that you can use character types because those are secretly integers themselves. So this is perfectly acceptable:</p>
 

@@ -61,26 +61,26 @@
 
 <p>C is a low-level language.</p>
 
-<p>It didn’t use to be. Back in the day when people carved punch cards out of granite, C was an incredible way to be free of the drudgery of lower-level languages like <a href="https://en.wikipedia.org/wiki/Assembly_language" rel="nofollow">assembly</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹</a>.</p>
+<p>It didn’t use to be. Back in the day when people carved punch cards out of granite, C was an incredible way to be free of the drudgery of lower-level languages like <a href="https://en.wikipedia.org/wiki/Assembly_language" rel="nofollow">assembly</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹</a>.</p>
 
 <p>But now in these modern times, current-generation languages offer all kinds of features that didn’t exist in 1972 when C was invented. This means C is a pretty basic language with not a lot of features. It can do <em>anything</em>, but it can make you work for it.</p>
 
 <p>So why would we even use it today?</p>
 
 <ul>
-<li><p>As a learning tool: not only is C a venerable piece of computing history, but it is connected to the <a href="https://en.wikipedia.org/wiki/Bare_machine" rel="nofollow">bare metal</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰</a> in a way that present-day languages are not. When you learn C, you learn about how software interfaces with computer memory at a low level. There are no seatbelts. You’ll write software that crashes, I assure you. And that’s all part of the fun!</p></li>
-<li><p>As a useful tool: C still is used for certain applications, such as building <a href="https://en.wikipedia.org/wiki/Operating_system" rel="nofollow">operating systems</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹</a> or in <a href="https://en.wikipedia.org/wiki/Embedded_system" rel="nofollow">embedded systems</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²</a>. (Though the <a href="https://en.wikipedia.org/wiki/Rust_(programming_language)" rel="nofollow">Rust</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²³</a> programming language is eyeing both these fields!)</p></li>
+<li><p>As a learning tool: not only is C a venerable piece of computing history, but it is connected to the <a href="https://en.wikipedia.org/wiki/Bare_machine" rel="nofollow">bare metal</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰</a> in a way that present-day languages are not. When you learn C, you learn about how software interfaces with computer memory at a low level. There are no seatbelts. You’ll write software that crashes, I assure you. And that’s all part of the fun!</p></li>
+<li><p>As a useful tool: C still is used for certain applications, such as building <a href="https://en.wikipedia.org/wiki/Operating_system" rel="nofollow">operating systems</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹</a> or in <a href="https://en.wikipedia.org/wiki/Embedded_system" rel="nofollow">embedded systems</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²</a>. (Though the <a href="https://en.wikipedia.org/wiki/Rust_(programming_language)" rel="nofollow">Rust</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²³</a> programming language is eyeing both these fields!)</p></li>
 </ul>
 
 <p>If you’re familiar with another language, a lot of things about C are easy. C inspired many other languages, and you’ll see bits of it in Go, Rust, Swift, Python, JavaScript, Java, and all kinds of other languages. Those parts will be familiar.</p>
 
 <p>The one thing about C that hangs people up is <em>pointers</em>. Virtually everything else is familiar, but pointers are the weird one. The concept behind pointers is likely one you already know, but C forces you to be explicit about it, using operators you’ve likely never seen before.</p>
 
-<p>It’s especially insidious because once you <a href="https://en.wikipedia.org/wiki/Grok" rel="nofollow"><em>grok</em></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁴</a> pointers, they’re suddenly easy. But up until that moment, they’re slippery eels.</p>
+<p>It’s especially insidious because once you <a href="https://en.wikipedia.org/wiki/Grok" rel="nofollow"><em>grok</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁴</a> pointers, they’re suddenly easy. But up until that moment, they’re slippery eels.</p>
 
 <p>Everything else in C is just memorizing another way (or sometimes the same way!) of doing something you’ve done already. Pointers are the weird bit. And, arguably, even pointers are variations on a theme you’re probably familiar with.</p>
 
-<p>So get ready for a rollicking adventure as close to the core of the computer as you can get without assembly, in the most influential computer language of all time<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁵</a>. Hang on!</p>
+<p>So get ready for a rollicking adventure as close to the core of the computer as you can get without assembly, in the most influential computer language of all time<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁵</a>. Hang on!</p>
 
 <h2>2.2 Hello, World!</h2>
 
@@ -102,15 +102,15 @@
 
 <p>Now, what is this <code>#include</code>? GROSS! Well, it tells the C Preprocessor to pull the contents of another file and insert it into the code right <em>there</em>.</p>
 
-<p>Wait—what’s a C Preprocessor? Good question. There are two stages<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁶</a> to compilation: the preprocessor and the compiler. Anything that starts with pound sign, or “octothorpe”, (<code>#</code>) is something the preprocessor operates on before the compiler even gets started. Common <em>preprocessor directives</em>, as they’re called, are <code>#include</code> and <code>#define</code>. More on that later.</p>
+<p>Wait—what’s a C Preprocessor? Good question. There are two stages<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁶</a> to compilation: the preprocessor and the compiler. Anything that starts with pound sign, or “octothorpe”, (<code>#</code>) is something the preprocessor operates on before the compiler even gets started. Common <em>preprocessor directives</em>, as they’re called, are <code>#include</code> and <code>#define</code>. More on that later.</p>
 
 <p>Before we go on, why would I even begin to bother pointing out that a pound sign is called an octothorpe? The answer is simple: I think the word octothorpe is so excellently funny, I have to gratuitously spread its name around whenever I get the opportunity. Octothorpe. Octothorpe, octothorpe, octothorpe.</p>
 
-<p>So <em>anyway</em>. After the C preprocessor has finished preprocessing everything, the results are ready for the compiler to take them and produce <a href="https://en.wikipedia.org/wiki/Assembly_language" rel="nofollow">assembly code</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁷</a>, <a href="https://en.wikipedia.org/wiki/Machine_code" rel="nofollow">machine code</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁸</a>, or whatever it’s about to do. Machine code is the “language” the CPU understands, and it can understand it <em>very rapidly</em>. This is one of the reasons C programs tend to be quick.</p>
+<p>So <em>anyway</em>. After the C preprocessor has finished preprocessing everything, the results are ready for the compiler to take them and produce <a href="https://en.wikipedia.org/wiki/Assembly_language" rel="nofollow">assembly code</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁷</a>, <a href="https://en.wikipedia.org/wiki/Machine_code" rel="nofollow">machine code</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁸</a>, or whatever it’s about to do. Machine code is the “language” the CPU understands, and it can understand it <em>very rapidly</em>. This is one of the reasons C programs tend to be quick.</p>
 
 <p>Don’t worry about the technical details of compilation for now; just know that your source runs through the preprocessor, then the output of that runs through the compiler, then that produces an executable for you to run.</p>
 
-<p>What about the rest of the line? What’s <code>&lt;stdio.h&gt;</code>? That is what is known as a <em>header file</em>. It’s the dot-h at the end that gives it away. In fact it’s the “Standard I/O” (<code>stdio</code>) header file that you will grow to know and love. It gives us access to a bunch of I/O functionality<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁹</a>. For our demo program, we’re outputting the string “Hello, World!”, so we in particular need access to the <code>printf()</code> function to do this. The <code>&lt;stdio.h&gt;</code> file gives us this access. Basically, if we tried to use <code>printf()</code> without <code>#include &lt;stdio.h&gt;</code>, the compiler would have complained to us about it.</p>
+<p>What about the rest of the line? What’s <code>&lt;stdio.h&gt;</code>? That is what is known as a <em>header file</em>. It’s the dot-h at the end that gives it away. In fact it’s the “Standard I/O” (<code>stdio</code>) header file that you will grow to know and love. It gives us access to a bunch of I/O functionality<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁹</a>. For our demo program, we’re outputting the string “Hello, World!”, so we in particular need access to the <code>printf()</code> function to do this. The <code>&lt;stdio.h&gt;</code> file gives us this access. Basically, if we tried to use <code>printf()</code> without <code>#include &lt;stdio.h&gt;</code>, the compiler would have complained to us about it.</p>
 
 <p>How did I know I needed to <code>#include &lt;stdio.h&gt;</code> for <code>printf()</code>? Answer: it’s in the documentation. If you’re on a Unix system, <code>man 3 printf</code> and it’ll tell you right at the top of the man page what header files are required. Or see the reference section in this book. <code>:-)</code></p>
 
@@ -173,7 +173,7 @@
 
 <p>The C compiler is the program that does the compilation.</p>
 
-<p>As we’ve already said, <code>gcc</code> is a compiler that’s installed on a lot of <a href="https://en.wikipedia.org/wiki/Unix" rel="nofollow">Unix-like operating systems</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁰</a>. And it’s commonly run from the command line in a terminal, but not always. You can run it from your IDE, as well.</p>
+<p>As we’ve already said, <code>gcc</code> is a compiler that’s installed on a lot of <a href="https://en.wikipedia.org/wiki/Unix" rel="nofollow">Unix-like operating systems</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³⁰</a>. And it’s commonly run from the command line in a terminal, but not always. You can run it from your IDE, as well.</p>
 
 <p>So how do we do command line builds?</p>
 
@@ -184,7 +184,7 @@
 <div class="highlight"><pre class="highlight c"><code><span class="n">gcc</span> <span class="o">-</span><span class="n">o</span> <span class="n">hello</span> <span class="n">hello</span><span class="p">.</span><span class="n">c</span>
 </code></pre></div>
 
-<p>The <code>-o</code> means “output to this file”<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³¹</a>. And there’s <code>hello.c</code> at the end, the name of the file we want to compile.</p>
+<p>The <code>-o</code> means “output to this file”<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³¹</a>. And there’s <code>hello.c</code> at the end, the name of the file we want to compile.</p>
 
 <p>If your source is broken up into multiple files, you can compile them all together (almost as if they were one file, but the rules are actually more complex than that) by putting all the <code>.c</code> files on the command line:</p>
 
@@ -199,7 +199,7 @@
 
 <p>On Macs, the stock compiler isn’t <code>gcc</code>—it’s <code>clang</code>. But a wrapper is also installed so you can run <code>gcc</code> and have it still work.</p>
 
-<p>You can also install the <code>gcc</code> compiler proper through <a href="https://formulae.brew.sh/formula/gcc" rel="nofollow">Homebrew</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³²</a> or some other means.</p>
+<p>You can also install the <code>gcc</code> compiler proper through <a href="https://formulae.brew.sh/formula/gcc" rel="nofollow">Homebrew</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³²</a> or some other means.</p>
 
 <h2>2.6 Building from IDEs</h2>
 

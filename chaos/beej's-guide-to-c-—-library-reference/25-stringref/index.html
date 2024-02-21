@@ -477,7 +477,7 @@
 
 <p><code>strxform()</code> takes string <code>s2</code> and transforms it (readies it for <code>strcmp()</code>) storing the result in <code>s1</code>. It writes no more than <code>n</code> bytes, protecting us from terrible buffer overflows.</p>
 
-<p>But hang on—there’s another mode! If you pass <code>NULL</code> for <code>s1</code> and <code>0</code> for <code>n</code>, it will return the number of bytes that the transformed string <em>would have</em> used<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁴</a>. This is useful if you need to allocate some space to hold the transformed string before you <code>strcmp()</code> it against another.</p>
+<p>But hang on—there’s another mode! If you pass <code>NULL</code> for <code>s1</code> and <code>0</code> for <code>n</code>, it will return the number of bytes that the transformed string <em>would have</em> used<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁴</a>. This is useful if you need to allocate some space to hold the transformed string before you <code>strcmp()</code> it against another.</p>
 
 <p>What I’m getting at, not to be too blunt, is that <code>strcoll()</code> is slow compared to <code>strcmp()</code>. It does a lot of extra work running <code>strxfrm()</code> on all its strings.</p>
 

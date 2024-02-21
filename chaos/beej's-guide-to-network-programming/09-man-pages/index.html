@@ -362,7 +362,7 @@
 
 <p>The host name that you’re interested in goes in the <code>nodename</code> parameter. The address can be either a host name, like “www.example.com”, or an IPv4 or IPv6 address (passed as a string). This parameter can also be <code>NULL</code> if you’re using the <code>AI_PASSIVE</code> flag (see below).</p>
 
-<p>The <code>servname</code> parameter is basically the port number. It can be a port number (passed as a string, like “80”), or it can be a service name, like “http” or “tftp” or “smtp” or “pop”, etc. Well-known service names can be found in the <a href="https://www.iana.org/assignments/port-numbers" rel="nofollow">IANA Port List</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁸</a> or in your <code>/etc/services</code> file.</p>
+<p>The <code>servname</code> parameter is basically the port number. It can be a port number (passed as a string, like “80”), or it can be a service name, like “http” or “tftp” or “smtp” or “pop”, etc. Well-known service names can be found in the <a href="https://www.iana.org/assignments/port-numbers" rel="nofollow">IANA Port List</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁸</a> or in your <code>/etc/services</code> file.</p>
 
 <p>Lastly, for input parameters, we have <code>hints</code>. This is really where you get to define what the <code>getaddrinfo()</code> function is going to do. Zero the whole structure before use with <code>memset()</code>. Let’s take a look at the fields you need to set up before use.</p>
 

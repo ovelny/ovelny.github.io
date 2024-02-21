@@ -69,7 +69,7 @@
 <ul>
 <li>  Integers of exactly a certain size (<code>intN_t</code>)</li>
 <li>  Integers that are at least a certain size (<code>int_leastN_t</code>)</li>
-<li>  Integers that are at least a certain size and are as fast as possible (<code>int_fastN_t</code>)<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁷</a></li>
+<li>  Integers that are at least a certain size and are as fast as possible (<code>int_fastN_t</code>)<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁷</a></li>
 </ul>
 
 <p>How much faster is <code>fast</code>? Definitely maybe some amount faster. Probably. The spec doesn’t say how much faster, just that they’ll be the fastest on this architecture. Most C compilers are pretty good, though, so you’ll probably only see this used in places where the most possible speed needs to be guaranteed (rather than just hoping the compiler is producing pretty-dang-fast code, which it is).</p>
@@ -101,7 +101,7 @@
 
 <p>There might be others of different widths, as well, but those are optional.</p>
 
-<p>Hey! Where are the fixed types like <code>int16_t</code>? Turns out those are entirely optional…unless certain conditions are met<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁸</a>. And if you have an average run-of-the-mill modern computer system, those conditions probably are met. And if they are, you’ll have these types:</p>
+<p>Hey! Where are the fixed types like <code>int16_t</code>? Turns out those are entirely optional…unless certain conditions are met<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁸</a>. And if you have an average run-of-the-mill modern computer system, those conditions probably are met. And if they are, you’ll have these types:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="kt">int8_t</span>      <span class="kt">uint8_t</span>
 <span class="kt">int16_t</span>     <span class="kt">uint16_t</span>

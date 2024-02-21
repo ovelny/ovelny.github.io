@@ -418,7 +418,7 @@
 </tr>
 <tr>
 <td><code>1</code></td>
-<td><em>Sometimes</em> lock-free<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³⁸</a>.</td>
+<td><em>Sometimes</em> lock-free<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³⁸</a>.</td>
 </tr>
 <tr>
 <td><code>2</code></td>
@@ -498,7 +498,7 @@
 
 <p>The initialization itself is <em>not</em> an atomic operation, ironically.</p>
 
-<p><a href="https://en.cppreference.com/w/cpp/atomic/ATOMIC_VAR_INIT" rel="nofollow">CPPReference says this is deprecated</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³⁹</a> and likely to be removed. Standards document <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1138r0.pdf" rel="nofollow">p1138r0</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴⁰</a> elaborates that the macro is limited in that it can’t properly initialize atomic <code>struct</code>s, and its original <em>raison d’être</em> turned out to not be useful.</p>
+<p><a href="https://en.cppreference.com/w/cpp/atomic/ATOMIC_VAR_INIT" rel="nofollow">CPPReference says this is deprecated</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³⁹</a> and likely to be removed. Standards document <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1138r0.pdf" rel="nofollow">p1138r0</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴⁰</a> elaborates that the macro is limited in that it can’t properly initialize atomic <code>struct</code>s, and its original <em>raison d’être</em> turned out to not be useful.</p>
 
 <p>Just initialize the variable straight-up, instead.</p>
 
@@ -1064,7 +1064,7 @@
 <li><p>Else the value pointed to by <code>expected</code> (yes, <code>expected</code>) is set to <code>desired</code> and the function returns <code>false</code> indicating the exchange did not take place.</p></li>
 </ul>
 
-<p>Pseudocode for the exchange would look like this<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴¹</a>:</p>
+<p>Pseudocode for the exchange would look like this<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴¹</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="n">bool</span> <span class="nf">compare_exchange</span><span class="p">(</span><span class="n">atomic_A</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">C</span> <span class="o">*</span><span class="n">expected</span><span class="p">,</span> <span class="n">C</span> <span class="n">desired</span><span class="p">)</span>
 <span class="p">{</span>
@@ -1078,7 +1078,7 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p>The <code>_weak</code> variants might spontaneously fail, so even if <code>*object == *desired</code>, it might not change the value and will return <code>false</code>. So you’ll want that in a loop if you use it<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴²</a>.</p>
+<p>The <code>_weak</code> variants might spontaneously fail, so even if <code>*object == *desired</code>, it might not change the value and will return <code>false</code>. So you’ll want that in a loop if you use it<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴²</a>.</p>
 
 <p>The <code>_explicit</code> variants have two memory orders: <code>success</code> if <code>*object</code> is set to <code>desired</code>, and <code>failure</code> if it is not.</p>
 
@@ -1260,7 +1260,7 @@
 
 <h3>Example</h3>
 
-<p>Using test-and-set to implement a spin lock<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴³</a>:</p>
+<p>Using test-and-set to implement a spin lock<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴³</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
@@ -1351,7 +1351,7 @@
 
 <h3>Example</h3>
 
-<p>Using test-and-set to implement a spin lock<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴⁴</a>:</p>
+<p>Using test-and-set to implement a spin lock<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴⁴</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">

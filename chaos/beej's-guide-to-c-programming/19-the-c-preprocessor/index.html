@@ -263,7 +263,7 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p>One hackish thing this is used for is to comment out large numbers of lines quickly<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁷</a>.</p>
+<p>One hackish thing this is used for is to comment out large numbers of lines quickly<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁷</a>.</p>
 
 <p>If you put an <code>#if 0</code> (“if false”) at the front of the block to be commented out and an <code>#endif</code> at the end, you can get this effect:</p>
 
@@ -376,7 +376,7 @@
 </tr>
 <tr>
 <td><code>__func__</code></td>
-<td>The name of the function this appears in, as a string<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁸</a></td>
+<td>The name of the function this appears in, as a string<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁸</a></td>
 </tr>
 <tr>
 <td><code>__STDC__</code></td>
@@ -384,7 +384,7 @@
 </tr>
 <tr>
 <td><code>__STDC_HOSTED__</code></td>
-<td>This will be <code>1</code> if the compiler is a <em>hosted implementation</em><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁹</a>, otherwise <code>0</code></td>
+<td>This will be <code>1</code> if the compiler is a <em>hosted implementation</em><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁹</a>, otherwise <code>0</code></td>
 </tr>
 <tr>
 <td><code>__STDC_VERSION__</code></td>
@@ -485,7 +485,7 @@
 </tr>
 <tr>
 <td><code>__STDC_ANALYZABLE__</code></td>
-<td>A <code>1</code> indicates the code is analyzable<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁰</a></td>
+<td>A <code>1</code> indicates the code is analyzable<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁰</a></td>
 </tr>
 <tr>
 <td><code>__STDC_IEC_559__</code></td>
@@ -792,7 +792,7 @@
         <span class="nf">printf</span><span class="p">(</span><span class="s">":-(</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
 </code></pre></div>
 
-<p>The <code>;</code> puts an end to the <code>if</code> statement, so the <code>else</code> is just floating out there illegally<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³¹</a>.</p>
+<p>The <code>;</code> puts an end to the <code>if</code> statement, so the <code>else</code> is just floating out there illegally<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³¹</a>.</p>
 
 <p>So wrap that multiline macro with a <code>do</code>-<code>while(0)</code>.</p>
 
@@ -907,7 +907,7 @@ do { \
 
 <h3>19.9.1 Non-Standard Pragmas</h3>
 
-<p>Here’s one non-standard example of using <code>#pragma</code> to cause the compiler to execute a <code>for</code> loop in parallel with multiple threads (if the compiler supports the <a href="https://www.openmp.org/" rel="nofollow">OpenMP</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³²</a> extension):</p>
+<p>Here’s one non-standard example of using <code>#pragma</code> to cause the compiler to execute a <code>for</code> loop in parallel with multiple threads (if the compiler supports the <a href="https://www.openmp.org/" rel="nofollow">OpenMP</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³²</a> extension):</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#pragma omp parallel for
 </span><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>

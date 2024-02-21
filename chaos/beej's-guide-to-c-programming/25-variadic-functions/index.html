@@ -170,13 +170,13 @@
 
 <h2>25.3 <code>va_list</code> Functionality</h2>
 
-<p>What is that <code>va_list</code> variable we’re using up there? It’s an opaque variable<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵²</a> that holds information about which argument we’re going to get next with <code>va_arg()</code>. You see how we just call <code>va_arg()</code> over and over? The <code>va_list</code> variable is a placeholder that’s keeping track of progress so far.</p>
+<p>What is that <code>va_list</code> variable we’re using up there? It’s an opaque variable<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵²</a> that holds information about which argument we’re going to get next with <code>va_arg()</code>. You see how we just call <code>va_arg()</code> over and over? The <code>va_list</code> variable is a placeholder that’s keeping track of progress so far.</p>
 
 <p>But we have to initialize that variable to some sensible value. That’s where <code>va_start()</code> comes into play.</p>
 
 <p>When we called <code>va_start(va, count)</code>, above, we were saying, “Initialize the <code>va</code> variable to point to the variable argument <em>immediately after</em> <code>count</code>.”</p>
 
-<p>And that’s <em>why</em> we need to have at least one named variable in our argument list<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵³</a>.</p>
+<p>And that’s <em>why</em> we need to have at least one named variable in our argument list<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵³</a>.</p>
 
 <p>Once you have that pointer to the initial parameter, you can easily get subsequent argument values by calling <code>va_arg()</code> repeatedly. When you do, you have to pass in your <code>va_list</code> variable (so it can keep on keeping track of where you are), as well as the type of argument you’re about to copy off.</p>
 

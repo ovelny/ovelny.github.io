@@ -62,7 +62,7 @@
 
 <h3>15.1.1 Numeric Value to String</h3>
 
-<p>When we want to convert a number to a string, we can use either <code>sprintf()</code> (pronounced <em>SPRINT-f</em>) or <code>snprintf()</code> (<em>s-n-print-f</em>)<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁵</a></p>
+<p>When we want to convert a number to a string, we can use either <code>sprintf()</code> (pronounced <em>SPRINT-f</em>) or <code>snprintf()</code> (<em>s-n-print-f</em>)<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁵</a></p>
 
 <p>These basically work like <code>printf()</code>, except they output to a string instead, and you can print that string later, or whatever.</p>
 
@@ -116,7 +116,7 @@
 </tr>
 </tbody></table>
 
-<p>Though the spec doesn’t cop to it, the <code>a</code> at the beginning of the function stands for <a href="https://en.wikipedia.org/wiki/ASCII" rel="nofollow">ASCII</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁶</a>, so really <code>atoi()</code> is “ASCII-to-integer”, but saying so today is a bit ASCII-centric.</p>
+<p>Though the spec doesn’t cop to it, the <code>a</code> at the beginning of the function stands for <a href="https://en.wikipedia.org/wiki/ASCII" rel="nofollow">ASCII</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁶</a>, so really <code>atoi()</code> is “ASCII-to-integer”, but saying so today is a bit ASCII-centric.</p>
 
 <p>Here’s an example converting a string to a <code>float</code>:</p>
 
@@ -249,7 +249,7 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p>So there we have <code>strtoul()</code> modifying what <code>badchar</code> points to in order to show us where things went wrong<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁷</a>.</p>
+<p>So there we have <code>strtoul()</code> modifying what <code>badchar</code> points to in order to show us where things went wrong<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁷</a>.</p>
 
 <p>But what if nothing goes wrong? In that case, <code>badchar</code> will point to the <code>NUL</code> terminator at the end of the string. So we can test for it:</p>
 
@@ -292,7 +292,7 @@
 <div class="highlight"><pre class="highlight c"><code><span class="mi">5</span> <span class="mi">53</span>
 </code></pre></div>
 
-<p>So… no. And 53? What is that? That’s the UTF-8 (and ASCII) code point for the character symbol <code>&#39;5&#39;</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁸</a></p>
+<p>So… no. And 53? What is that? That’s the UTF-8 (and ASCII) code point for the character symbol <code>&#39;5&#39;</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁸</a></p>
 
 <p>So how do we convert the character <code>&#39;5&#39;</code> (which apparently has value 53) into the value <code>5</code>?</p>
 
@@ -342,13 +342,13 @@
 
 <h3>15.3.2 Integer to Integer Conversions</h3>
 
-<p>If an integer type is converted to unsigned and doesn’t fit in it, the unsigned result wraps around odometer-style until it fits in the unsigned<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁹</a>.</p>
+<p>If an integer type is converted to unsigned and doesn’t fit in it, the unsigned result wraps around odometer-style until it fits in the unsigned<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁹</a>.</p>
 
-<p>If an integer type is converted to a signed number and doesn’t fit, the result is implementation-defined! Something documented will happen, but you’ll have to look it up<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹⁰</a></p>
+<p>If an integer type is converted to a signed number and doesn’t fit, the result is implementation-defined! Something documented will happen, but you’ll have to look it up<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹⁰</a></p>
 
 <h3>15.3.3 Integer and Floating Point Conversions</h3>
 
-<p>If a floating point type is converted to an integer type, the fractional part is discarded with prejudice<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹¹</a>.</p>
+<p>If a floating point type is converted to an integer type, the fractional part is discarded with prejudice<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹¹</a>.</p>
 
 <p>But—and here’s the catch—if the number is too large to fit in the integer, you get undefined behavior. So don’t do that.</p>
 
@@ -372,7 +372,7 @@
 
 <p>In that case, <code>x</code> and <code>y</code> get promoted to <code>int</code> by C before the math takes place.</p>
 
-<p>The integer promotions take place during The Usual Arithmetic Conversions, with variadic functions<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹²</a>, unary <code>+</code> and <code>-</code> operators, or when passing values to functions without prototypes<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹³</a>.</p>
+<p>The integer promotions take place during The Usual Arithmetic Conversions, with variadic functions<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹²</a>, unary <code>+</code> and <code>-</code> operators, or when passing values to functions without prototypes<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹³</a>.</p>
 
 <h3>15.4.2 The Usual Arithmetic Conversions</h3>
 
@@ -486,7 +486,7 @@
 <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
 </code></pre></div>
 
-<p>A third place it’s often required is with the character conversion functions in <a href="https://beej.us/guide/bgclr/html/split/ctype.html" rel="nofollow"><code>&lt;ctype.h&gt;</code></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹⁴</a> where you should cast questionably-signed values to <code>unsigned char</code> to avoid undefined behavior.</p>
+<p>A third place it’s often required is with the character conversion functions in <a href="https://beej.us/guide/bgclr/html/split/ctype.html" rel="nofollow"><code>&lt;ctype.h&gt;</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹⁴</a> where you should cast questionably-signed values to <code>unsigned char</code> to avoid undefined behavior.</p>
 
 <p>Again, casting is rarely <em>needed</em> in practice. If you find yourself casting, there might be another way to do the same thing, or maybe you’re casting unnecessarily.</p>
 

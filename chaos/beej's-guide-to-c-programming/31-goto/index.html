@@ -52,11 +52,11 @@
 
 <p>The <code>goto</code> statement is universally revered and can be here presented without contest.</p>
 
-<p>Just kidding! Over the years, there has been a lot of back-and-forth over whether or not (often not) <code>goto</code> is <a href="https://en.wikipedia.org/wiki/Goto#Criticism" rel="nofollow">considered harmful</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁴</a>.</p>
+<p>Just kidding! Over the years, there has been a lot of back-and-forth over whether or not (often not) <code>goto</code> is <a href="https://en.wikipedia.org/wiki/Goto#Criticism" rel="nofollow">considered harmful</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁴</a>.</p>
 
 <p>In this programmer’s opinion, you should use whichever constructs leads to the <em>best</em> code, factoring in maintainability and speed. And sometimes this might be <code>goto</code>!</p>
 
-<p>In this chapter, we’ll see how <code>goto</code> works in C, and then check out some of the common cases where it is used<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁵</a>.</p>
+<p>In this chapter, we’ll see how <code>goto</code> works in C, and then check out some of the common cases where it is used<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁵</a>.</p>
 
 <h2>31.1 A Simple Example</h2>
 
@@ -264,7 +264,7 @@
 
 <p>Kinda. For recursive functions only.</p>
 
-<p>If you’re unfamiliar, <a href="https://en.wikipedia.org/wiki/Tail_call" rel="nofollow">Tail Call Optimization (TCO)</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁶</a> is a way to not waste stack space when calling other functions under very specific circumstances. Unfortunately the details are beyond the scope of this guide.</p>
+<p>If you’re unfamiliar, <a href="https://en.wikipedia.org/wiki/Tail_call" rel="nofollow">Tail Call Optimization (TCO)</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁶</a> is a way to not waste stack space when calling other functions under very specific circumstances. Unfortunately the details are beyond the scope of this guide.</p>
 
 <p>But if you have a recursive function you know can be optimized in this way, you can make use of this technique. (Note that you can’t tail call other functions due to the function scope of labels.)</p>
 

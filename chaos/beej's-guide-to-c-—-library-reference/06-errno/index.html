@@ -62,7 +62,7 @@
 </tr>
 </tbody></table>
 
-<p>This header defines a single variable<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">¹⁵</a>, <code>errno</code>, that can be checked to see if an error has occurred.</p>
+<p>This header defines a single variable<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">¹⁵</a>, <code>errno</code>, that can be checked to see if an error has occurred.</p>
 
 <p><code>errno</code> is set to <code>0</code> on startup, but no library function sets it to <code>0</code>. If you’re going to use solely it to check for errors, set it to <code>0</code> before the call and then check it after. Not only that, but if there’s no error, all library functions will leave the value of <code>errno</code> unchanged.</p>
 
@@ -72,7 +72,7 @@
 
 <p>Important Safety Tip: You should never make your own variable called <code>errno</code>—that’s undefined behavior.</p>
 
-<p>Note that the C Spec defines less than a handful of values <code>errno</code> can take on. <a href="https://man.archlinux.org/man/errno.3.en" rel="nofollow">Unix defines a bunch more</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">¹⁶</a>, <a href="https://docs.microsoft.com/en-us/cpp/c-runtime-library/errno-constants?view=msvc-160" rel="nofollow">as does Windows</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">¹⁷</a>.</p>
+<p>Note that the C Spec defines less than a handful of values <code>errno</code> can take on. <a href="https://man.archlinux.org/man/errno.3.en" rel="nofollow">Unix defines a bunch more</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">¹⁶</a>, <a href="https://docs.microsoft.com/en-us/cpp/c-runtime-library/errno-constants?view=msvc-160" rel="nofollow">as does Windows</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">¹⁷</a>.</p>
 
 <p><hr></p>
 

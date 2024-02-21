@@ -71,7 +71,7 @@
 
 <p>But why is that?</p>
 
-<p>You can think of integers being represented by a certain number of <em>bits</em><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹¹</a>. On my computer, an <code>int</code> is represented by 64 bits.</p>
+<p>You can think of integers being represented by a certain number of <em>bits</em><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹¹</a>. On my computer, an <code>int</code> is represented by 64 bits.</p>
 
 <p>And each permutation of bits that are either <code>1</code> or <code>0</code> represents a number. We can decide how to divvy up these numbers.</p>
 
@@ -79,7 +79,7 @@
 
 <p>With unsigned, we use <em>all</em> the permutations to represent positive numbers.</p>
 
-<p>On my computer with 64-bit <code>int</code>s using <a href="https://en.wikipedia.org/wiki/Two%27s_complement" rel="nofollow">two’s complement</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹²</a> to represent unsigned numbers, I have the following limits on integer range:</p>
+<p>On my computer with 64-bit <code>int</code>s using <a href="https://en.wikipedia.org/wiki/Two%27s_complement" rel="nofollow">two’s complement</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹²</a> to represent unsigned numbers, I have the following limits on integer range:</p>
 
 <table><thead>
 <tr>
@@ -127,7 +127,7 @@
 <p>A byte is composed of a contiguous sequence of bits, <em>the number of which is implementation-defined.</em></p>
 </blockquote>
 
-<p>Wait—what? Some of you might be used to the notion that a byte is 8 bits, right? I mean, that’s what it is, right? And the answer is, “Almost certainly.”<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹³</a> But C is an old language, and machines back in the day had, shall we say, a more <em>relaxed</em> opinion over how many bits were in a byte. And through the years, C has retained this flexibility.</p>
+<p>Wait—what? Some of you might be used to the notion that a byte is 8 bits, right? I mean, that’s what it is, right? And the answer is, “Almost certainly.”<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹³</a> But C is an old language, and machines back in the day had, shall we say, a more <em>relaxed</em> opinion over how many bits were in a byte. And through the years, C has retained this flexibility.</p>
 
 <p>But assuming your bytes in C are 8 bits, like they are for virtually all machines in the world that you’ll ever see, the range of a <code>char</code> is…</p>
 
@@ -140,7 +140,7 @@
 <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">c</span><span class="p">;</span>  <span class="c1">// Definitely unsigned</span>
 </code></pre></div>
 
-<p>OK, now, finally, we can figure out the range of numbers if we assume that a <code>char</code> is 8 bits and your system uses the virtually universal two’s complement representation for signed and unsigned<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁴</a>.</p>
+<p>OK, now, finally, we can figure out the range of numbers if we assume that a <code>char</code> is 8 bits and your system uses the virtually universal two’s complement representation for signed and unsigned<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁴</a>.</p>
 
 <p>So, assuming those constraints, we can finally figure our ranges:</p>
 
@@ -183,7 +183,7 @@
 
 <p>The spec is also hand-wavey here, since C isn’t designed to run on a single type of underlying system.</p>
 
-<p>But let’s just assume for the moment that your character set is based on <a href="https://en.wikipedia.org/wiki/ASCII" rel="nofollow">ASCII</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁵</a> for at least the first 128 characters. In that case, the character constant will be converted to a <code>char</code> whose value is the same as the ASCII value of the character.</p>
+<p>But let’s just assume for the moment that your character set is based on <a href="https://en.wikipedia.org/wiki/ASCII" rel="nofollow">ASCII</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁵</a> for at least the first 128 characters. In that case, the character constant will be converted to a <code>char</code> whose value is the same as the ASCII value of the character.</p>
 
 <p>That was a mouthful. Let’s just have an example:</p>
 
@@ -198,7 +198,7 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p>This depends on your execution environment and the <a href="https://en.wikipedia.org/wiki/List_of_information_system_character_sets" rel="nofollow">character set used</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁶</a>. One of the most popular character sets today is <a href="https://en.wikipedia.org/wiki/Unicode" rel="nofollow">Unicode</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁷</a> (which is a superset of ASCII), so for your basic 0-9, A-Z, a-z and punctuation, you’ll almost certainly get the ASCII values out of them.</p>
+<p>This depends on your execution environment and the <a href="https://en.wikipedia.org/wiki/List_of_information_system_character_sets" rel="nofollow">character set used</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁶</a>. One of the most popular character sets today is <a href="https://en.wikipedia.org/wiki/Unicode" rel="nofollow">Unicode</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁷</a> (which is a superset of ASCII), so for your basic 0-9, A-Z, a-z and punctuation, you’ll almost certainly get the ASCII values out of them.</p>
 
 <h2>14.3 More Integer Types: <code>short</code>, <code>long</code>, <code>long long</code></h2>
 
@@ -240,7 +240,7 @@
 <td style="text-align: left"><code>char</code></td>
 <td style="text-align: right">1</td>
 <td style="text-align: right">-127 or 0</td>
-<td style="text-align: right">127 or 255<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁸</a></td>
+<td style="text-align: right">127 or 255<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁸</a></td>
 </tr>
 <tr>
 <td style="text-align: left"><code>signed char</code></td>
@@ -307,7 +307,7 @@
 <p>There is no <code>long long long</code> type. You can’t just keep adding <code>long</code>s like that. Don’t be silly.</p>
 
 <blockquote>
-<p>Two’s complement fans might have noticed something funny about those numbers. Why does, for example, the <code>signed char</code> stop at -127 instead of -128? Remember: these are only the minimums required by the spec. Some number representations (like <a href="https://en.wikipedia.org/wiki/Signed_number_representations#Signed_magnitude_representation" rel="nofollow">sign and magnitude</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁹</a>) top off at ±127.</p>
+<p>Two’s complement fans might have noticed something funny about those numbers. Why does, for example, the <code>signed char</code> stop at -127 instead of -128? Remember: these are only the minimums required by the spec. Some number representations (like <a href="https://en.wikipedia.org/wiki/Signed_number_representations#Signed_magnitude_representation" rel="nofollow">sign and magnitude</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁹</a>) top off at ±127.</p>
 </blockquote>
 
 <p>Let’s run the same table on my 64-bit, two’s complement system and see what comes out:</p>
@@ -324,7 +324,7 @@
 <td style="text-align: left"><code>char</code></td>
 <td style="text-align: right">1</td>
 <td style="text-align: right">-128</td>
-<td style="text-align: right">127<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁰</a></td>
+<td style="text-align: right">127<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁰</a></td>
 </tr>
 <tr>
 <td style="text-align: left"><code>signed char</code></td>
@@ -509,7 +509,7 @@
 
 <p>Note: we refer to a bunch of macros in this section. They can be found in the header <code>&lt;float.h&gt;</code>.</p>
 
-<p>Floating point number are encoded in a specific sequence of bits (<a href="https://en.wikipedia.org/wiki/IEEE_754" rel="nofollow">IEEE-754 format</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰¹</a> is tremendously popular) in bytes.</p>
+<p>Floating point number are encoded in a specific sequence of bits (<a href="https://en.wikipedia.org/wiki/IEEE_754" rel="nofollow">IEEE-754 format</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰¹</a> is tremendously popular) in bytes.</p>
 
 <p>Diving in a bit more, the number is basically represented as the <em>significand</em> (which is the number part—the significant digits themselves, also sometimes referred to as the <em>mantissa</em>) and the <em>exponent</em>, which is what power to raise the digits to. Recall that a negative exponent can make a number smaller.</p>
 
@@ -605,7 +605,7 @@
 <span class="mi">0</span><span class="p">.</span><span class="mi">1234567910</span>
 </code></pre></div>
 
-<p>Let’s do another demo. In this code we’ll have two <code>float</code>s that both hold numbers that have <code>FLT_DIG</code> significant decimal digits<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰²</a>. Then we add those together, for what should be 12 significant decimal digits. But that’s more than we can store in a <code>float</code> and correctly recover as a string—so we see when we print it out, things start going wrong after the 7th significant digit.</p>
+<p>Let’s do another demo. In this code we’ll have two <code>float</code>s that both hold numbers that have <code>FLT_DIG</code> significant decimal digits<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰²</a>. Then we add those together, for what should be 12 significant decimal digits. But that’s more than we can store in a <code>float</code> and correctly recover as a string—so we see when we print it out, things start going wrong after the 7th significant digit.</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;float.h&gt;</span><span class="cp">
@@ -734,7 +734,7 @@
 
 <h4>14.5.1.1 A Note on Binary</h4>
 
-<p>An unofficial extension<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰³</a> in many C compilers allows you to represent a binary number with a <code>0b</code> prefix:</p>
+<p>An unofficial extension<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰³</a> in many C compilers allows you to represent a binary number with a <code>0b</code> prefix:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="n">b101010</span><span class="p">;</span>    <span class="c1">// Binary 101010</span>
 
@@ -865,7 +865,7 @@
 
 <p>\(1.2345\times10<sup>3</sup> = 1234.5\)</p>
 
-<p>Writing numbers in the form \(s\times b<sup>e\)</sup> is called <a href="https://en.wikipedia.org/wiki/Scientific_notation" rel="nofollow"><em>scientific notation</em></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁴</a>. In C, these are written using “E notation”, so these are equivalent:</p>
+<p>Writing numbers in the form \(s\times b<sup>e\)</sup> is called <a href="https://en.wikipedia.org/wiki/Scientific_notation" rel="nofollow"><em>scientific notation</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁴</a>. In C, these are written using “E notation”, so these are equivalent:</p>
 
 <table><thead>
 <tr>

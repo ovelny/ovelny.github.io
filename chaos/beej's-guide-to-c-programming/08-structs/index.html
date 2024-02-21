@@ -54,7 +54,7 @@
 
 <p>It’s a convenient way to bundle multiple variables into a single one. This can be beneficial for passing variables to functions (so you just have to pass one instead of many), and useful for organizing data and making code more readable.</p>
 
-<p>If you’ve come from another language, you might be familiar with the idea of <em>classes</em> and <em>objects</em>. These don’t exist in C, natively<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁷</a>. You can think of a <code>struct</code> as a class with only data members, and no methods.</p>
+<p>If you’ve come from another language, you might be familiar with the idea of <em>classes</em> and <em>objects</em>. These don’t exist in C, natively<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁷</a>. You can think of a <code>struct</code> as a class with only data members, and no methods.</p>
 
 <h2>8.1 Declaring a Struct</h2>
 
@@ -76,7 +76,7 @@
 <div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">car</span> <span class="n">saturn</span><span class="p">;</span>  <span class="c1">// Variable "saturn" of type "struct car"</span>
 </code></pre></div>
 
-<p>And now we have an uninitialized variable <code>saturn</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁸</a> of type <code>struct car</code>.</p>
+<p>And now we have an uninitialized variable <code>saturn</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁸</a> of type <code>struct car</code>.</p>
 
 <p>We should initialize it! But how do we set the values of those individual fields?</p>
 
@@ -139,7 +139,7 @@
 
 <ol>
 <li> You need the function to be able to make changes to the <code>struct</code> that was passed in, and have those changes show in the caller.</li>
-<li> The <code>struct</code> is somewhat large and it’s more expensive to copy that onto the stack than it is to just copy a pointer<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁹</a>.</li>
+<li> The <code>struct</code> is somewhat large and it’s more expensive to copy that onto the stack than it is to just copy a pointer<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁹</a>.</li>
 </ol>
 
 <p>For those two reasons, it’s far more common to pass a pointer to a <code>struct</code> to a function, though its by no means illegal to pass the <code>struct</code> itself.</p>
@@ -228,15 +228,15 @@
 
 <p>And returning a <code>struct</code> (as opposed to a pointer to one) from a function also makes a similar copy to the receiving variable.</p>
 
-<p>This is not a “deep copy”<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁰</a>. All fields are copied as-is, including pointers to things.</p>
+<p>This is not a “deep copy”<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁰</a>. All fields are copied as-is, including pointers to things.</p>
 
 <h2>8.6 Comparing <code>struct</code>s</h2>
 
 <p>There’s only one safe way to do it: compare each field one at a time.</p>
 
-<p>You might think you could use <a href="https://beej.us/guide/bgclr/html/split/stringref.html#man-strcmp" rel="nofollow"><code>memcmp()</code></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷¹</a>, but that doesn’t handle the case of the possible <a href="structs-ii-more-fun-with-structs.html#struct-padding-bytes" rel="nofollow">padding bytes</a> that might be in there.</p>
+<p>You might think you could use <a href="https://beej.us/guide/bgclr/html/split/stringref.html#man-strcmp" rel="nofollow"><code>memcmp()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷¹</a>, but that doesn’t handle the case of the possible <a href="structs-ii-more-fun-with-structs.html#struct-padding-bytes" rel="nofollow">padding bytes</a> that might be in there.</p>
 
-<p>If you clear the <code>struct</code> to zero first with <a href="https://beej.us/guide/bgclr/html/split/stringref.html#man-memset" rel="nofollow"><code>memset()</code></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷²</a>, then it <em>might</em> work, though there could be weird elements that <a href="https://stackoverflow.com/questions/141720/how-do-you-compare-structs-for-equality-in-c" rel="nofollow">might not compare as you expect</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷³</a>.</p>
+<p>If you clear the <code>struct</code> to zero first with <a href="https://beej.us/guide/bgclr/html/split/stringref.html#man-memset" rel="nofollow"><code>memset()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷²</a>, then it <em>might</em> work, though there could be weird elements that <a href="https://stackoverflow.com/questions/141720/how-do-you-compare-structs-for-equality-in-c" rel="nofollow">might not compare as you expect</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷³</a>.</p>
 
     </main>
     <footer id="footer">

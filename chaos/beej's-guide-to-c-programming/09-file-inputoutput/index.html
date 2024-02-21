@@ -105,7 +105,7 @@
 
 <p>Streams are largely categorized two different ways: <em>text</em> and <em>binary</em>.</p>
 
-<p>Text streams are allowed to do significant translation of the data, most notably translations of newlines to their different representations<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁴</a>. Text files are logically a sequence of <em>lines</em> separated by newlines. To be portable, your input data should always end with a newline.</p>
+<p>Text streams are allowed to do significant translation of the data, most notably translations of newlines to their different representations<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁴</a>. Text files are logically a sequence of <em>lines</em> separated by newlines. To be portable, your input data should always end with a newline.</p>
 
 <p>But the general rule is that if you’re able to edit the file in a regular text editor, it’s a text file. Otherwise, it’s binary. More on binary later.</p>
 
@@ -182,7 +182,7 @@
 
 <h3>9.3.1 Reading a Line at a Time</h3>
 
-<p>So how can we get an entire line at once? <code>fgets()</code> to the rescue! For arguments, it takes a pointer to a <code>char</code> buffer to hold bytes, a maximum number of bytes to read, and a <code>FILE*</code> to read from. It returns <code>NULL</code> on end-of-file or error. <code>fgets()</code> is even nice enough to NUL-terminate the string when its done<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁵</a>.</p>
+<p>So how can we get an entire line at once? <code>fgets()</code> to the rescue! For arguments, it takes a pointer to a <code>char</code> buffer to hold bytes, a maximum number of bytes to read, and a <code>FILE*</code> to read from. It returns <code>NULL</code> on end-of-file or error. <code>fgets()</code> is even nice enough to NUL-terminate the string when its done<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁵</a>.</p>
 
 <p>Let’s do a similar loop as before, except let’s have a multiline file and read it in a line at a time.</p>
 
@@ -317,7 +317,7 @@
 
 <p>Instead the most common functions are <code>fread()</code> and <code>fwrite()</code>. The functions read and write a specified number of bytes to the stream.</p>
 
-<p>To demo, we’ll write a couple programs. One will write a sequence of byte values to disk all at once. And the second program will read a byte at a time and print them out<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁶</a>.</p>
+<p>To demo, we’ll write a couple programs. One will write a sequence of byte values to disk all at once. And the second program will read a byte at a time and print them out<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁶</a>.</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 </span>
@@ -347,7 +347,7 @@
 
 <p>Running the program gives us a file <code>output.bin</code>, but opening it in a text editor doesn’t show anything friendly! It’s binary data—not text. And random binary data I just made up, at that!</p>
 
-<p>If I run it through a <a href="https://en.wikipedia.org/wiki/Hex_dump" rel="nofollow">hex dump</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁷</a> program, we can see the output as bytes:</p>
+<p>If I run it through a <a href="https://en.wikipedia.org/wiki/Hex_dump" rel="nofollow">hex dump</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁷</a> program, we can see the output as bytes:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="mo">05</span> <span class="mi">25</span> <span class="mo">00</span> <span class="mi">58</span> <span class="n">ff</span> <span class="mi">0</span><span class="n">c</span>
 </code></pre></div>
@@ -414,9 +414,9 @@
 
 <p>They’re reversed! What gives?</p>
 
-<p>This has something to do with what’s called the <a href="https://en.wikipedia.org/wiki/Endianess" rel="nofollow"><em>endianess</em></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁸</a> of the architecture. Some write the most significant bytes first, and some the least significant bytes first.</p>
+<p>This has something to do with what’s called the <a href="https://en.wikipedia.org/wiki/Endianess" rel="nofollow"><em>endianess</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁸</a> of the architecture. Some write the most significant bytes first, and some the least significant bytes first.</p>
 
-<p>This means that if you write a multibyte number out straight from memory, you can’t do it in a portable way<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁹</a>.</p>
+<p>This means that if you write a multibyte number out straight from memory, you can’t do it in a portable way<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁹</a>.</p>
 
 <p>A similar problem exists with floating point. Most systems use the same format for their floating point numbers, but some do not. No guarantees!</p>
 
@@ -424,7 +424,7 @@
 
 <p>The summary is to <em>serialize</em> the data, which is a general term that means to take all the data and write it out in a format that you control, that is well-known, and programmable to work the same way on all platforms.</p>
 
-<p>As you might imagine, this is a solved problem. There are a bunch of serialization libraries you can take advantage of, such as Google’s <a href="https://en.wikipedia.org/wiki/Protocol_buffers" rel="nofollow"><em>protocol buffers</em></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁰</a>, out there and ready to use. They will take care of all the gritty details for you, and even will allow data from your C programs to interoperate with other languages that support the same serialization methods.</p>
+<p>As you might imagine, this is a solved problem. There are a bunch of serialization libraries you can take advantage of, such as Google’s <a href="https://en.wikipedia.org/wiki/Protocol_buffers" rel="nofollow"><em>protocol buffers</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁰</a>, out there and ready to use. They will take care of all the gritty details for you, and even will allow data from your C programs to interoperate with other languages that support the same serialization methods.</p>
 
 <p>Do yourself and everyone a favor! Serialize your binary data when you write it to a stream! This will keep things nice and portable, even if you transfer data files from one architecture to another.</p>
 

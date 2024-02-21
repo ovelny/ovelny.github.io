@@ -69,7 +69,7 @@
 
 <h2>5.1 Memory and Variables</h2>
 
-<p>Computer memory holds data of all kinds, right? It’ll hold <code>float</code>s, <code>int</code>s, or whatever you have. To make memory easy to cope with, each byte of memory is identified by an integer. These integers increase sequentially as you move up through memory<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁴</a>. You can think of it as a bunch of numbered boxes, where each box holds a byte<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁵</a> of data. Or like a big array where each element holds a byte, if you come from a language with arrays. The number that represents each box is called its <em>address</em>.</p>
+<p>Computer memory holds data of all kinds, right? It’ll hold <code>float</code>s, <code>int</code>s, or whatever you have. To make memory easy to cope with, each byte of memory is identified by an integer. These integers increase sequentially as you move up through memory<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁴</a>. You can think of it as a bunch of numbered boxes, where each box holds a byte<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁵</a> of data. Or like a big array where each element holds a byte, if you come from a language with arrays. The number that represents each box is called its <em>address</em>.</p>
 
 <p>Now, not all data types use just a byte. For instance, an <code>int</code> is often four bytes, as is a <code>float</code>, but it really depends on the system. You can use the <code>sizeof</code> operator to determine how many bytes of memory a certain type uses.</p>
 
@@ -81,7 +81,7 @@
 </code></pre></div>
 
 <blockquote>
-<p><strong>Memory Fun Facts</strong>: When you have a data type (like your typical <code>int</code>) that uses more than a byte of memory, the bytes that make up the data are always adjacent to one another in memory. Sometimes they’re in the order that you expect, and sometimes they’re not<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁶</a>. While C doesn’t guarantee any particular memory order (it’s platform-dependent), it’s still generally possible to write code in a way that’s platform-independent where you don’t have to even consider these pesky byte orderings.</p>
+<p><strong>Memory Fun Facts</strong>: When you have a data type (like your typical <code>int</code>) that uses more than a byte of memory, the bytes that make up the data are always adjacent to one another in memory. Sometimes they’re in the order that you expect, and sometimes they’re not<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁶</a>. While C doesn’t guarantee any particular memory order (it’s platform-dependent), it’s still generally possible to write code in a way that’s platform-independent where you don’t have to even consider these pesky byte orderings.</p>
 </blockquote>
 
 <p>So <em>anyway</em>, if we can get on with it and get a drum roll and some foreboding music playing for the definition of a pointer, <em>a pointer is a variable that holds an address</em>. Imagine the classical score from 2001: A Space Odyssey at this point. Ba bum ba bum ba bum BAAAAH!</p>
@@ -122,7 +122,7 @@
 
 <p>Well, by a shocking surprise that must come as something of a shock to you, gentle reader, we use the <code>address-of</code> operator (which happens to be an ampersand: “<code>&amp;</code>”)to find the address of the data. Ampersand.</p>
 
-<p>So for a quick example, we’ll introduce a new <em>format specifier</em> for <code>printf()</code> so you can print a pointer. You know already how <code>%d</code> prints a decimal integer, yes? Well, <code>%p</code> prints a pointer. Now, this pointer is going to look like a garbage number (and it might be printed in hexadecimal<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁷</a> instead of decimal), but it is merely the index into memory the data is stored in. (Or the index into memory that the first byte of data is stored in, if the data is multi-byte.) In virtually all circumstances, including this one, the actual value of the number printed is unimportant to you, and I show it here only for demonstration of the <code>address-of</code> operator.</p>
+<p>So for a quick example, we’ll introduce a new <em>format specifier</em> for <code>printf()</code> so you can print a pointer. You know already how <code>%d</code> prints a decimal integer, yes? Well, <code>%p</code> prints a pointer. Now, this pointer is going to look like a garbage number (and it might be printed in hexadecimal<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁷</a> instead of decimal), but it is merely the index into memory the data is stored in. (Or the index into memory that the first byte of data is stored in, if the data is multi-byte.) In virtually all circumstances, including this one, the actual value of the number printed is unimportant to you, and I show it here only for demonstration of the <code>address-of</code> operator.</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 </span>
@@ -193,7 +193,7 @@
 
 <p>Now, what do I mean by “get access to the original variable”? Well, if you have a variable called <code>i</code>, and you have a pointer to <code>i</code> called <code>p</code>, you can use the dereferenced pointer <code>p</code> <em>exactly as if it were the original variable <code>i</code></em>!</p>
 
-<p>You almost have enough knowledge to handle an example. The last tidbit you need to know is actually this: what is the dereference operator? It’s actually called the <em>indirection operator</em>, because you’re accessing values indirectly via the pointer. And it is the asterisk, again: <code>*</code>. Now, don’t get this confused with the asterisk you used in the pointer declaration, earlier. They are the same character, but they have different meanings in different contexts<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁸</a>.</p>
+<p>You almost have enough knowledge to handle an example. The last tidbit you need to know is actually this: what is the dereference operator? It’s actually called the <em>indirection operator</em>, because you’re accessing values indirectly via the pointer. And it is the asterisk, again: <code>*</code>. Now, don’t get this confused with the asterisk you used in the pointer declaration, earlier. They are the same character, but they have different meanings in different contexts<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁸</a>.</p>
 
 <p>Here’s a full-blown example:</p>
 
@@ -294,7 +294,7 @@
 <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>  <span class="c1">// CRASH or SOMETHING PROBABLY BAD. BEST AVOIDED.</span>
 </code></pre></div>
 
-<p>Despite being called <a href="https://en.wikipedia.org/wiki/Null_pointer#History" rel="nofollow">the billion dollar mistake by its creator</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁹</a>, the <code>NULL</code> pointer is a good <a href="https://en.wikipedia.org/wiki/Sentinel_value" rel="nofollow">sentinel value</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁰</a> and general indicator that a pointer hasn’t yet been initialized.</p>
+<p>Despite being called <a href="https://en.wikipedia.org/wiki/Null_pointer#History" rel="nofollow">the billion dollar mistake by its creator</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴⁹</a>, the <code>NULL</code> pointer is a good <a href="https://en.wikipedia.org/wiki/Sentinel_value" rel="nofollow">sentinel value</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵⁰</a> and general indicator that a pointer hasn’t yet been initialized.</p>
 
 <p>(Of course, like other variables, the pointer points to garbage unless you explicitly assign it to point to an address or <code>NULL</code>.)</p>
 
@@ -343,7 +343,7 @@
 <div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">*</span><span class="n">d</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="o">*</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="o">*</span><span class="n">i</span><span class="p">;</span>
 </code></pre></div>
 
-<p>I’ll drop the answer in a footnote<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵¹</a>.</p>
+<p>I’ll drop the answer in a footnote<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵¹</a>.</p>
 
 <h2>5.7 <code>sizeof</code> and Pointers</h2>
 

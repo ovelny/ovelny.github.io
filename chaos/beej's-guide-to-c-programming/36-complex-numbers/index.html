@@ -50,7 +50,7 @@
     
     <h1>36 Complex Numbers</h1>
 
-<p>A tiny primer on <a href="https://en.wikipedia.org/wiki/Complex_number" rel="nofollow">Complex numbers</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸³</a> stolen directly from Wikipedia:</p>
+<p>A tiny primer on <a href="https://en.wikipedia.org/wiki/Complex_number" rel="nofollow">Complex numbers</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸³</a> stolen directly from Wikipedia:</p>
 
 <blockquote>
 <p>A <strong>complex number</strong> is a number that can be expressed in the form \(a+bi\), where \(a\) and \(b\) are real numbers [i.e. floating point types in C], and \(i\) represents the imaginary unit, satisfying the equation \(i<sup>2=−1\).</sup> Because no real number satisfies this equation, \(i\) is called an imaginary number. For the complex number \(a+bi\), \(a\) is called the <strong>real part</strong>, and \(b\) is called the <strong>imaginary part</strong>.</p>
@@ -160,7 +160,7 @@
 <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="n">CMPLX</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
 </code></pre></div>
 
-<p>But the <code>CMPLX()</code> macro will handle negative zeros in the imaginary part correctly every time, whereas the other way might convert them to positive zeros. I <em>think</em><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁴</a> This seems to imply that if there’s a chance the imaginary part will be zero, you should use the macro… but someone should correct me on this if I’m mistaken!</p>
+<p>But the <code>CMPLX()</code> macro will handle negative zeros in the imaginary part correctly every time, whereas the other way might convert them to positive zeros. I <em>think</em><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁴</a> This seems to imply that if there’s a chance the imaginary part will be zero, you should use the macro… but someone should correct me on this if I’m mistaken!</p>
 
 <p>The <code>CMPLX()</code> macro works on <code>double</code> types. There are two other macros for <code>float</code> and <code>long double</code>: <code>CMPLXF()</code> and <code>CMPLXL()</code>. (These “f” and “l” suffixes appear in virtually all the complex-number-related functions.)</p>
 
@@ -241,7 +241,7 @@
 <span class="n">x</span> <span class="o">!=</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span>
 </code></pre></div>
 
-<p>They are equal if both components test equal. Note that as with all floating point, they could be equal if they’re close enough due to rounding error<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁵</a>.</p>
+<p>They are equal if both components test equal. Note that as with all floating point, they could be equal if they’re close enough due to rounding error<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁵</a>.</p>
 
 <h2>36.5 Complex Math</h2>
 
@@ -377,7 +377,7 @@
 </tr>
 <tr>
 <td><code>conj()</code></td>
-<td>Conjugate<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁶</a></td>
+<td>Conjugate<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁶</a></td>
 </tr>
 <tr>
 <td><code>cproj()</code></td>

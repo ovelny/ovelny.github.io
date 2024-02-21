@@ -263,7 +263,7 @@
 
 <p>This can make a difference in a specific set of circumstances where <code>cnd_signal()</code> might leave you hanging.</p>
 
-<p>If you’re relying on subsequent threads to issue the next <code>cnd_signal()</code>, but you have the <code>cnd_wait()</code> in a <code>while</code> loop<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁵</a> that doesn’t allow any threads to escape, you’ll be stuck. No more threads will be woken up from the wait.</p>
+<p>If you’re relying on subsequent threads to issue the next <code>cnd_signal()</code>, but you have the <code>cnd_wait()</code> in a <code>while</code> loop<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁵</a> that doesn’t allow any threads to escape, you’ll be stuck. No more threads will be woken up from the wait.</p>
 
 <p>But if you <code>cnd_broadcast()</code>, all the threads will be woken, and presumably at least one of them will be allowed to escape the <code>while</code> loop, freeing it up to broadcast the next wakeup when its work is done.</p>
 
@@ -1400,7 +1400,7 @@
 
 <p>Right?</p>
 
-<p>This is how you launch new threads to make your program do multiple things at once<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁶</a>!</p>
+<p>This is how you launch new threads to make your program do multiple things at once<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁶</a>!</p>
 
 <p>In order to make this happen, you need to pass a pointer to a <code>thrd_t</code> that will be used to represent the thread you’re spawning.</p>
 
@@ -1717,7 +1717,7 @@
 
 <p>The <code>res</code> code can be picked up by a thread calling <code>thrd_join()</code>, and is equivalent to returning a value from the run function.</p>
 
-<p>Like with returning from the run function, this will also properly clean up all the thread-specific storage associated with this thread—all the destructors for the threads TSS variables will be called. If there are any remaining TSS variables with destructors after the first round of destruction<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁷</a>, the remaining destructors will be called. This happens repeatedly until there are no more, or the number of rounds of carnage reaches <code>TSS_DTOR_ITERATIONS</code>.</p>
+<p>Like with returning from the run function, this will also properly clean up all the thread-specific storage associated with this thread—all the destructors for the threads TSS variables will be called. If there are any remaining TSS variables with destructors after the first round of destruction<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁷</a>, the remaining destructors will be called. This happens repeatedly until there are no more, or the number of rounds of carnage reaches <code>TSS_DTOR_ITERATIONS</code>.</p>
 
 <p>If the main thread calls this, it’s as if you called <code>exit(EXIT_SUCCESS)</code>.</p>
 
@@ -1859,7 +1859,7 @@
 
 <h3>Description</h3>
 
-<p>This function puts the current thread to sleep for a while<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁸</a> allowing other threads to run.</p>
+<p>This function puts the current thread to sleep for a while<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁸</a> allowing other threads to run.</p>
 
 <p>The calling thread will wake up after the time has elapsed, or if it gets interrupted by a signal or something.</p>
 

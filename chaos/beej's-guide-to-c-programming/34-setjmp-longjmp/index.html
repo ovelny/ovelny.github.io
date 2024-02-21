@@ -125,7 +125,7 @@
 
 <h2>34.2 Pitfalls</h2>
 
-<p>Under the hood, this is pretty straightforward. Typically the <em>stack pointer</em> keeps track of the locations in memory that local variables are stored, and the <em>program counter</em> keeps track of the address of the currently-executing instruction<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁹</a>.</p>
+<p>Under the hood, this is pretty straightforward. Typically the <em>stack pointer</em> keeps track of the locations in memory that local variables are stored, and the <em>program counter</em> keeps track of the address of the currently-executing instruction<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁹</a>.</p>
 
 <p>So if we want to jump back to an earlier function, it’s basically only a matter of restoring the stack pointer and program counter to the values kept in the <code>jmp_buf</code> variable, and making sure the return value is set correctly. And then execution will resume there.</p>
 
@@ -135,7 +135,7 @@
 
 <p>If you want the values of automatic (non-<code>static</code> and non-<code>extern</code>) local variables to persist in the function that called <code>setjmp()</code> after a <code>longjmp()</code> happens, you must declare those variables to be <code>volatile</code>.</p>
 
-<p>Technically, they only have to be <code>volatile</code> if they change between the time <code>setjmp()</code> is called and <code>longjmp()</code> is called<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁰</a>.</p>
+<p>Technically, they only have to be <code>volatile</code> if they change between the time <code>setjmp()</code> is called and <code>longjmp()</code> is called<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁰</a>.</p>
 
 <p>For example, if we run this code:</p>
 
@@ -228,7 +228,7 @@
 
 <h3>34.2.7 <code>longjmp()</code> and Variable Length Arrays</h3>
 
-<p>If you are in scope of a VLA and <code>longjmp()</code> out there, the memory allocated to the VLA could leak<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸¹</a>.</p>
+<p>If you are in scope of a VLA and <code>longjmp()</code> out there, the memory allocated to the VLA could leak<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸¹</a>.</p>
 
 <p>Same thing happens if you <code>longjmp()</code> back over any earlier functions that had VLAs still in scope.</p>
 

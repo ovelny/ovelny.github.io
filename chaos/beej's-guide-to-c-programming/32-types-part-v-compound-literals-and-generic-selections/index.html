@@ -79,7 +79,7 @@
 <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>  <span class="c1">// 2</span>
 </code></pre></div>
 
-<p>But that seems a little like a long-winded way to have an array. I mean, we could have just done this<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁷</a>:</p>
+<p>But that seems a little like a long-winded way to have an array. I mean, we could have just done this<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁷</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">p</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">};</span>
 
@@ -252,7 +252,7 @@
 
 <p>The expression begins with <code>_Generic</code>, works kinda like a <code>switch</code>, and it takes at least two arguments.</p>
 
-<p>The first argument is an expression (or variable<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁸</a>) that has a <em>type</em>. All expressions have a type. The remaining arguments to <code>_Generic</code> are the cases of what to substitute in for the result of the expression if the first argument is that type.</p>
+<p>The first argument is an expression (or variable<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁸</a>) that has a <em>type</em>. All expressions have a type. The remaining arguments to <code>_Generic</code> are the cases of what to substitute in for the result of the expression if the first argument is that type.</p>
 
 <p>Wat?</p>
 

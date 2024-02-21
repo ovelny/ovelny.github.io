@@ -167,7 +167,7 @@
 
 <h2>7.5 Getting String Length</h2>
 
-<p>You can’t, since C doesn’t track it for you. And when I say “can’t”, I actually mean “can”<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶²</a>. There’s a function in <code>&lt;string.h&gt;</code> called <code>strlen()</code> that can be used to compute the length of any string in bytes<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶³</a>.</p>
+<p>You can’t, since C doesn’t track it for you. And when I say “can’t”, I actually mean “can”<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶²</a>. There’s a function in <code>&lt;string.h&gt;</code> called <code>strlen()</code> that can be used to compute the length of any string in bytes<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶³</a>.</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
@@ -210,7 +210,7 @@
 
 <ul>
 <li>  A pointer to the first character in the string.</li>
-<li>  A zero-valued byte (or <code>NUL</code> character<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁴</a>) somewhere in memory after the pointer that indicates the end of the string.</li>
+<li>  A zero-valued byte (or <code>NUL</code> character<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁴</a>) somewhere in memory after the pointer that indicates the end of the string.</li>
 </ul>
 
 <p>A <code>NUL</code> character can be written in C code as <code>\0</code>, though you don’t often have to do this.</p>
@@ -222,7 +222,7 @@
 
 <p>So with this in mind, let’s write our own <code>strlen()</code> function that counts <code>char</code>s in a string until it finds a <code>NUL</code>.</p>
 
-<p>The procedure is to look down the string for a single <code>NUL</code> character, counting as we go<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁵</a>:</p>
+<p>The procedure is to look down the string for a single <code>NUL</code> character, counting as we go<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁵</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">my_strlen</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">)</span>
 <span class="p">{</span>
@@ -261,7 +261,7 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p>If you want to make a copy of a string, you have to copy it a byte at a time—but this is made easier with the <code>strcpy()</code> function<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁶</a>.</p>
+<p>If you want to make a copy of a string, you have to copy it a byte at a time—but this is made easier with the <code>strcpy()</code> function<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁶</a>.</p>
 
 <p>Before you copy the string, make sure you have room to copy it into, i.e. the destination array that’s going to hold the characters needs to be at least as long as the string you’re copying.</p>
 

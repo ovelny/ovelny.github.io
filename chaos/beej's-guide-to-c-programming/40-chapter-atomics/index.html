@@ -69,7 +69,7 @@
 
 <p>Atomics are an optional feature. There’s a macro <code>__STDC_NO_ATOMICS__</code> that’s <code>1</code> if you <em>don’t</em> have atomics.</p>
 
-<p>That macro might not exist pre-C11, so we should test the language version with <code>__STDC_VERSION__</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁷</a>.</p>
+<p>That macro might not exist pre-C11, so we should test the language version with <code>__STDC_VERSION__</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁷</a>.</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#if __STDC_VERSION__ &lt; 201112L || __STDC_NO_ATOMICS__ == 1
 #define HAS_ATOMICS 0
@@ -169,7 +169,7 @@
 
 <p>Look, ma! We’re accessing a variable from different threads and not using a mutex! And that’ll work every time thanks to the atomic nature of atomic variables.</p>
 
-<p>You might be wondering what happens if that’s a regular non-atomic <code>int</code>, instead. Well, on my system it still works… unless I do an optimized build in which case it hangs on thread 2 waiting to see the 3490 to get set<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁸</a>.</p>
+<p>You might be wondering what happens if that’s a regular non-atomic <code>int</code>, instead. Well, on my system it still works… unless I do an optimized build in which case it hangs on thread 2 waiting to see the 3490 to get set<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁸</a>.</p>
 
 <p>But that’s just the beginning of the story. The next part is going to require more brain power and has to do with something called <em>synchronization</em>.</p>
 
@@ -225,7 +225,7 @@
 
 <p>Two threads <em>synchronize</em> when they agree on the state of shared memory. As we’ve seen, they’re not always in agreement with the code. So how do they agree?</p>
 
-<p>Using atomic variables can force the agreement<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁹</a>. If a thread writes to an atomic variable, it’s saying “anyone who reads this atomic variable in the future will also see all the changes I made to memory (atomic or not) up to and including the atomic variable”.</p>
+<p>Using atomic variables can force the agreement<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁹</a>. If a thread writes to an atomic variable, it’s saying “anyone who reads this atomic variable in the future will also see all the changes I made to memory (atomic or not) up to and including the atomic variable”.</p>
 
 <p>Or, in more human terms, let’s sit around the conference table and make sure we’re on the same page as to which pieces of shared memory hold what values. You agree that the memory changes that you’d made up-to-and-including the atomic store will be visible to me after I do a load of the same atomic variable.</p>
 
@@ -338,7 +338,7 @@ thread2()
 
 <p>You hanging in there? We’re through the meat of the simpler usage of atomics. And since we’re not even going to talk about the more complex uses here, you can relax a bit.</p>
 
-<p><em>Sequential consistency</em> is what’s called a <em>memory ordering</em>. There are many memory orderings, but sequential consistency is the sanest<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁰</a> C has to offer. It is also the default. You have to go out of your way to use other memory orderings.</p>
+<p><em>Sequential consistency</em> is what’s called a <em>memory ordering</em>. There are many memory orderings, but sequential consistency is the sanest<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁰</a> C has to offer. It is also the default. You have to go out of your way to use other memory orderings.</p>
 
 <p>All the stuff we’ve been talking about so far has happened within the realm of sequential consistency.</p>
 
@@ -583,7 +583,7 @@ thread2()
 
 <p>You can do it either with a type qualifier or type specifier.</p>
 
-<p>First, specifier! It’s the keyword <code>_Atomic</code> with a type in parens after<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹¹</a>—suitable for use with <code>typedef</code>:</p>
+<p>First, specifier! It’s the keyword <code>_Atomic</code> with a type in parens after<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹¹</a>—suitable for use with <code>typedef</code>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="k">typedef</span> <span class="k">_Atomic</span><span class="p">(</span><span class="kt">double</span><span class="p">)</span> <span class="n">atomic_double</span><span class="p">;</span>
 
@@ -594,7 +594,7 @@ thread2()
 
 <p>Next, qualifier! It’s the keyword <code>_Atomic</code> <em>without</em> a type in parens.</p>
 
-<p>So these do similar things<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹²</a>:</p>
+<p>So these do similar things<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹²</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="k">_Atomic</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">i</span><span class="p">;</span>   <span class="c1">// type specifier</span>
 <span class="k">_Atomic</span> <span class="kt">int</span>  <span class="n">j</span><span class="p">;</span>   <span class="c1">// type qualifier</span>
@@ -691,7 +691,7 @@ thread2()
 </tr>
 </tbody></table>
 
-<p>Wait—how can something be <em>sometimes</em> lock-free? This just means the answer isn’t known at compile-time, but could later be known at runtime. Maybe the answer varies depending on whether or not you’re running this code on Genuine Intel or AMD, or something like that<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹³</a>.</p>
+<p>Wait—how can something be <em>sometimes</em> lock-free? This just means the answer isn’t known at compile-time, but could later be known at runtime. Maybe the answer varies depending on whether or not you’re running this code on Genuine Intel or AMD, or something like that<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹³</a>.</p>
 
 <p>But you can always test at runtime with the <code>atomic_is_lock_free()</code> function. This function returns true or false if the particular type is atomic right now.</p>
 
@@ -710,11 +710,11 @@ thread2()
 
 <p>As far as I can tell, lock-free atomic variables are one of the few ways you get portably get information out of a signal handler.</p>
 
-<p>The spec is a bit vague, in my read, about the memory order when it comes to acquiring or releasing atomic variables in the signal handler. C++ says, and it makes sense, that such accesses are unsequenced with respect to the rest of the program<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁴</a>. The signal can be raised, after all, at any time. So I’m assuming C’s behavior is similar.</p>
+<p>The spec is a bit vague, in my read, about the memory order when it comes to acquiring or releasing atomic variables in the signal handler. C++ says, and it makes sense, that such accesses are unsequenced with respect to the rest of the program<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁴</a>. The signal can be raised, after all, at any time. So I’m assuming C’s behavior is similar.</p>
 
 <h2>40.10 Atomic Flags</h2>
 
-<p>There’s only one type the standard guarantees will be a lock-free atomic: <code>atomic_flag</code>. This is an opaque type for <a href="https://en.wikipedia.org/wiki/Test-and-set" rel="nofollow">test-and-set</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁵</a> operations.</p>
+<p>There’s only one type the standard guarantees will be a lock-free atomic: <code>atomic_flag</code>. This is an opaque type for <a href="https://en.wikipedia.org/wiki/Test-and-set" rel="nofollow">test-and-set</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁵</a> operations.</p>
 
 <p>It can be either <em>set</em> or <em>clear</em>. You can initialize it to clear with:</p>
 
@@ -955,7 +955,7 @@ thread2()
 
 <p>This is called a <em>fence</em>. So if you want all the writes in a thread to be visible elsewhere, you can put up a release fence in one thread and an acquire fence in another, just like with how atomic variables work.</p>
 
-<p>Since a consume operation doesn’t really make sense on a fence<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁶</a>, <code>memory_order_consume</code> is treated as an acquire.</p>
+<p>Since a consume operation doesn’t really make sense on a fence<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁶</a>, <code>memory_order_consume</code> is treated as an acquire.</p>
 
 <p>You can put up a fence with any specified order:</p>
 
@@ -983,27 +983,27 @@ thread2()
 <li><p>Herb Sutter’s <em><code>atomic&lt;&gt;</code> Weapons</em> talk:</p>
 
 <ul>
-<li>  <a href="https://www.youtube.com/watch?v=A8eCGOqgvH4" rel="nofollow">Part 1</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁷</a></li>
-<li>  <a href="https://www.youtube.com/watch?v=KeLBd2EJLOU" rel="nofollow">part 2</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁸</a></li>
+<li>  <a href="https://www.youtube.com/watch?v=A8eCGOqgvH4" rel="nofollow">Part 1</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁷</a></li>
+<li>  <a href="https://www.youtube.com/watch?v=KeLBd2EJLOU" rel="nofollow">part 2</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁸</a></li>
 </ul></li>
-<li><p><a href="https://preshing.com/archives/" rel="nofollow">Jeff Preshing’s materials</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁹</a>, in particular:</p>
+<li><p><a href="https://preshing.com/archives/" rel="nofollow">Jeff Preshing’s materials</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁹</a>, in particular:</p>
 
 <ul>
-<li>  <a href="https://preshing.com/20120612/an-introduction-to-lock-free-programming/" rel="nofollow">An Introduction to Lock-Free Programming</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁰</a></li>
-<li>  <a href="https://preshing.com/20120913/acquire-and-release-semantics/" rel="nofollow">Acquire and Release Semantics</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²¹</a></li>
-<li>  <a href="https://preshing.com/20130702/the-happens-before-relation/" rel="nofollow">The <em>Happens-Before</em> Relation</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²²</a></li>
-<li>  <a href="https://preshing.com/20130823/the-synchronizes-with-relation/" rel="nofollow">The <em>Synchronizes-With</em> Relation</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²³</a></li>
-<li>  <a href="https://preshing.com/20140709/the-purpose-of-memory_order_consume-in-cpp11/" rel="nofollow">The Purpose of <code>memory_order_consume</code> in C++11</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁴</a></li>
-<li>  <a href="https://preshing.com/20150402/you-can-do-any-kind-of-atomic-read-modify-write-operation/" rel="nofollow">You Can Do Any Kind of Atomic Read-Modify-Write Operation</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁵</a></li>
+<li>  <a href="https://preshing.com/20120612/an-introduction-to-lock-free-programming/" rel="nofollow">An Introduction to Lock-Free Programming</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁰</a></li>
+<li>  <a href="https://preshing.com/20120913/acquire-and-release-semantics/" rel="nofollow">Acquire and Release Semantics</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²¹</a></li>
+<li>  <a href="https://preshing.com/20130702/the-happens-before-relation/" rel="nofollow">The <em>Happens-Before</em> Relation</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²²</a></li>
+<li>  <a href="https://preshing.com/20130823/the-synchronizes-with-relation/" rel="nofollow">The <em>Synchronizes-With</em> Relation</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²³</a></li>
+<li>  <a href="https://preshing.com/20140709/the-purpose-of-memory_order_consume-in-cpp11/" rel="nofollow">The Purpose of <code>memory_order_consume</code> in C++11</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁴</a></li>
+<li>  <a href="https://preshing.com/20150402/you-can-do-any-kind-of-atomic-read-modify-write-operation/" rel="nofollow">You Can Do Any Kind of Atomic Read-Modify-Write Operation</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁵</a></li>
 </ul></li>
 <li><p>CPPReference:</p>
 
 <ul>
-<li>  <a href="https://en.cppreference.com/w/c/atomic/memory_order" rel="nofollow">Memory Order</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁶</a></li>
-<li>  <a href="https://en.cppreference.com/w/c/language/atomic" rel="nofollow">Atomic Types</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁷</a></li>
+<li>  <a href="https://en.cppreference.com/w/c/atomic/memory_order" rel="nofollow">Memory Order</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁶</a></li>
+<li>  <a href="https://en.cppreference.com/w/c/language/atomic" rel="nofollow">Atomic Types</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁷</a></li>
 </ul></li>
-<li><p>Bruce Dawson’s <a href="https://docs.microsoft.com/en-us/windows/win32/dxtecharts/lockless-programming" rel="nofollow">Lockless Programming Considerations</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁸</a></p></li>
-<li><p>The helpful and knowledgeable folks on <a href="https://www.reddit.com/r/C_Programming/" rel="nofollow">r/C_Programming</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁹</a></p></li>
+<li><p>Bruce Dawson’s <a href="https://docs.microsoft.com/en-us/windows/win32/dxtecharts/lockless-programming" rel="nofollow">Lockless Programming Considerations</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁸</a></p></li>
+<li><p>The helpful and knowledgeable folks on <a href="https://www.reddit.com/r/C_Programming/" rel="nofollow">r/C_Programming</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁹</a></p></li>
 </ul>
 
     </main>

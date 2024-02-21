@@ -62,7 +62,7 @@
 
 <p>Remember that a pointer is just a number. It’s a number that represents an index in computer memory, typically one that holds a value we’re interested in for some reason.</p>
 
-<p>That pointer, which is a number, has to be stored somewhere. And that place is memory, just like everything else<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁹</a>.</p>
+<p>That pointer, which is a number, has to be stored somewhere. And that place is memory, just like everything else<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁹</a>.</p>
 
 <p>But because it’s stored in memory, it must have an index it’s stored at, right? The pointer must have an index in memory where it is stored. And that index is a number. It’s the address of the pointer. It’s a pointer to the pointer.</p>
 
@@ -137,7 +137,7 @@
 </tr>
 </tbody></table>
 
-<p>Indeed, let’s try it for real on my computer<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁰</a> and print out the pointer values with <code>%p</code> and I’ll do the same table again with actual references (printed in hex).</p>
+<p>Indeed, let’s try it for real on my computer<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁰</a> and print out the pointer values with <code>%p</code> and I’ll do the same table again with actual references (printed in hex).</p>
 
 <table><thead>
 <tr>
@@ -165,7 +165,7 @@
 
 <p>You can see those addresses are the same except the last byte, so just focus on those.</p>
 
-<p>On my system, <code>int</code>s are 4 bytes, which is why we’re seeing the address go up by 4 from <code>x</code> to <code>p</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴¹</a> and then goes up by 8 from <code>p</code> to <code>q</code>. On my system, all pointers are 8 bytes.</p>
+<p>On my system, <code>int</code>s are 4 bytes, which is why we’re seeing the address go up by 4 from <code>x</code> to <code>p</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴¹</a> and then goes up by 8 from <code>p</code> to <code>q</code>. On my system, all pointers are 8 bytes.</p>
 
 <p>Does it matter if it’s an <code>int*</code> or an <code>int**</code>? Is one more bytes than the other? Nope! Remember that all pointers are addresses, that is indexes into memory. And on my machine you can represent an index with 8 bytes… doesn’t matter what’s stored at that index.</p>
 
@@ -268,7 +268,7 @@
 </tr>
 </tbody></table>
 
-<p>In general, <code>&amp;*E == E</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴²</a>. The dereference “undoes” the address-of.</p>
+<p>In general, <code>&amp;*E == E</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴²</a>. The dereference “undoes” the address-of.</p>
 
 <p>But <code>&amp;</code> doesn’t work the same way—you can only do those one at a time, and have to store the result in an intermediate variable:</p>
 
@@ -349,7 +349,7 @@
 
 <p>If you want to iterate over the object representation, you should do it with pointers to <code>unsigned char</code>.</p>
 
-<p>Let’s make our own version of <a href="https://beej.us/guide/bgclr/html/split/stringref.html#man-memcpy" rel="nofollow"><code>memcpy()</code></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴³</a> that does exactly this:</p>
+<p>Let’s make our own version of <a href="https://beej.us/guide/bgclr/html/split/stringref.html#man-memcpy" rel="nofollow"><code>memcpy()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴³</a> that does exactly this:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="o">*</span><span class="nf">my_memcpy</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">dest</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">src</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">)</span>
 <span class="p">{</span>
@@ -374,7 +374,7 @@
 
 <p>But you can pass pointers to anything into it, and it’ll copy those objects. Could be <code>int*</code>, <code>struct animal*</code>, or anything.</p>
 
-<p>Let’s do another example that prints out the object representation bytes of a <code>struct</code> so we can see if there’s any padding in there and what values it has<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁴</a>.</p>
+<p>Let’s do another example that prints out the object representation bytes of a <code>struct</code> so we can see if there’s any padding in there and what values it has<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁴</a>.</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 </span>
@@ -416,7 +416,7 @@
 
 <p>Then we have some padding bytes—for me, these varied from run to run.</p>
 
-<p>Finally, on my system, <code>sizeof(int)</code> is 4, and we can see those 4 bytes at the end. Notice how they’re the same bytes as are in the hex value <code>0x12345678</code>, but strangely in reverse order<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁵</a>.</p>
+<p>Finally, on my system, <code>sizeof(int)</code> is 4, and we can see those 4 bytes at the end. Notice how they’re the same bytes as are in the hex value <code>0x12345678</code>, but strangely in reverse order<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁵</a>.</p>
 
 <p>So that’s a little peek under the hood at the bytes of a more complex entity in memory.</p>
 
@@ -441,7 +441,7 @@
 
 <p>C does make one guarantee, though: you can convert a pointer to a <code>uintptr_t</code> type and you’ll be able to convert it back to a pointer without losing any data.</p>
 
-<p><code>uintptr_t</code> is defined in <code>&lt;stdint.h&gt;</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁶</a>.</p>
+<p><code>uintptr_t</code> is defined in <code>&lt;stdint.h&gt;</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁶</a>.</p>
 
 <p>Additionally, if you feel like being signed, you can use <code>intptr_t</code> to the same effect.</p>
 
@@ -528,7 +528,7 @@
 
 <p>And in the <code>fun()</code> loop, we increment the pointer to the <code>int32_t</code>. That’s it. But since the <code>struct</code> points to that same memory, it, too, should be updated to the same value.</p>
 
-<p>So let’s run it and get this, with the 32-bit value on the left and the two 16-bit portions on the right. It should match<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁷</a>:</p>
+<p>So let’s run it and get this, with the 32-bit value on the left and the two 16-bit portions on the right. It should match<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁷</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="mi">12345679</span><span class="p">,</span> <span class="mi">1234</span><span class="o">-</span><span class="mi">5679</span>
 <span class="mi">1234567</span><span class="n">a</span><span class="p">,</span> <span class="mi">1234</span><span class="o">-</span><span class="mi">567</span><span class="n">a</span>
@@ -566,7 +566,7 @@
 
 <h2>23.6 Pointer Differences</h2>
 
-<p>As you know from the section on pointer arithmetic, you can subtract one pointer from another<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁸</a> to get the difference between them in count of array elements.</p>
+<p>As you know from the section on pointer arithmetic, you can subtract one pointer from another<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁸</a> to get the difference between them in count of array elements.</p>
 
 <p>Now the <em>type of that difference</em> is something that’s up to the implementation, so it could vary from system to system.</p>
 
@@ -681,7 +681,7 @@
 
 <p>This way we can change the behavior of <code>print_math()</code> by passing another function into it. You can see we do that on lines 22-23 when we pass in pointers to functions <code>add</code> and <code>mult</code>, respectively.</p>
 
-<p>Now, on line 13, I think we can all agree the function signature of <code>print_math()</code> is a sight to behold. And, if you can believe it, this one is actually pretty straight-forward compared to some things you can construct<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁹</a>.</p>
+<p>Now, on line 13, I think we can all agree the function signature of <code>print_math()</code> is a sight to behold. And, if you can believe it, this one is actually pretty straight-forward compared to some things you can construct<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁹</a>.</p>
 
 <p>But let’s digest it. Turns out there are only three parameters, but they’re a little hard to see:</p>
 

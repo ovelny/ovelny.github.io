@@ -88,7 +88,7 @@
 <div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">));</span>  <span class="c1">// Prints 22!!</span>
 </code></pre></div>
 
-<p>What happened there? C knows that <code>p</code> is a pointer to an <code>int</code>. So it knows the <code>sizeof</code> an <code>int</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸²</a> and it knows to skip that many bytes to get to the next <code>int</code> after the first one!</p>
+<p>What happened there? C knows that <code>p</code> is a pointer to an <code>int</code>. So it knows the <code>sizeof</code> an <code>int</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸²</a> and it knows to skip that many bytes to get to the next <code>int</code> after the first one!</p>
 
 <p>In fact, the prior example could be written these two equivalent ways:</p>
 
@@ -165,7 +165,7 @@
 
 <p>You can subtract a value from a pointer to get to earlier address, as well, just like we were adding to them before.</p>
 
-<p>But we can also subtract two pointers to find the difference between them, e.g. we can calculate how many <code>int</code>s there are between two <code>int*</code>s. The catch is that this only works within a single array<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸³</a>—if the pointers point to anything else, you get undefined behavior.</p>
+<p>But we can also subtract two pointers to find the difference between them, e.g. we can calculate how many <code>int</code>s there are between two <code>int*</code>s. The catch is that this only works within a single array<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸³</a>—if the pointers point to anything else, you get undefined behavior.</p>
 
 <p>Remember how strings are <code>char*</code>s in C? Let’s see if we can use this to write another variant of <code>strlen()</code> to compute the length of a string that utilizes pointer subtraction.</p>
 
@@ -288,7 +288,7 @@
 <p>1. A function is going to operate on something byte-by-byte. For example, <code>memcpy()</code> copies bytes of memory from one pointer to another, but those pointers can point to any type. <code>memcpy()</code> takes advantage of the fact that if you iterate through <code>char*</code>s, you’re iterating through the bytes of an object no matter what type the object is. More on this in the <a href="pointers-iii-pointers-to-pointers-and-more.html#multibyte-values" rel="nofollow">Multibyte Values</a> subsection.</p>
 
 <ol>
-<li> Another function is calling a function you passed to it (a callback), and it’s passing you data. You know the type of the data, but the function calling you doesn’t. So it passes you <code>void*</code>s—’cause it doesn’t know the type—and you convert those to the type you need. The built-in <a href="https://beej.us/guide/bgclr/html/split/stdlib.html#man-qsort" rel="nofollow"><code>qsort()</code></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁴</a> and <a href="https://beej.us/guide/bgclr/html/split/stdlib.html#man-bsearch" rel="nofollow"><code>bsearch()</code></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁵</a> use this technique.</li>
+<li> Another function is calling a function you passed to it (a callback), and it’s passing you data. You know the type of the data, but the function calling you doesn’t. So it passes you <code>void*</code>s—’cause it doesn’t know the type—and you convert those to the type you need. The built-in <a href="https://beej.us/guide/bgclr/html/split/stdlib.html#man-qsort" rel="nofollow"><code>qsort()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁴</a> and <a href="https://beej.us/guide/bgclr/html/split/stdlib.html#man-bsearch" rel="nofollow"><code>bsearch()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁵</a> use this technique.</li>
 </ol>
 
 <p>Let’s look at an example, the built-in <code>memcpy()</code> function:</p>
@@ -371,7 +371,7 @@
 
 <p>But with great power comes great responsibility. Maybe not <em>that</em> great in this case, but there are some limits.</p>
 
-<p>1. You cannot do pointer arithmetic on a <code>void*</code>. 2. You cannot dereference a <code>void*</code>. 3. You cannot use the arrow operator on a <code>void*</code>, since it’s also a dereference. 4. You cannot use array notation on a <code>void*</code>, since it’s also a dereference, as well<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁶</a>.</p>
+<p>1. You cannot do pointer arithmetic on a <code>void*</code>. 2. You cannot dereference a <code>void*</code>. 3. You cannot use the arrow operator on a <code>void*</code>, since it’s also a dereference. 4. You cannot use array notation on a <code>void*</code>, since it’s also a dereference, as well<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁶</a>.</p>
 
 <p>And if you think about it, these rules make sense. All those operations rely on knowing the <code>sizeof</code> the type of data pointed to, and with <code>void*</code>, we don’t know the size of the data being pointed to—it could be anything!</p>
 
@@ -379,7 +379,7 @@
 
 <p>Like with <code>memcpy()</code>, it helps you write generic functions that can handle multiple types of data. But the secret is that, deep down, <em>you convert the `void</em>` to another type before you use it*!</p>
 
-<p>And conversion is easy: you can just assign into a variable of the desired type<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁷</a>.</p>
+<p>And conversion is easy: you can just assign into a variable of the desired type<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸⁷</a>.</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">a</span> <span class="o">=</span> <span class="sc">'X'</span><span class="p">;</span>  <span class="c1">// A single char</span>
 

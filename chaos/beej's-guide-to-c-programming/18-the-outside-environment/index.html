@@ -63,7 +63,7 @@
 
 <p>(or <code>dir</code> instead of <code>ls</code> on a Windows system).</p>
 
-<p>In this case, the command is <code>ls</code>, but it arguments are all all files that end with <code>.txt</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹⁸</a>.</p>
+<p>In this case, the command is <code>ls</code>, but it arguments are all all files that end with <code>.txt</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹⁸</a>.</p>
 
 <p>So how can we see what is passed into program from the command line?</p>
 
@@ -106,7 +106,7 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p>Whoa! What’s going on with the <code>main()</code> function signature? What’s <code>argc</code> and <code>argv</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹⁹</a> (pronounced <em>arg-cee</em> and <em>arg-vee</em>)?</p>
+<p>Whoa! What’s going on with the <code>main()</code> function signature? What’s <code>argc</code> and <code>argv</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹⁹</a> (pronounced <em>arg-cee</em> and <em>arg-vee</em>)?</p>
 
 <p>Let’s start with the easy one first: <code>argc</code>. This is the <em>argument count</em>, including the program name, itself. If you think of all the arguments as an array of strings, which is exactly what they are, then you can think of <code>argc</code> as the length of that array, which is exactly what it is.</p>
 
@@ -247,7 +247,7 @@
 <li><p>Some environments might not set <code>argv[0]</code> to the program name. If it’s not available, <code>argv[0]</code> will be an empty string. I’ve never seen this happen.</p></li>
 <li><p>The spec is actually pretty liberal with what an implementation can do with <code>argv</code> and where those values come from. But every system I’ve been on works the same way, as we’ve discussed in this section.</p></li>
 <li><p>You can modify <code>argc</code>, <code>argv</code>, or any of the strings that <code>argv</code> points to. (Just don’t make those strings longer than they already are!)</p></li>
-<li><p>On some Unix-like systems, modifying the string <code>argv[0]</code> results in the output of <code>ps</code> changing<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁰</a>.</p>
+<li><p>On some Unix-like systems, modifying the string <code>argv[0]</code> results in the output of <code>ps</code> changing<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁰</a>.</p>
 
 <p>Normally, if you have a program called <code>foo</code> that you’ve run with <code>./foo</code>, you might see this in the output of <code>ps</code>:</p>
 <div class="highlight"><pre class="highlight c"><code> <span class="mi">4078</span> <span class="n">tty1</span>     <span class="n">S</span>      <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">foo</span>
@@ -277,9 +277,9 @@
 
 <p>Nothing for it but to <em>forge ahead</em> and figure it out!</p>
 
-<p>Let’s get <a href="https://en.wikipedia.org/wiki/Inception" rel="nofollow">Inception</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²¹</a> for a second: turns out that when you run your program, <em>you’re running it from another program</em>.</p>
+<p>Let’s get <a href="https://en.wikipedia.org/wiki/Inception" rel="nofollow">Inception</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²¹</a> for a second: turns out that when you run your program, <em>you’re running it from another program</em>.</p>
 
-<p>Usually this other program is some kind of <a href="https://en.wikipedia.org/wiki/Shell_(computing)" rel="nofollow">shell</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²²</a> that doesn’t do much on its own except launch other programs.</p>
+<p>Usually this other program is some kind of <a href="https://en.wikipedia.org/wiki/Shell_(computing)" rel="nofollow">shell</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²²</a> that doesn’t do much on its own except launch other programs.</p>
 
 <p>But this is a multi-phase process, especially visible in command-line shells:</p>
 
@@ -343,7 +343,7 @@
 <span class="mi">12</span>
 </code></pre></div>
 
-<p>But that doesn’t really show the exit status that we returned, does it? We can get the shell to print it out, though. Assuming you’re running Bash or another POSIX shell, you can use <code>echo $?</code> to see it<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²³</a>.</p>
+<p>But that doesn’t really show the exit status that we returned, does it? We can get the shell to print it out, though. Assuming you’re running Bash or another POSIX shell, you can use <code>echo $?</code> to see it<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²³</a>.</p>
 
 <p>Let’s try:</p>
 
@@ -394,7 +394,7 @@
 <span class="n">IFS</span><span class="o">=</span><span class="err">$'</span> <span class="err">\</span><span class="n">t</span><span class="err">\</span><span class="n">n</span><span class="err">'</span>
 </code></pre></div>
 
-<p>Notice they are in the form of key/value pairs. For example, one key is <code>HOSTTYPE</code> and its value is <code>x86_64</code>. From a C perspective, all values are strings, even if they’re numbers<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁴</a>.</p>
+<p>Notice they are in the form of key/value pairs. For example, one key is <code>HOSTTYPE</code> and its value is <code>x86_64</code>. From a C perspective, all values are strings, even if they’re numbers<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁴</a>.</p>
 
 <p>So, <em>anyway</em>! Long story short, it’s possible to get these values from inside your C program.</p>
 
@@ -427,7 +427,7 @@
 
 <p>which makes sense, since I haven’t set it yet.</p>
 
-<p>In bash, I can set it to something with<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁵</a>:</p>
+<p>In bash, I can set it to something with<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁵</a>:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="err">$</span> <span class="n">export</span> <span class="n">FROTZ</span><span class="o">=</span><span class="s">"C is awesome!"</span>
 </code></pre></div>
@@ -492,7 +492,7 @@
 
 <p>Use <code>getenv()</code> if at all possible because it’s more portable. But if you have to iterate over environment variables, using <code>environ</code> might be the way to go.</p>
 
-<p>Another non-standard way to get the environment variables is as a parameter to <code>main()</code>. It works much the same way, but you avoid needing to add your <code>extern</code> <code>environ</code> variable. <a href="https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html" rel="nofollow">Not even the POSIX spec supports this</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁶</a> as far as I can tell, but it’s common in Unix land.</p>
+<p>Another non-standard way to get the environment variables is as a parameter to <code>main()</code>. It works much the same way, but you avoid needing to add your <code>extern</code> <code>environ</code> variable. <a href="https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html" rel="nofollow">Not even the POSIX spec supports this</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁶</a> as far as I can tell, but it’s common in Unix land.</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 </span>

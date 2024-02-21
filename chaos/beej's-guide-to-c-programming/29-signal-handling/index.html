@@ -50,7 +50,7 @@
     
     <h1>29 Signal Handling</h1>
 
-<p>Before we start, I’m just going to advise you to generally ignore this entire chapter and use your OS’s (very likely) superior signal handling functions. Unix-likes have the <code>sigaction()</code> family of functions, and Windows has… whatever it does<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁰</a>.</p>
+<p>Before we start, I’m just going to advise you to generally ignore this entire chapter and use your OS’s (very likely) superior signal handling functions. Unix-likes have the <code>sigaction()</code> family of functions, and Windows has… whatever it does<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁰</a>.</p>
 
 <p>With that out of the way, what are signals?</p>
 
@@ -252,9 +252,9 @@
 </ul></li>
 </ul>
 
-<p>That last bit–<code>sig_atomic_t</code>–is your ticket to getting data out of a signal handler. (Unless you want to use lock-free atomic objects, which is outside the scope of this section<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷¹</a>.) It’s an integer type that might or might not be signed. And it’s bounded by what you can put in there.</p>
+<p>That last bit–<code>sig_atomic_t</code>–is your ticket to getting data out of a signal handler. (Unless you want to use lock-free atomic objects, which is outside the scope of this section<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷¹</a>.) It’s an integer type that might or might not be signed. And it’s bounded by what you can put in there.</p>
 
-<p>You can look at the minimum and maximum allowable values in the macros <code>SIG_ATOMIC_MIN</code> and <code>SIG_ATOMIC_MAX</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷²</a>.</p>
+<p>You can look at the minimum and maximum allowable values in the macros <code>SIG_ATOMIC_MIN</code> and <code>SIG_ATOMIC_MAX</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷²</a>.</p>
 
 <p>Confusingly, the spec also says you can’t refer “to any object with static or thread storage duration that is not a lock-free atomic object other than by assigning a value to an object declared as <code>volatile sig_atomic_t</code> […]”</p>
 

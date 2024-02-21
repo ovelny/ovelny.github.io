@@ -68,8 +68,8 @@
 <p>Just a couple quick terms in case you don’t have them down.</p>
 
 <ul>
-<li><p><strong>UTC</strong>: Coordinated Universal Time is a universally<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁹</a> agreed upon, absolute time. Everyone on the planet thinks it’s the same time right now in UTC… even though they have different local times.</p></li>
-<li><p><strong>GMT</strong>: Greenwich Mean Time, effectively the same as UTC<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁰</a>. You probably want to say UTC, or “universal time”. If you’re talking specifically about the GMT time zone, say GMT. Confusingly, many of C’s UTC functions predate UTC and still refer to Greenwich Mean Time. When you see that, know that C means UTC.</p></li>
+<li><p><strong>UTC</strong>: Coordinated Universal Time is a universally<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁹</a> agreed upon, absolute time. Everyone on the planet thinks it’s the same time right now in UTC… even though they have different local times.</p></li>
+<li><p><strong>GMT</strong>: Greenwich Mean Time, effectively the same as UTC<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁰</a>. You probably want to say UTC, or “universal time”. If you’re talking specifically about the GMT time zone, say GMT. Confusingly, many of C’s UTC functions predate UTC and still refer to Greenwich Mean Time. When you see that, know that C means UTC.</p></li>
 <li><p><strong>Local time</strong>: what time it is where the computer running the program is located. This is described as an offset from UTC. Although there are many time zones in the world, most computers do work in either local time or UTC.</p></li>
 </ul>
 
@@ -81,7 +81,7 @@
 
 <h2>38.2 Date Types</h2>
 
-<p>There are two<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹¹</a> main types in C when it comes to dates: <code>time_t</code> and <code>struct tm</code>.</p>
+<p>There are two<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹¹</a> main types in C when it comes to dates: <code>time_t</code> and <code>struct tm</code>.</p>
 
 <p>The spec doesn’t actually say much about them:</p>
 
@@ -90,7 +90,7 @@
 <li><p><code>struct tm</code>: holds the components of a calendar time. This is a <em>broken-down time</em>, i.e. the components of the time, like hour, minute, second, day, month, year, etc.</p></li>
 </ul>
 
-<p>On a lot of systems, <code>time_t</code> represents the number of seconds since <a href="https://en.wikipedia.org/wiki/Unix_time" rel="nofollow"><em>Epoch</em></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹²</a>. Epoch is in some ways the start of time from the computer’s perspective, which is commonly January 1, 1970 UTC. <code>time_t</code> can go negative to represent times before Epoch. Windows behaves the same way as Unix from what I can tell.</p>
+<p>On a lot of systems, <code>time_t</code> represents the number of seconds since <a href="https://en.wikipedia.org/wiki/Unix_time" rel="nofollow"><em>Epoch</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹²</a>. Epoch is in some ways the start of time from the computer’s perspective, which is commonly January 1, 1970 UTC. <code>time_t</code> can go negative to represent times before Epoch. Windows behaves the same way as Unix from what I can tell.</p>
 
 <p>And what’s in a <code>struct tm</code>? The following fields:</p>
 
@@ -264,7 +264,7 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p>There are a <em>ton</em> of date printing format specifiers for <code>strftime()</code>, so be sure to check them out in the <a href="https://beej.us/guide/bgclr/html/split/time.html#man-strftime" rel="nofollow"><code>strftime()</code> reference page</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹³</a>.</p>
+<p>There are a <em>ton</em> of date printing format specifiers for <code>strftime()</code>, so be sure to check them out in the <a href="https://beej.us/guide/bgclr/html/split/time.html#man-strftime" rel="nofollow"><code>strftime()</code> reference page</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹³</a>.</p>
 
 <h2>38.5 More Resolution with <code>timespec_get()</code></h2>
 
@@ -306,7 +306,7 @@
 
 <h2>38.6 Differences Between Times</h2>
 
-<p>One quick note about getting the difference between two <code>time_t</code>s: since the spec doesn’t dictate how that type represents a time, you might not be able to simply subtract two <code>time_t</code>s and get anything sensible<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁴</a>.</p>
+<p>One quick note about getting the difference between two <code>time_t</code>s: since the spec doesn’t dictate how that type represents a time, you might not be able to simply subtract two <code>time_t</code>s and get anything sensible<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁴</a>.</p>
 
 <p>Luckily you can use <code>difftime()</code> to compute the difference in seconds between two dates.</p>
 

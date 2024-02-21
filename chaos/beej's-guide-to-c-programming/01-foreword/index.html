@@ -67,7 +67,7 @@
 
 <p>What’s this? You say something’s still not clear about this whole C programming language thing?</p>
 
-<p>Well, to be quite honest, I’m not even sure what the above code does. It’s a snippet from one of the entries in the 2001 <a href="https://www.ioccc.org/" rel="nofollow">International Obfuscated C Code Contest</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹</a>, a wonderful competition wherein the entrants attempt to write the most unreadable C code possible, with often surprising results.</p>
+<p>Well, to be quite honest, I’m not even sure what the above code does. It’s a snippet from one of the entries in the 2001 <a href="https://www.ioccc.org/" rel="nofollow">International Obfuscated C Code Contest</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹</a>, a wonderful competition wherein the entrants attempt to write the most unreadable C code possible, with often surprising results.</p>
 
 <p>The bad news is that if you’re a beginner in this whole thing, all C code you see probably looks obfuscated! The good news is, it’s not going to be that way for long.</p>
 
@@ -79,7 +79,7 @@
 
 <h2>1.1 Audience</h2>
 
-<p>This guide assumes that you’ve already got some programming knowledge under your belt from another language, such as <a href="https://en.wikipedia.org/wiki/Python_(programming_language)" rel="nofollow">Python</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²</a>, <a href="https://en.wikipedia.org/wiki/JavaScript" rel="nofollow">JavaScript</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³</a>, <a href="https://en.wikipedia.org/wiki/Java_(programming_language)" rel="nofollow">Java</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴</a>, <a href="https://en.wikipedia.org/wiki/Rust_(programming_language)" rel="nofollow">Rust</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵</a>, <a href="https://en.wikipedia.org/wiki/Go_(programming_language)" rel="nofollow">Go</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶</a>, <a href="https://en.wikipedia.org/wiki/Swift_(programming_language)" rel="nofollow">Swift</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷</a>, etc. (<a href="https://en.wikipedia.org/wiki/Objective-C" rel="nofollow">Objective-C</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸</a> devs will have a particularly easy time of it!)</p>
+<p>This guide assumes that you’ve already got some programming knowledge under your belt from another language, such as <a href="https://en.wikipedia.org/wiki/Python_(programming_language)" rel="nofollow">Python</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²</a>, <a href="https://en.wikipedia.org/wiki/JavaScript" rel="nofollow">JavaScript</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³</a>, <a href="https://en.wikipedia.org/wiki/Java_(programming_language)" rel="nofollow">Java</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴</a>, <a href="https://en.wikipedia.org/wiki/Rust_(programming_language)" rel="nofollow">Rust</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵</a>, <a href="https://en.wikipedia.org/wiki/Go_(programming_language)" rel="nofollow">Go</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶</a>, <a href="https://en.wikipedia.org/wiki/Swift_(programming_language)" rel="nofollow">Swift</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷</a>, etc. (<a href="https://en.wikipedia.org/wiki/Objective-C" rel="nofollow">Objective-C</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸</a> devs will have a particularly easy time of it!)</p>
 
 <p>We’re going to assume you know what variables are, what loops do, how functions work, and so on.</p>
 
@@ -89,7 +89,7 @@
 
 <p>The guide is in two volumes, and this is the first: the tutorial volume!</p>
 
-<p>The second volume is the <a href="https://beej.us/guide/bgclr/" rel="nofollow">library reference</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹</a>, and it’s far more reference than tutorial.</p>
+<p>The second volume is the <a href="https://beej.us/guide/bgclr/" rel="nofollow">library reference</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹</a>, and it’s far more reference than tutorial.</p>
 
 <p>If you’re new, go through the tutorial part in order, generally. The higher you get in chapters, the less important it is to go in order.</p>
 
@@ -99,19 +99,19 @@
 
 <h2>1.3 Platform and Compiler</h2>
 
-<p>I’ll try to stick to Plain Ol’-Fashioned <a href="https://en.wikipedia.org/wiki/ANSI_C" rel="nofollow">ISO-standard C</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰</a>. Well, for the most part. Here and there I might go crazy and start talking about <a href="https://en.wikipedia.org/wiki/POSIX" rel="nofollow">POSIX</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹</a> or something, but we’ll see.</p>
+<p>I’ll try to stick to Plain Ol’-Fashioned <a href="https://en.wikipedia.org/wiki/ANSI_C" rel="nofollow">ISO-standard C</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰</a>. Well, for the most part. Here and there I might go crazy and start talking about <a href="https://en.wikipedia.org/wiki/POSIX" rel="nofollow">POSIX</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹</a> or something, but we’ll see.</p>
 
 <p><strong>Unix</strong> users (e.g. Linux, BSD, etc.) try running <code>cc</code> or <code>gcc</code> from the command line–you might already have a compiler installed. If you don’t, search your distribution for installing <code>gcc</code> or <code>clang</code>.</p>
 
-<p><strong>Windows</strong> users should check out <a href="https://visualstudio.microsoft.com/vs/community/" rel="nofollow">Visual Studio Community</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²</a>. Or, if you’re looking for a more Unix-like experience (recommended!), install <a href="https://docs.microsoft.com/en-us/windows/wsl/install-win10" rel="nofollow">WSL</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³</a> and <code>gcc</code>.</p>
+<p><strong>Windows</strong> users should check out <a href="https://visualstudio.microsoft.com/vs/community/" rel="nofollow">Visual Studio Community</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²</a>. Or, if you’re looking for a more Unix-like experience (recommended!), install <a href="https://docs.microsoft.com/en-us/windows/wsl/install-win10" rel="nofollow">WSL</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³</a> and <code>gcc</code>.</p>
 
-<p><strong>Mac</strong> users will want to install <a href="https://developer.apple.com/xcode/" rel="nofollow">XCode</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴</a>, and in particular the command line tools.</p>
+<p><strong>Mac</strong> users will want to install <a href="https://developer.apple.com/xcode/" rel="nofollow">XCode</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴</a>, and in particular the command line tools.</p>
 
 <p>There are a lot of compilers out there, and virtually all of them will work for this book. And a C++ compiler will compile a lot of (but not all!) C code. Best use a proper C compiler if you can.</p>
 
 <h2>1.4 Official Homepage</h2>
 
-<p>This official location of this document is <a href="https://beej.us/guide/bgc/" rel="nofollow">https://beej.us/guide/bgc/</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵</a>. Maybe this’ll change in the future, but it’s more likely that all the other guides are migrated off Chico State computers.</p>
+<p>This official location of this document is <a href="https://beej.us/guide/bgc/" rel="nofollow">https://beej.us/guide/bgc/</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵</a>. Maybe this’ll change in the future, but it’s more likely that all the other guides are migrated off Chico State computers.</p>
 
 <h2>1.5 Email Policy</h2>
 
@@ -162,8 +162,8 @@
 
 <ul>
 <li>  Everyone on the Internet who decided to help share their knowledge in one form or another. The free sharing of instructive information is what makes the Internet the great place that it is.</li>
-<li>  The volunteers at <a href="https://en.cppreference.com/" rel="nofollow">cppreference.com</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶</a> who provide the bridge that leads from the spec to the real world.</li>
-<li>  The helpful and knowledgeable folks on <a href="https://groups.google.com/g/comp.lang.c" rel="nofollow">comp.lang.c</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷</a> and <a href="https://www.reddit.com/r/C_Programming/" rel="nofollow">r/C_Programming</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸</a> who got me through the tougher parts of the language.</li>
+<li>  The volunteers at <a href="https://en.cppreference.com/" rel="nofollow">cppreference.com</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶</a> who provide the bridge that leads from the spec to the real world.</li>
+<li>  The helpful and knowledgeable folks on <a href="https://groups.google.com/g/comp.lang.c" rel="nofollow">comp.lang.c</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷</a> and <a href="https://www.reddit.com/r/C_Programming/" rel="nofollow">r/C_Programming</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸</a> who got me through the tougher parts of the language.</li>
 <li>  Everyone who submitted corrections and pull-requests on everything from misleading instructions to typos.</li>
 </ul>
 

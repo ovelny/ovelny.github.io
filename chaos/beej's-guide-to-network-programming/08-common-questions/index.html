@@ -85,11 +85,11 @@
 
 <p><strong>How do I implement a “ping” utility? What is ICMP? Where can I find out more about raw sockets and <code>SOCK_RAW</code>?</strong></p>
 
-<p>All your raw sockets questions will be answered in <a href="more-references.html#books" rel="nofollow">W. Richard Stevens’ UNIX Network Programming books</a>. Also, look in the <code>ping/</code> subdirectory in Stevens’ UNIX Network Programming source code, <a href="http://www.unpbook.com/src.html" rel="nofollow">available online</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴³</a>.</p>
+<p>All your raw sockets questions will be answered in <a href="more-references.html#books" rel="nofollow">W. Richard Stevens’ UNIX Network Programming books</a>. Also, look in the <code>ping/</code> subdirectory in Stevens’ UNIX Network Programming source code, <a href="http://www.unpbook.com/src.html" rel="nofollow">available online</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴³</a>.</p>
 
 <p><strong>How do I change or shorten the timeout on a call to <code>connect()</code>?</strong></p>
 
-<p>Instead of giving you exactly the same answer that W. Richard Stevens would give you, I’ll just refer you to <a href="http://www.unpbook.com/src.html" rel="nofollow"><code>lib/connect_nonb.c</code> in the UNIX Network Programming source code</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁴</a>.</p>
+<p>Instead of giving you exactly the same answer that W. Richard Stevens would give you, I’ll just refer you to <a href="http://www.unpbook.com/src.html" rel="nofollow"><code>lib/connect_nonb.c</code> in the UNIX Network Programming source code</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁴</a>.</p>
 
 <p>The gist of it is that you make a socket descriptor with <code>socket()</code>, <a href="slightly-advanced-techniques.html#blocking" rel="nofollow">set it to non-blocking</a>, call <code>connect()</code>, and if all goes well <code>connect()</code> will return <code>-1</code> immediately and <code>errno</code> will be set to <code>EINPROGRESS</code>. Then you call <a href="slightly-advanced-techniques.html#select" rel="nofollow"><code>select()</code></a> with whatever timeout you want, passing the socket descriptor in both the read and write sets. If it doesn’t timeout, it means the <code>connect()</code> call completed. At this point, you’ll have to use <code>getsockopt()</code> with the <code>SO_ERROR</code> option to get the return value from the <code>connect()</code> call, which should be zero if there was no error.</p>
 
@@ -183,7 +183,7 @@
 
 <p><strong>How do I encrypt or compress the data before sending it through the socket?</strong></p>
 
-<p>One easy way to do encryption is to use SSL (secure sockets layer), but that’s beyond the scope of this guide. (Check out the <a href="https://www.openssl.org/" rel="nofollow">OpenSSL project</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁵</a> for more info.)</p>
+<p>One easy way to do encryption is to use SSL (secure sockets layer), but that’s beyond the scope of this guide. (Check out the <a href="https://www.openssl.org/" rel="nofollow">OpenSSL project</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁵</a> for more info.)</p>
 
 <p>But assuming you want to plug in or implement your own compressor or encryption system, it’s just a matter of thinking of your data as running through a sequence of steps between both ends. Each step changes the data in some way.</p>
 
@@ -280,7 +280,7 @@
 
 <p>This is the basis for how a packet sniffer works. It puts the interface into promiscuous mode, then the OS gets every single packet that goes by on the wire. You’ll have a socket of some type that you can read this data from.</p>
 
-<p>Unfortunately, the answer to the question varies depending on the platform, but if you Google for, for instance, “windows promiscuous ioctl” you’ll probably get somewhere. For Linux, there’s what looks like a <a href="https://stackoverflow.com/questions/21323023/" rel="nofollow">useful Stack Overflow thread</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁶</a>, as well.</p>
+<p>Unfortunately, the answer to the question varies depending on the platform, but if you Google for, for instance, “windows promiscuous ioctl” you’ll probably get somewhere. For Linux, there’s what looks like a <a href="https://stackoverflow.com/questions/21323023/" rel="nofollow">useful Stack Overflow thread</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁶</a>, as well.</p>
 
 <p><strong>How can I set a custom timeout value for a TCP or UDP socket?</strong></p>
 
@@ -294,7 +294,7 @@
 
 <p>If the port is already in use, you’ll get an “Address already in use” error when you try to <code>bind()</code>. Choose another port. (It’s a good idea to allow the user of your software to specify an alternate port either with a config file or a command line switch.)</p>
 
-<p>There is a <a href="https://www.iana.org/assignments/port-numbers" rel="nofollow">list of official port numbers</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁷</a> maintained by the Internet Assigned Numbers Authority (IANA). Just because something (over 1023) is in that list doesn’t mean you can’t use the port. For instance, Id Software’s DOOM uses the same port as “mdqs”, whatever that is. All that matters is that no one else <em>on the same machine</em> is using that port when you want to use it.</p>
+<p>There is a <a href="https://www.iana.org/assignments/port-numbers" rel="nofollow">list of official port numbers</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁷</a> maintained by the Internet Assigned Numbers Authority (IANA). Just because something (over 1023) is in that list doesn’t mean you can’t use the port. For instance, Id Software’s DOOM uses the same port as “mdqs”, whatever that is. All that matters is that no one else <em>on the same machine</em> is using that port when you want to use it.</p>
 
     </main>
     <footer id="footer">

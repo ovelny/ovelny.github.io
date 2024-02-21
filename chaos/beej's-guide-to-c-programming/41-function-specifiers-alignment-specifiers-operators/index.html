@@ -183,7 +183,7 @@
 
 <p>Seems like when we call <code>func()</code> from <code>foo.c</code>, it should print “<code>foo&#39;s function</code>”. And from <code>bar.c</code>, that <code>func()</code> should print “<code>bar&#39;s function</code>”.</p>
 
-<p>And if I compile with <code>gcc</code> with optimizations<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²³⁰</a> it will use inline functions, and we’ll get the expected:</p>
+<p>And if I compile with <code>gcc</code> with optimizations<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²³⁰</a> it will use inline functions, and we’ll get the expected:</p>
 
 <div class="highlight"><pre class="highlight c"><code><span class="n">foo</span><span class="p">.</span><span class="n">c</span><span class="o">:</span> <span class="n">foo</span><span class="err">'</span><span class="n">s</span> <span class="n">function</span>
 <span class="n">bar</span><span class="p">.</span><span class="n">c</span><span class="o">:</span> <span class="n">bar</span><span class="err">'</span><span class="n">s</span> <span class="n">function</span>
@@ -207,7 +207,7 @@
 
 <p>It also allows you to indicate to other devs that some program logic depends on a function <em>not</em> returning.</p>
 
-<p>You’ll likely never need to use this, but you’ll see it on some library calls like <a href="https://beej.us/guide/bgclr/html/split/stdlib.html#man-exit" rel="nofollow"><code>exit()</code></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²³¹</a> and <a href="https://beej.us/guide/bgclr/html/split/stdlib.html#man-abort" rel="nofollow"><code>abort()</code></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²³²</a>.</p>
+<p>You’ll likely never need to use this, but you’ll see it on some library calls like <a href="https://beej.us/guide/bgclr/html/split/stdlib.html#man-exit" rel="nofollow"><code>exit()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²³¹</a> and <a href="https://beej.us/guide/bgclr/html/split/stdlib.html#man-abort" rel="nofollow"><code>abort()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²³²</a>.</p>
 
 <p>The built-in keyword is <code>_Noreturn</code>, but if it doesn’t break your existing code, everyone would recommend including <code>&lt;stdnoreturn.h&gt;</code> and using the easier-to-read <code>noreturn</code> instead.</p>
 
@@ -249,7 +249,7 @@
 
 <h2>41.2 Alignment Specifiers and Operators</h2>
 
-<p><a href="https://en.wikipedia.org/wiki/Data_structure_alignment" rel="nofollow"><em>Alignment</em></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²³³</a> is all about multiples of addresses on which objects can be stored. Can you store this at any address? Or must it be a starting address that’s divisible by 2? Or 8? Or 16?</p>
+<p><a href="https://en.wikipedia.org/wiki/Data_structure_alignment" rel="nofollow"><em>Alignment</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²³³</a> is all about multiples of addresses on which objects can be stored. Can you store this at any address? Or must it be a starting address that’s divisible by 2? Or 8? Or 16?</p>
 
 <p>If you’re coding up something low-level like a memory allocator that interfaces with your OS, you might need to consider this. Most devs go their careers without using this functionality in C.</p>
 

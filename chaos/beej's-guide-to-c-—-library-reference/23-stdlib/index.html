@@ -268,7 +268,7 @@
 
 <h3>Description</h3>
 
-<p>This stood for <a href="http://man.cat-v.org/unix-1st/3/atof" rel="nofollow">“ASCII-To-Floating” back in the day</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁰</a>, but no one would dare to use such coarse language now.</p>
+<p>This stood for <a href="http://man.cat-v.org/unix-1st/3/atof" rel="nofollow">“ASCII-To-Floating” back in the day</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁰</a>, but no one would dare to use such coarse language now.</p>
 
 <p>But the gist is the same: we’re going to convert a string with numbers and (optionally) a decimal point into a floating point value. Leading whitespace is ignored, and translation stops at the first invalid character.</p>
 
@@ -323,7 +323,7 @@
 
 <h3>Description</h3>
 
-<p>Back in the day, <code>atoi()</code> stood for <a href="http://man.cat-v.org/unix-1st/3/atoi" rel="nofollow">“ASCII-To_Integer”</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵¹</a> but now the spec makes no mention of that.</p>
+<p>Back in the day, <code>atoi()</code> stood for <a href="http://man.cat-v.org/unix-1st/3/atoi" rel="nofollow">“ASCII-To_Integer”</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵¹</a> but now the spec makes no mention of that.</p>
 
 <p>These functions take a string with a number in them and convert it to an integer of the specified return type. Leading whitespace is ignored. Translation stops at the first invalid character.</p>
 
@@ -504,7 +504,7 @@
 
 <p>You can pass in <code>NULL</code> for <code>endptr</code> if you don’t care to do any of that kind of error checking.</p>
 
-<p>Wait—did I just say we could set the number base for the conversion? Yes! Yes, I did. Now <a href="https://en.wikipedia.org/wiki/Radix" rel="nofollow">number bases</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵²</a> are out of scope for this document, but certainly some of the more well-known are binary (base 2), octal (base 8), decimal (base 10), and hexadecimal (base 16).</p>
+<p>Wait—did I just say we could set the number base for the conversion? Yes! Yes, I did. Now <a href="https://en.wikipedia.org/wiki/Radix" rel="nofollow">number bases</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵²</a> are out of scope for this document, but certainly some of the more well-known are binary (base 2), octal (base 8), decimal (base 10), and hexadecimal (base 16).</p>
 
 <p>You can specify the number base for the conversion as the third parameter. Bases from 2 to 36 are supported, with case-insensitive digits running from <code>0</code> to <code>Z</code>.</p>
 
@@ -585,9 +585,9 @@
 
 <p>This gives us back a pseudorandom number in the range <code>0</code> to <code>RAND_MAX</code>, inclusive. (<code>RAND_MAX</code> will be at least \(32767\).)</p>
 
-<p>If you want to force this to a certain range, the classic way to do this is to force it with the modulo operator <code>%</code>, although <a href="https://stackoverflow.com/questions/10984974/why-do-people-say-there-is-modulo-bias-when-using-a-random-number-generator" rel="nofollow">this introduces biases</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵³</a> if <code>RAND_MAX+1</code> is not a multiple of the number you’re modding by. Dealing with this is out of scope for this guide.</p>
+<p>If you want to force this to a certain range, the classic way to do this is to force it with the modulo operator <code>%</code>, although <a href="https://stackoverflow.com/questions/10984974/why-do-people-say-there-is-modulo-bias-when-using-a-random-number-generator" rel="nofollow">this introduces biases</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵³</a> if <code>RAND_MAX+1</code> is not a multiple of the number you’re modding by. Dealing with this is out of scope for this guide.</p>
 
-<p>If you want to to make a floating point number between <code>0</code> and <code>1</code> inclusive, you can divide the result by <code>RAND_MAX</code>. Or <code>RAND_MAX+1</code> if you don’t want to include <code>1</code>. But of course, there are out-of-scope <a href="https://mumble.net/%7Ecampbell/2014/04/28/uniform-random-float" rel="nofollow">problems with this, as well</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁴</a>.</p>
+<p>If you want to to make a floating point number between <code>0</code> and <code>1</code> inclusive, you can divide the result by <code>RAND_MAX</code>. Or <code>RAND_MAX+1</code> if you don’t want to include <code>1</code>. But of course, there are out-of-scope <a href="https://mumble.net/%7Ecampbell/2014/04/28/uniform-random-float" rel="nofollow">problems with this, as well</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁴</a>.</p>
 
 <p>In short, <code>rand()</code> is a great way to get potentially poor random numbers with ease. Probably good enough for the game you’re writing.</p>
 
@@ -599,7 +599,7 @@
 
 <p>Your system probably has a good random number generator on it if you need a stronger source. Linux users have <code>getrandom()</code>, for example, and Windows has <code>CryptGenRandom()</code>.</p>
 
-<p>For other more demanding random number work, you might find a library like the <a href="https://www.gnu.org/software/gsl/doc/html/rng.html" rel="nofollow">GNU Scientific Library</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁵</a> of use.</p>
+<p>For other more demanding random number work, you might find a library like the <a href="https://www.gnu.org/software/gsl/doc/html/rng.html" rel="nofollow">GNU Scientific Library</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁵</a> of use.</p>
 
 <p>With most implementations, the numbers produced by <code>rand()</code> will be the same from run to run. To get around this, you need to start it off in a different place by passing a <em>seed</em> into the random number generator. You can do this with <a href="stdlib.html#man-srand" rel="nofollow"><code>srand()</code></a>.</p>
 
@@ -676,13 +676,13 @@
 
 <p>If you use <code>rand()</code> and run your program several times, you might notice something <em>fishy</em>: they produce the same random numbers over and over again.</p>
 
-<p>To mix it up, we need to give the pseudorandom number generator a new “starting point”, if you will. We call that the <em>seed</em>. It’s just a number, but it is used as the basic for subsequent number generation. Give a different seed, and you’ll get a different sequence of random numbers. Give the same seed, and you’ll get the same sequence of random numbers corresponding to it<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁶</a>.</p>
+<p>To mix it up, we need to give the pseudorandom number generator a new “starting point”, if you will. We call that the <em>seed</em>. It’s just a number, but it is used as the basic for subsequent number generation. Give a different seed, and you’ll get a different sequence of random numbers. Give the same seed, and you’ll get the same sequence of random numbers corresponding to it<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁶</a>.</p>
 
 <p>So if you call <code>srand(3490)</code> before you start generating numbers with <code>rand()</code>, you’ll get the same sequence every time. <code>srand(37)</code> would also give you the same sequence every time, but it would be a different sequence than the one you got with <code>srand(3490)</code>.</p>
 
 <p>But if you can’t hardcode the seed (because that would give you the same sequence every time), how are you supposed to do this?</p>
 
-<p>It’s really common to use the number of seconds since January 1, 1970 (this date is known as the <a href="https://en.wikipedia.org/wiki/Unix_time" rel="nofollow"><em>Unix epoch</em></a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁷</a>) to seed the generator. This sounds pretty arbitrary except for the fact that it’s exactly the value most implementations return from the library call <code>time(NULL)</code><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁸</a>.</p>
+<p>It’s really common to use the number of seconds since January 1, 1970 (this date is known as the <a href="https://en.wikipedia.org/wiki/Unix_time" rel="nofollow"><em>Unix epoch</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁷</a>) to seed the generator. This sounds pretty arbitrary except for the fact that it’s exactly the value most implementations return from the library call <code>time(NULL)</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁸</a>.</p>
 
 <p>We’ll do that in the example.</p>
 
@@ -746,7 +746,7 @@
 
 <p>Maybe you wanted <a href="stdlib.html#man-malloc" rel="nofollow"><code>malloc()</code></a> or <a href="stdlib.html#man-malloc" rel="nofollow"><code>calloc()</code></a> instead of this. But if you’re sure you don’t, read on!</p>
 
-<p>Normally you don’t have to think about this, since <code>malloc()</code> and <code>realloc()</code> both provide memory regions that are suitably <a href="https://en.wikipedia.org/wiki/Data_structure_alignment" rel="nofollow">aligned</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁹</a> for use with any data type.</p>
+<p>Normally you don’t have to think about this, since <code>malloc()</code> and <code>realloc()</code> both provide memory regions that are suitably <a href="https://en.wikipedia.org/wiki/Data_structure_alignment" rel="nofollow">aligned</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁹</a> for use with any data type.</p>
 
 <p>But if you need a more specific alignment, you can specify it with this function.</p>
 
@@ -878,7 +878,7 @@
 
 <p>Fun fact: <code>free(NULL)</code> does nothing. You can safely call that. Sometimes it’s convenient.</p>
 
-<p>Don’t <code>free()</code> a pointer that’s already been <code>free()</code>d. Don’t <code>free()</code> a pointer that you didn’t get back from one of the allocation functions. It would be <em>Bad</em><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁰</a>.</p>
+<p>Don’t <code>free()</code> a pointer that’s already been <code>free()</code>d. Don’t <code>free()</code> a pointer that you didn’t get back from one of the allocation functions. It would be <em>Bad</em><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁰</a>.</p>
 
 <h3>Return Value</h3>
 
@@ -989,7 +989,7 @@
 
 <p>A non-zero exit status is returned to the environment.</p>
 
-<p>On some systems, <code>abort()</code> might <a href="https://en.wikipedia.org/wiki/Core_dump" rel="nofollow">dump core</a><a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶¹</a>, but this is outside the scope of the spec.</p>
+<p>On some systems, <code>abort()</code> might <a href="https://en.wikipedia.org/wiki/Core_dump" rel="nofollow">dump core</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶¹</a>, but this is outside the scope of the spec.</p>
 
 <p>You can cause the equivalent of an <code>abort()</code> by calling <code>raise(SIGABRT)</code>, but I don’t know why you’d do that.</p>
 
@@ -1047,7 +1047,7 @@
 
 <p>Think of it like, “Hey, when you’re about to exit, do these extra things.”</p>
 
-<p>For the <code>quick_exit()</code> call, you can use the <code>at_quick_exit()</code> function to register handlers for that<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶²</a>. There’s no crossover in handlers from <code>exit()</code> to <code>quick_exit()</code>, i.e. for a call to one, none of the other’s handlers will fire.</p>
+<p>For the <code>quick_exit()</code> call, you can use the <code>at_quick_exit()</code> function to register handlers for that<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶²</a>. There’s no crossover in handlers from <code>exit()</code> to <code>quick_exit()</code>, i.e. for a call to one, none of the other’s handlers will fire.</p>
 
 <p>You can register multiple handlers to fire—at least 32 handlers are supported by both <code>exit()</code> and <code>quick_exit()</code>.</p>
 
@@ -1429,7 +1429,7 @@
 
 <h3>Description</h3>
 
-<p>This function will quicksort (or some other sort, probably speedy) an array of data in-place<a href="https://ovelny.sh/amulet/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶³</a>.</p>
+<p>This function will quicksort (or some other sort, probably speedy) an array of data in-place<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶³</a>.</p>
 
 <p>Like <code>bsearch()</code>, it’s data-agnostic. Any data for which you can define a relative ordering can be sorted, whether <code>int</code>s, <code>struct</code>s, or anything else.</p>
 
