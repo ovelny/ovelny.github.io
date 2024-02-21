@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/studying-for-oscp/some-OSCP-considerations</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/studying-for-oscp/some-OSCP-considerations"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-minimal-logo.jpg"
+            alt="ovelny logo"
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>some OSCP considerations</h1>
+
+<p>some reminders and faqs regarding the pen-200 and OSCP exam (in 2022).</p>
+
+<h2>how is the pen-200 course organized?</h2>
+
+<p>after subscribing to the course, you have to wait for a minimum of 10 days before studying pen-200. the course is organized as it follows:</p>
+
+<ul>
+<li>topic exercises to learn what you need</li>
+<li>lab machines to practice and hone your skills, accessible for a limited time</li>
+<li>850-page pdf course guide</li>
+<li>17+ hours of video</li>
+</ul>
+
+<p>as a side note, it took me roughly 87h to finish the entire OSCP course (in 2022).</p>
+
+<h2>what are the exam rules?</h2>
+
+<p>you got 23 hours and 45 minutes to finish the exam, which is structured as it follows:</p>
+
+<ul>
+<li>3 independent targets to hack, each one of them granting 20 points: 10 points for low-privilege access + 10 points for privilege escalation = 60 points in total. one of the targets may or may not contain a buffer overflow attack vector.</li>
+<li>ad challenge comprised of 1 domain controller with 2 clients, granting 40 points for a full exploit chain of the domain. no partial points can be granted for this one.</li>
+</ul>
+
+<p>you need at least 70 points to pass the exam. each proof of exploitation in any target is a file that is either named <code>local.txt</code> or <code>proof.txt</code>, that has to be retrieved, submitted in your control panel, and included in a screenshot with your documentation.</p>
+
+<p>just use <code>cat</code> or <code>type</code> to get the hash and submit it, but note that you won&#39;t get a confirmation whether or not the hash is correct. in your screenshots, the proofs must be shown with those commands followed by either <code>ipconfig</code>, <code>ifconfig</code>, or <code>ip addr</code> outputs.</p>
+
+<p>keep in mind that the following tools and methods are disallowed:</p>
+
+<ul>
+<li>spoofing (IP, ARP, DNS, NBNS, etc)</li>
+<li>commercial tools or services (metasploit pro, burp pro, etc.)</li>
+<li>automatic exploitation tools (e.g. db_autopwn, browser_autopwn, sqlmap, sqlninja etc.)</li>
+<li>mass vulnerability scanners (e.g. nessus, nexpose, openvas, canvas, core impact, saint, etc.)</li>
+<li>features in other tools that utilize either forbidden or restricted exam limitations</li>
+</ul>
+
+<p>you can only use metasploit modules (auxiliary, exploit and post) or the meterpreter payload against <strong>one</strong> single target of your choice. it may be simpler to not use them at all, and substitute meterpreter with <code>rlwrap</code> for instance.</p>
+
+<p>take extensive notes while hacking the targets. after your VPN connection expires and the exam ends, you have another 24 hours to write and submit your report.</p>
+
+<p>your report must be in the PDF format and follow this checklist:</p>
+
+<ul>
+<li>your PDF file will be the only file submitted and must contain everything, including all your scripts and all pocs as text</li>
+<li>your PDF file name must be <code>OSCP-OS-XXXXX-Exam-Report.pdf</code>, where <code>OS-XXXXX</code> is your osid when you registered</li>
+<li>your PDF must be archived in a <code>.7z</code> file, <strong>without</strong> any password, by using the command <code>7z a &lt;your_archive&gt;.7z &lt;your_report&gt;.pdf</code></li>
+<li>your <code>.7z</code> archive file name must be <code>OSCP-OS-XXXXX-Exam-Report.7z</code>, where <code>OS-XXXXX</code> is your osid</li>
+<li>your archive file size must not be higher than 300MB, and not higher than 400MB once extracted</li>
+<li>your archive must be uploaded to <a href="https://upload.offsec.com" rel="nofollow">https://upload.offsec.com</a></li>
+</ul>
+
+<p>after uploading your archive, the site will provide you a MD5 hash that you can compare with your local archive to make sure that integrity has been maintained. if they don&#39;t match, reupload your archive.</p>
+
+<p>you&#39;ll know if you passed or not the exam roughly 2 weeks later.</p>
+
+<h2>how can you get bonus points before the exam? is it worth it?</h2>
+
+<p>you can get 10 bonus points before the exam by choosing one of the following options:</p>
+
+<ul>
+<li>option 1: get at least 80% of the correct solutions for topic exercises in every topic, and 30 correct <code>proof.txt</code> hashes from the offsec platform</li>
+<li>option 2: do all legacy exercises and 10 lab machines (<strong>will expire after january 2023</strong>)</li>
+</ul>
+
+<p>only one of these options must be chosen, it is not possible to combine both of them.</p>
+
+<p>now, is it worth it? that depends. with option 1, you don&#39;t need to submit a lab report to earn bonus points, so there&#39;s that.</p>
+
+<p>here are possible scenarios to pass the exam:</p>
+
+<ul>
+<li>40 pt AD + 3 local.txt flags</li>
+<li>40 pt AD + 2 local.txt flags + 1 proof.txt flag</li>
+<li>40 pt AD + 2 local.txt flags + bonus points</li>
+<li>40 pt AD + 1 proof.txt + 1 local.txt + bonus points</li>
+<li>3 fully completed non-ad machines + bonus points</li>
+</ul>
+
+<p>bonus points can be valuable and even allow you to fully avoid the AD challenge. but putting all your eggs in one basket can be dangerous if you end up struggling with any of the independent targets. your choice, your risks.</p>
+
+<h2>how many times can you retake the exam?</h2>
+
+<p>as many times as you need as long as you have the money for retakes, but a cooling off period must be followed:</p>
+
+<ul>
+<li>after a first failed exam, you must wait 6 weeks before rescheduling a retake</li>
+<li>after a second failed exam, you must wait 8 weeks before rescheduling a retake</li>
+<li>after a third failed exam onward, you must wait 12 weeks before rescheduling a retake</li>
+</ul>
+
+<p>those cooling off periods apply only for the pen-200 individual course ($1499).</p>
+
+<h2>are there other training resources worth doing?</h2>
+
+<p>plenty of them: tryhackme, hackthebox are pretty good resources, as well as proving grounds which is also provided by offensive security for a monthly fee ($19/Mo).</p>
+
+<p>for HTB boxes, it is highly recommended to follow <a href="https://docs.google.com/spreadsheets/d/1dwSMIAPIam0PuRBkCiDI88pU3yzrqqHkDtBngUHNCw8/edit#gid=721998175" rel="nofollow">TJ Null&#39;s lists</a> as the machines listed there are a close match to those encountered in the exam.</p>
+
+<h2>which tools are recommended beyond the usual ones?</h2>
+
+<ul>
+<li><a href="https://github.com/Tib3rius/AutoRecon" rel="nofollow">autorecon, for fast enumeration of all exam machines</a></li>
+<li><a href="https://github.com/jpillora/chisel" rel="nofollow">chisel, for pivoting and port forwarding</a></li>
+<li><a href="https://github.com/DominicBreuker/pspy" rel="nofollow">pspy, to spy on running processes in linux</a></li>
+<li><a href="https://github.com/Anon-Exploiter/SUID3NUM" rel="nofollow">SUID3num, to exploit Linux with gtfobins</a></li>
+<li><a href="https://github.com/D35m0nd142/LFISuite" rel="nofollow">LFIsuite, to automatically detect lfi vulns</a></li>
+</ul>
+
+<h2>recommendations and resources</h2>
+
+<ul>
+<li><a href="https://blog.lukasec.ch/posts/oscpjourney.html" rel="nofollow">https://blog.lukasec.ch/posts/oscpjourney.html</a></li>
+<li><a href="https://scribe.rip/avoiding-common-oscp-pitfalls-d2dd929fdb03" rel="nofollow">https://scribe.rip/avoiding-common-oscp-pitfalls-d2dd929fdb03</a></li>
+<li><a href="https://scribe.rip/@gbuben/guide-to-the-2022-oscp-exam-on-m1-with-active-directory-d8b4ce30f4f3" rel="nofollow">https://scribe.rip/@gbuben/guide-to-the-2022-oscp-exam-on-m1-with-active-directory-d8b4ce30f4f3</a></li>
+</ul>
+
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
