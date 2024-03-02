@@ -749,7 +749,7 @@ systemctl <span class="nt">--user</span> start libreddit
 
 <h2>set up eog as default image viewer</h2>
 
-<p>with your current setup and evilwm, ungoogled-chromium will somehow becomes the default application to open images. we can&#39;t have that:</p>
+<p>with your current setup and evilwm, ungoogled-chromium will somehow become the default application to open images. we can&#39;t have that:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nv">image_formats</span><span class="o">=(</span><span class="s2">"bmp"</span> <span class="s2">"gif"</span> <span class="s2">"jpeg"</span> <span class="s2">"jpg"</span> <span class="s2">"pjpeg"</span> <span class="s2">"png"</span> <span class="s2">"tiff"</span> <span class="s2">"webp"</span><span class="o">)</span><span class="p">;</span> <span class="k">for </span>image_format <span class="k">in</span> <span class="s2">"</span><span class="k">${</span><span class="nv">image_formats</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span><span class="p">;</span> <span class="k">do </span>xdg-mime default org.gnome.eog.desktop image/<span class="s2">"</span><span class="nv">$image_format</span><span class="s2">"</span><span class="p">;</span> <span class="k">done</span>
 </code></pre></div>
