@@ -363,17 +363,6 @@ EndSection
 
 <p>reboot, choose your user in the display manager, then in bottom-right settings, pick <code>evilwm</code>. enjoy using (nearly) all of your RAM.</p>
 
-<h2>enable systemd user services</h2>
-
-<p>your user systemd services are located in <code>~/.config/systemd/user</code> but need to be enabled once restored from dotfiles:</p>
-
-<div class="highlight"><pre class="highlight shell"><code>systemctl <span class="nt">--user</span> <span class="nb">enable </span>syncthing <span class="o">&amp;&amp;</span> systemctl <span class="nt">--user</span> start syncthing <span class="o">&amp;&amp;</span> <span class="se">\</span>
-systemctl <span class="nt">--user</span> <span class="nb">enable </span>chmod-execute-ovelny-bin.service <span class="o">&amp;&amp;</span> systemctl <span class="nt">--user</span> start chmod-execute-ovelny-bin.service <span class="o">&amp;&amp;</span> <span class="se">\</span>
-systemctl <span class="nt">--user</span> <span class="nb">enable </span>auto-pull-vessel.service <span class="o">&amp;&amp;</span> systemctl <span class="nt">--user</span> start auto-pull-vessel.service <span class="o">&amp;&amp;</span> <span class="se">\</span>
-systemctl <span class="nt">--user</span> <span class="nb">enable </span>auto-pull-vimrc.service <span class="o">&amp;&amp;</span> systemctl <span class="nt">--user</span> start auto-pull-vimrc.service <span class="o">&amp;&amp;</span> <span class="se">\</span>
-systemctl <span class="nt">--user</span> <span class="nb">enable </span>auto-symlink-dotfiles.service <span class="o">&amp;&amp;</span> systemctl <span class="nt">--user</span> start auto-symlink-dotfiles.service <span class="o">&amp;&amp;</span> <span class="se">\</span>
-</code></pre></div>
-
 <h2>restore config for ripcord</h2>
 
 <p>ripcord doesn&#39;t seem to understand symlinks for its config file, sigh. it is backed up in <code>~/sync/ripcord_settings</code>. the file has to be copied in <code>~/.var/app/fm.cancel.Ripcord/data/Ripcord</code>.</p>
