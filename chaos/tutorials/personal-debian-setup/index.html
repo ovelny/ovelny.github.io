@@ -730,9 +730,15 @@ gpg <span class="nt">--decrypt</span> <span class="nt">--default-recipient-self<
 <span class="nb">tar </span>xzvf /tmp/floorp-profile.tar.gz <span class="nt">--directory</span><span class="o">=</span>~/.var/app/one.ablaze.floorp/.floorp/<span class="o">{</span>PROFILE_NAME<span class="o">}</span>.default-release
 </code></pre></div>
 
-<p>move the files from the nested path back to <code>~/.var/app/one.ablaze.floorp/cache/floorp/{PROFILE_NAME}.default-release</code>, <code>rm /tmp/floor-profile.tar.gz</code>, <code>rm -rf ~/.var/app/one.ablaze.floorp/cache/floorp/{PROFILE_NAME}.default-release/home</code>, and you&#39;re good to go.</p>
+<p>move the files from the nested path back to <code>~/.var/app/one.ablaze.floorp/.floorp/{PROFILE_NAME}.default-release</code>, <code>rm /tmp/floor-profile.tar.gz</code>, <code>rm -rf ~/.var/app/one.ablaze.floorp/.floorp/{PROFILE_NAME}.default-release/home</code>, and you&#39;re good to go.</p>
 
 <p>weirdly enough, floorp doesn&#39;t seem to sync the search engine of your choice even by copying everything. go to <code>about:preferences#search</code> and select it.</p>
+
+<p>it also has the same issue as librewolf with some fonts rendering. to fix it:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">mkdir</span> <span class="nt">-p</span> ~/.var/app/one.ablaze.floorp/config/fontconfig/conf.d
+<span class="nb">cp</span> /usr/share/fontconfig/conf.avail/70-no-bitmaps.conf ~/.var/app/one.ablaze.floorp/config/fontconfig/conf.d
+</code></pre></div>
 
 <p>finally, set floorp as your default browser with <code>xdg-settings set default-web-browser one.ablaze.floorp.desktop</code>.</p>
 
