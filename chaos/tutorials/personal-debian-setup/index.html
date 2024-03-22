@@ -762,6 +762,33 @@ systemctl <span class="nt">--user</span> start libreddit
 <div class="highlight"><pre class="highlight shell"><code><span class="nv">image_formats</span><span class="o">=(</span><span class="s2">"bmp"</span> <span class="s2">"gif"</span> <span class="s2">"jpeg"</span> <span class="s2">"jpg"</span> <span class="s2">"pjpeg"</span> <span class="s2">"png"</span> <span class="s2">"tiff"</span> <span class="s2">"webp"</span><span class="o">)</span><span class="p">;</span> <span class="k">for </span>image_format <span class="k">in</span> <span class="s2">"</span><span class="k">${</span><span class="nv">image_formats</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span><span class="p">;</span> <span class="k">do </span>xdg-mime default org.gnome.eog.desktop image/<span class="s2">"</span><span class="nv">$image_format</span><span class="s2">"</span><span class="p">;</span> <span class="k">done</span>
 </code></pre></div>
 
+<p>while we&#39;re at it, this needs fixing and not be ungoogled-chromium&#39;s default too:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>xdg-mime default org.gnome.TextEditor.desktop application/rdf+xml
+xdg-mime default org.gnome.TextEditor.desktop application/rss+xml
+xdg-mime default org.gnome.TextEditor.desktop application/xml
+xdg-mime default org.gnome.TextEditor.desktop text/xml
+</code></pre></div>
+
+<h2>fix calibre defaulting itself for a lot of mimetypes</h2>
+
+<p>calibre is such a good app, it wants to open PDF files for you. oh and plain text files. and so many other files. awesome configuration there.</p>
+
+<p>you can list default apps for all mimetypes with this command, which is already aliased as <code>mimels</code> in my zsh config:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">cat</span> /usr/share/applications/mimeinfo.cache | <span class="nb">cut</span> <span class="nt">-d</span> <span class="s2">"="</span> <span class="nt">-f</span> 1 | <span class="nb">tail</span> <span class="nt">-n</span> +2 | <span class="k">while </span><span class="nb">read </span>line<span class="p">;</span> <span class="k">do </span><span class="nb">printf</span> <span class="s2">"</span><span class="nv">$line</span><span class="s2"> :: "</span> <span class="o">&amp;&amp;</span> xdg-mime query default <span class="s2">"</span><span class="nv">$line</span><span class="s2">"</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></div>
+
+<p>you can see all mimetypes handled by calibre with <code>mimels | grep calibre</code>. but anyway, here&#39;s what you need to fix:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>xdg-mime default org.gnome.Evince.desktop application/pdf
+xdg-mime default org.gnome.TextEditor.desktop text/plain
+xdg-mime default org.gnome.TextEditor.desktop text/rtf
+xdg-mime default org.gnome.TextEditor.desktop application/xhtml+xml
+</code></pre></div>
+
+<p>desktop files can be found at <code>/usr/share/applications</code>.</p>
+
 <h2>uninstall brave-browser</h2>
 
 <p>in case you made the mistake of installing brave browser on your machine:</p>
@@ -773,7 +800,7 @@ systemctl <span class="nt">--user</span> start libreddit
 
 <h2>all done!</h2>
 
-<p>congrats, add a wallpaper and you have a system you can call home now. grab a coffee and enjoy.</p>
+<p>congrats, you have a system you can call home now. grab a coffee and enjoy.</p>
 
 <p>the next sections are for tools i don&#39;t use anymore, but still want to keep documentation around.</p>
 
