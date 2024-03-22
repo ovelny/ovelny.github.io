@@ -380,7 +380,14 @@ systemctl <span class="nt">--user</span> <span class="nb">enable </span>auto-sym
 
 <h2>quick setup for nheko (matrix client)</h2>
 
-<p>start the app, login, verify your device through another device or passphrase, then go to settings:</p>
+<p>nheko currently has an error with flatpak: the desktop file located in <code>/var/lib/flatpak/exports/share/applications/io.github.NhekoReborn.Nheko.desktop</code> needs to be edited.</p>
+
+<p>change the <code>Exec</code> line so that <code>QT_QUICK_BACKEND=software</code> environment variable is set. it should should like this:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nv">Exec</span><span class="o">=</span><span class="nb">env </span><span class="nv">QT_QUICK_BACKEND</span><span class="o">=</span>software /usr/bin/flatpak run <span class="nt">--branch</span><span class="o">=</span>stable <span class="nt">--arch</span><span class="o">=</span>x86_64 <span class="nt">--command</span><span class="o">=</span>io.github.NhekoReborn.Nheko <span class="nt">--file-forwarding</span> io.github.NhekoReborn.Nheko @@u %u @@
+</code></pre></div>
+
+<p>now you can start the app, login, verify your device through another device or passphrase, then go to settings:</p>
 
 <ul>
 <li>enable dark theme</li>
