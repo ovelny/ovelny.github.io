@@ -130,6 +130,8 @@
 
 <p>to embed /boot with GRUB being able to decrypt it, we need to use pbkdf2. reboot the system and press <code>e</code> at the GRUB menu, add <code>break=mount</code> to the end at the linux line for the kernel and press <code>F10</code>. you will drop into a initramfs shell.</p>
 
+<p>use <code>fdisk -l</code> to find where your encrypted drive has been mounted. the boot flag section will help making sure this is the right drive.</p>
+
 <p>then run the following commands, one by one:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>cryptsetup luksConvertKey <span class="nt">--pbkdf</span> pbkdf2 /dev/&lt;something&gt;

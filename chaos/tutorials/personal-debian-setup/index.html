@@ -134,7 +134,6 @@
 <ul>
 <li>mullvad</li>
 <li>steam</li>
-<li>scrcpy</li>
 <li>croc</li>
 </ul>
 
@@ -146,6 +145,15 @@
 <span class="nb">sudo </span>apt upgrade steam <span class="nt">-f</span>
 <span class="nb">sudo </span>apt <span class="nb">install </span>nvidia-driver-libs:i386
 </code></pre></div>
+
+<h2>configure gnome tweaks</h2>
+
+<ul>
+<li>go to gnome tweaks &gt; appearance &gt; lgeacy applications and select adwaita dark.</li>
+<li>go to gnome tweaks &gt; fonts and select hinting: full and antialiasing: subpixel.</li>
+</ul>
+
+<p>also in <code>appearance</code> settings, pick dark style.</p>
 
 <h2>VPN settings</h2>
 
@@ -301,11 +309,18 @@ EndSection
 
 <p>then sync the <code>~/bin</code> in the same way and run <code>chmod +x ~/bin/dot</code>. also sync the <code>~/sync</code> directory while you&#39;re at it.</p>
 
-<p>run <code>~/bin/dot install</code> and reboot. the updated zsh theme and automatic syncthing startup should be proof enough that your dotfiles are restored. if you are stuck in a login loop, always going back to the prompt screen, this might be due to my current config and is nothing to fear: press <code>ctrl + alt + F2</code> and login in <code>tty</code>, then type <code>exit</code> to quit tmux and use <code>startx</code>.</p>
+<p>run <code>~/bin/dot install</code> and enable syncthing service as user:</p>
 
-<p>this workaround is only temporary: finishing the present setup fixes it for good.</p>
+<div class="highlight"><pre class="highlight shell"><code>systemctl <span class="nt">--user</span> <span class="nb">enable </span>syncthing <span class="o">&amp;&amp;</span> systemctl <span class="nt">--user</span> start syncthing
+</code></pre></div>
 
-<p>because we ignore syncing permissions, we have to restore the execute bit for all scripts in <code>~/bin</code>. this can be done easily with <code>cd ~/bin &amp;&amp; while read f; do chmod +x &quot;$f&quot;; done &lt; &lt;(find . -type f ! -name &quot;*.*&quot;)</code></p>
+<p>you can now reboot. the updated zsh theme and automatic syncthing startup should be proof enough that your dotfiles are restored.</p>
+
+<p><strong>if you are stuck in a login loop, always going back to the prompt screen, this might be due to my current config and is nothing to fear: press <code>ctrl + alt + F2</code> and login in <code>tty</code>, then type <code>exit</code> to quit tmux and use <code>startx</code>.</strong></p>
+
+<p><strong>this workaround is only temporary: finishing the present setup fixes it.</strong></p>
+
+<p>one last thing: because we ignore syncing permissions, we have to restore the execute bit for all scripts in <code>~/bin</code>. this can be done easily with <code>cd ~/bin &amp;&amp; while read f; do chmod +x &quot;$f&quot;; done &lt; &lt;(find . -type f ! -name &quot;*.*&quot;)</code></p>
 
 <h2>restore SSH and GPG keys</h2>
 
@@ -345,27 +360,6 @@ EndSection
 </code></pre></div>
 
 <p>reboot, choose your user in the display manager, then in bottom-right settings, pick <code>evilwm</code>. enjoy using (nearly) all of your RAM.</p>
-
-<h2>setup aerc with protonmail-bridge</h2>
-
-<p>aerc should already be installed from <code>apt</code>. to set it up with protonmail-bridge, download the <code>.deb</code> at this address: <a href="https://proton.me/mail/bridge" rel="nofollow">https://proton.me/mail/bridge</a></p>
-
-<p>install it with <code>sudo dpkg -i</code> and log to your account from the app. instructions to set it up with your email client should appear. click <code>continue</code> and once in the main menu, go to <code>settings -&gt; advanced settings -&gt; export TLS certificates</code>. certificates should now be in your <code>~/Downloads</code> directory.</p>
-
-<p>you can delete <code>key.pem</code>, only <code>cert.pem</code> is needed. to trust this certificate, move the certificate to <code>/usr/local/share/ca-certificates</code> and rename it to <code>cert.crt</code>.</p>
-
-<p>run <code>sudo update-ca-certificates</code> and check that protonmail has been added.</p>
-
-<p>you can now run <code>aerc</code> from the command-line and follow the wizard with protonmail-bridge&#39;s settings. be sure to enter the bridge&#39;s password that is shown in the app, <em>not</em> your account&#39;s password. check if your mails appear. exit the app and check your account&#39;s config at <code>~/.config/aerc/accounts.conf</code>, it should look like the following:</p>
-
-<div class="highlight"><pre class="highlight shell"><code><span class="o">[</span>protonmail]
-<span class="nb">source</span>   <span class="o">=</span> imap://&lt;address&gt;%40protonmail.com:&lt;bridge-password&gt;@127.0.0.1:1143
-outgoing <span class="o">=</span> smtp://&lt;address&gt;%40protonmail.com:&lt;bridge-password&gt;@127.0.0.1:1025
-default  <span class="o">=</span> INBOX
-from     <span class="o">=</span> &lt;full name&gt; <span class="o">&lt;&lt;</span><span class="no">address</span><span class="sh">&gt;@protonmail.com&gt;
-copy-to  = Sent
-smtp-starttls = yes # important line to add with current debian's version
-</span></code></pre></div>
 
 <h2>enable systemd user services</h2>
 
@@ -496,15 +490,6 @@ cargo <span class="nb">install </span>gitu <span class="nt">--locked</span>
 
 <p>keep in mind that permissions might be messed up, and you might have to reassign them with <code>take ownership</code> setting (always in <code>gnome-disks</code>), recursively or not.</p>
 
-<h2>configure gnome tweaks</h2>
-
-<ul>
-<li>go to gnome tweaks &gt; appearance &gt; applications and select adwaita dark.</li>
-<li>go to gnome tweaks &gt; fonts and select hinting: full and antialiasing: subpixel.</li>
-</ul>
-
-<p>also in <code>appearance</code> settings, pick dark style.</p>
-
 <h2>restic config and restore</h2>
 
 <p>restic&#39;s &quot;key&quot; is already present in <code>~/.dotfiles</code>, and its symlink can be found in <code>~/.config/restic/restic_key.gpg</code> after running the previous steps.</p>
@@ -616,7 +601,10 @@ docker load &lt; /tmp/nanoc.tar.gz
 
 <p>syncing with <code>rsync</code> is already configured with <code>city_ruins_sync</code> in <code>~/bin</code>. even if the <code>sshd_config</code> is pretty hardened, we have <code>openlocalssh</code> and <code>closelocalssh</code> aliases to open/close the port easily before/after syncing what we need.</p>
 
-<p>it&#39;s important that the SSH service <strong>remains disabled</strong>, as our config listen to local addresses that aren&#39;t present yet during the boot process.</p>
+<p>it&#39;s important that the SSH service <strong>remains disabled</strong>, as our config listen to local addresses that aren&#39;t present yet during the boot process:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>systemctl disable ssh <span class="o">&amp;&amp;</span> <span class="nb">sudo </span>systemctl stop ssh
+</code></pre></div>
 
 <h2>clone some repositories, including this blog</h2>
 
@@ -630,6 +618,14 @@ git clone git@github.com:ovelny/ovelny.github.io.git output
 
 <h2>set up .vimrc and install vim plugins</h2>
 
+<p>before we install our vim config, pylint and black are also required:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">--user</span> pylint <span class="nt">--break-system-packages</span>
+python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">--user</span> black <span class="nt">--break-system-packages</span>
+</code></pre></div>
+
+<p>we can now install our plugins:</p>
+
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># symlink vim config</span>
 <span class="nb">ln</span> <span class="nt">-s</span> /home/ovelny/code/vim-cursed/.vimrc /home/ovelny/.vimrc
 
@@ -642,17 +638,11 @@ curl <span class="nt">-fLo</span> ~/.vim/autoload/plug.vim <span class="nt">--cr
 
 <p>finally, the youcompleteme plugin requires a few more steps for a full installation, but everything should be covered by running <code>~/bin/ycm_update</code>. if not, refer to the documentation: <a href="https://github.com/ycm-core/YouCompleteMe#linux-64-bit" rel="nofollow">https://github.com/ycm-core/YouCompleteMe#linux-64-bit</a></p>
 
-<p>pylint and black are also required with the previous config:</p>
-
-<div class="highlight"><pre class="highlight shell"><code>python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">--user</span> pylint <span class="nt">--break-system-packages</span>
-python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">--user</span> black <span class="nt">--break-system-packages</span>
-</code></pre></div>
-
 <h2>configure easyeffects</h2>
 
 <p>find bass enhancing + perfect eq json file in <code>~/sync/easyeffects</code>.</p>
 
-<p>import it and apply it in the app. don&#39;t forget to set easyeffects to launch automatically at startup in settings.</p>
+<p>import it and load it in the app. don&#39;t forget to set easyeffects to launch automatically at startup in settings.</p>
 
 <h2>configure certs</h2>
 
@@ -663,10 +653,13 @@ once copied in say, <code>~/Downloads</code>, create the directory that will hos
 <span class="nb">mkdir</span> <span class="nt">-p</span> <span class="nv">$HOME</span>/.pki/nssdb
 certutil <span class="nt">-d</span> <span class="nv">$HOME</span>/.pki/nssdb <span class="nt">-N</span> <span class="c"># enter your password</span>
 
-<span class="c"># then, add the certificate with this command</span>
+<span class="c"># add the burp certificate with this command</span>
 certutil <span class="nt">-d</span> <span class="s2">"sql:</span><span class="nv">$HOME</span><span class="s2">/.pki/nssdb"</span> <span class="nt">-A</span> <span class="nt">-i</span> ~/Downloads/&lt;your-burp-cert&gt; <span class="nt">-n</span> <span class="s2">"Burp Suite CA"</span> <span class="nt">-t</span> C,,
 
-<span class="c"># repeat last command for zaproxy cert and delete them from their temporary location</span>
+<span class="c"># and the zap certificate</span>
+certutil <span class="nt">-d</span> <span class="s2">"sql:</span><span class="nv">$HOME</span><span class="s2">/.pki/nssdb"</span> <span class="nt">-A</span> <span class="nt">-i</span> ~/Downloads/&lt;your-zap-cert&gt; <span class="nt">-n</span> <span class="s2">"ZAP CA"</span> <span class="nt">-t</span> C,,
+
+<span class="c"># delete the certs from their temporary location too</span>
 </code></pre></div>
 
 <h2>setup daily backups</h2>
@@ -756,6 +749,27 @@ systemctl <span class="nt">--user</span> start libreddit
 </code></pre></div>
 
 <p>a redirect is already set up in qutebrowser&#39;s config.</p>
+
+<h2>setup aerc with protonmail-bridge</h2>
+
+<p>aerc should already be installed from <code>apt</code>. to set it up with protonmail-bridge, download the <code>.deb</code> at this address: <a href="https://proton.me/mail/bridge" rel="nofollow">https://proton.me/mail/bridge</a></p>
+
+<p>install it with <code>sudo dpkg -i</code> and log to your account from the app. instructions to set it up with your email client should appear. click <code>continue</code> and once in the main menu, go to <code>settings -&gt; advanced settings -&gt; export TLS certificates</code>. certificates should now be in your <code>~/Downloads</code> directory.</p>
+
+<p>you can delete <code>key.pem</code>, only <code>cert.pem</code> is needed. to trust this certificate, move the certificate to <code>/usr/local/share/ca-certificates</code> and rename it to <code>cert.crt</code>.</p>
+
+<p>run <code>sudo update-ca-certificates</code> and check that protonmail has been added.</p>
+
+<p>you can now run <code>aerc</code> from the command-line and follow the wizard with protonmail-bridge&#39;s settings. be sure to enter the bridge&#39;s password that is shown in the app, <em>not</em> your account&#39;s password. check if your mails appear. exit the app and check your account&#39;s config at <code>~/.config/aerc/accounts.conf</code>, it should look like the following:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="o">[</span>protonmail]
+<span class="nb">source</span>   <span class="o">=</span> imap://&lt;address&gt;%40protonmail.com:&lt;bridge-password&gt;@127.0.0.1:1143
+outgoing <span class="o">=</span> smtp://&lt;address&gt;%40protonmail.com:&lt;bridge-password&gt;@127.0.0.1:1025
+default  <span class="o">=</span> INBOX
+from     <span class="o">=</span> &lt;full name&gt; <span class="o">&lt;&lt;</span><span class="no">address</span><span class="sh">&gt;@protonmail.com&gt;
+copy-to  = Sent
+smtp-starttls = yes # important line to add with current debian's version
+</span></code></pre></div>
 
 <h2>set up eog as default image viewer</h2>
 
