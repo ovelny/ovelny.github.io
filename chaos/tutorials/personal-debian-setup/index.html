@@ -52,7 +52,7 @@
 
 <p><strong>average setup time: ~3 hours</strong></p>
 
-<p>this document is a step-by-step process to reproduce the setup i like for a fresh debian install. as such, it is unlikely to fit your needs and preferences and is mainly aimed for me.</p>
+<p>this document is a step-by-step process to reproduce the setup i like for a fresh debian install. as such, it is unlikely to fit your needs and preferences and is mainly aimed for me. it also involves a number of dotfiles and settings that are kept private.</p>
 
 <p>sections marked as <code>deprecated</code> at the end of this document don&#39;t mean that the tools / apps mentioned are out-of-date. it means i&#39;m not using them anymore, but prefer to keep those notes around just in case.</p>
 
@@ -752,9 +752,9 @@ systemctl <span class="nt">--user</span> start libreddit
 
 <p>aerc should already be installed from <code>apt</code>. to set it up with protonmail-bridge, download the <code>.deb</code> at this address: <a href="https://proton.me/mail/bridge" rel="nofollow">https://proton.me/mail/bridge</a></p>
 
-<p>install it with <code>sudo dpkg -i</code> and log to your account from the app. instructions to set it up with your email client should appear. click <code>continue</code> and once in the main menu, go to <code>settings -&gt; advanced settings -&gt; export TLS certificates</code>. certificates should now be in your <code>~/Downloads</code> directory.</p>
+<p>install it with <code>sudo dpkg -i</code> and log to your account from the app. instructions to set it up with your email client should appear. click <code>continue</code> and once in the main menu, go to <code>settings -&gt; advanced settings -&gt; export TLS certificates</code>. certificates should now be in your <code>~/Downloads</code> directory. before you leave settings, also disable <code>automatic updates</code> and <code>open on startup</code>. we take care of the latter with our config.</p>
 
-<p>you can delete <code>key.pem</code>, only <code>cert.pem</code> is needed. to trust this certificate, move the certificate to <code>/usr/local/share/ca-certificates</code> and rename it to <code>cert.crt</code>.</p>
+<p>you can delete <code>key.pem</code>, only <code>cert.pem</code> is needed. to trust this certificate, move the certificate to <code>/usr/local/share/ca-certificates</code> and rename it to <code>cert.crt</code>. also <code>chown</code> it to <code>root</code>.</p>
 
 <p>run <code>sudo update-ca-certificates</code> and check that protonmail has been added.</p>
 
