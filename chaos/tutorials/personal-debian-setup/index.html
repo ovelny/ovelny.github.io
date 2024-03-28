@@ -672,6 +672,15 @@ certutil <span class="nt">-d</span> <span class="s2">"sql:</span><span class="nv
 
 <p>you should also check if all the paths in <code>backup_moon</code> are still the same with your new install to manage backups, and change them accordingly. also check <code>~/bin/restic</code> and <code>~/bin/restic-b2</code> which are just wrappers to easily run restic with its key. paths might need to be updated there too.</p>
 
+<h2>setup battery alert (laptops only)</h2>
+
+<p>if you&#39;re setting up a laptop, there is a script already present in ~/bin to notify for low battery, which is <code>battery_alert</code>.</p>
+
+<p>to set it up, run <code>crontab -e</code> and add the following line:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="k">*</span>/8 <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> /home/ovelny/bin/battery_alert
+</code></pre></div>
+
 <h2>manage passwords locally with gopass</h2>
 
 <p>first, install <a href="https://github.com/gopasspw/gopass" rel="nofollow">gopass</a> if you haven&#39;t already with:</p>
