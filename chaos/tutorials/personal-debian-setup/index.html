@@ -718,23 +718,16 @@ python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span cla
 
 <p>launch flatseal first and allow GPU acceleration.</p>
 
-<p>start the browser that you already installed through flatpak, pick expert layout (whatever that means), don&#39;t sync anything and take note of the <code>default-release</code> profile in use in <code>about:profiles</code>. this is where we will copy everything we already configured. exit the browser for now.</p>
+<p>start the browser that you already installed through flatpak, pick expert layout (whatever that means), don&#39;t sync anything and exit the browser.</p>
 
-<p>the entire profile can be found in <code>~/sync/floorp-profile</code>. it has been backed up with the following command:</p>
+<p>everything has been automated to restore our profile from <code>~/sync/floorp-profile</code>. make sure the following is done:</p>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="nb">tar</span> <span class="nt">-zcvf</span> /tmp/floorp-profile.tar.gz ~/.var/app/one.ablaze.floorp/.floorp/<span class="o">{</span>PROFILE_NAME<span class="o">}</span>.default-release <span class="o">&amp;&amp;</span> gpg <span class="nt">--encrypt</span> <span class="nt">--default-recipient-self</span> /tmp/floorp-profile.tar.gz <span class="o">&amp;&amp;</span> <span class="nb">rm</span> /tmp/floorp-profile.tar.gz <span class="o">&amp;&amp;</span> <span class="nb">mv</span> /tmp/floorp-profile.tar.gz.gpg ~/sync/floorp-profile
-</code></pre></div>
+<ul>
+<li>your GPG keys are present and working</li>
+<li>a <code>*default-release</code> profile has been created in <code>~/.var/app/one.ablaze.floorp/.floorp</code></li>
+</ul>
 
-<p>you can restore it with the following commands:</p>
-
-<div class="highlight"><pre class="highlight shell"><code><span class="nb">rm</span> <span class="nt">-rf</span> ~/.var/app/one.ablaze.floorp/.floorp/<span class="o">{</span>PROFILE_NAME<span class="o">}</span>.default-release/<span class="k">*</span>
-gpg <span class="nt">--decrypt</span> <span class="nt">--default-recipient-self</span> ~/sync/floorp-profile/floorp-profile.tar.gz.gpg <span class="o">&gt;</span> /tmp/floorp-profile.tar.gz
-<span class="nb">tar </span>xzvf /tmp/floorp-profile.tar.gz <span class="nt">--directory</span><span class="o">=</span>~/.var/app/one.ablaze.floorp/.floorp/<span class="o">{</span>PROFILE_NAME<span class="o">}</span>.default-release
-</code></pre></div>
-
-<p>move the files from the nested path back to <code>~/.var/app/one.ablaze.floorp/.floorp/{PROFILE_NAME}.default-release</code>, <code>rm /tmp/floor-profile.tar.gz</code>, <code>rm -rf ~/.var/app/one.ablaze.floorp/.floorp/{PROFILE_NAME}.default-release/home</code>, and you&#39;re good to go.</p>
-
-<p>weirdly enough, floorp doesn&#39;t seem to sync the search engine of your choice even by copying everything. go to <code>about:preferences#search</code> and select it.</p>
+<p>if everything is in order, just run <code>floorp_profile_install</code> and you&#39;re set, except for three things: weirdly enough, floorp doesn&#39;t seem to sync the search engine of your choice even by copying everything. go to <code>about:preferences#search</code> and select it.</p>
 
 <p>it also has the same issue as librewolf with some fonts rendering. to fix it:</p>
 
@@ -743,6 +736,8 @@ gpg <span class="nt">--decrypt</span> <span class="nt">--default-recipient-self<
 </code></pre></div>
 
 <p>finally, set floorp as your default browser with <code>xdg-settings set default-web-browser one.ablaze.floorp.desktop</code>.</p>
+
+<p>you&#39;re done with the browser. if you need to backup your profile after some changes (extensions, etc), just run <code>floorp_profile_backup</code> which will take care of creating an archive in <code>~/sync/floorp-profile</code>.</p>
 
 <h2>set up libreddit</h2>
 
