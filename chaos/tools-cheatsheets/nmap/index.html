@@ -50,6 +50,39 @@
     
     <h1>nmap</h1>
 
+<h2>using scripts</h2>
+
+<p>scripts are located in <code>/usr/share/nmap/scripts</code>.</p>
+
+<p>to use a single script, enter its name without the extension like the following:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>nmap &lt;target&gt; <span class="nt">--script</span> banner
+</code></pre></div>
+
+<p>to use multiple scripts, enter them as comma-separated values:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>nmap &lt;target&gt; <span class="nt">--script</span> &lt;script-name&gt;,&lt;script-name&gt;,...
+</code></pre></div>
+
+<p>to use an entire script category, enter it with the same flag, like <code>--script vuln</code>. here are all the availables categories:</p>
+
+<ul>
+<li>auth</li>
+<li>broadcast</li>
+<li>brute</li>
+<li>default</li>
+<li>discovery</li>
+<li>dos</li>
+<li>exploit</li>
+<li>external</li>
+<li>fuzzer</li>
+<li>intrusive</li>
+<li>malware</li>
+<li>safe</li>
+<li>version</li>
+<li>vuln</li>
+</ul>
+
 <h2>reading packet traces</h2>
 
 <p>if you want to get a raw view of a SYN scan, it might be useful to enable <code>--packet-trace</code> and disable a few options:</p>
