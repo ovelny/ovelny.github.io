@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ovelny - tools cheatsheets</title>
+    <title>ovelny - chaos/tools-cheatsheets/nmap</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
@@ -20,7 +20,7 @@
     <script src="/assets/js/scramble-text.min.js" defer></script>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:site" content="@ovelny"/>
-    <meta name="twitter:title" content="ovelny - tools cheatsheets"/>
+    <meta name="twitter:title" content="ovelny - chaos/tools-cheatsheets/nmap"/>
     <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
     <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
   </head>
@@ -47,36 +47,29 @@
     </header>
     <main>
 
+    
+    <h1>nmap</h1>
 
-    <h2>tools cheatsheets</h2>
-    <ul>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/tools-cheatsheets/crackmapexec/>crackmapexec</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/tools-cheatsheets/nmap/>nmap</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/tools-cheatsheets/qemu/>qemu</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/tools-cheatsheets/socat/>socat</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/tools-cheatsheets/tools-cheatsheet/>tools cheatsheet</a>
-            </li>
-        
-    </ul>
+<h2>reading packet traces</h2>
+
+<p>if you want to get a raw view of a SYN scan, it might be useful to enable <code>--packet-trace</code> and disable a few options:</p>
+
+<ul>
+<li>ICMP echo requests with <code>-Pn</code></li>
+<li>DNS resolution with <code>-n</code></li>
+<li>ARP ping scan with <code>--disable-arp-ping</code></li>
+</ul>
+
+<p>here is how it might look like with a closed port:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>sudo nmap &lt;IP&gt; -p &lt;port number&gt; --packet-trace -Pn -n --disable-arp-ping
+&lt;SNIP&gt;
+SENT (0.0429s) TCP &lt;attack box IP&gt;:&lt;attack box port&gt; &gt; &lt;target IP&gt;:&lt;target port&gt; S &lt;additional TCP header parameters&gt; &lt;mss 1460&gt;
+RCVD (0.0573s) TCP &lt;target IP&gt;:&lt;target port&gt; &gt; &lt;attack box IP&gt;:&lt;attack box port&gt; RA &lt;additional TCP header parameters&gt;
+&lt;SNIP&gt;
+</code></pre></div>
+
+<p>pay close attention to the characters right after the receiving ports: in this example <code>S</code> stands for the SYN flag, while <code>RA</code> stands for the TCP packet containing both the RST and ACK flag.</p>
 
     </main>
     <footer id="footer">
