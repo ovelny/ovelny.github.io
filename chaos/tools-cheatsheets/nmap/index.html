@@ -110,6 +110,41 @@ RCVD (0.0573s) TCP &lt;target IP&gt;:&lt;target port&gt; &gt; &lt;attack box IP&
 
 <ul>
 <li><code>--stats-every=5s</code> to periodically check for progress</li>
+<li><code>--initial-rtt-timeout 50ms</code> to specify the initial RTT timeout</li>
+<li><code>--max-rtt-timeout 100ms</code> to specify the maximum RTT timeout</li>
+<li><code>--max-retries 1</code> to specify the number of retries performed</li>
+<li><code>--min-rate 300</code> to set the minimum number of packets sent every second</li>
+</ul>
+
+<p>keep in mind that all performance flags can be detrimental for scan results.</p>
+
+<h2>timing templates values</h2>
+
+<ul>
+<li><code>-T 0</code> or <code>-T paranoid</code></li>
+<li><code>-T 1</code> or <code>-T sneaky</code></li>
+<li><code>-T 2</code> or <code>-T polite</code></li>
+<li><code>-T 3</code> or <code>-T normal</code> (default)</li>
+<li><code>-T 4</code> or <code>-T aggressive</code></li>
+<li><code>-T 5</code> or <code>-T insane</code></li>
+</ul>
+
+<p>more info here: <a href="https://nmap.org/book/performance-timing-templates.html" rel="nofollow">https://nmap.org/book/performance-timing-templates.html</a></p>
+
+<h2>evading firewalls and IDS / IPS</h2>
+
+<p>to evade firewalls / IDS / IPS, besides using other hosts and <code>VPS</code>, nmap has the <code>-D</code> flag for decoy scanning method. when it is used, nmap generates and inserts various random IP addresses in the IP header, among our real IP:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>nmap &lt;target IP&gt; <span class="nt">-p</span> &lt;target port&gt; <span class="nt">-D</span> RND:5 <span class="c"># generate 5 random IPs</span>
+</code></pre></div>
+
+<p>you can also use the <code>-S &lt;IP address&gt;</code> flag to spoof the packets with a single, real IP address, but you will not receive any report from this.</p>
+
+<p>other ways of evading controls:</p>
+
+<ul>
+<li><code>--source-port 53</code> to perform scan from the specified port</li>
+<li><code>--dns-server &lt;NS&gt;,...</code> to perform reverse DNS resolution from other(s) DNS server(s)</li>
 </ul>
 
     </main>
