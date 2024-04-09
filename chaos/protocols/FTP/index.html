@@ -48,7 +48,7 @@
     <main>
 
     
-    <h1>FTP</h1>
+    <h1>FTP (and TFTP)</h1>
 
 <h2>main points</h2>
 
@@ -110,10 +110,24 @@
 <td>upload file(s) to the remote host</td>
 </tr>
 <tr>
-<td>---------</td>
-<td>---------------------------------------------------------------</td>
+<td>verbose</td>
+<td>toggle verbose mode, for more info during file transfers</td>
+</tr>
+<tr>
+<td>status</td>
+<td>show current status: ascii or binary transfert mode, connection, etc</td>
 </tr>
 </tbody></table>
+
+<h2>additional commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># download all available files from remote host</span>
+wget <span class="nt">-m</span> <span class="nt">--no-passive</span> ftp://anonymous:anonymous@&lt;IP address&gt;
+</code></pre></div>
+
+<h2>insecure things</h2>
+
+<p>if the target uses vsFTPd, check the <code>/etc/vsftpd.conf</code> config file and particularly any <code>anon</code> settings that would allow us to login with the <code>anonymous</code> user. additionally, the <code>write_enable=YES</code> command could allow us to use dangerous commands like <code>DELE</code>, <code>RMD</code>, etc.</p>
 
 <h2>useful links</h2>
 
