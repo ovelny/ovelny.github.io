@@ -128,7 +128,7 @@ wget <span class="nt">-m</span> <span class="nt">--no-passive</span> ftp://anony
 openssl s_client <span class="nt">-connect</span> &lt;IP address&gt;:21 <span class="nt">-starttls</span> ftp
 </code></pre></div>
 
-<h2>insecure things</h2>
+<h2>insecure configuration</h2>
 
 <p>if the target uses vsFTPd, check the <code>/etc/vsftpd.conf</code> config file and particularly any <code>anon</code> settings that would allow us to login with the <code>anonymous</code> user. additionally, the <code>write_enable=YES</code> command could allow us to use dangerous commands like <code>DELE</code>, <code>RMD</code>, etc.</p>
 
