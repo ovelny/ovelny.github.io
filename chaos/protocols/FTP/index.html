@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ovelny - protocols</title>
+    <title>ovelny - chaos/protocols/FTP</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
@@ -20,7 +20,7 @@
     <script src="/assets/js/scramble-text.min.js" defer></script>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:site" content="@ovelny"/>
-    <meta name="twitter:title" content="ovelny - protocols"/>
+    <meta name="twitter:title" content="ovelny - chaos/protocols/FTP"/>
     <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
     <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
   </head>
@@ -47,21 +47,30 @@
     </header>
     <main>
 
+    
+    <h1>FTP</h1>
 
-    <h2>protocols</h2>
-    <ul>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/protocols/FTP/>FTP</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/protocols/POP3-commands/>POP3 commands</a>
-            </li>
-        
-    </ul>
+<h2>main points</h2>
+
+<ul>
+<li><p>two channels are opened for client/server communication:</p>
+
+<ul>
+<li><code>TCP port 21</code> for the control channel</li>
+<li><code>TCP port 20</code> for the data channel</li>
+</ul></li>
+<li><p>two modes are possible, <code>active</code> or <code>passive</code>:</p>
+
+<ul>
+<li><code>active</code>:</li>
+<li>client establishes connection via TCP port 21</li>
+<li>server is informed on which port it can transmit the responses to the client</li>
+<li>downside: if client has a firewall, server responses will be blocked</li>
+<li><code>passive</code>:</li>
+<li>server announces a port the client can use for the data channel (port 20)</li>
+<li>because the client initiates the connection, the firewall won&#39;t block transfer</li>
+</ul></li>
+</ul>
 
     </main>
     <footer id="footer">
