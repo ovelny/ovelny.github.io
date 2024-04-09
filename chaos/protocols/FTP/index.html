@@ -62,9 +62,12 @@
 <li><p>two modes are possible, <code>active</code> or <code>passive</code>:</p>
 
 <ul>
-<li><code>active</code>:</li>
+<li><code>active</code>:
+
+<ul>
 <li>client establishes connection via TCP port 21</li>
 <li>server is informed on which port it can transmit the responses to the client</li>
+</ul></li>
 <li>downside: if client has a firewall, server responses will be blocked</li>
 <li><code>passive</code>:</li>
 <li>server announces a port the client can use for the data channel (port 20)</li>
