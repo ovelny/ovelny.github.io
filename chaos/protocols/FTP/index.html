@@ -123,6 +123,9 @@
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># download all available files from remote host</span>
 wget <span class="nt">-m</span> <span class="nt">--no-passive</span> ftp://anonymous:anonymous@&lt;IP address&gt;
+
+<span class="c"># connect directly with openssl an see SSL certificate</span>
+openssl s_client <span class="nt">-connect</span> &lt;IP address&gt;:21 <span class="nt">-starttls</span> ftp
 </code></pre></div>
 
 <h2>insecure things</h2>
