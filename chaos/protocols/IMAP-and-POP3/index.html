@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/protocols/IMAP-and-POP3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/protocols/IMAP-and-POP3"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-minimal-logo.jpg"
+            alt="ovelny logo"
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>IMAP / POP3</h1>
+
+<h2>main points</h2>
+
+<ul>
+<li><p>Internet Message Access Protocol (IMAP):</p>
+
+<ul>
+<li>uses port 143</li>
+<li>uses port 993 with SSL/TLS</li>
+</ul></li>
+<li><p>Post Office Protocol (POP3):</p>
+
+<ul>
+<li>uses port 110</li>
+<li>uses port 995 with SSL/TLS</li>
+</ul></li>
+<li><p>POP3 can:</p>
+
+<ul>
+<li>list, retrieve, and delete emails</li>
+</ul></li>
+<li><p>IMAP can do what POP3 can, but also can:</p>
+
+<ul>
+<li>support folder structure</li>
+<li>access multiple mailboxes during a session</li>
+<li>allow several users to access the mail server simultaneously</li>
+<li>preselect emails</li>
+<li>browse emails directly on the server</li>
+</ul></li>
+</ul>
+
+<p>the database remains uniform because everything is handled on the server: the clients access these structures and create local copies. this is also how offline mode works for clients handling this feature.</p>
+
+<h2>IMAP commands</h2>
+
+<table><thead>
+<tr>
+<th>command</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>LOGIN  </td>
+<td>login as user</td>
+</tr>
+<tr>
+<td>LIST &quot;&quot; *</td>
+<td>list all directories</td>
+</tr>
+<tr>
+<td>CREATE &quot;&quot;</td>
+<td>create mailbox with specified name</td>
+</tr>
+<tr>
+<td>DELETE &quot;&quot;</td>
+<td>delete specified mailbox</td>
+</tr>
+<tr>
+<td>RENAME &quot;&quot; &quot;&quot;</td>
+<td>rename mailbox</td>
+</tr>
+<tr>
+<td>LSUB &quot;&quot; *</td>
+<td>return names declared as <code>active</code> or <code>subscribed</code></td>
+</tr>
+<tr>
+<td>SELECT </td>
+<td>select mailbox to access messages</td>
+</tr>
+<tr>
+<td>UNSELECT </td>
+<td>exit selected mailbox</td>
+</tr>
+<tr>
+<td>FETCH  all</td>
+<td>fetch data associated with a message in mailbox</td>
+</tr>
+<tr>
+<td>CLOSE</td>
+<td>remove all messages set with the <code>Deleted</code> flag</td>
+</tr>
+<tr>
+<td>LOGOUT</td>
+<td>close connection with IMAP server</td>
+</tr>
+</tbody></table>
+
+<h2>POP3 commands</h2>
+
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
