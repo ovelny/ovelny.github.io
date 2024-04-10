@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/protocols/SMTP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/protocols/SMTP"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-minimal-logo.jpg"
+            alt="ovelny logo"
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>SMTP</h1>
+
+<h2>main points</h2>
+
+<ul>
+<li>Simple Mail Transfert Protocol (SMTP)</li>
+<li>protocol for sending emails in an IP network</li>
+<li>can be used between an email client and a mail server</li>
+<li>can be used between two SMTP servers</li>
+<li>combined with IMAP or POP3 protocols for fetching and sending emails</li>
+<li>uses port 25, newer SMTP servers also use other ports like TCP 587</li>
+<li>for encrypted connection, another port can be used like TCP 465</li>
+<li>those ports are used to receive mail from auhenticated clients</li>
+<li>switches to an encrypted connection with STARTTLS</li>
+<li>clients authenticate with user name and password</li>
+<li><p>authentication is handled with the protocol extension ESMTP + SMTP-Auth</p></li>
+<li><p>once the email is transmitted:</p>
+
+<ul>
+<li>the connection is terminated</li>
+<li>the email server sends the email to another SMTP server</li>
+</ul></li>
+</ul>
+
+<h2>path of an email</h2>
+
+<p>from beginning to end, an email is sent with the following steps:</p>
+
+<ul>
+<li><p>SMTP client (aka Mail User Agent, MUA):</p>
+
+<ul>
+<li>converts the email into a header and a body</li>
+<li>sends both parts to the SMTP server</li>
+</ul></li>
+<li><p>relay server (aka Mail Submission Agent, MSA):</p>
+
+<ul>
+<li>checks the validity of an email through its origin</li>
+<li>is optional and meant to help the next agent (MTA)</li>
+</ul></li>
+<li><p>SMTP server (aka Mail Transfert Agent, MTA):</p>
+
+<ul>
+<li>checks the email for size and spam</li>
+<li>stores the email</li>
+<li>searches the IP address of the recipient mail server with DNS</li>
+</ul></li>
+<li><p>recipient SMTP server (aka Mail Delivery Agent, MDA):</p>
+
+<ul>
+<li>receives and reassembles the data packets to form a complete a email</li>
+<li>transfers the email to the recipient&#39;s mailbox (POP3 / IMAP)</li>
+</ul></li>
+</ul>
+
+<h2>open relay attack</h2>
+
+<p>because users are not authenticated when the connection is first established, the sender of an email cannot be trusted. an open SMTP relay can be used to send spam, and the bad actors can use fake sender addresses to avoid being traced.</p>
+
+<p>this is prevented by DomainKeys (DKIM) and the Sender Policy Framework (SPF), which reject or move suspicious emails to the spam folder. ESMTP is also used to create an SSL-protected, and therefore encrypted, SMTP connection.</p>
+
+<h2>SMTP commands</h2>
+
+<p>we can interact with an SMTP server with <code>telnet</code>, which initiates a TCP connection:</p>
+
+<table><thead>
+<tr>
+<th>command</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>AUTH PLAIN</td>
+<td>used with ESMTP to authenticate the client</td>
+</tr>
+<tr>
+<td>HELO</td>
+<td>log with your computer name to start the session</td>
+</tr>
+<tr>
+<td>EHLO</td>
+<td>same as HELO but for ESMTP</td>
+</tr>
+<tr>
+<td>MAIL FROM</td>
+<td>specify the email sender</td>
+</tr>
+<tr>
+<td>RCPT TO</td>
+<td>specify the email recipient</td>
+</tr>
+<tr>
+<td>DATA</td>
+<td>initiate email transmission</td>
+</tr>
+<tr>
+<td>RSET</td>
+<td>abort the transmission, but stay connected to server</td>
+</tr>
+<tr>
+<td>VRFY </td>
+<td>check if a mailbox is available to transfer emails</td>
+</tr>
+<tr>
+<td>EXPN</td>
+<td>check for membership of a mailing list</td>
+</tr>
+<tr>
+<td>NOOP</td>
+<td>&quot;ping&quot; the server to prevent time-out and disconnection</td>
+</tr>
+<tr>
+<td>QUIT</td>
+<td>quit the session</td>
+</tr>
+</tbody></table>
+
+<p>there is also <code>CONNECT &lt;IP address&gt;:25 HTTP/1.0</code> to connect to the SMTP server through a web proxy.</p>
+
+<p>when using the <code>DATA</code> command, you have to format your email with the usual headers:</p>
+
+<ul>
+<li><code>From: &lt;your-address@here.com&gt;</code></li>
+<li><code>To: &lt;your-address@here.com&gt;</code></li>
+<li><code>Subject:</code></li>
+<li><code>Date:</code></li>
+<li>etc</li>
+</ul>
+
+<h2>insecure configuration</h2>
+
+<p>the main misconfiguration with SMTP servers is to allow all IP addresses, and therefore trust everything to avoid losing emails from potential customers. this allows for the SMTP server to send fake emails, spoof emails and read them.</p>
+
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
