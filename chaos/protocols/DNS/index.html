@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/protocols/DNS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/protocols/DNS"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-minimal-logo.jpg"
+            alt="ovelny logo"
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>DNS</h1>
+
+<h2>main points</h2>
+
+<ul>
+<li>it&#39;s always DNS (Domain Name System)</li>
+<li>resolves computer names into IP addresses</li>
+<li>the reverse, you guessed it, is translating IP addresses into computer names</li>
+<li>no central database</li>
+<li><p>also holds info about services associated with a domain</p></li>
+<li><p>server type:</p>
+
+<ul>
+<li>DNS root server: the big ones. 13 of them managed by ICANN. handles top-level domains (TLDs).</li>
+<li>authoritative nameserver: responsible for a particular zone, with a defined area of responsibility. hands over what it can&#39;t answer to the root server.</li>
+<li>non-authoritative nameserver: collect data on specific DNS zones with recursive / iterative querying. not responsible of a particular zone.</li>
+<li>caching DNS server: cache info from other name servers for a specified period of time, defined by the authoritative nameserver.</li>
+<li>forwarding server: forwards DNS queries to another DNS server.</li>
+<li>resolver: performs name resolution locally (computer, router, etc).</li>
+</ul></li>
+<li><p>mainly unencrypted first, but countermeasures exist:</p>
+
+<ul>
+<li>DNS over TLS (DoT)</li>
+<li>DNS over HTTPS (DoH)</li>
+<li>DNSCrypt, to encrypt the traffic between computer and name server</li>
+</ul></li>
+</ul>
+
+<h2>types of DNS record</h2>
+
+<p>for the full list, check the related <a href="https://en.wikipedia.org/wiki/List_of_DNS_record_types" rel="nofollow">wikipedia page</a>.</p>
+
+<table><thead>
+<tr>
+<th>DNS record</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>A</td>
+<td>IPv4 address of the domain</td>
+</tr>
+<tr>
+<td>AAAA</td>
+<td>IPv6 address of the domain</td>
+</tr>
+<tr>
+<td>MX</td>
+<td>mail servers  of the domain</td>
+</tr>
+<tr>
+<td>NS</td>
+<td>DNS servers of the domain</td>
+</tr>
+<tr>
+<td>TXT</td>
+<td>record for various information</td>
+</tr>
+<tr>
+<td>CNAME</td>
+<td>alias domain for the canonical name (which is on the right-hand)</td>
+</tr>
+<tr>
+<td>PTR</td>
+<td>reverse lookup, points to a CNAME</td>
+</tr>
+<tr>
+<td>SOA</td>
+<td>info about the DNS zone, email address contact (replace &quot;.&quot; with &quot;@&quot;)</td>
+</tr>
+</tbody></table>
+
+<h2>insecure configuration</h2>
+
+<p>DNS is very complicated and a lot of settings can go wrong. loss of DNS function can be catastrophic so security might not always be the main priority.</p>
+
+<p>look for allow settings, like <code>allow-query</code>, <code>allow-recursion</code>, and <code>allow-transfer</code> in bind9 configuration files for instances. <code>zone-statistics</code> might also be interesting. bind9 configuration files can be found in <code>/etc/bind/</code>.</p>
+
+<h2>commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># perform a NS query</span>
+dig ns &lt;domain&gt; @&lt;IP address&gt;
+
+<span class="c"># perform a version query (might not be available)</span>
+dig CH TXT &lt;domain&gt; &lt;IP address&gt;
+
+<span class="c"># view all available records (that the server wants to disclose)</span>
+dig any &lt;domain&gt; @&lt;IP address&gt;
+
+<span class="c"># try to perform a zone transfer</span>
+dig axfr &lt;domain&gt; @&lt;IP address&gt;
+
+<span class="c"># brute force subdomains</span>
+<span class="k">for </span>sub <span class="k">in</span> <span class="si">$(</span><span class="nb">cat</span> /usr/share/seclists/Discovery/DNS/&lt;list name&gt;<span class="si">)</span><span class="p">;</span><span class="k">do </span>dig <span class="nv">$sub</span>.&lt;domain&gt;@&lt;IP address&gt; | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s1">';\|SOA'</span> | <span class="nb">sed</span> <span class="nt">-r</span> <span class="s1">'/^\s*$/d'</span> | <span class="nb">grep</span> <span class="nv">$sub</span> | <span class="nb">tee</span> <span class="nt">-a</span> subdomains.txt<span class="p">;</span><span class="k">done</span>
+
+<span class="c"># brute force subdomains with dnsenum</span>
+dnsenum <span class="nt">--dnsserver</span> &lt;IP address&gt; <span class="nt">--enum</span> <span class="nt">-p</span> 0 <span class="nt">-s</span> 0 <span class="nt">-o</span> subdomains.txt <span class="nt">-f</span> /usr/share/seclists/Discovery/DNS/&lt;list name&gt; &lt;domain&gt;
+</code></pre></div>
+
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
