@@ -139,6 +139,64 @@
 
 <h2>POP3 commands</h2>
 
+<table><thead>
+<tr>
+<th>command</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>USER </td>
+<td>identify the user</td>
+</tr>
+<tr>
+<td>PASS </td>
+<td>authenticate mentioned user with password</td>
+</tr>
+<tr>
+<td>STAT</td>
+<td>get number of saved emails from the server</td>
+</tr>
+<tr>
+<td>LIST</td>
+<td>get the number and size of all emails</td>
+</tr>
+<tr>
+<td>RETR </td>
+<td>deliver the specified email by id</td>
+</tr>
+<tr>
+<td>DELE </td>
+<td>delete the specified email by id</td>
+</tr>
+<tr>
+<td>CAPA</td>
+<td>get server capabilities</td>
+</tr>
+<tr>
+<td>RSET</td>
+<td>reset transmitted info</td>
+</tr>
+<tr>
+<td>QUIT</td>
+<td>close connection with POP3 server</td>
+</tr>
+</tbody></table>
+
+<h2>insecure configuration</h2>
+
+<p>most companies offload email administration to third-party providers like google, microsoft, etc. but some companies handle it themselves, mostly for privacy reasons. in that case, look for configuration related to <code>debug</code>, <code>verbose</code> settings or <code>anonymous</code> login, which is similar to what FTP can allow.</p>
+
+<h2>commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># login with curl</span>
+curl <span class="nt">-k</span> <span class="s1">'imaps://&lt;IP address&gt;'</span> <span class="nt">-v</span> <span class="nt">--user</span> &lt;username&gt;:&lt;password&gt;
+
+<span class="c"># connect over SSL with openssl</span>
+openssl s_client <span class="nt">-connect</span> &lt;IP address&gt;:pop3s <span class="c"># POP3</span>
+openssl s_client <span class="nt">-connect</span> &lt;IP address&gt;:imaps <span class="c"># IMAP</span>
+</code></pre></div>
+
     </main>
     <footer id="footer">
       <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
