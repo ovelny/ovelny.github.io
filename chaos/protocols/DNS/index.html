@@ -142,9 +142,6 @@ dig any &lt;domain&gt; @&lt;IP address&gt;
 dig axfr &lt;domain&gt; @&lt;IP address&gt;
 
 <span class="c"># brute force subdomains</span>
-<span class="k">for </span>sub <span class="k">in</span> <span class="si">$(</span><span class="nb">cat</span> /usr/share/seclists/Discovery/DNS/&lt;list name&gt;<span class="si">)</span><span class="p">;</span><span class="k">do </span>dig <span class="nv">$sub</span>.&lt;domain&gt; @&lt;IP address&gt; | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s1">';\|SOA'</span> | <span class="nb">sed</span> <span class="nt">-r</span> <span class="s1">'/^\s*$/d'</span> | <span class="nb">grep</span> <span class="nv">$sub</span> | <span class="nb">tee</span> <span class="nt">-a</span> subdomains.txt<span class="p">;</span><span class="k">done</span>
-
-<span class="c"># another simpler command for brute forcing subdomains</span>
 <span class="nb">cat</span> /usr/share/seclists/Discovery/DNS/&lt;list name&gt; | <span class="k">while </span><span class="nb">read </span>sub<span class="p">;</span> <span class="k">do </span>dig any <span class="s2">"</span><span class="nv">$sub</span><span class="s2">"</span>.&lt;domain&gt; @&lt;IP address&gt; | <span class="nb">grep</span> <span class="nt">-E</span> <span class="s1">'IN.*[^SO]A[^NY]'</span><span class="p">;</span> <span class="k">done</span>
 
 <span class="c"># brute force subdomains with dnsenum</span>
