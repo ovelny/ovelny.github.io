@@ -92,50 +92,54 @@
 </tr>
 </thead><tbody>
 <tr>
-<td>LOGIN  </td>
+<td><code>LOGIN &lt;username&gt; &lt;password&gt;</code></td>
 <td>login as user</td>
 </tr>
 <tr>
-<td>LIST &quot;&quot; *</td>
+<td><code>LIST &quot;&quot; *</code></td>
 <td>list all directories</td>
 </tr>
 <tr>
-<td>CREATE &quot;&quot;</td>
+<td><code>CREATE &quot;&lt;name&gt;&quot;</code></td>
 <td>create mailbox with specified name</td>
 </tr>
 <tr>
-<td>DELETE &quot;&quot;</td>
+<td><code>DELETE &quot;&lt;name&gt;&quot;</code></td>
 <td>delete specified mailbox</td>
 </tr>
 <tr>
-<td>RENAME &quot;&quot; &quot;&quot;</td>
+<td><code>RENAME &quot;&lt;old-name&gt;&quot; &quot;&lt;new-name&gt;&quot;</code></td>
 <td>rename mailbox</td>
 </tr>
 <tr>
-<td>LSUB &quot;&quot; *</td>
+<td><code>LSUB &quot;&quot; *</code></td>
 <td>return names declared as <code>active</code> or <code>subscribed</code></td>
 </tr>
 <tr>
-<td>SELECT </td>
+<td><code>SELECT &lt;name&gt;</code></td>
 <td>select mailbox to access messages</td>
 </tr>
 <tr>
-<td>UNSELECT </td>
+<td><code>UNSELECT &lt;name&gt;</code></td>
 <td>exit selected mailbox</td>
 </tr>
 <tr>
-<td>FETCH  all</td>
+<td><code>FETCH &lt;ID&gt; all</code></td>
 <td>fetch data associated with a message in mailbox</td>
 </tr>
 <tr>
-<td>CLOSE</td>
+<td><code>CLOSE</code></td>
 <td>remove all messages set with the <code>Deleted</code> flag</td>
 </tr>
 <tr>
-<td>LOGOUT</td>
+<td><code>LOGOUT</code></td>
 <td>close connection with IMAP server</td>
 </tr>
 </tbody></table>
+
+<p>IMAP commands are prepended with an identifier. it can be any symbol, like <code>a list &quot;&quot; *</code>. they also don&#39;t need to be all caps.</p>
+
+<p>to access an email&#39;s body, you must use the command <code>a fetch &lt;ID&gt; (BODY)</code>. but because message bodies are multipart, you&#39;ll most likely need to retrieve a specific part with <code>a fetch &lt;ID&gt; (BODY[n])</code>.</p>
 
 <h2>POP3 commands</h2>
 
@@ -193,9 +197,16 @@
 curl <span class="nt">-k</span> <span class="s1">'imaps://&lt;IP address&gt;'</span> <span class="nt">-v</span> <span class="nt">--user</span> &lt;username&gt;:&lt;password&gt;
 
 <span class="c"># connect over SSL with openssl</span>
-openssl s_client <span class="nt">-connect</span> &lt;IP address&gt;:pop3s <span class="c"># POP3</span>
-openssl s_client <span class="nt">-connect</span> &lt;IP address&gt;:imaps <span class="c"># IMAP</span>
+openssl s_client <span class="nt">-crlf</span> <span class="nt">-connect</span> &lt;IP address&gt;:pop3s <span class="c"># POP3</span>
+openssl s_client <span class="nt">-crlf</span> <span class="nt">-connect</span> &lt;IP address&gt;:imaps <span class="c"># IMAP</span>
 </code></pre></div>
+
+<h2>references</h2>
+
+<ul>
+<li><a href="https://nickb.dev/blog/introduction-to-imap/" rel="nofollow">https://nickb.dev/blog/introduction-to-imap/</a></li>
+<li><a href="https://tewarid.github.io/2011/05/10/access-imap-server-from-the-command-line-using-openssl.html" rel="nofollow">https://tewarid.github.io/2011/05/10/access-imap-server-from-the-command-line-using-openssl.html</a></li>
+</ul>
 
     </main>
     <footer id="footer">
