@@ -182,6 +182,12 @@
 
 <p>the main misconfiguration with SMTP servers is to allow all IP addresses, and therefore trust everything to avoid losing emails from potential customers. this allows for the SMTP server to send fake emails, spoof emails and read them.</p>
 
+<h2>commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># bash + telnet user enumeration, adjust sleep time depending on server</span>
+<span class="nb">cat</span> &lt;wordlist&gt; | <span class="k">while </span><span class="nb">read </span>username<span class="p">;</span> <span class="k">do</span> <span class="o">{</span> <span class="nb">echo</span> <span class="s2">"VRFY </span><span class="nv">$username</span><span class="s2">"</span><span class="p">;</span> <span class="nb">sleep </span>15s <span class="o">}</span> | telnet &lt;IP address&gt; &lt;port&gt; 2&gt;/dev/null | <span class="nb">grep</span> <span class="s2">"252"</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></div>
+
     </main>
     <footer id="footer">
       <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
