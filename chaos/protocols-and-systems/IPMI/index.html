@@ -90,7 +90,7 @@
 <h2>commands</h2>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># get ipmi version with nmap</span>
-nmap <span class="nt">-sU</span> <span class="nt">-p</span> 623 <span class="nt">--script</span> ipmi-version &lt;IP address&gt;
+<span class="nb">sudo </span>nmap <span class="nt">-sU</span> <span class="nt">-p</span> 623 <span class="nt">--script</span> ipmi-version &lt;IP address&gt;
 
 <span class="c"># dump all ipmi hashes with this metasploit module</span>
 use auxiliary/scanner/ipmi/ipmi_dumphashes
