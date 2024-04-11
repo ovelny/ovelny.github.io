@@ -84,13 +84,13 @@ odat all <span class="nt">-s</span> &lt;IP address&gt;
 <span class="c"># connect to the oracle database with sqlplus</span>
 <span class="c"># in case of an error related to shared libraries,</span>
 <span class="c"># apply the fix here: https://stackoverflow.com/q/27717312</span>
-sqlplus &lt;username&gt;/&lt;password&gt;@&lt;IP address&gt;/XE
+sqlplus &lt;username&gt;/&lt;password&gt;@&lt;IP address&gt;/&lt;SID&gt;
 
 <span class="c"># login as system database admin (sysdba)</span>
-sqlplus &lt;username&gt;/&lt;password&gt;@&lt;IP address&gt;/XE as sysdba
+sqlplus &lt;username&gt;/&lt;password&gt;@&lt;IP address&gt;/&lt;SID&gt; as sysdba
 
 <span class="c"># upload file to web server with odat</span>
-odat utlfile <span class="nt">-s</span> &lt;IP address&gt; <span class="nt">-d</span> XE <span class="nt">-U</span> &lt;username&gt; <span class="nt">-P</span> &lt;password&gt; <span class="nt">--sysdba</span> <span class="nt">--putFile</span> C:<span class="se">\\</span>web<span class="se">\\</span>server<span class="se">\\</span>path text.txt ./text.txt
+odat utlfile <span class="nt">-s</span> &lt;IP address&gt; <span class="nt">-d</span> &lt;SID&gt; <span class="nt">-U</span> &lt;username&gt; <span class="nt">-P</span> &lt;password&gt; <span class="nt">--sysdba</span> <span class="nt">--putFile</span> C:<span class="se">\\</span>web<span class="se">\\</span>server<span class="se">\\</span>path text.txt ./text.txt
 </code></pre></div>
 
     </main>
