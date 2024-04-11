@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/protocols-and-systems/MySQL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/protocols-and-systems/MySQL"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-minimal-logo.jpg"
+            alt="ovelny logo"
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>MySQL</h1>
+
+<h2>main points</h2>
+
+<ul>
+<li>open-source SQL relational database management system (RDBMS)</li>
+<li>use port TCP 3306</li>
+<li>supported by oracle</li>
+<li>client-server principle: a MySQL server able to talk to one or many MySQL clients</li>
+<li>databases are stored in <code>.sql</code> files</li>
+<li>suited for dynamic websites</li>
+<li>often combined with linux, apache, php (LAMP), or with nginx instead of apache (LEMP)</li>
+<li>MariaDB is a fork of MySQL, developed after oracle acquired MySQL</li>
+</ul>
+
+<h2>insecure configuration</h2>
+
+<p>configuration can often be found in <code>/etc/mysql/mysql.conf.d/mysqld.conf</code>. many things can go wrong and end up misconfigured, but the main settings to look for from a security standpoint are <code>user</code>, <code>password</code>, <code>admin_address</code>, <code>debug</code>, <code>sql_warnings</code> and <code>secure_file_priv</code>.</p>
+
+<h2>commands</h2>
+
+<table><thead>
+<tr>
+<th>MySQL command</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>mysql -u &lt;user&gt; -p&lt;password&gt; -h &lt;IP address&gt;</code></td>
+<td>connect to MySQL server</td>
+</tr>
+<tr>
+<td><code>show databases;</code></td>
+<td>show all databases</td>
+</tr>
+<tr>
+<td><code>use &lt;database&gt;;</code></td>
+<td>select a database</td>
+</tr>
+<tr>
+<td><code>show tables;</code></td>
+<td>show all tables in the database</td>
+</tr>
+<tr>
+<td><code>show columns from &lt;table&gt;;</code></td>
+<td>show all columns in the database</td>
+</tr>
+<tr>
+<td><code>select * from &lt;table&gt;;</code></td>
+<td>show everything in the table</td>
+</tr>
+<tr>
+<td><code>select * from &lt;table&gt; where &lt;col&gt; = &quot;&lt;string&gt;&quot;;</code></td>
+<td>search for string in table</td>
+</tr>
+</tbody></table>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># scan the mysql server</span>
+<span class="nb">sudo </span>nmap <span class="nt">-sV</span> <span class="nt">-sC</span> <span class="nt">-p</span> 3306 <span class="nt">--script</span> mysql<span class="k">*</span> &lt;IP address&gt;
+</code></pre></div>
+
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
