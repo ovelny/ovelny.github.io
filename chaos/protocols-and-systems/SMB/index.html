@@ -129,6 +129,12 @@
 <span class="c"># print$ and IPC$ are always default shares</span>
 smbclient <span class="nt">-N</span> <span class="nt">-L</span> //&lt;IP address&gt;
 
+<span class="c"># list the shares with credentials</span>
+smbclient <span class="nt">-U</span> &lt;username&gt;%&lt;password&gt; <span class="nt">-L</span> //&lt;IP address&gt;
+
+<span class="c"># connect with credentials</span>
+smbclient <span class="nt">-U</span> &lt;username&gt;%&lt;password&gt; <span class="nt">-L</span> //&lt;IP address&gt;/&lt;share-name&gt;
+
 <span class="c"># in a smbclient session, execute a local</span>
 <span class="c"># system command without having to leave</span>
 <span class="o">!</span>&lt;<span class="nb">command</span><span class="o">&gt;</span>
