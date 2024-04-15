@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/protocols-and-systems/r-services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/protocols-and-systems/r-services"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-minimal-logo.jpg"
+            alt="ovelny logo"
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>r-services</h1>
+
+<h2>main points</h2>
+
+<ul>
+<li>suite of services for remote access or commands</li>
+<li>used before the SSH protocol</li>
+<li>unencrypted format, making it vulnerable to MITM attacks</li>
+<li>use ports TCP 512, 513 and 514</li>
+</ul>
+
+<p>the r-commands suite has the following programs:</p>
+
+<table><thead>
+<tr>
+<th>command</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>rcp</code></td>
+<td>remote copy</td>
+</tr>
+<tr>
+<td><code>rexec</code></td>
+<td>remote execution</td>
+</tr>
+<tr>
+<td><code>rlogin</code></td>
+<td>remote login</td>
+</tr>
+<tr>
+<td><code>rsh</code></td>
+<td>remote shell</td>
+</tr>
+<tr>
+<td><code>rstat</code></td>
+<td>remote stats</td>
+</tr>
+<tr>
+<td><code>ruptime</code></td>
+<td>remote uptime</td>
+</tr>
+<tr>
+<td><code>rwho</code></td>
+<td>remote who</td>
+</tr>
+</tbody></table>
+
+<h2>insecure configuration</h2>
+
+<p>check the <code>/etc/hosts.equiv</code> and <code>~/.rhosts</code> files for a list of trusted hosts who are automatically granted access without authentication. these files use the <code>+</code> symbol as a wildcard to allow any external user and / or any host to execute r-commands.</p>
+
+<h2>commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># scan r-services ports with nmap</span>
+nmap <span class="nt">-sV</span> <span class="nt">-p</span> 512,513,514 &lt;IP address&gt;
+
+<span class="c"># logging in with rlogin</span>
+rlogin &lt;IP address&gt; <span class="nt">-l</span> &lt;username&gt;
+
+<span class="c"># once logged in, list all interactive sessions</span>
+rwho
+
+<span class="c"># list authenticated users</span>
+rusers <span class="nt">-al</span> &lt;IP address&gt;
+</code></pre></div>
+
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
