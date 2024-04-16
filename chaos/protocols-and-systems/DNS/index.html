@@ -53,7 +53,7 @@
 <h2>main points</h2>
 
 <ul>
-<li>it&#39;s always DNS (Domain Name System)</li>
+<li>&quot;it&#39;s always DNS&quot; (Domain Name System)</li>
 <li>resolves computer names into IP addresses</li>
 <li>the reverse, you guessed it, is translating IP addresses into computer names</li>
 <li>no central database</li>
@@ -121,6 +121,8 @@
 </tr>
 </tbody></table>
 
+<p>SOA stands for Start Of Authority.</p>
+
 <h2>insecure configuration</h2>
 
 <p>DNS is very complicated and a lot of settings can go wrong. loss of DNS function can be catastrophic so security might not always be the main priority.</p>
@@ -129,20 +131,50 @@
 
 <h2>commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># perform a NS query</span>
-dig ns &lt;domain&gt; @&lt;IP address&gt;
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># perform a NS query with nslookup</span>
+nslookup &lt;domain&gt;
+
+<span class="c"># perform a NS query with dig</span>
+dig ns &lt;domain&gt; @&lt;nameserver or IP address&gt;
+
+<span class="c"># perform a A query with nslookup</span>
+nslookup <span class="nt">-query</span><span class="o">=</span>A &lt;subdomain&gt; <span class="c"># www *is* a subdomain</span>
+
+<span class="c"># perform a A query with dig</span>
+dig a &lt;subdomain&gt; @&lt;nameserver or IP address&gt;
+
+<span class="c"># perform a PTR query with nslookup</span>
+nslookup <span class="nt">-query</span><span class="o">=</span>PTR &lt;IP address&gt;
+
+<span class="c"># perform a PTR query with dig</span>
+dig <span class="nt">-x</span> &lt;IP address&gt; @&lt;nameserver or IP address&gt;
+
+<span class="c"># perform a TXT query with nslookup</span>
+nslookup <span class="nt">-query</span><span class="o">=</span>TXT &lt;domain&gt;
+
+<span class="c"># perform a TXT query with dig</span>
+dig txt &lt;domain&gt; @&lt;nameserver or IP address&gt;
+
+<span class="c"># perform a MX query with nslookup</span>
+nslookup <span class="nt">-query</span><span class="o">=</span>MX &lt;domain&gt;
+
+<span class="c"># perform a MX query with dig</span>
+dig mx &lt;domain&gt; @&lt;nameserver or IP address&gt;
 
 <span class="c"># perform a version query (might not be available)</span>
 dig CH TXT &lt;domain&gt; &lt;IP address&gt;
 
-<span class="c"># view all available records (that the server wants to disclose)</span>
-dig any &lt;domain&gt; @&lt;IP address&gt;
+<span class="c"># view all available records (that the server wants to disclose) with nslookup</span>
+nslookup <span class="nt">-query</span><span class="o">=</span>ANY &lt;domain&gt; <span class="c"># might just return RFC8482 which abolishes ANY requests</span>
+
+<span class="c"># view all available records (that the server wants to disclose) with dig</span>
+dig any &lt;domain&gt; @&lt;nameserver or IP address&gt; <span class="c"># might just return RFC8482 which abolishes ANY requests</span>
 
 <span class="c"># try to perform a zone transfer</span>
-dig axfr &lt;domain&gt; @&lt;IP address&gt;
+dig axfr &lt;domain&gt; @&lt;nameserver or IP address&gt;
 
 <span class="c"># brute force subdomains</span>
-<span class="nb">cat</span> /usr/share/seclists/Discovery/DNS/&lt;list name&gt; | <span class="k">while </span><span class="nb">read </span>sub<span class="p">;</span> <span class="k">do </span>dig any <span class="s2">"</span><span class="nv">$sub</span><span class="s2">"</span>.&lt;domain&gt; @&lt;IP address&gt; | <span class="nb">grep</span> <span class="nt">-E</span> <span class="s1">'IN.*[^SO]A[^NY]'</span><span class="p">;</span> <span class="k">done</span>
+<span class="nb">cat</span> /usr/share/seclists/Discovery/DNS/&lt;list name&gt; | <span class="k">while </span><span class="nb">read </span>sub<span class="p">;</span> <span class="k">do </span>dig any <span class="s2">"</span><span class="nv">$sub</span><span class="s2">"</span>.&lt;domain&gt; @&lt;nameserver or IP address&gt; | <span class="nb">grep</span> <span class="nt">-E</span> <span class="s1">'IN.*[^SO]A[^NY]'</span><span class="p">;</span> <span class="k">done</span>
 
 <span class="c"># brute force subdomains with dnsenum</span>
 dnsenum <span class="nt">--dnsserver</span> &lt;IP address&gt; <span class="nt">--enum</span> <span class="nt">-p</span> 0 <span class="nt">-s</span> 0 <span class="nt">-o</span> subdomains.txt <span class="nt">-f</span> /usr/share/seclists/Discovery/DNS/&lt;list name&gt; &lt;domain&gt;
