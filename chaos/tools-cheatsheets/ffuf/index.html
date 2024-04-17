@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ovelny - tools cheatsheets</title>
+    <title>ovelny - chaos/tools-cheatsheets/ffuf</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
@@ -20,7 +20,7 @@
     <script src="/assets/js/scramble-text.min.js" defer></script>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:site" content="@ovelny"/>
-    <meta name="twitter:title" content="ovelny - tools cheatsheets"/>
+    <meta name="twitter:title" content="ovelny - chaos/tools-cheatsheets/ffuf"/>
     <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
     <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
   </head>
@@ -47,46 +47,31 @@
     </header>
     <main>
 
+    
+    <h1>ffuf</h1>
 
-    <h2>tools cheatsheets</h2>
-    <ul>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/tools-cheatsheets/crackmapexec/>crackmapexec</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/tools-cheatsheets/duckduckgo/>duckduckgo</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/tools-cheatsheets/ffuf/>ffuf</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/tools-cheatsheets/nmap/>nmap</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/tools-cheatsheets/qemu/>qemu</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/tools-cheatsheets/socat/>socat</a>
-            </li>
-        
-            <li>
-                
-                <a href=https://ovelny.sh/chaos/tools-cheatsheets/tools-cheatsheet/>tools cheatsheet</a>
-            </li>
-        
-    </ul>
+<h2>matcher and filter options</h2>
+
+<div class="highlight"><pre class="highlight plaintext"><code>MATCHER OPTIONS:
+  -mc                 Match HTTP status codes, or "all" for everything. (default: 200,204,301,302,307,401,403,405)
+  -ml                 Match amount of lines in response
+  -mr                 Match regexp
+  -ms                 Match HTTP response size
+  -mw                 Match amount of words in response
+
+FILTER OPTIONS:
+  -fc                 Filter HTTP status codes from response. Comma separated list of codes and ranges
+  -fl                 Filter by amount of lines in response. Comma separated list of line counts and ranges
+  -fr                 Filter regexp
+  -fs                 Filter HTTP response size. Comma separated list of sizes and ranges
+  -fw                 Filter by amount of words in response. Comma separated list of word counts and ranges
+</code></pre></div>
+
+<h2>commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># enumerate virtual hosts</span>
+ffuf <span class="nt">-w</span> &lt;wordlist&gt; <span class="nt">-u</span> http://&lt;domain name or IP address&gt; <span class="nt">-H</span> <span class="s2">"HOST: FUZZ.&lt;domain name&gt;.&lt;TLD&gt;"</span> <span class="nt">-fs</span> &lt;size&gt;
+</code></pre></div>
 
     </main>
     <footer id="footer">
