@@ -170,7 +170,10 @@ nslookup <span class="nt">-query</span><span class="o">=</span>ANY &lt;domain&gt
 <span class="c"># view all available records (that the server wants to disclose) with dig</span>
 dig any &lt;domain&gt; @&lt;nameserver or IP address&gt; <span class="c"># might just return RFC8482 which abolishes ANY requests</span>
 
-<span class="c"># try to perform a zone transfer</span>
+<span class="c"># try to perform a zone transfer with nslookup</span>
+nslookup <span class="nt">-type</span><span class="o">=</span>any <span class="nt">-query</span><span class="o">=</span>AXFR &lt;domain to transfer&gt; &lt;nameserver obtained earlier&gt;
+
+<span class="c"># try to perform a zone transfer with dig</span>
 dig axfr &lt;domain&gt; @&lt;nameserver or IP address&gt;
 
 <span class="c"># brute force subdomains</span>
