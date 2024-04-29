@@ -655,6 +655,9 @@ certutil <span class="nt">-d</span> <span class="nv">$HOME</span>/.pki/nssdb <sp
 <span class="c"># add the burp certificate with this command</span>
 certutil <span class="nt">-d</span> <span class="s2">"sql:</span><span class="nv">$HOME</span><span class="s2">/.pki/nssdb"</span> <span class="nt">-A</span> <span class="nt">-i</span> ~/Downloads/&lt;your-burp-cert&gt; <span class="nt">-n</span> <span class="s2">"Burp Suite CA"</span> <span class="nt">-t</span> C,,
 
+<span class="c"># add the burp certificate with this command</span>
+certutil <span class="nt">-d</span> <span class="s2">"sql:</span><span class="nv">$HOME</span><span class="s2">/.pki/nssdb"</span> <span class="nt">-A</span> <span class="nt">-i</span> ~/Downloads/&lt;your-burp-cert&gt; <span class="nt">-n</span> <span class="s2">"Burp Suite Community CA"</span> <span class="nt">-t</span> C,,
+
 <span class="c"># and the zap certificate</span>
 certutil <span class="nt">-d</span> <span class="s2">"sql:</span><span class="nv">$HOME</span><span class="s2">/.pki/nssdb"</span> <span class="nt">-A</span> <span class="nt">-i</span> ~/Downloads/&lt;your-zap-cert&gt; <span class="nt">-n</span> <span class="s2">"ZAP CA"</span> <span class="nt">-t</span> C,,
 
