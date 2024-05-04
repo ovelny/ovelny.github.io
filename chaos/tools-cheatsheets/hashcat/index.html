@@ -58,7 +58,7 @@
 hashid <span class="nt">-m</span> &lt;<span class="nb">hash</span><span class="o">&gt;</span>
 
 <span class="c"># crack hash with custom wordlist</span>
-hashcat <span class="nt">-a</span> 0 <span class="nt">-O</span> <span class="nt">-m</span> &lt;<span class="nb">hash </span>ID&gt; &lt;custom wordlist&gt;
+hashcat <span class="nt">-a</span> 0 <span class="nt">-O</span> <span class="nt">-m</span> &lt;<span class="nb">hash </span>ID&gt; &lt;<span class="nb">hash</span><span class="o">&gt;</span> &lt;custom wordlist&gt;
 
 <span class="c"># crack hash with custom mask, trying a range of integers prepended with "password_"</span>
 hashcat <span class="nt">-a</span> 3 <span class="nt">-m</span> &lt;<span class="nb">hash </span>ID&gt; &lt;<span class="nb">hash</span><span class="o">&gt;</span> password_?d?d?d?d?d?d?d?d?d
