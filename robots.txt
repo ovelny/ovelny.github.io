@@ -1,7 +1,42 @@
+# sources listing the AI crawlers:
+# * https://ellie.wtf/notes/blocking-ai-crawlers
+# * https://sizeof.cat/post/block-chatgpt-scraping/
+# * https://darkvisitors.com/
+
 User-agent: GPTBot
+Disallow: /
+
 User-agent: GPTBot-User
+Disallow: /
+
 User-agent: ChatGPT
+Disallow: /
+
 User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Bytespider
 Disallow: /
 
 User-agent: *
