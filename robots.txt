@@ -1,7 +1,7 @@
 # sources listing the AI crawlers:
-# * https://ellie.wtf/notes/blocking-ai-crawlers
-# * https://sizeof.cat/post/block-chatgpt-scraping/
-# * https://darkvisitors.com/
+# https://ellie.wtf/notes/blocking-ai-crawlers
+# https://sizeof.cat/post/block-chatgpt-scraping/
+# https://darkvisitors.com/
 
 User-agent: GPTBot
 Disallow: /
