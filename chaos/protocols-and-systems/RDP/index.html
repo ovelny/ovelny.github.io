@@ -75,6 +75,9 @@ rdp-sec-check &lt;IP address&gt;
 
 <span class="c"># initiate RDP session with xfreerdp</span>
 xfreerdp /u:&lt;username&gt; /p:&lt;password&gt; /v:&lt;IP address&gt; /cert:ignore /dynamic-resolution +clipboard
+
+<span class="c"># execute a password attack with hydra</span>
+hydra <span class="nt">-V</span> <span class="nt">-L</span> &lt;username list&gt; <span class="nt">-P</span> &lt;password list&gt; rdp://&lt;IP address&gt;
 </code></pre></div>
 
     </main>

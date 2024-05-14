@@ -177,6 +177,9 @@ crackmapexec smb &lt;IP address&gt; <span class="nt">--shares</span> <span class
 
 <span class="c"># try to enumerate everything with enum4linux</span>
 enum4linux &lt;IP address&gt; <span class="nt">-A</span>
+
+<span class="c"># execute a password attack with hydra</span>
+hydra <span class="nt">-V</span> <span class="nt">-L</span> &lt;username list&gt; <span class="nt">-P</span> &lt;password list&gt; smb://&lt;IP address&gt;
 </code></pre></div>
 
 <h2>references</h2>
