@@ -50,7 +50,62 @@
     
     <h1>hashcat</h1>
 
-<p>identify hashes and crack them.</p>
+<p>identify hashes and crack them, and more.</p>
+
+<h2>mutations</h2>
+
+<p>hashcat can be used to create custom wordlists with mutation rules. here are some of the usual functions that can create those rules:</p>
+
+<table><thead>
+<tr>
+<th>function</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>:</code></td>
+<td>do nothing</td>
+</tr>
+<tr>
+<td><code>l</code></td>
+<td>lowercase all letters</td>
+</tr>
+<tr>
+<td><code>u</code></td>
+<td>uppercase all letters</td>
+</tr>
+<tr>
+<td><code>c</code></td>
+<td>capitalize the first letter</td>
+</tr>
+<tr>
+<td><code>sXY</code></td>
+<td>replace all instances of X with Y</td>
+</tr>
+<tr>
+<td><code>$!</code></td>
+<td>add the <code>!</code> character at the end</td>
+</tr>
+</tbody></table>
+
+<p>each rule to mutate on is written on a new line in a file, like so:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">cat </span>mutation.rule
+
+<span class="nt">---</span> SNIP <span class="nt">---</span>
+
+:
+c
+sa@
+c sa@
+
+<span class="nt">---</span> SNIP <span class="nt">---</span>
+</code></pre></div>
+
+<p>with this file and a wordlist, you can then generate a mutated password list with the following command:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>hashcat <span class="nt">--force</span> &lt;wordlist&gt; <span class="nt">-r</span> mutation.rule <span class="nt">--stdout</span> | <span class="nb">sort</span> <span class="nt">-u</span> <span class="o">&gt;</span> &lt;mutated password list&gt;
+</code></pre></div>
 
 <h2>commands</h2>
 
