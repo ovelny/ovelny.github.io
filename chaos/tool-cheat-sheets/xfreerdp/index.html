@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ovelny - chaos/tools-cheatsheets/hydra</title>
+    <title>ovelny - chaos/tool-cheat-sheets/xfreerdp</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
@@ -20,7 +20,7 @@
     <script src="/assets/js/scramble-text.min.js" defer></script>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:site" content="@ovelny"/>
-    <meta name="twitter:title" content="ovelny - chaos/tools-cheatsheets/hydra"/>
+    <meta name="twitter:title" content="ovelny - chaos/tool-cheat-sheets/xfreerdp"/>
     <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
     <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
   </head>
@@ -48,21 +48,16 @@
     <main>
 
     
-    <h1>hydra</h1>
+    <h1>xfreerdp</h1>
 
-<p>perform password attacks on different protocols and services.</p>
+<p>xfreerdp works reliably but can be slow at times. still, i&#39;d rather use this tool rather than remmina or others because i prefer a command-line interface.</p>
 
-<h2>commands</h2>
+<p>here&#39;s an optimized command that helps alleviate latency issues and enforce an azerty keyboard on the target:</p>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># perform a ssh password attack for a specific user</span>
-<span class="c"># and a wordlist, with 48 threads, verbose.</span>
-<span class="c"># replace ssh with smb, rdp, etc... for other services.</span>
-hydra <span class="nt">-V</span> <span class="nt">-l</span> &lt;user&gt; <span class="nt">-P</span> &lt;wordlist&gt; <span class="nt">-t</span> 48 ssh://&lt;IP address&gt;
-
-<span class="c"># perform a ssh password attack with a userlist and a</span>
-<span class="c"># wordlist</span>
-hydra <span class="nt">-V</span> <span class="nt">-L</span> &lt;userlist&gt; <span class="nt">-P</span> &lt;wordlist&gt; <span class="nt">-t</span> 48 ssh://&lt;IP address&gt;
+<div class="highlight"><pre class="highlight shell"><code>xfreerdp /u:&lt;username&gt; /p:&lt;password&gt; /v:&lt;IP&gt; /w:1860 /h:1020 /kbd:0x0000040C /cert-ignore /bpp:8 /network:modem /compression <span class="nt">-themes</span> <span class="nt">-wallpaper</span> /relax-order-checks /auto-reconnect +clipboard
 </code></pre></div>
+
+<p>it doesn&#39;t make everything run smoothly but it still helps a lot!</p>
 
     </main>
     <footer id="footer">

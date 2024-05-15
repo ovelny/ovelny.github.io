@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ovelny - chaos/tools-cheatsheets/cewl</title>
+    <title>ovelny - chaos/tool-cheat-sheets/duckduckgo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
@@ -20,7 +20,7 @@
     <script src="/assets/js/scramble-text.min.js" defer></script>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:site" content="@ovelny"/>
-    <meta name="twitter:title" content="ovelny - chaos/tools-cheatsheets/cewl"/>
+    <meta name="twitter:title" content="ovelny - chaos/tool-cheat-sheets/duckduckgo"/>
     <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
     <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
   </head>
@@ -48,19 +48,21 @@
     <main>
 
     
-    <h1>cewl</h1>
+    <h1>duckduckgo</h1>
 
-<p>generate wordlists from sites with cewl.</p>
+<h2>useful bangs</h2>
 
-<h2>commands</h2>
+<p>some very useful bangs and other tricks:</p>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># generate wordlist from site with:</span>
-<span class="c"># * crawling with a depth of 4 on specified site</span>
-<span class="c"># * words with a minimum length of 6 characters</span>
-<span class="c"># * lowercase all words found</span>
-<span class="c"># * store the results in &lt;wordlist&gt;</span>
-cewl &lt;website&gt; <span class="nt">-d</span> 4 <span class="nt">-m</span> 6 <span class="nt">--lowercase</span> <span class="nt">-w</span> &lt;wordlist&gt;
-</code></pre></div>
+<ul>
+<li><code>!ddgr</code> to make your search scoped to <code>site:reddit.com</code> only</li>
+<li><code>!i</code> to search images</li>
+<li><code>!save</code> to save the URL to the internet archive</li>
+</ul>
+
+<h2>navigating RFCs with bangs</h2>
+
+<p>my favorite way of navigating RFCs is to search them with <code>!rfck &lt;keyword&gt;</code> and use those results to directly access an RFC with its number, with <code>!rfc &lt;number&gt;</code>.</p>
 
     </main>
     <footer id="footer">

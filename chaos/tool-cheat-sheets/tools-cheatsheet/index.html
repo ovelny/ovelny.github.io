@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ovelny - chaos/tools-cheatsheets/duckduckgo</title>
+    <title>ovelny - chaos/tool-cheat-sheets/tools-cheatsheet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
@@ -20,7 +20,7 @@
     <script src="/assets/js/scramble-text.min.js" defer></script>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:site" content="@ovelny"/>
-    <meta name="twitter:title" content="ovelny - chaos/tools-cheatsheets/duckduckgo"/>
+    <meta name="twitter:title" content="ovelny - chaos/tool-cheat-sheets/tools-cheatsheet"/>
     <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
     <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
   </head>
@@ -48,21 +48,27 @@
     <main>
 
     
-    <h1>duckduckgo</h1>
+    <h1>tools and commands cheatsheet</h1>
 
-<h2>useful bangs</h2>
+<p>set of notes related to pentesting tools.</p>
 
-<p>some very useful bangs and other tricks:</p>
+<h2>crackmapexec</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># base template for commands</span>
+cme &lt;service&gt; &lt;target_IP&gt; <span class="nt">-d</span> &lt;domain&gt; <span class="nt">-u</span> <span class="s1">'&lt;user&gt;'</span> <span class="nt">-p</span> <span class="s1">'&lt;pass&gt;'</span> <span class="nt">--</span>&lt;action&gt;
+</code></pre></div>
+
+<h2>mona.py</h2>
+
+<h3>main commands for BOFs with immunity debugger</h3>
 
 <ul>
-<li><code>!ddgr</code> to make your search scoped to <code>site:reddit.com</code> only</li>
-<li><code>!i</code> to search images</li>
-<li><code>!save</code> to save the URL to the internet archive</li>
+<li>set a working folder at C:\mona&lt;app-name&gt;: <code>!mona config -set workingfolder c:\mona\%p</code></li>
+<li>calculate exact offset with distance from metasploit&#39;s pattern_create: <code>!mona findmsp -distance &lt;length from pattern_create.rb&gt;</code></li>
+<li>generate badchars, excluding \x00 which is always bad: <code>!mona bytearray -b &quot;\x00&quot;</code></li>
+<li>compare badchars with specified address, usually the ESP register: <code>!mona compare -f C:\mona\oscp\bytearray.bin -a &lt;address&gt;</code></li>
+<li>finding a jump point for your exploit without the badchars: <code>!mona jmp -r &lt;register&gt; -cpb &quot;&lt;badchars found&gt;&quot;</code></li>
 </ul>
-
-<h2>navigating RFCs with bangs</h2>
-
-<p>my favorite way of navigating RFCs is to search them with <code>!rfck &lt;keyword&gt;</code> and use those results to directly access an RFC with its number, with <code>!rfc &lt;number&gt;</code>.</p>
 
     </main>
     <footer id="footer">
