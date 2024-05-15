@@ -62,6 +62,10 @@ hydra <span class="nt">-V</span> <span class="nt">-l</span> &lt;user&gt; <span c
 <span class="c"># perform a ssh password attack with a userlist and a</span>
 <span class="c"># wordlist</span>
 hydra <span class="nt">-V</span> <span class="nt">-L</span> &lt;userlist&gt; <span class="nt">-P</span> &lt;wordlist&gt; <span class="nt">-t</span> 48 ssh://&lt;IP address&gt;
+
+<span class="c"># perform credential stuffing</span>
+<span class="c"># the provided list must be in username:password format</span>
+hydra <span class="nt">-C</span> &lt;user:pass list&gt; &lt;protocol&gt;://&lt;IP address&gt;
 </code></pre></div>
 
     </main>
