@@ -182,7 +182,16 @@ enum4linux &lt;IP address&gt; <span class="nt">-A</span>
 
 <span class="c"># execute a password attack with hydra</span>
 hydra <span class="nt">-V</span> <span class="nt">-L</span> &lt;username list&gt; <span class="nt">-P</span> &lt;password list&gt; smb://&lt;IP address&gt;
-</code></pre></div>
+</code></pre></div><div class="highlight"><pre class="highlight powershell"><code><span class="c"># on a windows host, authenticate to a share and map it to n:</span><span class="w">
+</span><span class="n">net</span><span class="w"> </span><span class="nx">use</span><span class="w"> </span><span class="nx">n:</span><span class="w"> </span><span class="nx">\\</span><span class="err">&lt;</span><span class="nx">IP</span><span class="w"> </span><span class="nx">address</span><span class="err">&gt;</span><span class="nx">\share</span><span class="w"> </span><span class="nx">/user:</span><span class="err">&lt;</span><span class="nx">username</span><span class="err">&gt;</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">password</span><span class="err">&gt;</span><span class="w">
+
+</span><span class="c"># same thing with powershell:</span><span class="w">
+</span><span class="nv">$username</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'&lt;username&gt;'</span><span class="w">
+</span><span class="nv">$password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'&lt;password&gt;'</span><span class="w">
+</span><span class="nv">$secpassword</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConvertTo-SecureString</span><span class="w"> </span><span class="nv">$password</span><span class="w"> </span><span class="nt">-AsPlainText</span><span class="w"> </span><span class="nt">-Force</span><span class="w">
+</span><span class="nv">$cred</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Management.Automation.PSCredential</span><span class="w"> </span><span class="nv">$username</span><span class="p">,</span><span class="w"> </span><span class="nv">$secpassword</span><span class="w">
+</span><span class="n">New-PSDrive</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="s2">"N"</span><span class="w"> </span><span class="nt">-Root</span><span class="w"> </span><span class="s2">"\\&lt;IP address&gt;\share"</span><span class="w"> </span><span class="nt">-PSProvider</span><span class="w"> </span><span class="s2">"FileSystem"</span><span class="w"> </span><span class="nt">-Credential</span><span class="w"> </span><span class="nv">$cred</span><span class="w">
+</span></code></pre></div>
 
 <h2>references</h2>
 
