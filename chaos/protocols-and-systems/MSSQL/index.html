@@ -101,7 +101,13 @@
 
 <h2>commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># scan MSSQL server with nmap</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># connect to MSSQL on linux</span>
+sqsh <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> &lt;username&gt; <span class="nt">-P</span> &lt;password&gt;
+
+<span class="c"># connect to MSSQL on windows</span>
+sqlcmd <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> &lt;username&gt; <span class="nt">-P</span> &lt;password&gt;
+
+<span class="c"># scan MSSQL server with nmap</span>
 <span class="nb">sudo </span>nmap <span class="nt">--script</span> ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes <span class="nt">--script-args</span> mssql.instance-port<span class="o">=</span>1433,mssql.username<span class="o">=</span>sa,mssql.password<span class="o">=</span>,mssql.instance-name<span class="o">=</span>MSSQLSERVER <span class="nt">-sV</span> <span class="nt">-p</span> 1433 &lt;IP address&gt;
 
 <span class="c"># login with mssqlclient.py</span>
