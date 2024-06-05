@@ -171,8 +171,14 @@ queryuser &lt;RID&gt;
 <span class="c"># brute force user RIDs with RPCclient</span>
 <span class="k">for </span>i <span class="k">in</span> <span class="si">$(</span><span class="nb">seq </span>500 1100<span class="si">)</span><span class="p">;</span><span class="k">do </span>rpcclient <span class="nt">-N</span> <span class="nt">-U</span> <span class="s2">""</span> 10.129.14.128 <span class="nt">-c</span> <span class="s2">"queryuser 0x</span><span class="si">$(</span><span class="nb">printf</span> <span class="s1">'%x\n'</span> <span class="nv">$i</span><span class="si">)</span><span class="s2">"</span> | <span class="nb">grep</span> <span class="s2">"User Name</span><span class="se">\|</span><span class="s2">user_rid</span><span class="se">\|</span><span class="s2">group_rid"</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">""</span><span class="p">;</span><span class="k">done</span>
 
-<span class="c"># enumerate with smbmap</span>
-smbmap <span class="nt">-H</span> &lt;IP address&gt;
+<span class="c"># enumerate recursively with smbmap</span>
+smbmap <span class="nt">-H</span> &lt;IP address&gt; <span class="nt">-r</span> &lt;share name&gt;
+
+<span class="c"># download file with smbmap</span>
+smbmap <span class="nt">-H</span> &lt;IP address&gt; <span class="nt">--download</span> <span class="s2">"&lt;share name&gt;</span><span class="se">\f</span><span class="s2">ile.txt"</span>
+
+<span class="c"># upload file with smbmap</span>
+smbmap <span class="nt">-H</span> &lt;IP address&gt; <span class="nt">--upload</span> file.txt <span class="s2">"&lt;share name&gt;</span><span class="se">\f</span><span class="s2">ile.txt"</span>
 
 <span class="c"># enumerate with crackmapexec</span>
 crackmapexec smb &lt;IP address&gt; <span class="nt">--shares</span> <span class="nt">-u</span> <span class="s1">''</span> <span class="nt">-p</span> <span class="s1">''</span>
