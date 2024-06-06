@@ -63,6 +63,32 @@
 <li>MariaDB is a fork of MySQL, developed after oracle acquired MySQL</li>
 </ul>
 
+<h2>default system databases</h2>
+
+<table><thead>
+<tr>
+<th>default system database</th>
+<th>description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>mysql</td>
+<td>system database storing information for mysql server</td>
+</tr>
+<tr>
+<td>information_schema</td>
+<td>provide access to database metadata</td>
+</tr>
+<tr>
+<td>performance_schema</td>
+<td>monitor mysql server execution at a low level</td>
+</tr>
+<tr>
+<td>sys</td>
+<td>set of objects to interpret data from performance_schema</td>
+</tr>
+</tbody></table>
+
 <h2>insecure configuration</h2>
 
 <p>configuration can often be found in <code>/etc/mysql/mysql.conf.d/mysqld.conf</code>. many things can go wrong and end up misconfigured, but the main settings to look for from a security standpoint are <code>user</code>, <code>password</code>, <code>admin_address</code>, <code>debug</code>, <code>sql_warnings</code> and <code>secure_file_priv</code>.</p>
