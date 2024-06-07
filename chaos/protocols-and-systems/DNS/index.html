@@ -181,6 +181,15 @@ dig axfr &lt;domain&gt; @&lt;nameserver or IP address&gt;
 
 <span class="c"># brute force subdomains with dnsenum</span>
 dnsenum <span class="nt">--dnsserver</span> &lt;IP address&gt; <span class="nt">--enum</span> <span class="nt">-p</span> 0 <span class="nt">-s</span> 0 <span class="nt">-o</span> subdomains.txt <span class="nt">-f</span> /usr/share/seclists/Discovery/DNS/&lt;list name&gt; &lt;domain&gt;
+
+<span class="c"># enumerate all DNS servers with fierce</span>
+fierce <span class="nt">--domain</span> &lt;domain name&gt;
+
+<span class="c"># enumerate subdomains with subfinder</span>
+subfinder <span class="nt">-d</span> &lt;domain name&gt; <span class="nt">-v</span>
+
+<span class="c"># perform DNS brute-forcing with subbrute</span>
+subbrute &lt;domain name&gt; <span class="nt">-s</span> ./&lt;name list&gt; <span class="nt">-r</span> ./&lt;resolver list&gt;
 </code></pre></div>
 
 <h2>references</h2>
@@ -188,6 +197,7 @@ dnsenum <span class="nt">--dnsserver</span> &lt;IP address&gt; <span class="nt">
 <ul>
 <li><a href="https://en.wikipedia.org/wiki/Domain_Name_System" rel="nofollow">https://en.wikipedia.org/wiki/Domain_Name_System</a></li>
 <li><a href="https://book.hacktricks.xyz/network-services-pentesting/pentesting-dns" rel="nofollow">https://book.hacktricks.xyz/network-services-pentesting/pentesting-dns</a></li>
+<li><a href="https://github.com/EdOverflow/can-i-take-over-xyz" rel="nofollow">https://github.com/EdOverflow/can-i-take-over-xyz</a></li>
 </ul>
 
     </main>
