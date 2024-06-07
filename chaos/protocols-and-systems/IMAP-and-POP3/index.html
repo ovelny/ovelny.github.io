@@ -199,6 +199,9 @@ curl <span class="nt">-k</span> <span class="s1">'imaps://&lt;IP address&gt;'</s
 <span class="c"># connect over SSL with openssl</span>
 openssl s_client <span class="nt">-crlf</span> <span class="nt">-connect</span> &lt;IP address&gt;:pop3s <span class="c"># POP3</span>
 openssl s_client <span class="nt">-crlf</span> <span class="nt">-connect</span> &lt;IP address&gt;:imaps <span class="c"># IMAP</span>
+
+<span class="c"># password spraying with hydra on POP3</span>
+hydra <span class="nt">-L</span> &lt;user file list&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">-f</span> &lt;IP address&gt; pop3
 </code></pre></div>
 
 <h2>references</h2>
