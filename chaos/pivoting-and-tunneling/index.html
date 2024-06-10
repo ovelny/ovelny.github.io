@@ -62,6 +62,29 @@ nmap <span class="nt">-sV</span> <span class="nt">-p1234</span> localhost
 <span class="c"># you can forward multiple ports by chaining</span>
 <span class="c"># the -L ssh argument</span>
 ssh <span class="nt">-L</span> 1234:localhost:3306 <span class="nt">-L</span> 8080:localhost:80 &lt;username&gt;@&lt;target IP address&gt;
+
+<span class="c"># perform dynamic port forwarding to scan a</span>
+<span class="c"># network that is inacessible from our</span>
+<span class="c"># attack box:</span>
+
+<span class="c"># first, enable dynamic port forwarding on the compromised host</span>
+<span class="c"># that will act as a relay for us</span>
+ssh <span class="nt">-D</span> 9050 &lt;username&gt;@&lt;target IP address&gt;
+
+<span class="c"># check that proxychains on your attack box is configured with the</span>
+following line present: socks4  127.0.0.1 9050
+<span class="nb">cat</span> /etc/proxychains.conf
+
+<span class="c"># route all commands to your local port 9050, where all packets will</span>
+<span class="c"># be forwarded to the compromised host over SSH. keep in mind that</span>
+<span class="c"># only full packets are understood by proxychains, so only full TCP</span>
+<span class="c"># connect scans will work using nmap.</span>
+
+<span class="c"># nmap ping scan on linux targets:</span>
+proxychains nmap <span class="nt">-sn</span> 172.16.5.1-200 <span class="c"># nmap ping scan</span>
+
+<span class="c"># nmap full TCP connect scan without ping for windows targets:</span>
+proxychains nmap <span class="nt">-Pn</span> <span class="nt">-sT</span> 172.16.5.19
 </code></pre></div>
 
 <h2>chisel</h2>
