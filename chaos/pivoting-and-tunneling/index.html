@@ -50,6 +50,18 @@
     
     <h1>pivoting and tunneling</h1>
 
+<h2>ping sweeps to find internal hosts</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># with linux</span>
+<span class="k">for </span>i <span class="k">in</span> <span class="o">{</span>1..254<span class="o">}</span> <span class="p">;</span><span class="k">do</span> <span class="o">(</span>ping <span class="nt">-c</span> 1 172.16.5.<span class="nv">$i</span> | <span class="nb">grep</span> <span class="s2">"bytes from"</span> &amp;<span class="o">)</span> <span class="p">;</span><span class="k">done</span>
+
+<span class="c"># with windows and cmd.exe</span>
+<span class="k">for</span> /L %i <span class="k">in</span> <span class="o">(</span>1 1 254<span class="o">)</span> <span class="k">do </span>ping 172.16.5.%i <span class="nt">-n</span> 1 <span class="nt">-w</span> 100 | find <span class="s2">"Reply"</span>
+
+<span class="c"># with windows and powershell</span>
+1..254 | % <span class="o">{</span><span class="s2">"172.16.5.</span><span class="si">$(</span><span class="nv">$_</span><span class="si">)</span><span class="s2">: </span><span class="si">$(</span>Test-Connection <span class="nt">-count</span> 1 <span class="nt">-comp</span> 172.15.5.<span class="si">$(</span><span class="nv">$_</span><span class="si">)</span> <span class="nt">-quiet</span><span class="si">)</span><span class="s2">"</span><span class="o">}</span>
+</code></pre></div>
+
 <h2>port forwarding with SSH</h2>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># forward all data we send via port 1234 to port 3306,</span>
