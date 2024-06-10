@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ovelny - chaos/port-tunneling</title>
+    <title>ovelny - chaos/pivoting-and-tunneling</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
@@ -20,7 +20,7 @@
     <script src="/assets/js/scramble-text.min.js" defer></script>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:site" content="@ovelny"/>
-    <meta name="twitter:title" content="ovelny - chaos/port-tunneling"/>
+    <meta name="twitter:title" content="ovelny - chaos/pivoting-and-tunneling"/>
     <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
     <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
   </head>
@@ -48,7 +48,21 @@
     <main>
 
     
-    <h1>port tunneling</h1>
+    <h1>pivoting and tunneling</h1>
+
+<h2>port forwarding with SSH</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># forward all data we send via port 1234 to port 3306,</span>
+<span class="c"># effectively allowing us to access the target's service on port 3306.</span>
+ssh <span class="nt">-L</span> 1234:localhost:3306 &lt;username&gt;@&lt;target IP address&gt;
+
+<span class="c"># confirm that port forwarding worked with nmap</span>
+nmap <span class="nt">-sV</span> <span class="nt">-p1234</span> localhost
+
+<span class="c"># you can forward multiple ports by chaining</span>
+<span class="c"># the -L ssh argument</span>
+ssh <span class="nt">-L</span> 1234:localhost:3306 <span class="nt">-L</span> 8080:localhost:80 &lt;username&gt;@&lt;target IP address&gt;
+</code></pre></div>
 
 <h2>chisel</h2>
 
