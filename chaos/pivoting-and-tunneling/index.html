@@ -149,6 +149,17 @@ ssh <span class="nt">-R</span> &lt;internal IP of compromised ubuntu server&gt;:
 </span><span class="n">plink</span><span class="w"> </span><span class="nt">-ssh</span><span class="w"> </span><span class="nt">-D</span><span class="w"> </span><span class="nx">9050</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">username</span><span class="err">&gt;@&lt;</span><span class="nx">target</span><span class="w"> </span><span class="nx">IP</span><span class="w"> </span><span class="nx">address</span><span class="err">&gt;</span><span class="w">
 </span></code></pre></div>
 
+<h2>port forwarding with netsh on windows</h2>
+
+<div class="highlight"><pre class="highlight powershell"><code><span class="c"># perform port forwarding with netsh</span><span class="w">
+</span><span class="c"># we forward port 3389 (RDP) of our target to</span><span class="w">
+</span><span class="c"># port 8080 of our pivot machine</span><span class="w">
+</span><span class="n">netsh.exe</span><span class="w"> </span><span class="nx">interface</span><span class="w"> </span><span class="nx">portproxy</span><span class="w"> </span><span class="nx">add</span><span class="w"> </span><span class="nx">v4tov4</span><span class="w"> </span><span class="nx">listenport</span><span class="o">=</span><span class="mi">8080</span><span class="w"> </span><span class="n">listenaddress</span><span class="o">=</span><span class="err">&lt;</span><span class="n">compromised</span><span class="w"> </span><span class="nx">windows</span><span class="w"> </span><span class="nx">host</span><span class="w"> </span><span class="nx">IP</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">connectport</span><span class="o">=</span><span class="mi">3389</span><span class="w"> </span><span class="n">connectaddress</span><span class="o">=</span><span class="err">&lt;</span><span class="n">internal</span><span class="w"> </span><span class="nx">target</span><span class="w"> </span><span class="nx">IP</span><span class="err">&gt;</span><span class="w">
+
+</span><span class="c"># check port forwarding setup</span><span class="w">
+</span><span class="n">netsh.exe</span><span class="w"> </span><span class="nx">interface</span><span class="w"> </span><span class="nx">portproxy</span><span class="w"> </span><span class="nx">show</span><span class="w"> </span><span class="nx">v4tov4</span><span class="w">
+</span></code></pre></div>
+
 <h2>socat</h2>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># listen on pivot machine's localhost on port 8080 and forward all traffic</span>
