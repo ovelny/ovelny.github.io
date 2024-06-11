@@ -216,6 +216,34 @@ ssh <span class="nt">-D</span> 9050 <span class="nt">-p2222</span> <span class="
 <span class="c"># you can then use proxychains as usual.</span>
 </code></pre></div>
 
+<h2>SocksOverRDP for pivoting on windows</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># not even RDP is safe from tunneling traffic over it.</span>
+
+<span class="c"># download SocksOverRDP binaries: https://github.com/nccgroup/SocksOverRDP/releases</span>
+<span class="c"># download proxifier portable binary: https://www.proxifier.com/download/#win-tab</span>
+<span class="c"># extract them and upload them on the pivot machine.</span>
+<span class="c"># then, on said machine, load SocksOverRDP.dll in elevated prompt:</span>
+regsvr32.exe SocksOverRDP-Plugin.dll
+
+<span class="c"># connect to target with mstsc.exe.</span>
+<span class="c"># a warning should indicate that SocksOverRDP is active</span>
+<span class="c"># and will listen on 127.0.0.1:1080</span>
+
+<span class="c"># transfer SocksOverRDP-Server.exe to target</span>
+<span class="c"># and run it with elevated privileges.</span>
+
+<span class="c"># on pivot machine, check that the SOCKS listener is present</span>
+<span class="c"># on 127.0.0.1:1080</span>
+netstat <span class="nt">-bant</span> | findstr 1080
+
+<span class="c"># on proxifier GUI, go to profile -&gt; proxy servers -&gt; add,</span>
+<span class="c"># and add 127.9.9.1:1080 with SOCKS5.</span>
+<span class="c"># we can then start mstsc.exe which will route everything as planned.</span>
+<span class="c"># keep in mind that advanced settings in mstsc.exe allow to adjust</span>
+<span class="c"># performance in the experience tab.</span>
+</code></pre></div>
+
 <h2>chisel</h2>
 
 <p>for compatibility with powershell-empire, use chisel 1.7.2.</p>
