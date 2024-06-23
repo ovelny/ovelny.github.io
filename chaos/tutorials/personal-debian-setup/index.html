@@ -627,6 +627,13 @@ python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span cla
 python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">--user</span> pdf2image <span class="nt">--break-system-packages</span>
 </code></pre></div>
 
+<p>i managed to partially fix ruby autocompletion, too. it&#39;s not perfect but it&#39;s still useful, the following packages are needed:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>gem <span class="nb">install</span> <span class="nt">--user</span> standard
+gem <span class="nb">install</span> <span class="nt">--user</span> solargraph
+yard gems <span class="c"># build solargraph documentation for autocompletion</span>
+</code></pre></div>
+
 <p>we can now install our plugins:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># symlink vim config</span>
