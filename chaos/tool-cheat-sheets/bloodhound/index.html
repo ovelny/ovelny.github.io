@@ -62,6 +62,9 @@ MATCH <span class="nv">p</span><span class="o">=(</span>g:Group<span class="o">)
 <span class="c"># find what groups can RDP:</span>
 MATCH <span class="nv">p</span><span class="o">=(</span>m:Group<span class="o">)</span>-[r:CanRDP]-&gt;<span class="o">(</span>n:Computer<span class="o">)</span> RETURN p
 
+<span class="c"># find any edges between two objects:</span>
+MATCH <span class="o">(</span>obj1<span class="o">)</span>, <span class="o">(</span>obj2<span class="o">)</span> WHERE obj1.name <span class="o">=</span> <span class="s1">'&lt;name&gt;'</span> AND obj2.name <span class="o">=</span> <span class="s1">'&lt;name&gt;'</span> AND NOT obj1 <span class="o">=</span> obj2 MATCH p <span class="o">=</span> shortestPath<span class="o">((</span>obj1<span class="o">)</span>-[<span class="k">*</span>..10]-&gt;<span class="o">(</span>obj2<span class="o">))</span> RETURN p
+
 <span class="c"># find groups that can reset passwords (warning: heavy):</span>
 MATCH <span class="nv">p</span><span class="o">=(</span>m:Group<span class="o">)</span>-[r:ForceChangePassword]-&gt;<span class="o">(</span>n:User<span class="o">)</span> RETURN p
 
