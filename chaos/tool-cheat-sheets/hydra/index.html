@@ -53,12 +53,17 @@
 <p>perform password attacks on different protocols and services.<br>
 don&#39;t forget to use the <code>-f</code> flag, if you want to stop bruteforcing as soon as a pair of valid credentials is found.</p>
 
+<p>the <code>-u</code> flag is also useful to remember, to loop each password around all users rather than the other way around.</p>
+
 <h2>commands</h2>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># perform a ssh password attack for a specific user</span>
 <span class="c"># and a wordlist, with 48 threads, verbose.</span>
 <span class="c"># replace ssh with smb, rdp, etc... for other services.</span>
 hydra <span class="nt">-V</span> <span class="nt">-l</span> &lt;user&gt; <span class="nt">-P</span> &lt;wordlist&gt; <span class="nt">-t</span> 48 ssh://&lt;IP address&gt;
+
+<span class="c"># use a login:pass formatted wordlist:</span>
+hydra <span class="nt">-C</span> &lt;wordlist&gt; &lt;protocol&gt;://&lt;IP address&gt;
 
 <span class="c"># perform a ssh password attack with a userlist and a</span>
 <span class="c"># wordlist</span>
