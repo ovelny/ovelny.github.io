@@ -57,13 +57,22 @@ don&#39;t forget to use the <code>-f</code> flag, if you want to stop bruteforci
 
 <h2>commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># perform a ssh password attack for a specific user</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># list all supported services / protocols:</span>
+hydra <span class="nt">-h</span> | <span class="nb">grep</span> <span class="s2">"Supported services"</span> | <span class="nb">tr</span> <span class="s2">":"</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> | <span class="nb">tr</span> <span class="s2">" "</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> | column <span class="nt">-e</span>
+
+<span class="c"># get info about a specific service / protocol:</span>
+hydra &lt;protocol&gt; <span class="nt">-U</span>
+
+<span class="c"># perform a ssh password attack for a specific user</span>
 <span class="c"># and a wordlist, with 48 threads, verbose.</span>
 <span class="c"># replace ssh with smb, rdp, etc... for other services.</span>
 hydra <span class="nt">-V</span> <span class="nt">-l</span> &lt;user&gt; <span class="nt">-P</span> &lt;wordlist&gt; <span class="nt">-t</span> 48 ssh://&lt;IP address&gt;
 
 <span class="c"># use a login:pass formatted wordlist:</span>
 hydra <span class="nt">-C</span> &lt;wordlist&gt; &lt;protocol&gt;://&lt;IP address&gt;
+
+<span class="c"># bruteforce a POST form, template example:</span>
+hydra <span class="nt">-f</span> <span class="nt">-l</span> &lt;username&gt; <span class="nt">-P</span> &lt;wordlist&gt; http-post-form://&lt;IP address or domain name&gt;:&lt;port&gt;<span class="s2">"/login.php:username=^USER^&amp;password=^PASS^:F=&lt;source code fragment appearing during fails&gt;"</span>
 
 <span class="c"># perform a ssh password attack with a userlist and a</span>
 <span class="c"># wordlist</span>
