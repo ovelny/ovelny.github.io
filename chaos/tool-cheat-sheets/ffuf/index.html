@@ -73,11 +73,18 @@ FILTER OPTIONS:
 ffuf <span class="nt">-w</span> /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt <span class="nt">-u</span> https://&lt;IP or domain name&gt;/
 
 <span class="c"># enumerate virtual hosts</span>
-ffuf <span class="nt">-w</span> &lt;wordlist&gt; <span class="nt">-u</span> http://&lt;domain name or IP address&gt; <span class="nt">-H</span> <span class="s2">"HOST: FUZZ.&lt;domain name&gt;.&lt;TLD&gt;"</span> <span class="nt">-fs</span> &lt;size&gt;
+ffuf <span class="nt">-w</span> /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt <span class="nt">-u</span> http://&lt;domain name or IP address&gt; <span class="nt">-H</span> <span class="s2">"HOST: FUZZ.&lt;domain name&gt;.&lt;TLD&gt;"</span> <span class="nt">-fs</span> &lt;size&gt;
 
 <span class="c"># enumerate directories</span>
 <span class="c"># consider using -rate to make it less intensive for the target's web server</span>
 ffuf <span class="nt">-recursion</span> <span class="nt">-recursion-depth</span> &lt;number&gt; <span class="nt">-u</span> http://&lt;IP address or domain name&gt;/FUZZ <span class="nt">-w</span> &lt;wordlist&gt;
+
+<span class="c"># fuzz GET parameters</span>
+ffuf <span class="nt">-w</span> /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ <span class="nt">-u</span> http://&lt;IP address or domain name&gt;/?FUZZ<span class="o">=</span>key <span class="nt">-fs</span> &lt;size&gt;
+
+<span class="c"># fuzz POST parameters, with proper </span>
+<span class="c"># content-type header for PHP:</span>
+ffuf <span class="nt">-w</span> /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ <span class="nt">-u</span> http://&lt;IP address or domain name&gt;/ <span class="nt">-X</span> POST <span class="nt">-d</span> <span class="s1">'FUZZ=key'</span> <span class="nt">-H</span> <span class="s1">'Content-Type: application/x-www-form-urlencoded'</span> <span class="nt">-fs</span> &lt;size&gt;
 
 <span class="c"># find sensitive files</span>
 <span class="c"># assuming here that wordlist.txt is the output of</span>
