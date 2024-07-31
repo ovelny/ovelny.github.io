@@ -69,7 +69,10 @@ FILTER OPTIONS:
 
 <h2>commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># enumerate virtual hosts</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># enumerate subdomains</span>
+ffuf <span class="nt">-w</span> /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt <span class="nt">-u</span> https://&lt;IP or domain name&gt;/
+
+<span class="c"># enumerate virtual hosts</span>
 ffuf <span class="nt">-w</span> &lt;wordlist&gt; <span class="nt">-u</span> http://&lt;domain name or IP address&gt; <span class="nt">-H</span> <span class="s2">"HOST: FUZZ.&lt;domain name&gt;.&lt;TLD&gt;"</span> <span class="nt">-fs</span> &lt;size&gt;
 
 <span class="c"># enumerate directories</span>
@@ -80,6 +83,11 @@ ffuf <span class="nt">-recursion</span> <span class="nt">-recursion-depth</span>
 <span class="c"># assuming here that wordlist.txt is the output of</span>
 <span class="c"># a cewl command like: cewl -m5 --lowercase -w wordlist.txt http://&lt;IP address or domain name&gt;</span>
 ffuf <span class="nt">-w</span> ./&lt;found-directories.txt&gt;:FOLDERS,./&lt;wordlist.txt&gt;:WORDLIST,./&lt;extensions.txt&gt;:EXTENSIONS <span class="nt">-u</span> http://&lt;IP address or domain name&gt;/FOLDERS/WORDLISTEXTENSIONS
+
+<span class="c"># recursively fuzz directories with a depth of 1,</span>
+<span class="c"># use .php file extension, skip comments in wordlist</span>
+<span class="c"># with -ic and run verbosely:</span>
+ffuf <span class="nt">-v</span> <span class="nt">-ic</span> <span class="nt">-w</span> &lt;wordlist&gt;:FUZZ <span class="nt">-u</span> https://&lt;IP or domain name&gt;/FUZZ <span class="nt">-recursion</span> <span class="nt">-recursion-depth</span> 1 <span class="nt">-e</span> .php
 </code></pre></div>
 
     </main>
