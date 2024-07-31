@@ -79,6 +79,9 @@ ffuf <span class="nt">-w</span> /usr/share/seclists/Discovery/DNS/subdomains-top
 <span class="c"># consider using -rate to make it less intensive for the target's web server</span>
 ffuf <span class="nt">-recursion</span> <span class="nt">-recursion-depth</span> &lt;number&gt; <span class="nt">-u</span> http://&lt;IP address or domain name&gt;/FUZZ <span class="nt">-w</span> &lt;wordlist&gt;
 
+<span class="c"># fuzz file extensions</span>
+ffuf <span class="nt">-w</span> /usr/share/wordlists/seclists/Discovery/Web-Content/web-extensions.txt:FUZZ <span class="nt">-u</span> http://&lt;IP address or domain name&gt;/indexFUZZ
+
 <span class="c"># fuzz GET parameters</span>
 ffuf <span class="nt">-w</span> /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ <span class="nt">-u</span> http://&lt;IP address or domain name&gt;/?FUZZ<span class="o">=</span>key <span class="nt">-fs</span> &lt;size&gt;
 
