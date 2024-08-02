@@ -60,64 +60,64 @@ sqlmap <span class="nt">-h</span>
 <span class="c"># display detailed help:</span>
 sqlmap <span class="nt">-hh</span>
 
-<span class="c"># run sqlmap with all default options for target,</span>
+<span class="c"># run with all default options for target,</span>
 <span class="c"># using a GET parameter as entry point:</span>
 sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL with GET parameter&gt;"</span> <span class="nt">--batch</span>
 
-<span class="c"># run sqlmap and dump current database table entries,</span>
+<span class="c"># dump current database table entries,</span>
 <span class="c"># using a GET parameter as entry point:</span>
 sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL with GET parameter&gt;"</span> <span class="nt">--dump</span>
 
-<span class="c"># run sqlmap and dump all databases tables entries,</span>
+<span class="c"># dump all databases tables entries,</span>
 <span class="c"># using a GET parameter as entry point:</span>
 sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL with GET parameter&gt;"</span> <span class="nt">--dump-all</span>
 
-<span class="c"># run sqlmap with "copy as curl" data from devtools.</span>
+<span class="c"># use "copy as curl" data from devtools.</span>
 <span class="c"># just replace "curl" with "sqlmap" and you're good to go:</span>
 sqlmap <span class="s1">'&lt;target URL&gt;'</span> <span class="nt">-H</span> <span class="s1">'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:80.0) Gecko/20100101 Firefox/80.0'</span> <span class="nt">-H</span> <span class="s1">'Accept: image/webp,*/*'</span> <span class="nt">-H</span> <span class="s1">'Accept-Language: en-US,en;q=0.5'</span> <span class="nt">--compressed</span> <span class="nt">-H</span> <span class="s1">'Connection: keep-alive'</span> <span class="nt">-H</span> <span class="s1">'DNT: 1'</span>
 
-<span class="c"># run sqlmap with single POST parameter as entry point:</span>
+<span class="c"># use single POST parameter as entry point:</span>
 sqlmap <span class="s1">'&lt;target URL&gt;'</span> <span class="nt">--data</span> <span class="s1">'&lt;param=param&gt;'</span>
 
-<span class="c"># run sqlmap with multiple POST parameters as entry point:</span>
+<span class="c"># use multiple POST parameters as entry points:</span>
 sqlmap <span class="s1">'&lt;target URL&gt;'</span> <span class="nt">--data</span> <span class="s1">'&lt;param1=1&amp;param2=2&gt;'</span> <span class="c"># also works with simple JSON / XML formatted requests</span>
 
-<span class="c"># run sqlmap with multiple POST parameters and use a marker</span>
+<span class="c"># use multiple POST parameters and use a marker</span>
 <span class="c"># for a single specific injection point:</span>
 sqlmap <span class="s1">'&lt;target URL&gt;'</span> <span class="nt">--data</span> <span class="s1">'&lt;param1=1*&amp;param2=2&gt;'</span>
 
-<span class="c"># run sqlmap against a complex HTTP request copied to file.</span>
+<span class="c"># run against a complex HTTP request copied to file.</span>
 <span class="c"># asterisk markers can also be used in file:</span>
 sqlmap <span class="nt">-r</span> &lt;request file&gt; <span class="c"># also works with complex JSON / XML formatted requests</span>
 
-<span class="c"># run sqlmap against headers by using markers:</span>
+<span class="c"># run against headers by using markers:</span>
 sqlmap <span class="s1">'&lt;target URL&gt;'</span> <span class="nt">-H</span> <span class="s1">'&lt;header name&gt;:*'</span>
 
-<span class="c"># run sqlmap using a GET parameter as entry point,</span>
-<span class="c"># and use a random user agent:</span>
+<span class="c"># use a GET parameter as entry point,</span>
+<span class="c"># and specify a random user agent:</span>
 sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL with GET parameter&gt;"</span> <span class="nt">--random-agent</span>
 
-<span class="c"># run sqlmap using a GET parameter as entry point,</span>
-<span class="c"># and use a random mobile user agent:</span>
+<span class="c"># use a GET parameter as entry point,</span>
+<span class="c"># and specify a random mobile user agent:</span>
 sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL with GET parameter&gt;"</span> <span class="nt">--mobile</span>
 
-<span class="c"># run sqlmap against data with an alternative HTTP method:</span>
+<span class="c"># run against data with an alternative HTTP method:</span>
 sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--data</span><span class="o">=</span><span class="s1">'param=1'</span> <span class="nt">--method</span> &lt;HTTP method&gt;
 
-<span class="c"># run sqlmap against data and parse DBMS errors:</span>
+<span class="c"># run against data and parse DBMS errors:</span>
 sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--data</span><span class="o">=</span><span class="s1">'param=1'</span> <span class="nt">--parse-errors</span>
 
-<span class="c"># run sqlmap against data and store all traffic to output file:</span>
+<span class="c"># run against data and store all traffic to output file:</span>
 sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--data</span><span class="o">=</span><span class="s1">'param=1'</span> <span class="nt">-t</span> &lt;file path&gt;
 
-<span class="c"># run sqlmap against data and increase verbosity.</span>
+<span class="c"># run against data and increase verbosity.</span>
 <span class="c"># this level will output all errors and HTTP requests:</span>
 sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--data</span><span class="o">=</span><span class="s1">'param=1'</span> <span class="nt">-v</span> 6
 
-<span class="c"># run sqlmap against data and redirect traffic to proxy:</span>
+<span class="c"># run against data and redirect traffic to proxy:</span>
 sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--data</span><span class="o">=</span><span class="s1">'param=1'</span> <span class="nv">proxy</span><span class="o">=</span>http://127.0.0.1:8080
 
-<span class="c"># run sqlmap against data and use specific prefix and suffix.</span>
+<span class="c"># run against data and use specific prefix and suffix.</span>
 <span class="c"># the prefix would be the string for breaking out of the vulnerable query,</span>
 <span class="c"># while the suffix ensures the rest of the query is commented out:</span>
 sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--data</span><span class="o">=</span><span class="s1">'param=1'</span> <span class="nt">--prefix</span><span class="o">=</span><span class="s2">"&lt;prefix&gt;"</span> <span class="nt">--suffix</span><span class="o">=</span><span class="s2">"&lt;suffix&gt;"</span>
