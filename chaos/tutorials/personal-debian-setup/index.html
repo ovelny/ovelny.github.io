@@ -109,6 +109,13 @@
 <div class="highlight"><pre class="highlight shell"><code><span class="k">for </span>pkg <span class="k">in</span> <span class="s2">"glances"</span> <span class="s2">"yt-dlp"</span> <span class="s2">"frida-tools"</span> <span class="s2">"objection"</span> <span class="s2">"pex"</span> <span class="s2">"tuir"</span> <span class="s2">"toot"</span><span class="p">;</span> <span class="k">do </span>pipx <span class="nb">install</span> <span class="s2">"</span><span class="nv">$pkg</span><span class="s2">"</span><span class="p">;</span> <span class="k">done</span>
 </code></pre></div>
 
+<h2>ruby gem</h2>
+
+<p>just a single ruby gem is used, besides vim configuration found below:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>gem <span class="nb">install</span> <span class="nt">--user</span> terminal-table
+</code></pre></div>
+
 <h2>flatpak packages</h2>
 
 <p>sometimes flatpak is the right answer. especially when you don&#39;t want to configure additional repositories.</p>
