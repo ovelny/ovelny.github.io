@@ -822,7 +822,7 @@ xdg-mime default org.gnome.TextEditor.desktop application/xhtml+xml
 
 <p>desktop files can be found at <code>/usr/share/applications</code>.</p>
 
-<h2>set up sardine and tidal cycles for livecoding</h2>
+<h2>set up sardine, renardo and tidal cycles for livecoding</h2>
 
 <p>all default packages to make sardine and tidal cycles work are already listed at the beginning of this document and should have been installed.</p>
 
@@ -861,6 +861,25 @@ jackd <span class="nt">-d</span> alsa <span class="nt">--device</span> hw:1 <spa
 </code></pre></div>
 
 <p>the resulting <code>sardine</code> tmux window will be used to evaluate code with sardine&#39;s REPL while livecoding in vim: create a <code>.sardine</code> file, add <code>Pa &gt;&gt; d(&#39;bd cp&#39;)</code> inside and save. the line should get evaluated in the REPL and produce a beat. check out your <code>~/.vimrc</code> if you need a refresher.</p>
+
+<p>install renardo with pipx:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>pipx <span class="nb">install </span>renardo
+</code></pre></div>
+
+<p>run <code>renardo</code> and go to the TUI&#39;s autostart tab. click on the button to download the default samples, and wait for the process to complete. quit the TUI and make sure the following files are present:</p>
+
+<ul>
+<li><code>~/.local/share/SuperCollider/Extensions/Renardo.sc</code></li>
+<li><code>~/.local/share/SuperCollider/start_renardo.sc</code></li>
+</ul>
+
+<p>for good measure, run <code>sclang</code> and install FoxDot as well. wait for it to compile:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>Quarks.install("FoxDot"); thisProcess.recompile()
+</code></pre></div>
+
+<p>everything else should be handled by the <code>fofox</code> alias in <code>~/.zshrc</code>. run it, open a <code>.fox</code> file and evaluate <code>b1 &gt;&gt; blip()</code> to check if it works.</p>
 
 <h2>uninstall brave-browser</h2>
 
