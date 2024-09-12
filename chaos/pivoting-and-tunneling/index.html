@@ -84,7 +84,7 @@ ssh <span class="nt">-L</span> 1234:localhost:3306 <span class="nt">-L</span> 80
 ssh <span class="nt">-D</span> 9050 &lt;username&gt;@&lt;target IP address&gt;
 
 <span class="c"># Check that proxychains on your attack box is configured with the</span>
-following line present: socks4  127.0.0.1 9050
+<span class="c"># following line present: socks4  127.0.0.1 9050</span>
 <span class="nb">cat</span> /etc/proxychains.conf
 
 <span class="c"># Route all commands to your local port 9050, where all packets will</span>
