@@ -50,38 +50,38 @@
     
     <h1>FTP (and TFTP)</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
-<li><p>two channels are opened for client/server communication:</p>
+<li><p>Two channels are opened for client/server communication:</p>
 
 <ul>
-<li><code>TCP port 21</code> for the control channel</li>
-<li><code>TCP port 20</code> for the data channel</li>
+<li><code>TCP port 21</code> for the control channel.</li>
+<li><code>TCP port 20</code> for the data channel.</li>
 </ul></li>
-<li><p>two modes are possible, <code>active</code> or <code>passive</code>:</p>
+<li><p>Two modes are possible, <code>active</code> or <code>passive</code>:</p>
 
 <ul>
 <li><code>active</code>:
 
 <ul>
-<li>client establishes connection via TCP port 21</li>
-<li>server is informed on which port it can transmit the responses to the client</li>
-<li><strong>downside: if client has a firewall, server responses will be blocked</strong></li>
+<li>Client establishes connection via TCP port 21.</li>
+<li>Server is informed on which port it can transmit the responses to the client.</li>
+<li><strong>Downside: if client has a firewall, server responses will be blocked.</strong></li>
 </ul></li>
 <li><code>passive</code>:
 
 <ul>
-<li>server announces a port the client can use for the data channel (port 20)</li>
-<li>because the client initiates the connection, the firewall won&#39;t block transfer</li>
+<li>Server announces a port the client can use for the data channel (port 20).</li>
+<li>Because the client initiates the connection, the firewall won&#39;t block transfer.</li>
 </ul></li>
 </ul></li>
-<li><p>differences between FTP and TFTP (Trivial File Transfer Protocol):</p>
+<li><p>Differences between FTP and TFTP (Trivial File Transfer Protocol):</p>
 
 <ul>
-<li>no user authentication</li>
-<li>uses UDP instead of TCP, so it is unreliable</li>
-<li>no support of access limits besides the ones defined by the OS</li>
+<li>No user authentication.</li>
+<li>Uses UDP instead of TCP, so it is unreliable.</li>
+<li>No support of access limits besides the ones defined by the OS.</li>
 </ul></li>
 </ul>
 
@@ -89,60 +89,60 @@
 
 <table><thead>
 <tr>
-<th>command</th>
-<th>description</th>
+<th>Command</th>
+<th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
 <td>connect</td>
-<td>configure remote host for file transfers (with optional port)</td>
+<td>Configure remote host for file transfers (with optional port).</td>
 </tr>
 <tr>
 <td>quit</td>
-<td>exit TFTP</td>
+<td>Exit TFTP.</td>
 </tr>
 <tr>
 <td>get or mget</td>
-<td>download file(s) from the remote host</td>
+<td>Download file(s) from the remote host.</td>
 </tr>
 <tr>
 <td>put or mput</td>
-<td>upload file(s) to the remote host</td>
+<td>Upload file(s) to the remote host.</td>
 </tr>
 <tr>
 <td>verbose</td>
-<td>toggle verbose mode, for more info during file transfers</td>
+<td>Toggle verbose mode, for more info during file transfers.</td>
 </tr>
 <tr>
 <td>status</td>
-<td>show current status: ascii or binary transfert mode, connection, etc</td>
+<td>Show current status: ascii or binary transfert mode, connection, etc.</td>
 </tr>
 </tbody></table>
 
-<h2>additional commands</h2>
+<h2>Additional commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># download all available files from remote host</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Download all available files from remote host:</span>
 wget <span class="nt">-m</span> <span class="nt">--no-passive</span> ftp://anonymous:anonymous@&lt;IP address&gt;
 
-<span class="c"># connect directly with openssl an see SSL certificate</span>
+<span class="c"># Connect directly with openssl an see SSL certificate:</span>
 openssl s_client <span class="nt">-connect</span> &lt;IP address&gt;:21 <span class="nt">-starttls</span> ftp
 
-<span class="c"># perform a bounce attack with nmap.</span>
-<span class="c"># a bounce attack leverages a FTP server</span>
+<span class="c"># Perform a bounce attack with nmap.</span>
+<span class="c"># A bounce attack leverages a FTP server</span>
 <span class="c"># to enumerate other internal machines,</span>
 <span class="c"># but it has almost entirely been patched</span>
-<span class="c"># everywhere.</span>
+<span class="c"># everywhere:</span>
 nmap <span class="nt">-Pn</span> <span class="nt">-v</span> <span class="nt">-n</span> <span class="nt">-p80</span> <span class="nt">-b</span> &lt;username&gt;:&lt;password&gt;@&lt;FTP address&gt; &lt;IP address&gt;
 </code></pre></div>
 
-<h2>insecure configuration</h2>
+<h2>Insecure configuration</h2>
 
-<p>if the target uses vsFTPd, check the <code>/etc/vsftpd.conf</code> config file and particularly any <code>anon</code> settings that would allow us to login with the <code>anonymous</code> user. additionally, the <code>write_enable=YES</code> command could allow us to use dangerous commands like <code>DELE</code>, <code>RMD</code>, etc.</p>
+<p>If the target uses vsFTPd, check the <code>/etc/vsftpd.conf</code> config file and particularly any <code>anon</code> settings that would allow us to login with the <code>anonymous</code> user. Additionally, the <code>write_enable=YES</code> command could allow us to use dangerous commands like <code>DELE</code>, <code>RMD</code>, etc.</p>
 
-<h2>useful links</h2>
+<h2>Useful links</h2>
 
 <ul>
-<li><a href="https://en.wikipedia.org/wiki/List_of_FTP_server_return_codes" rel="nofollow">return codes</a></li>
+<li><a href="https://en.wikipedia.org/wiki/List_of_FTP_server_return_codes" rel="nofollow">Return codes</a></li>
 </ul>
 
     </main>
