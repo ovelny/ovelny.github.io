@@ -50,161 +50,161 @@
     
     <h1>IMAP / POP3</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
 <li><p>Internet Message Access Protocol (IMAP):</p>
 
 <ul>
-<li>uses port 143</li>
-<li>uses port 993 with SSL/TLS</li>
+<li>Uses port 143.</li>
+<li>Uses port 993 with SSL/TLS.</li>
 </ul></li>
 <li><p>Post Office Protocol (POP3):</p>
 
 <ul>
-<li>uses port 110</li>
-<li>uses port 995 with SSL/TLS</li>
+<li>Uses port 110.</li>
+<li>Uses port 995 with SSL/TLS.</li>
 </ul></li>
 <li><p>POP3 can:</p>
 
 <ul>
-<li>list, retrieve, and delete emails</li>
+<li>List, retrieve, and delete emails.</li>
 </ul></li>
 <li><p>IMAP can do what POP3 can, but also can:</p>
 
 <ul>
-<li>support folder structure</li>
-<li>access multiple mailboxes during a session</li>
-<li>allow several users to access the mail server simultaneously</li>
-<li>preselect emails</li>
-<li>browse emails directly on the server</li>
+<li>Support folder structure.</li>
+<li>Access multiple mailboxes during a session.</li>
+<li>Allow several users to access the mail server simultaneously.</li>
+<li>Preselect emails.</li>
+<li>Browse emails directly on the server.</li>
 </ul></li>
 </ul>
 
-<p>the database remains uniform because everything is handled on the server: the clients access these structures and create local copies. this is also how offline mode works for clients handling this feature.</p>
+<p>The database remains uniform because everything is handled on the server: the clients access these structures and create local copies. This is also how offline mode works for clients handling this feature.</p>
 
 <h2>IMAP commands</h2>
 
 <table><thead>
 <tr>
-<th>command</th>
-<th>description</th>
+<th>Command</th>
+<th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
 <td><code>LOGIN &lt;username&gt; &lt;password&gt;</code></td>
-<td>login as user</td>
+<td>Login as user.</td>
 </tr>
 <tr>
 <td><code>LIST &quot;&quot; *</code></td>
-<td>list all directories</td>
+<td>List all directories.</td>
 </tr>
 <tr>
 <td><code>CREATE &quot;&lt;name&gt;&quot;</code></td>
-<td>create mailbox with specified name</td>
+<td>Create mailbox with specified name.</td>
 </tr>
 <tr>
 <td><code>DELETE &quot;&lt;name&gt;&quot;</code></td>
-<td>delete specified mailbox</td>
+<td>Delete specified mailbox.</td>
 </tr>
 <tr>
 <td><code>RENAME &quot;&lt;old-name&gt;&quot; &quot;&lt;new-name&gt;&quot;</code></td>
-<td>rename mailbox</td>
+<td>Rename mailbox.</td>
 </tr>
 <tr>
 <td><code>LSUB &quot;&quot; *</code></td>
-<td>return names declared as <code>active</code> or <code>subscribed</code></td>
+<td>Return names declared as <code>active</code> or <code>subscribed</code>.</td>
 </tr>
 <tr>
 <td><code>SELECT &lt;name&gt;</code></td>
-<td>select mailbox to access messages</td>
+<td>Select mailbox to access messages.</td>
 </tr>
 <tr>
 <td><code>UNSELECT &lt;name&gt;</code></td>
-<td>exit selected mailbox</td>
+<td>Exit selected mailbox.</td>
 </tr>
 <tr>
 <td><code>FETCH &lt;id&gt; all</code></td>
-<td>fetch data associated with a message in mailbox</td>
+<td>Fetch data associated with a message in mailbox.</td>
 </tr>
 <tr>
 <td><code>CLOSE</code></td>
-<td>remove all messages set with the <code>Deleted</code> flag</td>
+<td>Remove all messages set with the <code>Deleted</code> flag.</td>
 </tr>
 <tr>
 <td><code>LOGOUT</code></td>
-<td>close connection with IMAP server</td>
+<td>Close connection with IMAP server.</td>
 </tr>
 </tbody></table>
 
-<p>IMAP commands are prepended with an identifier. it can be any symbol, like <code>a list &quot;&quot; *</code>. they also don&#39;t need to be all caps.</p>
+<p>IMAP commands are prepended with an identifier. It can be any symbol, like <code>a list &quot;&quot; *</code>. They also don&#39;t need to be all caps.</p>
 
-<p>to access an email&#39;s body, you must use the command <code>a fetch &lt;id&gt; (BODY)</code>. but because message bodies are multipart, you&#39;ll most likely need to retrieve a specific part with <code>a fetch &lt;id&gt; (BODY[n])</code>.</p>
+<p>To access an email&#39;s body, you must use the command <code>a fetch &lt;id&gt; (BODY)</code>. But because message bodies are multipart, you&#39;ll most likely need to retrieve a specific part with <code>a fetch &lt;id&gt; (BODY[n])</code>.</p>
 
 <h2>POP3 commands</h2>
 
 <table><thead>
 <tr>
-<th>command</th>
-<th>description</th>
+<th>Command</th>
+<th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
 <td>USER </td>
-<td>identify the user</td>
+<td>Identify the user.</td>
 </tr>
 <tr>
 <td>PASS </td>
-<td>authenticate mentioned user with password</td>
+<td>Authenticate mentioned user with password.</td>
 </tr>
 <tr>
 <td>STAT</td>
-<td>get number of saved emails from the server</td>
+<td>Get number of saved emails from the server.</td>
 </tr>
 <tr>
 <td>LIST</td>
-<td>get the number and size of all emails</td>
+<td>Get the number and size of all emails.</td>
 </tr>
 <tr>
 <td>RETR </td>
-<td>deliver the specified email by id</td>
+<td>Deliver the specified email by id.</td>
 </tr>
 <tr>
 <td>DELE </td>
-<td>delete the specified email by id</td>
+<td>Delete the specified email by id.</td>
 </tr>
 <tr>
 <td>CAPA</td>
-<td>get server capabilities</td>
+<td>Get server capabilities.</td>
 </tr>
 <tr>
 <td>RSET</td>
-<td>reset transmitted info</td>
+<td>Reset transmitted info.</td>
 </tr>
 <tr>
 <td>QUIT</td>
-<td>close connection with POP3 server</td>
+<td>Close connection with POP3 server.</td>
 </tr>
 </tbody></table>
 
-<h2>insecure configuration</h2>
+<h2>Insecure configuration</h2>
 
-<p>most companies offload email administration to third-party providers like google, microsoft, etc. but some companies handle it themselves, mostly for privacy reasons. in that case, look for configuration related to <code>debug</code>, <code>verbose</code> settings or <code>anonymous</code> login, which is similar to what FTP can allow.</p>
+<p>Most companies offload email administration to third-party providers like google, microsoft, etc. But some companies handle it themselves, mostly for privacy reasons. In that case, look for configuration related to <code>debug</code>, <code>verbose</code> settings or <code>anonymous</code> login, which is similar to what FTP can allow.</p>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># login with curl</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Login with curl:</span>
 curl <span class="nt">-k</span> <span class="s1">'imaps://&lt;IP address&gt;'</span> <span class="nt">-v</span> <span class="nt">--user</span> &lt;username&gt;:&lt;password&gt;
 
-<span class="c"># connect over SSL with openssl</span>
+<span class="c"># Connect over SSL with openssl:</span>
 openssl s_client <span class="nt">-crlf</span> <span class="nt">-connect</span> &lt;IP address&gt;:pop3s <span class="c"># POP3</span>
 openssl s_client <span class="nt">-crlf</span> <span class="nt">-connect</span> &lt;IP address&gt;:imaps <span class="c"># IMAP</span>
 
-<span class="c"># password spraying with hydra on POP3</span>
+<span class="c"># Password spraying with hydra on POP3:</span>
 hydra <span class="nt">-L</span> &lt;user file list&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">-f</span> &lt;IP address&gt; pop3
 </code></pre></div>
 
-<h2>references</h2>
+<h2>References</h2>
 
 <ul>
 <li><a href="https://nickb.dev/blog/introduction-to-imap/" rel="nofollow">https://nickb.dev/blog/introduction-to-imap/</a></li>
