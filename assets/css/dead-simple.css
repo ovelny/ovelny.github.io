@@ -188,6 +188,7 @@ transform: translateX(calc(-50% - 0.5px));
 box-shadow: 0 0 0 3px #666666;
 margin-bottom: 20px;
 margin-top: 20px;
+max-width: 50rem;
 }
 
 @media screen and (max-width: 800px) {
