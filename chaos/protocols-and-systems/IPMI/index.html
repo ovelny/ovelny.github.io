@@ -50,32 +50,32 @@
     
     <h1>IPMI</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
-<li>Intelligent Platform Management Interface</li>
-<li>made by intel</li>
-<li>uses port UDP 623</li>
-<li>allow for remote management and monitoring of computer systems, also used for remote upgrades</li>
-<li>autonomous subsystem that doesn&#39;t depend on any BIOS, CPU, OS or firmware</li>
-<li>works even if a system is powered off or unresponsive!</li>
-<li>has a direct network connection to the system&#39;s hardware, requiring no access to the OS</li>
-<li>can monitor voltages, fan speeds, etc</li>
-<li><p>can send alerts via SNMP</p></li>
-<li><p>requires several components to work:</p>
+<li>Intelligent Platform Management Interface.</li>
+<li>Made by intel.</li>
+<li>Uses port UDP 623.</li>
+<li>Allow for remote management and monitoring of computer systems, also used for remote upgrades.</li>
+<li>Autonomous subsystem that doesn&#39;t depend on any BIOS, CPU, OS or firmware.</li>
+<li>Works even if a system is powered off or unresponsive!</li>
+<li>Has a direct network connection to the system&#39;s hardware, requiring no access to the OS.</li>
+<li>Can monitor voltages, fan speeds, etc.</li>
+<li><p>Can send alerts via SNMP.</p></li>
+<li><p>Requires several components to work:</p>
 
 <ul>
-<li>Baseboard Management Controller (BMC)</li>
-<li>Intelligent Chassis Management Bus (ICMB)</li>
-<li>Intelligent Platform Management Bus (IPMB)</li>
-<li>IPMI Memory</li>
-<li>Communications Interfaces</li>
+<li>Baseboard Management Controller (BMC).</li>
+<li>Intelligent Chassis Management Bus (ICMB).</li>
+<li>Intelligent Platform Management Bus (IPMB).</li>
+<li>IPMI Memory.</li>
+<li>Communications Interfaces.</li>
 </ul></li>
 </ul>
 
-<h2>insecure configuration</h2>
+<h2>Insecure configuration</h2>
 
-<p>it&#39;s possible to find BMCs where the administrators have not changed the default credentials:</p>
+<p>It&#39;s possible to find BMCs where the administrators have not changed the default credentials:</p>
 
 <ul>
 <li>Dell iDRAC: <code>root:calvin</code></li>
@@ -83,20 +83,20 @@
 <li>Supermicro IPMI: <code>ADMIN:ADMIN</code></li>
 </ul>
 
-<p>during the authentication process, the server sends either a salted SHA1 or MD5 hash of the user&#39;s password. this step can be exploited to extract all password hashes for all user accounts on the BMC. we can then crack those hashes with <code>hashcat</code> in mode <code>7300</code>.</p>
+<p>During the authentication process, the server sends either a salted SHA1 or MD5 hash of the user&#39;s password. This step can be exploited to extract all password hashes for all user accounts on the BMC. We can then crack those hashes with <code>hashcat</code> in mode <code>7300</code>.</p>
 
-<p>to find the factory password of the HP iLO, we can also use this hashcat mask: <code>hashcat -m 7300 ipmi.txt -a 3 ?1?1?1?1?1?1?1?1 -1 ?d?u</code></p>
+<p>To find the factory password of the HP iLO, we can also use this hashcat mask: <code>hashcat -m 7300 ipmi.txt -a 3 ?1?1?1?1?1?1?1?1 -1 ?d?u</code></p>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># get ipmi version with nmap</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Get IPMI version with nmap:</span>
 <span class="nb">sudo </span>nmap <span class="nt">-sU</span> <span class="nt">-p</span> 623 <span class="nt">--script</span> ipmi-version &lt;IP address&gt;
 
-<span class="c"># dump all ipmi hashes with this metasploit module</span>
+<span class="c"># Dump all IPMI hashes with this metasploit module:</span>
 use auxiliary/scanner/ipmi/ipmi_dumphashes
 </code></pre></div>
 
-<h2>references</h2>
+<h2>References</h2>
 
 <ul>
 <li><a href="http://fish2.com/ipmi/remote-pw-cracking.html" rel="nofollow">http://fish2.com/ipmi/remote-pw-cracking.html</a></li>
