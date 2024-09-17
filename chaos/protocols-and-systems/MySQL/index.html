@@ -50,104 +50,104 @@
     
     <h1>MySQL</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
-<li>open-source SQL relational database management system (RDBMS)</li>
-<li>use port TCP 3306</li>
-<li>supported by oracle</li>
-<li>client-server principle: a MySQL server able to talk to one or many MySQL clients</li>
-<li>databases are stored in <code>.sql</code> files</li>
-<li>suited for dynamic websites</li>
-<li>often combined with linux, apache, php (LAMP), or with nginx instead of apache (LEMP)</li>
-<li>MariaDB is a fork of MySQL, developed after oracle acquired MySQL</li>
+<li>Open-source SQL Relational Database Management System (RDBMS).</li>
+<li>Use port TCP 3306.</li>
+<li>Supported by oracle.</li>
+<li>Client-server principle: a MySQL server able to talk to one or many MySQL clients.</li>
+<li>Databases are stored in <code>.sql</code> files.</li>
+<li>Suited for dynamic websites.</li>
+<li>Often combined with Linux, Apache, PHP (LAMP), or with nginx instead of Apache (LEMP).</li>
+<li>MariaDB is a fork of MySQL, developed after Oracle acquired MySQL.</li>
 </ul>
 
-<h2>default system databases</h2>
+<h2>Default system databases</h2>
 
 <table><thead>
 <tr>
-<th>default system database</th>
-<th>description</th>
+<th>Default system database</th>
+<th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
 <td>mysql</td>
-<td>system database storing information for mysql server</td>
+<td>System database storing information for mysql server.</td>
 </tr>
 <tr>
 <td>information_schema</td>
-<td>provide access to database metadata</td>
+<td>Provide access to database metadata.</td>
 </tr>
 <tr>
 <td>performance_schema</td>
-<td>monitor mysql server execution at a low level</td>
+<td>Monitor mysql server execution at a low level.</td>
 </tr>
 <tr>
 <td>sys</td>
-<td>set of objects to interpret data from performance_schema</td>
+<td>Set of objects to interpret data from performance_schema.</td>
 </tr>
 </tbody></table>
 
-<h2>insecure configuration</h2>
+<h2>Insecure configuration</h2>
 
-<p>configuration can often be found in <code>/etc/mysql/mysql.conf.d/mysqld.conf</code>. many things can go wrong and end up misconfigured, but the main settings to look for from a security standpoint are <code>user</code>, <code>password</code>, <code>admin_address</code>, <code>debug</code>, <code>sql_warnings</code> and <code>secure_file_priv</code>.</p>
+<p>Configuration can often be found in <code>/etc/mysql/mysql.conf.d/mysqld.conf</code>. Many things can go wrong and end up misconfigured, but the main settings to look for from a security standpoint are <code>user</code>, <code>password</code>, <code>admin_address</code>, <code>debug</code>, <code>sql_warnings</code> and <code>secure_file_priv</code>.</p>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
 <table><thead>
 <tr>
 <th>MySQL command</th>
-<th>description</th>
+<th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
 <td><code>mysql -u &lt;user&gt; -p&lt;password&gt; -h &lt;IP address&gt;</code></td>
-<td>connect to MySQL server</td>
+<td>Connect to MySQL server.</td>
 </tr>
 <tr>
 <td><code>show databases;</code></td>
-<td>show all databases</td>
+<td>Show all databases.</td>
 </tr>
 <tr>
 <td><code>use &lt;database&gt;;</code></td>
-<td>select a database</td>
+<td>Select a database.</td>
 </tr>
 <tr>
 <td><code>show tables;</code></td>
-<td>show all tables in the database</td>
+<td>Show all tables in the database.</td>
 </tr>
 <tr>
 <td><code>show columns from &lt;table&gt;;</code></td>
-<td>show all columns in the database</td>
+<td>Show all columns in the database.</td>
 </tr>
 <tr>
 <td><code>select * from &lt;table&gt;;</code></td>
-<td>show everything in the table</td>
+<td>Show everything in the table.</td>
 </tr>
 <tr>
 <td><code>select * from &lt;table&gt; where &lt;col&gt; = &quot;&lt;string&gt;&quot;;</code></td>
-<td>search for string in table</td>
+<td>Search for string in table.</td>
 </tr>
 <tr>
 <td><code>quit</code></td>
-<td>exit MySQL</td>
+<td>Exit MySQL.</td>
 </tr>
 <tr>
 <td><code>show variables like &quot;secure_file_priv&quot;;</code></td>
-<td>check FILE privilege</td>
+<td>Check FILE privilege.</td>
 </tr>
 <tr>
 <td><code>select &quot;&lt;webshell&gt;&quot; into outfile &lt;path&gt;</code></td>
-<td>add a new file as webshell</td>
+<td>Add a new file as webshell.</td>
 </tr>
 <tr>
 <td><code>select LOAD_FILE(&quot;&lt;file path&gt;&quot;)</code></td>
-<td>read local file</td>
+<td>Read local file.</td>
 </tr>
 </tbody></table>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># scan the mysql server</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Scan the MySQL server:</span>
 <span class="nb">sudo </span>nmap <span class="nt">-sV</span> <span class="nt">-sC</span> <span class="nt">-p</span> 3306 <span class="nt">--script</span> mysql<span class="k">*</span> &lt;IP address&gt;
 </code></pre></div>
 
