@@ -50,49 +50,49 @@
     
     <h1>NFS</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
-<li>same purpose as SMB: sharing files as if they were local</li>
-<li>used between unix systems</li>
-<li>NFS (Network File System) is a different protocol, so it cannot communicate directly with SMB</li>
-<li>main version range from <code>NFSv2</code> to <code>NFSv4</code>. the latter includes kerberos, works through firewalls and improves many things</li>
-<li>port used is TCP + UDP 111 for versions below <code>NFSv4</code></li>
-<li>port used for <code>NFSv4</code> is TCP or UDP port 2049</li>
-<li>based on the Open Network Computing Remote Procedure Call (ONC-RPC/SUN-RPC)</li>
-<li>no suppport for authentication: it is only handled by the RPC protocol</li>
-<li>authorization is derived from local file system info</li>
+<li>Same purpose as SMB: sharing files as if they were local.</li>
+<li>Used between Unix systems.</li>
+<li>NFS (Network File System) is a different protocol, so it cannot communicate directly with SMB.</li>
+<li>Main version range from <code>NFSv2</code> to <code>NFSv4</code>. The latter includes Kerberos, works through firewalls and improves many things.</li>
+<li>Port used is TCP + UDP 111 for versions below <code>NFSv4</code>.</li>
+<li>Port used for <code>NFSv4</code> is TCP or UDP port 2049.</li>
+<li>Based on the Open Network Computing Remote Procedure Call (ONC-RPC/SUN-RPC).</li>
+<li>No suppport for authentication: it is only handled by the RPC protocol.</li>
+<li>Authorization is derived from local file system info.</li>
 </ul>
 
-<p>because it often uses unix UID/GID and groups for authentication, if you can mount a NFS share on your system, you can replicate those settings on your local machine to read and write the distant files.</p>
+<p>Because it often uses Unix UID/GID and groups for authentication, if you can mount a NFS share on your system, you can replicate those settings on your local machine to read and write the distant files.</p>
 
-<p>it can also allow further escalation if you create a script on it with the SUID of an user, script that would spawn a shell as said user.</p>
+<p>It can also allow further escalation if you create a script on it with the SUID of an user, script that would spawn a shell as said user.</p>
 
-<h2>insecure configuration</h2>
+<h2>Insecure configuration</h2>
 
-<p>NFS is way easier to configure than SMB. the configuration can be found in <code>/etc/exports</code> and contains the table of filesystems accessible to the clients. there are however dangerous settings still:</p>
+<p>NFS is way easier to configure than SMB. The configuration can be found in <code>/etc/exports</code> and contains the table of filesystems accessible to the clients. There are however dangerous settings still:</p>
 
 <ul>
-<li><code>rw</code> for read and write permissions</li>
-<li><code>insecure</code> which will allow to use ports above 1024 (non-root ones)</li>
-<li><code>nohide</code> which exports a child directory automatically if it is mounted on an exported parent </li>
-<li><code>no_root_squash</code> which keeps files created by root with UID/GID 0</li>
+<li><code>rw</code> for read and write permissions.</li>
+<li><code>insecure</code> which will allow to use ports above 1024 (non-root ones).</li>
+<li><code>nohide</code> which exports a child directory automatically if it is mounted on an exported parent.</li>
+<li><code>no_root_squash</code> which keeps files created by root with UID/GID 0.</li>
 </ul>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># enumerating contents and stats of the share</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Enumerating contents and stats of the share:</span>
 <span class="nb">sudo </span>nmap <span class="nt">--script</span> nfs<span class="k">*</span> &lt;IP address&gt; <span class="nt">-sV</span> <span class="nt">-p111</span>,2049
 
-<span class="c"># show available NFS shares</span>
+<span class="c"># Show available NFS shares:</span>
 showmount <span class="nt">-e</span> &lt;IP address&gt;
 
-<span class="c"># mounting a NFS share</span>
+<span class="c"># Mounting a NFS share:</span>
 <span class="nb">mkdir </span>tmpdir
 <span class="nb">sudo </span>mount <span class="nt">-t</span> nfs &lt;IP address&gt;:/ ./tmpdir/ <span class="nt">-o</span> nolock
 <span class="nb">cd </span>tmpdir
 
-<span class="c"># unmount the share</span>
+<span class="c"># Unmount the share:</span>
 <span class="nb">sudo </span>umount ./tmpdir
 </code></pre></div>
 
