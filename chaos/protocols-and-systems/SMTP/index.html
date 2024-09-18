@@ -50,125 +50,125 @@
     
     <h1>SMTP</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
-<li>Simple Mail Transfert Protocol (SMTP)</li>
-<li>protocol for sending emails in an IP network</li>
-<li>can be used between an email client and a mail server</li>
-<li>can be used between two SMTP servers</li>
-<li>combined with IMAP or POP3 protocols for fetching and sending emails</li>
-<li>uses port 25, newer SMTP servers also use other ports like TCP 587</li>
-<li>for encrypted connection, another port can be used like TCP 465</li>
-<li>those ports are used to receive mail from auhenticated clients</li>
-<li>switches to an encrypted connection with STARTTLS</li>
-<li>clients authenticate with user name and password</li>
-<li><p>authentication is handled with the protocol extension ESMTP + SMTP-Auth</p></li>
-<li><p>once the email is transmitted:</p>
+<li>Simple Mail Transfert Protocol (SMTP).</li>
+<li>Protocol for sending emails in an IP network.</li>
+<li>Can be used between an email client and a mail server.</li>
+<li>Can be used between two SMTP servers.</li>
+<li>Combined with IMAP or POP3 protocols for fetching and sending emails.</li>
+<li>Uses port 25, newer SMTP servers also use other ports like TCP 587.</li>
+<li>For encrypted connection, another port can be used like TCP 465.</li>
+<li>Those ports are used to receive mail from auhenticated clients.</li>
+<li>Switches to an encrypted connection with STARTTLS.</li>
+<li>Clients authenticate with user name and password.</li>
+<li><p>Authentication is handled with the protocol extension ESMTP + SMTP-Auth.</p></li>
+<li><p>Once the email is transmitted:</p>
 
 <ul>
-<li>the connection is terminated</li>
-<li>the email server sends the email to another SMTP server</li>
+<li>The connection is terminated.</li>
+<li>The email server sends the email to another SMTP server.</li>
 </ul></li>
 </ul>
 
-<h2>path of an email</h2>
+<h2>Path of an email</h2>
 
-<p>from beginning to end, an email is sent with the following steps:</p>
+<p>From beginning to end, an email is sent with the following steps:</p>
 
 <ul>
 <li><p>SMTP client (aka Mail User Agent, MUA):</p>
 
 <ul>
-<li>converts the email into a header and a body</li>
-<li>sends both parts to the SMTP server</li>
+<li>Converts the email into a header and a body.</li>
+<li>Sends both parts to the SMTP server.</li>
 </ul></li>
-<li><p>relay server (aka Mail Submission Agent, MSA):</p>
+<li><p>Relay server (aka Mail Submission Agent, MSA):</p>
 
 <ul>
-<li>checks the validity of an email through its origin</li>
-<li>is optional and meant to help the next agent (MTA)</li>
+<li>Checks the validity of an email through its origin.</li>
+<li>Is optional and meant to help the next agent (MTA).</li>
 </ul></li>
 <li><p>SMTP server (aka Mail Transfert Agent, MTA):</p>
 
 <ul>
-<li>checks the email for size and spam</li>
-<li>stores the email</li>
-<li>searches the IP address of the recipient mail server with DNS</li>
+<li>Checks the email for size and spam.</li>
+<li>Stores the email.</li>
+<li>Searches the IP address of the recipient mail server with DNS.</li>
 </ul></li>
-<li><p>recipient SMTP server (aka Mail Delivery Agent, MDA):</p>
+<li><p>Recipient SMTP server (aka Mail Delivery Agent, MDA):</p>
 
 <ul>
-<li>receives and reassembles the data packets to form a complete a email</li>
-<li>transfers the email to the recipient&#39;s mailbox (POP3 / IMAP)</li>
+<li>Receives and reassembles the data packets to form a complete a email.</li>
+<li>Transfers the email to the recipient&#39;s mailbox (POP3 / IMAP).</li>
 </ul></li>
 </ul>
 
-<h2>open relay attack</h2>
+<h2>Open relay attack</h2>
 
-<p>because users are not authenticated when the connection is first established, the sender of an email cannot be trusted. an open SMTP relay can be used to send spam, and the bad actors can use fake sender addresses to avoid being traced.</p>
+<p>Because users are not authenticated when the connection is first established, the sender of an email cannot be trusted. An open SMTP relay can be used to send spam, and the bad actors can use fake sender addresses to avoid being traced.</p>
 
-<p>this is prevented by DomainKeys (DKIM) and the Sender Policy Framework (SPF), which reject or move suspicious emails to the spam folder. ESMTP is also used to create an SSL-protected, and therefore encrypted, SMTP connection.</p>
+<p>This is prevented by DomainKeys (DKIM) and the Sender Policy Framework (SPF), which reject or move suspicious emails to the spam folder. ESMTP is also used to create an SSL-protected, and therefore encrypted, SMTP connection.</p>
 
 <h2>SMTP commands</h2>
 
-<p>we can interact with an SMTP server with <code>telnet</code>, which initiates a TCP connection:</p>
+<p>We can interact with an SMTP server with <code>telnet</code>, which initiates a TCP connection:</p>
 
 <table><thead>
 <tr>
-<th>command</th>
-<th>description</th>
+<th>Command</th>
+<th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
 <td>AUTH PLAIN</td>
-<td>used with ESMTP to authenticate the client</td>
+<td>Used with ESMTP to authenticate the client.</td>
 </tr>
 <tr>
 <td>HELO</td>
-<td>log with your computer name to start the session</td>
+<td>Log with your computer name to start the session.</td>
 </tr>
 <tr>
 <td>EHLO</td>
-<td>same as HELO but for ESMTP</td>
+<td>Same as HELO but for ESMTP.</td>
 </tr>
 <tr>
 <td>MAIL FROM</td>
-<td>specify the email sender</td>
+<td>Specify the email sender.</td>
 </tr>
 <tr>
 <td>RCPT TO</td>
-<td>specify the email recipient</td>
+<td>Specify the email recipient.</td>
 </tr>
 <tr>
 <td>DATA</td>
-<td>initiate email transmission</td>
+<td>Initiate email transmission.</td>
 </tr>
 <tr>
 <td>RSET</td>
-<td>abort the transmission, but stay connected to server</td>
+<td>Abort the transmission, but stay connected to server.</td>
 </tr>
 <tr>
 <td>VRFY </td>
-<td>check if a mailbox is available to transfer emails</td>
+<td>Check if a mailbox is available to transfer emails.</td>
 </tr>
 <tr>
 <td>EXPN</td>
-<td>check for membership of a mailing list</td>
+<td>Check for membership of a mailing list.</td>
 </tr>
 <tr>
 <td>NOOP</td>
-<td>&quot;ping&quot; the server to prevent time-out and disconnection</td>
+<td>&quot;Ping&quot; the server to prevent time-out and disconnection.</td>
 </tr>
 <tr>
 <td>QUIT</td>
-<td>quit the session</td>
+<td>Quit the session.</td>
 </tr>
 </tbody></table>
 
-<p>there is also <code>CONNECT &lt;IP address&gt;:25 HTTP/1.0</code> to connect to the SMTP server through a web proxy.</p>
+<p>There is also <code>CONNECT &lt;IP address&gt;:25 HTTP/1.0</code> to connect to the SMTP server through a web proxy.</p>
 
-<p>when using the <code>DATA</code> command, you have to format your email with the usual headers:</p>
+<p>When using the <code>DATA</code> command, you have to format your email with the usual headers:</p>
 
 <ul>
 <li><code>From: &lt;your-address@here.com&gt;</code></li>
@@ -178,31 +178,31 @@
 <li>etc</li>
 </ul>
 
-<h2>insecure configuration</h2>
+<h2>Insecure configuration</h2>
 
-<p>the main misconfiguration with SMTP servers is to allow all IP addresses, and therefore trust everything to avoid losing emails from potential customers. this allows for the SMTP server to send fake emails, spoof emails and read them.</p>
+<p>The main misconfiguration with SMTP servers is to allow all IP addresses, and therefore trust everything to avoid losing emails from potential customers. This allows for the SMTP server to send fake emails, spoof emails and read them.</p>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># bash + telnet user enumeration, adjust sleep time depending on server</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Bash + telnet user enumeration, adjust sleep time depending on server:</span>
 <span class="nb">cat</span> &lt;wordlist&gt; | <span class="k">while </span><span class="nb">read </span>username<span class="p">;</span> <span class="k">do</span> <span class="o">{</span> <span class="nb">echo</span> <span class="s2">"VRFY </span><span class="nv">$username</span><span class="s2">"</span><span class="p">;</span> <span class="nb">sleep </span>15s <span class="o">}</span> | telnet &lt;IP address&gt; &lt;port&gt; 2&gt;/dev/null | <span class="nb">grep</span> <span class="s2">"252"</span><span class="p">;</span> <span class="k">done</span>
 
-<span class="c"># enumerate with smtp-user-enum</span>
+<span class="c"># Enumerate with smtp-user-enum:</span>
 smtp-user-enum <span class="nt">-M</span> &lt;VRFY|RCPT|EXPN&gt; <span class="nt">-U</span> &lt;user list file&gt; <span class="nt">-D</span> &lt;domain name&gt; <span class="nt">-t</span> &lt;IP address&gt;
 
-<span class="c"># check if SMTP server is an open relay</span>
+<span class="c"># Check if SMTP server is an open relay:</span>
 nmap <span class="nt">-p25</span> <span class="nt">-Pn</span> <span class="nt">--script</span> smtp-open-relay &lt;IP address&gt;
 
-<span class="c"># send email with swaks through open relay</span>
+<span class="c"># Send email with swaks through open relay:</span>
 swaks <span class="nt">--from</span> &lt;email address&gt; <span class="nt">--to</span> &lt;email address&gt; <span class="nt">--header</span> <span class="s1">'Subject: &lt;subject&gt;'</span> <span class="nt">--body</span> <span class="s1">'&lt;message&gt;'</span> <span class="nt">--server</span> &lt;IP address&gt;
 
-<span class="c"># enumerate office 365 mail service with o365spray:</span>
-<span class="c"># check if target domain uses office 365</span>
+<span class="c"># Enumerate office 365 mail service with o365spray.</span>
+<span class="c"># Check if target domain uses office 365:</span>
 python3 o365spray.py <span class="nt">--validate</span> <span class="nt">--domain</span> &lt;domain name&gt;
-<span class="c"># enumerate users</span>
+<span class="c"># Enumerate users:</span>
 python3 o365spray.py <span class="nt">--enum</span> <span class="nt">-U</span> &lt;user list file&gt; <span class="nt">--domain</span> &lt;domain name&gt;
 
-<span class="c"># password spraying with o365spray</span>
+<span class="c"># Password spraying with o365spray:</span>
 python3 o365spray.py <span class="nt">--spray</span> <span class="nt">-U</span> &lt;user list file&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">--count</span> 1 <span class="nt">--lockout</span> 1 <span class="nt">--domain</span> &lt;domain name&gt;
 </code></pre></div>
 
