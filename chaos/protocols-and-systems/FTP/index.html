@@ -122,6 +122,9 @@
 <h2>Additional commands</h2>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># Download all available files from remote host:</span>
+wget <span class="nt">-r</span> ftp://anonymous:anonymous@&lt;IP address&gt;/
+
+<span class="c"># If previous command didn't work, try:</span>
 wget <span class="nt">-m</span> <span class="nt">--no-passive</span> ftp://anonymous:anonymous@&lt;IP address&gt;
 
 <span class="c"># Connect directly with openssl an see SSL certificate:</span>
