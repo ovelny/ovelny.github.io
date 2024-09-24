@@ -599,9 +599,9 @@ docker load &lt; /tmp/nanoc.tar.gz
 </tr>
 <tr>
 <td><code>/home/ovelny/Pictures</code></td>
-<td><strong>trusted</strong></td>
+<td>trusted</td>
 <td>default</td>
-<td>no</td>
+<td><strong>no</strong></td>
 </tr>
 <tr>
 <td><code>/home/ovelny/bin</code></td>
@@ -612,20 +612,46 @@ docker load &lt; /tmp/nanoc.tar.gz
 <tr>
 <td><code>/home/ovelny/.config/unity3d/Freehold Games/CavesOfQud/Synced</code></td>
 <td><strong>untrusted</strong></td>
-<td>caves-of-qud</td>
-<td>no</td>
+<td><strong>caves-of-qud</strong></td>
+<td><strong>no</strong></td>
+</tr>
+<tr>
+<td><code>/home/ovelny/flashcards</code></td>
+<td><strong>untrusted</strong></td>
+<td>default</td>
+<td><strong>no</strong></td>
+</tr>
+<tr>
+<td><code>/home/ovelny/.local/share/khal</code></td>
+<td><strong>untrusted</strong></td>
+<td><strong>khal</strong></td>
+<td><strong>no</strong></td>
+</tr>
+<tr>
+<td><code>/home/ovelny/livecoding</code></td>
+<td><strong>untrusted</strong></td>
+<td>default</td>
+<td><strong>no</strong></td>
+</tr>
+<tr>
+<td><code>/home/ovelny/Music/essentials</code></td>
+<td>trusted</td>
+<td><strong>music-essentials</strong></td>
+<td><strong>no</strong></td>
+</tr>
+<tr>
+<td><code>/home/ovelny/ovelwiki</code></td>
+<td><strong>untrusted</strong></td>
+<td>default</td>
+<td><strong>no</strong></td>
+</tr>
+<tr>
+<td><code>/home/ovelny/sync</code></td>
+<td>trusted</td>
+<td>default</td>
+<td>yes</td>
 </tr>
 </tbody></table>
-
-<ul>
-<li><code>/home/ovelny/.config/unity3d/Freehold Games/CavesOfQud/Synced</code> (with phone set as <strong>untrusted</strong> device, optional, with label &#39;caves-of-qud&#39;)</li>
-<li><code>/home/ovelny/.local/share/khal</code> (with phone set as <strong>untrusted</strong> device, with label &#39;khal&#39;)</li>
-<li><code>/home/ovelny/flashcards</code> (with phone set as <strong>untrusted</strong> device)</li>
-<li><code>/home/ovelny/Music/essentials</code> (with phone set as <strong>trusted</strong> device with label &#39;music-essentials&#39;, directory is currently symlinked to 2nd HDD)</li>
-<li><code>/home/ovelny/ovelwiki</code> (with phone set as <strong>untrusted</strong> device)</li>
-<li><code>/home/ovelny/livecoding</code> (with phone set as <strong>untrusted</strong> device)</li>
-<li><code>/home/ovelny/sync</code> (with phone set as <strong>trusted</strong> device, already done)</li>
-</ul>
 
 <p>for all directories, <strong>make sure to disable syncing permissions in advanced options</strong> and <strong>disable file versioning</strong>.</p>
 
