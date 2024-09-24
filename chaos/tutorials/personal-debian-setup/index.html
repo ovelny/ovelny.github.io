@@ -583,10 +583,41 @@ docker load &lt; /tmp/nanoc.tar.gz
 
 <p>the following directories should be synced with syncthing:</p>
 
+<table><thead>
+<tr>
+<th>directory</th>
+<th>phone trusted / untrusted?</th>
+<th>label</th>
+<th>already done?</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>/home/ovelny/.dotfiles</code></td>
+<td><strong>untrusted</strong></td>
+<td>default</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>/home/ovelny/Pictures</code></td>
+<td><strong>trusted</strong></td>
+<td>default</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>/home/ovelny/bin</code></td>
+<td><strong>untrusted</strong></td>
+<td>default</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>/home/ovelny/.config/unity3d/Freehold Games/CavesOfQud/Synced</code></td>
+<td><strong>untrusted</strong></td>
+<td>caves-of-qud</td>
+<td>no</td>
+</tr>
+</tbody></table>
+
 <ul>
-<li><code>/home/ovelny/.dotfiles</code> (with phone set as <strong>untrusted</strong> device, already done)</li>
-<li><code>/home/ovelny/Pictures</code> (with phone set as <strong>trusted</strong> device)</li>
-<li><code>/home/ovelny/bin</code> (with phone set as <strong>untrusted</strong> device, already done)</li>
 <li><code>/home/ovelny/.config/unity3d/Freehold Games/CavesOfQud/Synced</code> (with phone set as <strong>untrusted</strong> device, optional, with label &#39;caves-of-qud&#39;)</li>
 <li><code>/home/ovelny/.local/share/khal</code> (with phone set as <strong>untrusted</strong> device, with label &#39;khal&#39;)</li>
 <li><code>/home/ovelny/flashcards</code> (with phone set as <strong>untrusted</strong> device)</li>
