@@ -574,34 +574,40 @@ docker load &lt; /tmp/nanoc.tar.gz
 
 <h2>sync main directories with syncthing</h2>
 
-<p>the following directories should be synced with syncthing:</p>
+<p>I use syncthing in the following configuration:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>computer 1 &lt;-&gt; smartphone &lt;-&gt; computer 2
+</code></pre></div>
+
+<p>Computers, no matter their number, never talk directly between each other. Everything I sync goes through my smartphone, who acts as a hub.</p>
+
+<p>The following directories should be synced with syncthing:</p>
 
 <ul>
-<li><code>~/.dotfiles</code> (with phone set as <strong>untrusted</strong> device,already done)</li>
-<li><code>~/Pictures</code> (with phone set as <strong>trusted</strong> device)</li>
-<li><code>~/bin</code> (with phone set as <strong>untrusted</strong> device, already done)</li>
+<li><code>/home/ovelny/.dotfiles</code> (with phone set as <strong>untrusted</strong> device, already done)</li>
+<li><code>/home/ovelny/Pictures</code> (with phone set as <strong>trusted</strong> device)</li>
+<li><code>/home/ovelny/bin</code> (with phone set as <strong>untrusted</strong> device, already done)</li>
 <li><code>/home/ovelny/.config/unity3d/Freehold Games/CavesOfQud/Synced</code> (with phone set as <strong>untrusted</strong> device, optional, with label &#39;caves-of-qud&#39;)</li>
 <li><code>/home/ovelny/.local/share/khal</code> (with phone set as <strong>untrusted</strong> device, with label &#39;khal&#39;)</li>
-<li><code>~/flashcards</code> (with phone set as <strong>untrusted</strong> device)</li>
-<li><code>~/Music</code> (with phone set as <strong>trusted</strong> device, directory is symlinked to 2nd HDD)</li>
-<li><code>~/ovelwiki</code> (with phone set as <strong>untrusted</strong> device)</li>
-<li><code>~/livecoding</code> (with phone set as <strong>untrusted</strong> device)</li>
-<li><code>~/sync</code> (with phone set as <strong>trusted</strong> device, already done)</li>
+<li><code>/home/ovelny/flashcards</code> (with phone set as <strong>untrusted</strong> device)</li>
+<li><code>/home/ovelny/Music/essentials</code> (with phone set as <strong>trusted</strong> device with label &#39;music-essentials&#39;, directory is currently symlinked to 2nd HDD)</li>
+<li><code>/home/ovelny/ovelwiki</code> (with phone set as <strong>untrusted</strong> device)</li>
+<li><code>/home/ovelny/livecoding</code> (with phone set as <strong>untrusted</strong> device)</li>
+<li><code>/home/ovelny/sync</code> (with phone set as <strong>trusted</strong> device, already done)</li>
 </ul>
-
-<p>for those that are not synced already, the most pratical way is to delete the default directory if it already exists (like <code>~/Pictures</code>). That way you&#39;re sure you won&#39;t sync anything the other way around, from your new machine to the &quot;original&quot; device — a bit brutal but feels safer.</p>
 
 <p>for all directories, <strong>make sure to disable syncing permissions in advanced options</strong> and <strong>disable file versioning</strong>.</p>
 
-<p>a few words of advice for android use:</p>
+<p>for directories that are not already synced on the other end, delete the default directory if it already exists (like <code>~/Pictures</code>). that way you can be sure you won&#39;t sync anything the other way around, from <code>computer 2</code> to <code>computer 1</code> — it&#39;s a bit brutal but it feels safer. especially with an untrusted device holding encrypted data between two machines.</p>
+
+<p>a few words of advice with android use:</p>
 
 <ul>
 <li>pick the <code>syncthing-fork</code> app on f-droid.</li>
-<li>in settings -&gt; connections, set listening addresses to <code>quic://0.0.0.0:22000</code></li>
 <li>use the normal interface to watch for changes / sync and restart the service.</li>
 <li>use the web interface for everything else, especially configuration.</li>
-<li>local discovery is a mess with non-rooted android 11: give up on it. everything will most likely be done through relays.</li>
-<li>give up on the idea of syncing large files through android: been there, done that, it&#39;s just awful because of the previous reason.</li>
+<li>if you must sync large files, try to connect your machine and phone on the same local network and allow syncthing in ufw with <code>sudo ufw allow syncthing</code>. a direct QUIC connection between devices is immensely better.</li>
+<li>even simpler, use your <code>syncthingufw</code> script to automate the ufw rules above.</li>
 </ul>
 
 <h2>local SSH config</h2>
