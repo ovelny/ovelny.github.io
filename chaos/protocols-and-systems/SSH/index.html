@@ -51,106 +51,106 @@
     
     <h1>SSH</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
-<li>Secure Shell</li>
-<li>uses port TCP 22</li>
-<li>establishes an encrypted and direct connection between two computers</li>
-<li>secure even within an insecure network</li>
-<li>backbone of the entire world</li>
-<li>originally an unix application, but works everywhere</li>
-<li>SSH-1 is vulnerable to MITM attacks, SSH-2 is not</li>
-<li><p>can also transfer files or do port forwarding over SSH</p></li>
-<li><p>six different authentication methods:</p>
+<li>Secure Shell.</li>
+<li>Uses port TCP 22.</li>
+<li>Establishes an encrypted and direct connection between two computers.</li>
+<li>Secure even within an insecure network.</li>
+<li>Backbone of the entire world.</li>
+<li>Originally an unix application, but works everywhere.</li>
+<li>SSH-1 is vulnerable to MITM attacks, SSH-2 is not.</li>
+<li><p>Can also transfer files or do port forwarding over SSH.</p></li>
+<li><p>Six different authentication methods:</p>
 
 <ul>
-<li>password authentication</li>
-<li>public-key authentication (most common one)</li>
-<li>host-based authentication</li>
-<li>keyboard authentication</li>
-<li>challenge-response authentication</li>
-<li>GSSAPI authentication</li>
+<li>Password authentication.</li>
+<li>Public-key authentication (most common one).</li>
+<li>Host-based authentication.</li>
+<li>Keyboard authentication.</li>
+<li>Challenge-response authentication.</li>
+<li>GSSAPI authentication.</li>
 </ul></li>
 </ul>
 
-<h2>public key authentication</h2>
+<h2>Public key authentication</h2>
 
-<p>rough and simple summary of public key authentication.</p>
-
-<ul>
-<li><p>server sends a certificate to the client:</p>
+<p>Rough and simple summary of public key authentication.</p>
 
 <ul>
-<li>enables the client to know this is the correct and expected server</li>
-<li>certificate is encrypted so it cannot be imitated or tampered with</li>
+<li><p>Server sends a certificate to the client:</p>
+
+<ul>
+<li>Enables the client to know this is the correct and expected server.</li>
+<li>Certificate is encrypted so it cannot be imitated or tampered with.</li>
 </ul></li>
-<li><p>client proves to the server that it has access authorization:</p>
+<li><p>Client proves to the server that it has access authorization:</p>
 
 <ul>
-<li>SSH server has the public key of the client (can encrypt with it)</li>
-<li>the server sends a problem to the client to solve (decrypt) with its private key</li>
-<li>the private key is only stored on the client&#39;s machine, never anywhere else</li>
-<li>the client sends back the solution to prove that it can etablish a legitimate connection</li>
+<li>SSH server has the public key of the client (can encrypt with it).</li>
+<li>The server sends a problem to the client to solve (decrypt) with its private key.</li>
+<li>The private key is only stored on the client&#39;s machine, never anywhere else.</li>
+<li>The client sends back the solution to prove that it can etablish a legitimate connection.</li>
 </ul></li>
 </ul>
 
-<h2>insecure configuration</h2>
+<h2>Insecure configuration</h2>
 
-<p>the <code>sshd_config</code> can usually be found in <code>/etc/ssh/sshd_config</code>. while the SSH protocol is incredibly secure, there are a lot of misconfigurations that can make the SSH server vulnerable anyway:</p>
+<p>The <code>sshd_config</code> can usually be found in <code>/etc/ssh/sshd_config</code>. While the SSH protocol is incredibly secure, there are a lot of misconfigurations that can make the SSH server vulnerable anyway:</p>
 
 <table><thead>
 <tr>
-<th>setting</th>
-<th>description</th>
+<th>Setting</th>
+<th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
 <td><code>PasswordAuthentication yes</code></td>
-<td>allow password-based authentication</td>
+<td>Allow password-based authentication.</td>
 </tr>
 <tr>
 <td><code>PermitEmptyPasswords yes</code></td>
-<td>allow using empty passwords</td>
+<td>Allow using empty passwords.</td>
 </tr>
 <tr>
 <td><code>PermitRootLogin yes</code></td>
-<td>allow to log in as root user</td>
+<td>Allow to log in as root user.</td>
 </tr>
 <tr>
 <td><code>Protocol 1</code></td>
-<td>enable an outdated encryption version</td>
+<td>Enable an outdated encryption version.</td>
 </tr>
 <tr>
 <td><code>X11Forwarding yes</code></td>
-<td>allow X11 forwarding for GUI apps</td>
+<td>Allow X11 forwarding for GUI apps.</td>
 </tr>
 <tr>
 <td><code>AllowTcpForwarding yes</code></td>
-<td>allow forwarding TCP ports</td>
+<td>Allow forwarding TCP ports.</td>
 </tr>
 <tr>
 <td><code>PermitTunnel</code></td>
-<td>allow tunneling</td>
+<td>Allow tunneling.</td>
 </tr>
 <tr>
 <td><code>DebianBanner yes</code></td>
-<td>show a specific banner when logging in</td>
+<td>Show a specific banner when logging in.</td>
 </tr>
 </tbody></table>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># check client-side and server-side configuration with ssh-audit</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Check client-side and server-side configuration with ssh-audit:</span>
 ./ssh-audit.py &lt;IP address&gt;
 
-<span class="c"># list authentication methods...</span>
+<span class="c"># List authentication methods...</span>
 ssh <span class="nt">-v</span> &lt;user&gt;@&lt;IP address&gt;
 
-<span class="c"># ...then specify another authentication method</span>
+<span class="c"># ...Then specify another authentication method:</span>
 ssh <span class="nt">-v</span> &lt;user&gt;@&lt;IP address&gt; <span class="nt">-o</span> <span class="nv">PreferredAuthentications</span><span class="o">=</span>&lt;authentication method&gt;
 
-<span class="c"># execute a password attack with hydra</span>
+<span class="c"># Execute a password attack with hydra:</span>
 hydra <span class="nt">-V</span> <span class="nt">-L</span> &lt;username list&gt; <span class="nt">-P</span> &lt;password list&gt; ssh://&lt;IP address&gt;
 </code></pre></div>
 
