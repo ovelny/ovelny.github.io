@@ -51,89 +51,89 @@
     
     <h1>SNMP</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
-<li>Simple Network Management Protocol</li>
-<li>created originally to monitor network devices</li>
-<li>can be used to handle configuration tasks and change settings</li>
-<li>settings and configuration are handled remotely of course</li>
-<li>supported hardware includes routers, switches, servers, IoT devices, etc</li>
-<li>uses port UDP 161 and port UDP 162</li>
-<li>port UDP 162 is used for <code>traps</code>: unrequested messages sent from the SNMP server</li>
-<li><p>SNMP objects communicate by knowing the unique addresses of each other</p></li>
-<li><p>the Management Information Base (MIB):</p>
+<li>Simple Network Management Protocol.</li>
+<li>Created originally to monitor network devices.</li>
+<li>Can be used to handle configuration tasks and change settings.</li>
+<li>Settings and configuration are handled remotely of course.</li>
+<li>Supported hardware includes routers, switches, servers, IoT devices, etc.</li>
+<li>Uses port UDP 161 and port UDP 162.</li>
+<li>Port UDP 162 is used for <code>traps</code>: unrequested messages sent from the SNMP server.</li>
+<li><p>SNMP objects communicate by knowing the unique addresses of each other.</p></li>
+<li><p>The Management Information Base (MIB):</p>
 
 <ul>
-<li>stores device information</li>
-<li>text file with a tree hierarchy of all SNMP objects of a device</li>
-<li>written in Abstract Syntax Notation One (ASN.1)</li>
-<li>no data but shows how to find any type of info, data type, etc</li>
+<li>Stores device information.</li>
+<li>Text file with a tree hierarchy of all SNMP objects of a device.</li>
+<li>Written in Abstract Syntax Notation One (ASN.1).</li>
+<li>No data but shows how to find any type of info, data type, etc.</li>
 </ul></li>
-<li><p>the Object Identifier (OID):</p>
+<li><p>The Object Identifier (OID):</p>
 
 <ul>
-<li>address used to differentiate between devices in the MIB hierarchy</li>
-<li>refers to characteristics and permits to navigate through variables on the device</li>
-<li>represented with a string of numbers, like <code>1.3.6.1.4.868.2.4.1.2.1.1.1.3.3562.3</code></li>
+<li>Address used to differentiate between devices in the MIB hierarchy.</li>
+<li>Refers to characteristics and permits to navigate through variables on the device.</li>
+<li>Represented with a string of numbers, like <code>1.3.6.1.4.868.2.4.1.2.1.1.1.3.3562.3</code>.</li>
 </ul></li>
-<li><p>community strings:</p>
+<li><p>Community strings:</p>
 
 <ul>
-<li>act as passwords to determine if the requested info can be viewed or not</li>
-<li>sent unencrypted with SNMPv1 and SNMPv2</li>
+<li>Act as passwords to determine if the requested info can be viewed or not.</li>
+<li>Sent unencrypted with SNMPv1 and SNMPv2.</li>
 </ul></li>
 </ul>
 
-<h2>differences between versions</h2>
+<h2>Differences between versions</h2>
 
 <ul>
 <li><p>SNMPv1:</p>
 
 <ul>
-<li>first version but still in use in small networks</li>
-<li>no authentication needed: anyone in the network can use it</li>
-<li>no encryption, just plain text</li>
+<li>First version but still in use in small networks.</li>
+<li>No authentication needed: anyone in the network can use it.</li>
+<li>No encryption, just plain text.</li>
 </ul></li>
 <li><p>SNMPv2:</p>
 
 <ul>
-<li>many versions, main one being <code>v2c</code></li>
-<li>support for 64-bit systems</li>
+<li>Many versions, main one being <code>v2c</code>.</li>
+<li>Support for 64-bit systems.</li>
 </ul></li>
 <li><p>SNMPv3:</p>
 
 <ul>
-<li>finally some security features added</li>
-<li>authentication with username and password</li>
-<li>encryption of transmitted data with pre-shared key</li>
-<li>harder to configure</li>
+<li>Finally some security features added.</li>
+<li>Authentication with username and password.</li>
+<li>Encryption of transmitted data with pre-shared key.</li>
+<li>Harder to configure.</li>
 </ul></li>
 </ul>
 
-<h2>insecure configuration</h2>
+<h2>Insecure configuration</h2>
 
-<p>settings can usually be found in <code>cat /etc/snmp/snmpd.conf</code>.</p>
+<p>Settings can usually be found in <code>cat /etc/snmp/snmpd.conf</code>.</p>
 
 <ul>
-<li><code>rwuser noauth</code>: access the full OID tree without authentication</li>
-<li><code>rwcommunity &lt;community string&gt; &lt;IPv4 address&gt;</code>: acces the full OID tree no matter where the requests are from</li>
-<li><code>rwcommunity &lt;community string&gt; &lt;IPv6 address&gt;</code>: same for IPv6</li>
+<li><code>rwuser noauth</code>: access the full OID tree without authentication.</li>
+<li><code>rwcommunity &lt;community string&gt; &lt;IPv4 address&gt;</code>: access the full OID tree no matter where the requests are from.</li>
+<li><code>rwcommunity &lt;community string&gt; &lt;IPv6 address&gt;</code>: same for IPv6.</li>
 </ul>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># brute force community strings</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Brute force community strings:</span>
 onesixtyone <span class="nt">-c</span> /usr/share/seclists/Discovery/SNMP/snmp.txt &lt;IP address&gt;
 
-<span class="c"># query OIDs and get their info</span>
+<span class="c"># Query OIDs and get their info:</span>
 snmpwalk <span class="nt">-v2c</span> <span class="nt">-c</span> &lt;community string&gt; &lt;IP address&gt;
 
-<span class="c"># query OIDs with braa (mass scanner)</span>
+<span class="c"># Query OIDs with braa (mass scanner):</span>
 braa &lt;community string&gt;@&lt;IP address&gt;:&lt;.OID.glob.&gt;.<span class="k">*</span>
 </code></pre></div>
 
-<h2>references</h2>
+<h2>References</h2>
 
 <ul>
 <li><a href="https://www.comparitech.com/net-admin/snmp-mibs-oids-explained/#What_is_a_SNMP_OID" rel="nofollow">https://www.comparitech.com/net-admin/snmp-mibs-oids-explained/#What_is_a_SNMP_OID</a></li>
