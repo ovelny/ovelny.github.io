@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ovelny - chaos/protocols-and-systems/oracle-TNS</title>
+    <title>ovelny - chaos/protocols-and-systems/Oracle-TNS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
@@ -21,7 +21,7 @@
     <script src="/assets/js/zoom-images.min.js" defer></script>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:site" content="@ovelny"/>
-    <meta name="twitter:title" content="ovelny - chaos/protocols-and-systems/oracle-TNS"/>
+    <meta name="twitter:title" content="ovelny - chaos/protocols-and-systems/Oracle-TNS"/>
     <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
     <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
   </head>
@@ -49,48 +49,48 @@
     <main>
 
     
-    <h1>oracle TNS</h1>
+    <h1>Oracle TNS</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
-<li>oracle Transparent Network Substrate</li>
-<li>uses port TCP 1521</li>
-<li>communication protocol for oracle databases and applications over networks</li>
-<li>supports multiple networking protocols</li>
-<li>built-in encryption</li>
-<li>updated to support IPv6 and SSL/TLS encryption</li>
-<li>provides monitoring and analysis, error reporting, logging, workload management, etc</li>
-<li>often used with other oracle services and web servers</li>
+<li>Oracle Transparent Network Substrate.</li>
+<li>Uses port TCP 1521.</li>
+<li>Communication protocol for oracle databases and applications over networks.</li>
+<li>Supports multiple networking protocols.</li>
+<li>Built-in encryption.</li>
+<li>Updated to support IPv6 and SSL/TLS encryption.</li>
+<li>Provides monitoring and analysis, error reporting, logging, workload management, etc.</li>
+<li>Often used with other oracle services and web servers.</li>
 </ul>
 
-<h2>insecure configuration</h2>
+<h2>Insecure configuration</h2>
 
-<p>configuration can often be found in <code>$ORACLE_HOME/network/admin</code>, look for <code>tnsnames.ora</code> and <code>listener.ora</code> files. oracle 9 is known to have a default <code>CHANGE_ON_INSTALL</code> password, but oracle 10 doesn&#39;t have any. the DBSNMP service also has a default <code>dbsnmp</code> password.</p>
+<p>Configuration can often be found in <code>$ORACLE_HOME/network/admin</code>, look for <code>tnsnames.ora</code> and <code>listener.ora</code> files. Oracle 9 is known to have a default <code>CHANGE_ON_INSTALL</code> password, but Oracle 10 doesn&#39;t have any. The DBSNMP service also has a default <code>dbsnmp</code> password.</p>
 
-<p><code>tnsnames.ora</code> can provide details such as authentication info, load balancing and more. it is used to resolve service names to network adresses.</p>
+<p><code>tnsnames.ora</code> can provide details such as authentication info, load balancing and more. It is used to resolve service names to network adresses.</p>
 
 <p><code>listener.ora</code> is used to list the services it should listen to and the behavior of the listener.</p>
 
-<p>a PL/SQL exclusion list might also be present in <code>$ORACLE_HOME/sqldeveloper/</code> (<code>PlsqlExclusionList</code>). this list mentions packages and types that are excluded from execution. it effectively acts as a deny list.</p>
+<p>A PL/SQL exclusion list might also be present in <code>$ORACLE_HOME/sqldeveloper/</code> (<code>PlsqlExclusionList</code>). This list mentions packages and types that are excluded from execution. It effectively acts as a deny list.</p>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># bruteforce SIDs, which are identifiers for all instances of a database</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Bruteforce SIDs, which are identifiers for all instances of a database:</span>
 nmap <span class="nt">-sV</span> <span class="nt">-p</span> 1521 <span class="nt">--script</span> oracle-sid-brute &lt;IP address&gt;
 
-<span class="c"># enumerate all possible things with odat modules</span>
+<span class="c"># Enumerate all possible things with odat modules:</span>
 odat all <span class="nt">-s</span> &lt;IP address&gt;
 
-<span class="c"># connect to the oracle database with sqlplus</span>
-<span class="c"># in case of an error related to shared libraries,</span>
+<span class="c"># Connect to the oracle database with sqlplus.</span>
+<span class="c"># In case of an error related to shared libraries,</span>
 <span class="c"># apply the fix here: https://stackoverflow.com/q/27717312</span>
 sqlplus &lt;username&gt;/&lt;password&gt;@&lt;IP address&gt;/&lt;SID&gt;
 
-<span class="c"># login as system database admin (sysdba)</span>
+<span class="c"># Login as system database admin (sysdba):</span>
 sqlplus &lt;username&gt;/&lt;password&gt;@&lt;IP address&gt;/&lt;SID&gt; as sysdba
 
-<span class="c"># upload file to web server with odat</span>
+<span class="c"># Upload file to web server with odat:</span>
 odat utlfile <span class="nt">-s</span> &lt;IP address&gt; <span class="nt">-d</span> &lt;SID&gt; <span class="nt">-U</span> &lt;username&gt; <span class="nt">-P</span> &lt;password&gt; <span class="nt">--sysdba</span> <span class="nt">--putFile</span> C:<span class="se">\\</span>web<span class="se">\\</span>server<span class="se">\\</span>path text.txt ./text.txt
 </code></pre></div>
 
