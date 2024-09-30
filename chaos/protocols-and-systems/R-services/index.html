@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ovelny - chaos/protocols-and-systems/r-services</title>
+    <title>ovelny - chaos/protocols-and-systems/R-services</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
@@ -21,7 +21,7 @@
     <script src="/assets/js/zoom-images.min.js" defer></script>
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:site" content="@ovelny"/>
-    <meta name="twitter:title" content="ovelny - chaos/protocols-and-systems/r-services"/>
+    <meta name="twitter:title" content="ovelny - chaos/protocols-and-systems/R-services"/>
     <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
     <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
   </head>
@@ -49,71 +49,71 @@
     <main>
 
     
-    <h1>r-services</h1>
+    <h1>R-services</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
-<li>suite of services for remote access or commands</li>
-<li>used before the SSH protocol</li>
-<li>unencrypted format, making it vulnerable to MITM attacks</li>
-<li>use ports TCP 512, 513 and 514</li>
+<li>Suite of services for remote access or commands.</li>
+<li>Used before the SSH protocol.</li>
+<li>Unencrypted format, making it vulnerable to MITM attacks.</li>
+<li>Use ports TCP 512, 513 and 514.</li>
 </ul>
 
-<p>the r-commands suite has the following programs:</p>
+<p>The R-commands suite has the following programs:</p>
 
 <table><thead>
 <tr>
-<th>command</th>
-<th>description</th>
+<th>Command</th>
+<th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
 <td><code>rcp</code></td>
-<td>remote copy</td>
+<td>Remote copy.</td>
 </tr>
 <tr>
 <td><code>rexec</code></td>
-<td>remote execution</td>
+<td>Remote execution.</td>
 </tr>
 <tr>
 <td><code>rlogin</code></td>
-<td>remote login</td>
+<td>Remote login.</td>
 </tr>
 <tr>
 <td><code>rsh</code></td>
-<td>remote shell</td>
+<td>Remote shell.</td>
 </tr>
 <tr>
 <td><code>rstat</code></td>
-<td>remote stats</td>
+<td>Remote stats.</td>
 </tr>
 <tr>
 <td><code>ruptime</code></td>
-<td>remote uptime</td>
+<td>Remote uptime.</td>
 </tr>
 <tr>
 <td><code>rwho</code></td>
-<td>remote who</td>
+<td>Remote who.</td>
 </tr>
 </tbody></table>
 
-<h2>insecure configuration</h2>
+<h2>Insecure configuration</h2>
 
-<p>check the <code>/etc/hosts.equiv</code> and <code>~/.rhosts</code> files for a list of trusted hosts who are automatically granted access without authentication. these files use the <code>+</code> symbol as a wildcard to allow any external user and / or any host to execute r-commands.</p>
+<p>Check the <code>/etc/hosts.equiv</code> and <code>~/.rhosts</code> files for a list of trusted hosts who are automatically granted access without authentication. These files use the <code>+</code> symbol as a wildcard to allow any external user and / or any host to execute R-commands.</p>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># scan r-services ports with nmap</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Scan r-services ports with nmap:</span>
 nmap <span class="nt">-sV</span> <span class="nt">-p</span> 512,513,514 &lt;IP address&gt;
 
-<span class="c"># logging in with rlogin</span>
+<span class="c"># Logging in with rlogin:</span>
 rlogin &lt;IP address&gt; <span class="nt">-l</span> &lt;username&gt;
 
-<span class="c"># once logged in, list all interactive sessions</span>
+<span class="c"># Once logged in, list all interactive sessions:</span>
 rwho
 
-<span class="c"># list authenticated users</span>
+<span class="c"># List authenticated users:</span>
 rusers <span class="nt">-al</span> &lt;IP address&gt;
 </code></pre></div>
 
