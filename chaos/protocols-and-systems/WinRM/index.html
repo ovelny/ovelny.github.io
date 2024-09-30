@@ -51,27 +51,27 @@
     
     <h1>WinRM</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
-<li>Windows Remote Management</li>
-<li>command line based management protocol</li>
-<li>uses Simple Object Access Protocol (SDAP) to establish connections</li>
-<li>must be explicitely enabled and configured with windows 10</li>
-<li>uses port TCP 5985 (for HTTP) and 5986 (for HTTPS)</li>
-<li>uses Windows Remote Shell (WinRS) to execute commands on the remote system</li>
-<li>enabled by default starting with windows server 2012, must be configured for older server versions and clients</li>
+<li>Windows Remote Management.</li>
+<li>Command line based management protocol.</li>
+<li>Uses Simple Object Access Protocol (SDAP) to establish connections.</li>
+<li>Must be explicitely enabled and configured with windows 10.</li>
+<li>Uses port TCP 5985 (for HTTP) and 5986 (for HTTPS).</li>
+<li>Uses Windows Remote Shell (WinRS) to execute commands on the remote system.</li>
+<li>Enabled by default starting with windows server 2012, must be configured for older server versions and clients.</li>
 </ul>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># scan WinRM with nmap</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Scan WinRM with nmap:</span>
 nmap <span class="nt">-sV</span> <span class="nt">-sC</span> &lt;IP address&gt; <span class="nt">-p5985</span>,5986 <span class="nt">--disable-arp-ping</span> <span class="nt">-n</span>
 
-<span class="c"># connect with evil-winrm</span>
+<span class="c"># Connect with evil-winrm:</span>
 evil-winrm <span class="nt">-i</span> &lt;IP address&gt; <span class="nt">-u</span> &lt;username&gt; <span class="nt">-p</span> &lt;password&gt;
 
-<span class="c"># execute a password attack with crackmapexec</span>
+<span class="c"># Execute a password attack with crackmapexec:</span>
 cme winrm &lt;IP address&gt; <span class="nt">-u</span> &lt;username list&gt; <span class="nt">-p</span> &lt;password list&gt;
 </code></pre></div>
 
