@@ -49,30 +49,30 @@
     <main>
 
     
-    <h1>rsync</h1>
+    <h1>Rsync</h1>
 
-<h2>main points</h2>
+<h2>Main points</h2>
 
 <ul>
-<li>copy files locally and remotely</li>
-<li>has a delta-transfer algorithm: sends only the differences between two files if the destination already has a copy</li>
-<li>used for backups and mirroring</li>
-<li>uses port TCP 873</li>
-<li>can use SSH for secure file transfers</li>
+<li>Copy files locally and remotely.</li>
+<li>Has a delta-transfer algorithm: sends only the differences between two files if the destination already has a copy.</li>
+<li>Used for backups and mirroring.</li>
+<li>Uses port TCP 873.</li>
+<li>Can use SSH for secure file transfers.</li>
 </ul>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># scan for rsync with nmap</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Scan for rsync with nmap:</span>
 nmap <span class="nt">-sV</span> <span class="nt">-p</span> 873 &lt;IP address&gt;
 
-<span class="c"># probe for accessible shares</span>
-nc <span class="nt">-nv</span> &lt;IP address&gt; 873 <span class="c"># enter "list" once connected</span>
+<span class="c"># Probe for accessible shares:</span>
+nc <span class="nt">-nv</span> &lt;IP address&gt; 873 <span class="c"># Enter "list" once connected.</span>
 
-<span class="c"># enumerate an open share</span>
-rsync <span class="nt">-av</span> <span class="nt">--list-only</span> rsync://127.0.0.1/&lt;share name&gt; <span class="c"># remove --list-only to sync all files</span>
+<span class="c"># Enumerate an open share:</span>
+rsync <span class="nt">-av</span> <span class="nt">--list-only</span> rsync://127.0.0.1/&lt;share name&gt; <span class="c"># Remove --list-only to sync all files.</span>
 
-<span class="c"># sync all files over SSH</span>
+<span class="c"># Sync all files over SSH:</span>
 rsync <span class="nt">-av</span> <span class="nt">-e</span> <span class="s2">"ssh -p&lt;port&gt;"</span> rsync://127.0.0.1/&lt;share name&gt;
 </code></pre></div>
 
