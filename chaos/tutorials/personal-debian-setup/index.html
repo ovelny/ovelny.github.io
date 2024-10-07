@@ -1379,6 +1379,8 @@ DaemonPort = 6667
 
 <p>run <code>sudo systemctl enable bitlbee</code> and <code>sudo systemctl restart bitlbee</code>. the other plugins (discord, facebook) should already be installed from our packages list at the start of this document. run <code>irssi</code> and type <code>plugins</code> in bitlbee server window to ensure they&#39;ve been added.</p>
 
+<p>If your bitlbee account isn&#39;t set up yet, use <code>register &lt;password&gt;</code> to do so.</p>
+
 <p>To add your discord account:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># Add your account:</span>
@@ -1391,26 +1393,32 @@ account add eionrobb-discord &lt;email address&gt;
 <span class="c"># request header. Then, run the following in bitlbee server:</span>
 account eionrobb-discord <span class="nb">set </span>token &lt;token&gt;
 
-<span class="c"># Disable auto-connect and fetching unreads. Not doing this will</span>
+<span class="c"># Enable auto-connect and disable fetching unreads. Not doing this will</span>
 <span class="c"># trigger an instant (but temporary) ban from discord, bad idea </span>
 <span class="c"># to keep it active:</span>
-account eionrobb-discord <span class="nb">set </span>auto_connect <span class="nb">false
+account eionrobb-discord <span class="nb">set </span>auto_connect <span class="nb">true
 </span>account eionrobb-discord <span class="nb">set </span>fetch-unread-on-start <span class="nb">false</span>
 
 <span class="c"># Activate your account:</span>
 account eionrobb-discord on
 
-<span class="c"># List server channels to join:</span>
+<span class="c"># List server channels to join. Realistically though,</span>
+<span class="c"># the best option to add your channels is just to pick</span>
+<span class="c"># their IDs in the web UI (endpoint of the URL after</span>
+<span class="c"># clicking a channel).</span>
 chat list eionrobb-discord
 
 <span class="c"># Add a channel by ID and set a custom title:</span>
-chat add eionrobb-discord <span class="o">!</span>6 <span class="c">#safehaven</span>
+chat add eionrobb-discord &lt;channel ID&gt; <span class="c">#safehaven</span>
 
 <span class="c"># Save this channel for auto-join:</span>
 chan <span class="c">#safehaven set auto_join true</span>
 
 <span class="c"># Join channel:</span>
 /join <span class="c">#safehaven</span>
+
+<span class="c"># Save settings in bitlbee panel:</span>
+save
 </code></pre></div>
 
 <h2>install faereld (deprecated)</h2>
