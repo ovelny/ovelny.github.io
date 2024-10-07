@@ -1490,6 +1490,33 @@ qrencode <span class="nt">-t</span> ansiutf8 <span class="s1">'&lt;link&gt;'</sp
 <span class="c"># to see if it pops up in your IRC client.</span>
 </code></pre></div>
 
+<h3>Set up whatsapp in bitlbee</h3>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Install dependencies:</span>
+<span class="nb">sudo </span>apt <span class="nb">install </span>pidgin libopusfile-dev
+
+<span class="c"># Build plugin:</span>
+git clone https://github.com/hoehermann/purple-gowhatsapp.git
+<span class="nb">cd </span>purple-gowhatsapp
+git submodule update <span class="nt">--init</span>
+<span class="nb">mkdir </span>build
+<span class="nb">cd </span>build
+cmake ..
+cmake <span class="nt">--build</span> <span class="nb">.</span>
+<span class="nb">sudo </span>make <span class="nb">install</span>/strip
+
+<span class="c"># Add account with the following syntax:</span>
+account add hehoe-whatsmeow &lt;phone number <span class="k">in </span>internationalized number, without + sign&gt;@s.whatsapp.net
+
+<span class="c"># Enter the pairing code from your phone and</span>
+<span class="c"># confirm. chatrooms should appear in bitlbee.</span>
+<span class="c"># Then, finish setup:</span>
+account hehoe-whatsmeow off
+account hehoe-whatsmeow <span class="nb">set </span>autojoin-chats <span class="nb">true
+</span>account hehoe-whatsmeow <span class="nb">set </span>bridge-compatibility <span class="nb">true
+</span>account hehoe-whatsmeow on
+</code></pre></div>
+
 <h2>install faereld (deprecated)</h2>
 
 <p>faereld is a time tracking tool. to install it, clone and install the repo i forked to fix a numpy dependency version issue:</p>
