@@ -1401,21 +1401,24 @@ account eionrobb-discord <span class="nb">set </span>auto_connect <span class="n
 
 <span class="c"># Activate your account:</span>
 account eionrobb-discord on
+</code></pre></div>
 
-<span class="c"># List server channels to join. Realistically though,</span>
+<p><strong>The next commands are for reference only.</strong> To add discord channels, just make sure <code>~/.irssi/discord_channels</code> is present and run <code>/discord_update</code> in irssi. Script for this command is <code>~/.irssi/scripts/autorun/discord_update.pl</code>.</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># List server channels to join. Realistically though,</span>
 <span class="c"># the best option to add your channels is just to pick</span>
 <span class="c"># their IDs in the web UI (endpoint of the URL after</span>
 <span class="c"># clicking a channel).</span>
 chat list eionrobb-discord
 
 <span class="c"># Add a channel by ID and set a custom title:</span>
-chat add eionrobb-discord &lt;channel ID&gt; <span class="c">#safehaven</span>
+chat add eionrobb-discord &lt;channel ID&gt; <span class="se">\#</span>safehaven
 
 <span class="c"># Save this channel for auto-join:</span>
 chan <span class="c">#safehaven set auto_join true</span>
 
 <span class="c"># Join channel:</span>
-/join <span class="c">#safehaven</span>
+/join <span class="se">\#</span>safehaven
 
 <span class="c"># Save settings in bitlbee panel:</span>
 save
