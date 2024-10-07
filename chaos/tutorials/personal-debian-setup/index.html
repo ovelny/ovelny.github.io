@@ -1381,6 +1381,8 @@ DaemonPort = 6667
 
 <p>If your bitlbee account isn&#39;t set up yet, use <code>register &lt;password&gt;</code> to do so.</p>
 
+<h3>Set up discord in bitlbee</h3>
+
 <p>To add your discord account:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># Add your account:</span>
@@ -1401,6 +1403,9 @@ account eionrobb-discord <span class="nb">set </span>auto_connect <span class="n
 
 <span class="c"># Activate your account:</span>
 account eionrobb-discord on
+
+<span class="c"># Save settings in bitlbee panel:</span>
+save
 </code></pre></div>
 
 <p><strong>The next commands are for reference only.</strong> To add discord channels, just make sure <code>~/.irssi/discord_channels</code> is present and run <code>/discord_update</code> in irssi. Script for this command is <code>~/.irssi/scripts/autorun/discord_update.pl</code>.</p>
@@ -1421,6 +1426,28 @@ chan <span class="c">#safehaven set auto_join true</span>
 /join <span class="se">\#</span>safehaven
 
 <span class="c"># Save settings in bitlbee panel:</span>
+save
+</code></pre></div>
+
+<h3>Set up mastodon in bitlbee</h3>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Add your account handle:</span>
+account add mastodon @ovelny
+
+<span class="c"># Set default visibility to unlisted:</span>
+account mastodon <span class="nb">set </span>visibility unlisted
+
+<span class="c"># Add base URL:</span>
+account mastodon <span class="nb">set </span>base_url https://merveilles.town
+
+<span class="c"># Enable account:</span>
+account mastodon on
+
+<span class="c"># Add channel for local posts:</span>
+chat add mastodon <span class="nb">local</span> <span class="c">#merveilles.town_local</span>
+channel <span class="c">#merveilles.town_local set auto_join true</span>
+
+<span class="c"># Save settings:</span>
 save
 </code></pre></div>
 
