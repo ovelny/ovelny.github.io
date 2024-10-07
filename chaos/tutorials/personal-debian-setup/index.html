@@ -1451,6 +1451,45 @@ channel <span class="c">#merveilles.town_local set auto_join true</span>
 save
 </code></pre></div>
 
+<h3>Set up signal in bitlbee</h3>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Install required dependencies:</span>
+<span class="nb">sudo </span>apt <span class="nb">install </span>protobuf-compiler libpurple-dev libqrencode-dev
+
+<span class="c"># Build purple-presage:</span>
+git clone <span class="nt">--recurse-submodules</span> https://github.com/hoehermann/purple-presage
+<span class="nb">mkdir </span>purple-presage/build
+<span class="nb">cd </span>purple-presage/build
+cmake ..
+cmake <span class="nt">--build</span> <span class="nb">.</span>
+<span class="nb">sudo </span>cmake <span class="nt">--install</span> <span class="nb">.</span>
+
+<span class="c"># Find your signal account UUID. This is a</span>
+<span class="c"># weird process, but we have to first</span>
+<span class="c"># register a non-working account in bitlbee:</span>
+account add hehoe-presage ovelny
+account hehoe-presage on
+
+<span class="c"># Paste the link in the following command:</span>
+qrencode <span class="nt">-t</span> ansiutf8 <span class="s1">'&lt;link&gt;'</span>
+
+<span class="c"># Pair it by scanning the QR code on your phone.</span>
+<span class="c"># In bitlbee, setup will fail. Re-run the following:</span>
+account hehoe-presage on
+
+<span class="c"># And the error message will give you the UUID you</span>
+<span class="c"># need. Change your username with it:</span>
+account hehoe-presage <span class="nb">set </span>username &lt;UUID&gt;
+account hehoe-presage on
+
+<span class="c"># The link is now the right one. Recreate it with:</span>
+qrencode <span class="nt">-t</span> ansiutf8 <span class="s1">'&lt;link&gt;'</span>
+
+<span class="c"># And scan it with your phone. The account should</span>
+<span class="c"># now log in from bitlbee. Send yourself a message</span>
+<span class="c"># to see if it pops up in your IRC client.</span>
+</code></pre></div>
+
 <h2>install faereld (deprecated)</h2>
 
 <p>faereld is a time tracking tool. to install it, clone and install the repo i forked to fix a numpy dependency version issue:</p>
