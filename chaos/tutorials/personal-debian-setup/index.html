@@ -1379,7 +1379,7 @@ DaemonPort = 6667
 
 <p>run <code>sudo systemctl enable bitlbee</code> and <code>sudo systemctl restart bitlbee</code>. the other plugins (discord, facebook) should already be installed from our packages list at the start of this document. run <code>irssi</code> and type <code>plugins</code> in bitlbee server window to ensure they&#39;ve been added.</p>
 
-<p>If your bitlbee account isn&#39;t set up yet, use <code>register &lt;password&gt;</code> to do so.</p>
+<p>If your bitlbee account isn&#39;t set up yet, use <code>register &lt;password&gt;</code> to do so. Also run <code>channel &amp;bitlbee set show_users online+,special%,away,offline</code> and <code>save</code> to display all friends no matter their status. This is useful to rename them later on.</p>
 
 <h3>Set up discord in bitlbee</h3>
 
@@ -1521,7 +1521,7 @@ account hehoe-whatsmeow <span class="nb">set </span>autojoin-chats <span class="
 </span>account hehoe-whatsmeow on
 </code></pre></div>
 
-<p>For both whatsapp and signal, use <code>blist</code> and <code>rename &lt;old name&gt; &lt;new name&gt;</code> to convert phone numbers and UUIDs to recognizable nicknames.</p>
+<p>For both whatsapp and signal, use <code>blist</code> and <code>rename &lt;old name&gt; &lt;new name&gt;</code> to convert phone numbers and UUIDs to recognizable nicknames. This process is automated with <code>~/.irssi/friends_names</code> and the <code>/friends_update</code> command from <code>~/.irssi/scripts/autorun/friends_update.pl</code> script. Just add a new friend messaging you in <code>friends_names</code> and update the renaming with <code>/friends_update</code>.</p>
 
 <h2>install faereld (deprecated)</h2>
 
