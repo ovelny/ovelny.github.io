@@ -1377,9 +1377,11 @@ gpg <span class="nt">--decrypt</span> <span class="nt">--default-recipient-self<
 DaemonPort = 6667
 </code></pre></div>
 
-<p>run <code>sudo systemctl enable bitlbee</code> and <code>sudo systemctl restart bitlbee</code>. the other plugins (discord, facebook) should already be installed from our packages list at the start of this document. run <code>irssi</code> and type <code>plugins</code> in bitlbee server window to ensure they&#39;ve been added.</p>
+<p>run <code>sudo systemctl enable bitlbee</code> and <code>sudo systemctl restart bitlbee</code>. the other plugins (discord, facebook) should already be installed from our packages list at the start of this document.</p>
 
-<p>If your bitlbee account isn&#39;t set up yet, use <code>register &lt;password&gt;</code> to do so. Also run <code>channel &amp;bitlbee set show_users online+,special%,away,offline</code> and <code>save</code> to display all friends no matter their status. This is useful to rename them later on.</p>
+<p>For a first setup, comment out <code>servers</code>, <code>chatnets</code> and <code>channels</code> objects in <code>~/.irssi/config</code>. Run irssi and type <code>/connect localhost</code>, then switch to bitlbee window and register your account with <code>/register &lt;password&gt;</code>. Exit irssi, uncomment previous objects and re-run irssi. Check that auto-connect works and type <code>plugins</code> in bitlbee server window to ensure they&#39;ve been added.</p>
+
+<p>Also run <code>channel &amp;bitlbee set show_users online+,special%,away,offline</code> and <code>save</code> to display all friends no matter their status. This is useful to rename them later on.</p>
 
 <h3>Set up discord in bitlbee</h3>
 
