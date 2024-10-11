@@ -790,23 +790,12 @@ certutil <span class="nt">-d</span> <span class="s2">"sql:</span><span class="nv
 <div class="highlight"><pre class="highlight shell"><code>go <span class="nb">install </span>github.com/gopasspw/gopass@latest
 </code></pre></div>
 
-<p>then, to import your password database (you know which one), install <code>pass-import</code> and <code>pykeepass</code>:</p>
-
-<div class="highlight"><pre class="highlight shell"><code>python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">--user</span> pass-import <span class="nt">--break-system-packages</span>
-python3 <span class="nt">-m</span> pip <span class="nb">install</span> <span class="nt">--user</span> pykeepass <span class="nt">--break-system-packages</span>
-</code></pre></div>
-
-<p>you&#39;ll need to install <code>pass</code> for importing as well:</p>
-
-<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>apt <span class="nb">install </span>pass
-</code></pre></div>
-
 <p>then, generate the gopass repository without using git:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>gopass init <span class="nt">-p</span> ~/.password-store <span class="nt">--storage</span><span class="o">=</span>fs
 </code></pre></div>
 
-<p>from this point, importing / syncing your password from keepass can be done automatically from <code>~/bin/keepass_sync</code>.</p>
+<p>once this is done, importing / syncing your passwords from keepass can be done automatically with <code>~/bin/keepass2gopass</code>.</p>
 
 <h2>set up vim-anywhere</h2>
 
