@@ -49,12 +49,12 @@
     <main>
 
     
-    <h1>ruby tricks</h1>
+    <h1>Ruby tricks</h1>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># URL-encode a list of payloads:</span>
 ruby <span class="nt">-ne</span> <span class="s1">'require "erb"; puts ERB::Util.url_encode($_.chomp)'</span> &lt;payload file&gt;
 
-<span class="c"># start a local HTTP server:</span>
+<span class="c"># Start a local HTTP server:</span>
 ruby <span class="nt">-run</span> <span class="nt">-e</span> httpd &lt;path to share&gt; <span class="nt">-p</span> &lt;port&gt;
 </code></pre></div>
 
