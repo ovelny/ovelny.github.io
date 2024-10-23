@@ -783,6 +783,15 @@ certutil <span class="nt">-d</span> <span class="s2">"sql:</span><span class="nv
 <div class="highlight"><pre class="highlight shell"><code><span class="k">*</span>/8 <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> <span class="k">*</span> /home/ovelny/bin/battery_alert
 </code></pre></div>
 
+<h2>Setup lid switch ignore (laptops only)</h2>
+
+<p>If you&#39;re setting up a laptop, edit <code>/etc/systemd/logind.conf</code> as sudo and uncomment + change the following parameters:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nv">HandleLidSwitch</span><span class="o">=</span>ignore
+<span class="nv">HandleLidSwitchExternalPower</span><span class="o">=</span>ignore
+<span class="nv">HandleLidSwitchDocked</span><span class="o">=</span>ignore
+</code></pre></div>
+
 <h2>manage passwords locally with gopass</h2>
 
 <p>first, install <a href="https://github.com/gopasspw/gopass" rel="nofollow">gopass</a> if you haven&#39;t already with:</p>
