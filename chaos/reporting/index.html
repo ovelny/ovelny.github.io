@@ -279,6 +279,77 @@
 
 <p>Because thoses flaws are critical, the documents sent to the internal team should be straigthforward and brief, allowing them to reproduce and fix the issue as fast as possible.</p>
 
+<h2>Elements of a report</h2>
+
+<h3>Writing the attack chain</h3>
+
+<p>The attack chain is probably the most pleasant part to write in a pentest report, as it allows us to show the ingenuity that led to a domain compromise, RCE, etc. It helps connect the dots between all the findings and how they&#39;ve been used in conjunction for maximum effectiveness. Here is some advice about writing this section:</p>
+
+<ul>
+<li><p>Start with a summary of the attack chain: only a few lines describing how everything went down on a surface level. Mention that this is the initial path of least resistance, but not necessarily the only way to reach that level of access.</p></li>
+<li><p>Walk through each step and include all command output and screenshots required to reproduce the attack. Don&#39;t hide anything about the process, but keep it straightforward.</p></li>
+<li><p>Make it reusable: each step of the attack chain can be reused in the findings section, if we followed a step-by-step description of the chain.</p></li>
+</ul>
+
+<h2>Writing the executive summary</h2>
+
+<p>One of the most important parts of the report, the executive summary is written for IT and IT security management, C-level management and more. The content of this summary must be easily understood by people without technical knowledge.</p>
+
+<p>This summary might allow our client to finally get funding to fix the issues we encountered, so its content needs to be understood by the target audience. Here are some key points:</p>
+
+<ul>
+<li><p>Anyone should be able to read this summary and understand the point we&#39;re making. Forget about password spraying or mentioning specific tools, as the audience will have no idea what we&#39;re talking about.</p></li>
+<li><p>The audience shouldn&#39;t need to google anything to understand this summary.</p></li>
+<li><p>All metrics should be specific and include an actual number. Even if that number can vary depending on what we found or missed, for instance the number of vulnerabilities on a host.</p></li>
+<li><p>It&#39;s a summary, so it shouldn&#39;t be longer than 2 pages.</p></li>
+<li><p>Describe what you managed to access. Anyone can understand that accessing HR documents is a bad thing.</p></li>
+<li><p>Describe what must be improved to mitigate risks, in a general sense. For instance, what could be improved to efficiently set strong passwords across the entire organization.</p></li>
+<li><p>Don&#39;t recommend a specific vendor, this is not a sales pitch. Only mention the technologies needed to improve the security risks that we encountered.</p></li>
+<li><p>Don&#39;t use acronyms, as our audience won&#39;t know them.</p></li>
+<li><p>Don&#39;t spend time on low-impact vulnerabilities, attention should be steered towards high-impact ones. </p></li>
+<li><p>Don&#39;t use fancy vocabulary, keep it clear and straightforward.</p></li>
+<li><p>Don&#39;t reference another technical section in the report, the executive summary must stand on its own for the intended audience.</p></li>
+</ul>
+
+<h2>Writing a remediation summary</h2>
+
+<p>The remerdiation summary lists all short to long term recommendations based on the client&#39;s environment and our findings. Our client might have a say in this section, and might also use this section for their remediation roadpmap in the near future. If we don&#39;t provide this section, it&#39;s almost certain that we will be asked to prioritize remediation for our client.</p>
+
+<p>Only recommendations linked to findings in the report should be listed, both long-term and short-term ones.</p>
+
+<h2>Writing the findings section</h2>
+
+<p>Besides the executive summary, this is one of the most important sections of our report.</p>
+
+<h2>Writing the appendices</h2>
+
+<h3>Static appendices</h3>
+
+<p>Among static appendices in our report, the scope of the assessment should be there: URLs, network ranges, facilities and more.</p>
+
+<p>Our methodology should also be explained, to show the repeatable process we follow for consistency.</p>
+
+<p>If we don&#39;t use known severity ratings like CVSS, we should also take time to mention our reasoning for our rating in the static appendices. The process should be sound and we should be able to defend it if necessary.</p>
+
+<p>Biographies of employees that participated in the assessment can also be included, either to bring some peace of mind about everyone&#39;s qualifications, or for compliance obligations.</p>
+
+<h3>Dynamic appendices</h3>
+
+<p>Dynamic appendices may not be necessary for all reports and depend on the work being done.</p>
+
+<p>Including a list of our exploitation attempts and payloads dropped for the incident response team is a good idea, as this will help distinguish which artifacts were used by an actual attacker rather than us. All details about our payloads should be included, namely their locations, file names and hashes.</p>
+
+<p>Listing all compromised credentials, if this was part of our assessment, is also a good thing to add among the dynamic appendices.</p>
+
+<p>Other dynamic appendices include:</p>
+
+<ul>
+<li><p>Configuration changes: listing all changes we made in the client environment, especially if we couldn&#39;t revert them.</p></li>
+<li><p>Additional lists of affected hosts for a finding: in case there are too many hosts to be added among the finding, we can make an appendix to add them in this section.</p></li>
+<li><p>Information gathering: whois data, subdomains, emails and more that we found to show the external footprint of the client&#39;s organization.</p></li>
+<li><p>Domain passwords analysis: if we performed various attempts at cracking hashes on a domain, say after dumping the NTDS database, we can generate password statistics with <a href="https://github.com/clr2of8/DPAT" rel="nofollow">DPAT</a>.</p></li>
+</ul>
+
     </main>
     <footer id="footer">
       <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
