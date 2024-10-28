@@ -216,6 +216,69 @@
 
 <p>Don&#39;t store or view sensitive data if you get access to it: just screenshot the directory containing sensitive files to get the message across. Anything more could trigger compliance obligations like GDPR.</p>
 
+<h2>Types of assessments</h2>
+
+<p>Different types of reports can be made depending on our client&#39;s needs. First, let&#39;s define key differences in types of <em>assessments</em>:</p>
+
+<ul>
+<li><p>Vulnerability assessment: authenticated or unauthenticated, automated scans of an environment. No exploitation done, but we check for false positives and actual issues to be fixed. Sometimes, the validation part is not even required by our client.</p></li>
+<li><p>Internal or external: external assessments are done from the perspective of an anonymous user on the internet, targeting the client&#39;s public systems. Internal assessments are done on the inside, scanning the internal hosts behind the firewall. Different scenarios may apply: anonymous user on the corporate network, credentialed scans, etc.</p></li>
+<li><p>Report contents: focuses on themes observed in the scan results, highlighting the number of vulnerabilities and their severity levels.</p></li>
+</ul>
+
+<p>Other types of assessments are related to the people with diverse skillsets involved. Some of these include:</p>
+
+<ul>
+<li><p>Purple team assessments: when the blue and red team combine efforts, typically a penetration tester and an incident responder. The penetration tester will usually simulates a threat while the incident responder will test if their alerting systems detect it properly, and reconfigure it if needed.</p></li>
+<li><p>Cloud penetration testing: will typically involve a penetration tester and someone specialized in cloud architecture and administration, to highlight what can be done  from an offensive standpoint with the info and configuration we might discover.</p></li>
+<li><p>IoT testing: involve testing the 3 major components of IoT, which are network, cloud and application. Doesn&#39;t rely on one person but rather people specialized in each of these areas, collaborating.</p></li>
+</ul>
+
+<h2>Types of reports</h2>
+
+<p>The different types of assessments mentioned above can be found in various types of reports:</p>
+
+<ul>
+<li>Penetration testing: goes beyond automated scans but might use them to identify vulnerabilities. These reports can be produced from various perspectives:
+
+<ul>
+<li>black box: when we only have the name of the company during an external assessment and only a network connection for a internal assessment.</li>
+<li>grey box: when we are given in-scope IP addresses and/or CIDR network ranges.</li>
+<li>white box: when we are given additional data, like credentials, source code and more.</li>
+</ul></li>
+</ul>
+
+<p>Penetration testing reports can also differ in evasiveness:</p>
+
+<ul>
+<li>Zero evasion: when we attempt to uncover as many vulnerabilities as we can, not minding about being detected.</li>
+<li>Hybrid evasive: when we start as quietly as possible and progressively increase noise, until the internal security team detects us.</li>
+<li>Evasive testing: when we try to remain undetected as long as possible, to simulate a more advanced attacker.</li>
+</ul>
+
+<p>They can also be either external or internal, as defined above.</p>
+
+<p>Other types of reports include:</p>
+
+<ul>
+<li><p>Web application penetration testing: this report can involve an assessment that will solely test the web application(s) of our client, or use them for leverage to gain a potential foothold into their internal network. As a result, this can be considered an inter-disciplinary assessment in some cases.</p></li>
+<li><p>Hardware penetration testing: often done on IoT devices, but can be extended to test the physical security of a device, like an ATM. This highly depends on the Rules of Engagement defined with our client.</p></li>
+</ul>
+
+<p>It&#39;s important to note that our clients might want to get involved into the creation of the report, submitting feedback and tweak the language, among other things. For these reasons, a draft report might be submitted first for review, and discussed in further meetings before reaching completion. When it is cleared, the final report can be issued.</p>
+
+<p>It&#39;s common that our client requests to test again our findings after correcting them: this will call for the creation of a post-remediation report, which should only be focused on the findings being retested and <em>not</em> the entire engagement done in the first place. If desired, this report should be done after a specific time limit, as doing it too late might vastly complicates the scope if the client&#39;s environment changed.</p>
+
+<p>Finally, some clients might request an attestation letter or attestation report, showing evidence that a penetration test has been done. This is derived from the actual report and only focuses on the number of findings discovered, general comments about the environment, etc. It is usually no longer than a page or two.</p>
+
+<p>Other deliverables include presentations / slide decks, tailored specifically to the audience depending on their technical level, spreadsheet of all findings that can be sorted by severity, and more.</p>
+
+<h2>Vulnerability notifications</h2>
+
+<p>During an assessment, we might encounter a critical vulnerability that will require us to stop everything and inform our clients. At a minimum, this should be done when a finding is directly exploitable and exposed on the internet, resulting in unauthenticated RCE or sensitive data exposure. That baseline should be defined during project kickoff and changed accordingly, depending on the findings.</p>
+
+<p>Because thoses flaws are critical, the documents sent to the internal team should be straigthforward and brief, allowing them to reproduce and fix the issue as fast as possible.</p>
+
     </main>
     <footer id="footer">
       <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
