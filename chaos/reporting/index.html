@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/reporting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/reporting"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-minimal-logo.jpg"
+            alt="ovelny logo"
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Reporting</h1>
+
+<p>Reporting skills are invaluable: what good is it to be highly technical if you&#39;re unable to communicate your findings efficiently? This document focuses solely on this important soft skill.</p>
+
+<p>Pentests, by nature, can also inspire doubt and even hostility among the internal IT team. It is vital to document everything, so the blame isn&#39;t placed on us when something unrelated to our activities goes wrong. We should be able to justify our actions at any point during an assessment.</p>
+
+<p>We won&#39;t recommend any specific notetaking tools in this document, as it always comes down to personal preferences.</p>
+
+<h2>Organization for notetaking</h2>
+
+<p>A solid notetaking structure is important, but there is no single defined convention to follow: everyone has their preferences, but some categories should always be noted down, although this depends on the type of assessment.</p>
+
+<ul>
+<li><p><strong>Attack path</strong>: an outline of the entire path from our external host to the gain of a foothold, or how we compromised internal hosts if we&#39;re conducting an internal pentest. Use as many screenshots as possible as well as command outputs during the pentest, so we only need to worry about detailing and formatting each step later on.</p></li>
+<li><p><strong>Credentials</strong>: a category dedicated to keep all compromised credentials and secrets as we make progress.</p></li>
+<li><p><strong>Findings</strong>: making a subdirectory for each finding, along with the narrative / description and all gathered evidence, such as screenshots and command outputs.</p></li>
+<li><p><strong>Vulnerability scan research</strong>: documenting everything we tried with our vulnerability scans.</p></li>
+<li><p><strong>Service enumeration research</strong>: documenting everything we tried with enumerated services, exploitation attempts, vulnerablities, etc.</p></li>
+<li><p><strong>Web application research</strong>: documenting all web applications found through various methods, and all methods used against them: default credentials, etc.</p></li>
+<li><p><strong>Active Directory enumeration research</strong>: all enumeration performed on Active Directory, and areas of interest for further exploitation during the assessment.</p></li>
+<li><p><strong>OSINT</strong>: all interesting info collected with OSINT, if that method is allowed for the assessment.</p></li>
+<li><p><strong>Administrative info</strong>: dedicated category to store contact info of other stakeholders in the project: project managers, points of contact, unique objectives defined in the Rules of Engagement (RoE). Can double up as todo list depending on personal preferences.</p></li>
+<li><p><strong>Scoping info</strong>: category for all in-scope IP addresses or CIDR ranges, URLs, credentials for web applications, VPN or AD provided by our client. Anything relevant to the scope of the assessment.</p></li>
+<li><p><strong>Activity log</strong>: tracking and summarizing everything we did so far during the assessment.</p></li>
+<li><p><strong>Payload log</strong>: tracking all payload we used and uploaded, as well as where we uploaded them and their file hashes.</p></li>
+</ul>
+
+<h2>Logging everything</h2>
+
+<p>Logging everything we do in the terminal is paramount: scanning, attack attempts, tools output, everything will come to be valuable. Although we are taking detailed notes, logs will be useful if we ever miss something and will add more evidence for all our actions. It&#39;s also a good step to record everything we tried in case we are facing a well-secured target.</p>
+
+<p>A good choice for logging is <a href="https://github.com/tmux-plugins/tmux-logging" rel="nofollow">tmux-logging</a>. Once installed, we can use the following commands to log our sessions:</p>
+
+<ul>
+<li>Prefix + Shift + P: start/stop recording your session.</li>
+<li>Prefix + Alt + Shift + P: log retroactively if you forgot to start recording earlier.</li>
+<li>Prefix + Alt + P: take text &quot;screenshot&quot; of the current pane, very useful to copy a pane&#39;s content without messing with the others.</li>
+</ul>
+
+<p>It&#39;s also a good idea to increase tmux&#39;s history limit in <code>~/.tmux.conf</code> with <code>set -g history-limit 100000</code> to log retroactively with a large buffer.</p>
+
+<p>Keep in mind that ANSI codes will also be recorded so the file will be a mess if you wanna see the output outside of your terminal.</p>
+
+<h2>Tracking payloads and changes</h2>
+
+<p>At a minimum, we should track the following whenever we use a payload during the assessment:</p>
+
+<ul>
+<li>When it was used.</li>
+<li>On which host it was used.</li>
+<li>What file path was it placed in.</li>
+<li>Whether it has been cleaned up afterwards or needs to be cleaned by our client.</li>
+<li>A file hash of the file.</li>
+</ul>
+
+<p>All of this should be provided even if we delete everything afterwards.</p>
+
+<p>We also need to track all changes we performed on the target system(s). If we cannot revert them for some reason, our client will know what has been changed in detail:</p>
+
+<ul>
+<li>IP address of the host(s) where changes has been made.</li>
+<li>Timestamp of the change.</li>
+<li>Description of the change.</li>
+<li>Location on the host(s) where changes has been made.</li>
+<li>Application or service that got tampered.</li>
+<li>Account name and password if we created one.</li>
+</ul>
+
+<p>Of course, all possible changes on a system should get an approval before being performed.</p>
+
+<h2>Capturing all evidence</h2>
+
+<p>What matters most to our client is to deliver a report that they can act on, so that the internal team can fix what we found and reproduce all of our steps.</p>
+
+<p>Each finding will need to have evidence: because automatic logging&#39;s output with ANSI codes can be terrible, it&#39;s a good idea to manually copy our output for all significant steps we make. Outside of terminal outputs (web apps, etc), we must take and join screenshots.</p>
+
+<p>Organizing collected data is an important topic as well, to find everything we did easily and avoid performing actions we already tried that will waste our time. The following directory structure is an example we can take inspiration from:</p>
+
+<ul>
+<li><p>Admin:</p>
+
+<ul>
+<li>Scope of Work (SoW) we&#39;re working on, notes from the project kickoff meeting, status reports, etc.</li>
+</ul></li>
+<li><p>Deliverables:</p>
+
+<ul>
+<li>Will contain our report but also additional documents, like spreadsheets, slides, etc.</li>
+</ul></li>
+<li><p>Evidence:</p>
+
+<ul>
+<li>Findings:</li>
+<li>Create a directory for each finding we will include in our report.</li>
+<li>Scans:</li>
+<li>Vulnerability scans:
+
+<ul>
+<li>Export files from vulnerability scans we conducted.</li>
+</ul></li>
+<li>Service enumeration:
+
+<ul>
+<li>Export files from tools that enumerated services, such as nmap.</li>
+</ul></li>
+<li>Web:
+
+<ul>
+<li>Export files from tools such as ZAP or Burp, eyewitness/aquatone, etc.</li>
+</ul></li>
+<li>AD enumeration:
+
+<ul>
+<li>Export files from Bloodhound, PowerView, ADRecon, Ping Castle, Snaffler, crackmapexec/netexec, impacket, and more.</li>
+</ul></li>
+</ul></li>
+<li><p>Notes:</p>
+
+<ul>
+<li>Keeping all your notes here.</li>
+</ul></li>
+<li><p>OSINT:</p>
+
+<ul>
+<li>Export files from Intelx, Maltego, etc.</li>
+</ul></li>
+<li><p>Wireless:</p>
+
+<ul>
+<li>If wireless testing is in scope, export files related to this part of the assessment.</li>
+</ul></li>
+<li><p>Logging output:</p>
+
+<ul>
+<li>Output from tmux, Metasploit, and all other outputs that don&#39;t fit the previous sections.</li>
+</ul></li>
+<li><p>Misc files:</p>
+
+<ul>
+<li>Web shells, payloads, custom scripts, and all relevant files created for the assessment.</li>
+</ul></li>
+<li><p>Retest:</p>
+
+<ul>
+<li>Optional directory if a second assessment is asked by our client. Can replicate the directory structure of the first one.</li>
+</ul></li>
+</ul>
+
+<p>Such a directory structure can be automated with the following bash one-liner:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">mkdir</span> <span class="nt">-p</span> &lt;client company&gt;/<span class="o">{</span>Admin,Deliverables,Evidence/<span class="o">{</span>Findings,Scans/<span class="o">{</span>Vuln,Service,Web,<span class="s1">'AD Enumeration'</span><span class="o">}</span>,Notes,OSINT,Wireless,<span class="s1">'Logging output'</span>,<span class="s1">'Misc Files'</span><span class="o">}</span>,Retest<span class="o">}</span>
+</code></pre></div>
+
+<h2>Formatting the report</h2>
+
+<p>All PII (Personal Identifiable Information) and credentials should be redacted in screenshots, as well as anything morally objectionable (obscene comments, etc). It&#39;s also a good idea to annotate screenshots to highlight important parts, and add a border to distinguish the screenshots from the document background.</p>
+
+<p>Don&#39;t leave out important elements, such as the address bar in the browser if we&#39;re targeting a web target.</p>
+
+<p>Terminal output should always be preferred over screenshots: it&#39;s easier to edit and highlight relevant sections, and will keep our report neat and tidy. Output can be cropped with <code>&lt;SNIP&gt;</code> sections, but never alter sections shown as it needs to be reproducible, and even copy/pasted by the internal team. Make sure that all formatting is stripped so we don&#39;t introduce non-UTF8 characters that might render the command invalid.</p>
+
+<p>Never use pixelation as a redaction technique, as shown with <a href="https://github.com/bishopfox/unredacter" rel="nofollow">this repo</a>. Edit the image directly, and not on MS Word or through HTML/CSS styling on the web, as this can easily be bypassed. Just redact with solid black bars.</p>
+
+<p>To redact password hashes, it&#39;s okay to mask everything but the first and last 3-4 characters, to still prove we got a hash through various means. For cleartext passwords, using a <code>&lt;REDACTED&gt;</code> placeholder is also fine.</p>
+
+<p>Don&#39;t store or view sensitive data if you get access to it: just screenshot the directory containing sensitive files to get the message across. Anything more could trigger compliance obligations like GDPR.</p>
+
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
