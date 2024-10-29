@@ -350,6 +350,37 @@
 <li><p>Domain passwords analysis: if we performed various attempts at cracking hashes on a domain, say after dumping the NTDS database, we can generate password statistics with <a href="https://github.com/clr2of8/DPAT" rel="nofollow">DPAT</a>.</p></li>
 </ul>
 
+<h2>Writing a finding</h2>
+
+<p>The <code>Findings</code> section of the heart of a report: this is where we show what we found, how we exploited vulnerabilities, and give remediation guidance for our client. We need to put as much detail as possible into each finding so the internal team can easily reproduce it.</p>
+
+<p>Findings can start off generic, for instance a default credentials issue which could be found in a varitety of services, but needs to be tailored and customized for our client&#39;s circumstances. Each finding should include the following at a minimum:</p>
+
+<ul>
+<li>Description of the finding and what platform(s) it affects.</li>
+<li>Impact of the finding if left as it is.</li>
+<li>Affected systems, networks, environments, etc of our client.</li>
+<li>Recommendations for remediation.</li>
+<li>Links with additional info about the finding and how to resolve it.</li>
+<li>Reproducible steps for the issue and the evidence we gathered.</li>
+</ul>
+
+<p>Optional fields may include the CVE, OWASP, MITRE IDs, the CVSS score or a similar score, ease of exploitation and probability of attack, etc.</p>
+
+<p>While our point-of-contact for our report is often technical, they often won&#39;t have a pentesting background and know the tools we&#39;re using, or know what we must be aware of in command outputs. Here&#39;s what we should consider:</p>
+
+<ul>
+<li><p>Each step should have its own figure. If we cram several steps into a single one, our point-of-contact might not understand what is happening in a screenshot and be unable to reproduce our finding.</p></li>
+<li><p>Include all configuration if it is required to reproduce our finding, for instance ofr a specific payload. Include a second figure to show the results after running it.</p></li>
+<li><p>Describe what is happening between each figure and what&#39;s going through our head at this point of the assessment.</p></li>
+<li><p>Mention alternative tools to reproduce the same finding if there are any, with a reference link.</p></li>
+<li><p>Our evidence should be completely defensible: if information is transmitted in cleartext, show it with a wireshark packet capture. If we become a local admin on Windows, show the output of the <code>net localgroup /administrators</code> command, along with <code>ipconfig</code> output. It shouldn&#39;t give room for any doubt.</p></li>
+<li><p>Remediation recommendations should be fully detailed and explain if the required changes should be approached with caution or not.</p></li>
+<li><p>Use vendor-agnostic sources for links and references. We don&#39;t want to imply that a specific vendor should be contacted to remediate a finding. Use articles that quickly get to the point, don&#39;t link a paywalled article and choose reliable sources without intrusive ads. Ideally, use your own content if you&#39;re communicating about it.</p></li>
+</ul>
+
+<p>Copy/pasting our payloads should be easily done and not require to manually type them from a screenshot.</p>
+
     </main>
     <footer id="footer">
       <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2024 ovelny</p></div>
