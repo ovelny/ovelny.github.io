@@ -89,8 +89,8 @@
 showmount <span class="nt">-e</span> &lt;IP address&gt;
 
 <span class="c"># Mounting a NFS share:</span>
-<span class="nb">mkdir </span>tmpdir
-<span class="nb">sudo </span>mount <span class="nt">-t</span> nfs &lt;IP address&gt;:/ ./tmpdir/ <span class="nt">-o</span> nolock
+<span class="nb">mkdir</span> /tmp/&lt;share name&gt;
+<span class="nb">sudo </span>mount <span class="nt">-t</span> nfs &lt;IP address&gt;:/&lt;share name&gt; /tmp/&lt;share name&gt;
 <span class="nb">cd </span>tmpdir
 
 <span class="c"># Unmount the share:</span>
