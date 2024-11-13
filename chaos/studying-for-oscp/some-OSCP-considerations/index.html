@@ -49,158 +49,158 @@
     <main>
 
     
-    <h1>some OSCP considerations</h1>
+    <h1>Some OSCP considerations</h1>
 
-<p>some reminders and faqs regarding the pen-200 and OSCP exam (updated in Apr 2024).</p>
+<p>Some reminders and FAQs regarding the pen-200 and OSCP exam (updated in Apr 2024).</p>
 
-<h2>how is the pen-200 course organized?</h2>
+<h2>How is the pen-200 course organized?</h2>
 
-<p>after subscribing to the course, you have to wait for a minimum of 10 days before studying pen-200. the course is organized as it follows:</p>
-
-<ul>
-<li>topic exercises to learn what you need</li>
-<li>lab machines to practice and hone your skills, accessible for a limited time</li>
-<li>850-page pdf course guide</li>
-<li>17+ hours of video</li>
-</ul>
-
-<p>as a side note, it took me roughly 87h to finish the entire OSCP course (in 2022).</p>
-
-<h2>what are the exam rules?</h2>
-
-<p>you got 23 hours and 45 minutes to finish the exam, which is structured as follows:</p>
+<p>After subscribing to the course, you have to wait for a minimum of 10 days before studying pen-200. The course is organized as it follows:</p>
 
 <ul>
-<li>3 independent targets to hack, each one of them granting 20 points: 10 points for low-privilege access + 10 points for privilege escalation = 60 points in total. <strong>none of the targets contains a buffer overflow attack vector anymore.</strong></li>
-<li>ad challenge comprised of 1 domain controller with 2 clients, granting 40 points for a full exploit chain of the domain. no partial points can be granted for this one.</li>
+<li>Topic exercises to learn what you need.</li>
+<li>Lab machines to practice and hone your skills, accessible for a limited time.</li>
+<li>850-page pdf course guide.</li>
+<li>17+ hours of video.</li>
 </ul>
 
-<p>you need at least 70 points to pass the exam, the maximum being 100 points. each proof of exploitation in any target is a file that is either named <code>local.txt</code> or <code>proof.txt</code>, that has to be retrieved, submitted in your control panel, and included in a screenshot with your documentation.</p>
+<p>As a side note, it took me roughly 87h to finish the entire OSCP course (in 2022).</p>
+
+<h2>What are the exam rules?</h2>
+
+<p>You got 23 hours and 45 minutes to finish the exam, which is structured as follows:</p>
+
+<ul>
+<li>3 independent targets to hack, each one of them granting 20 points: 10 points for low-privilege access + 10 points for privilege escalation = 60 points in total. <strong>None of the targets contains a buffer overflow attack vector anymore.</strong></li>
+<li>AD challenge comprised of 1 domain controller with 2 clients, granting 40 points for a full exploit chain of the domain. No partial points can be granted for this one.</li>
+</ul>
+
+<p>You need at least 70 points to pass the exam, the maximum being 100 points. Each proof of exploitation in any target is a file that is either named <code>local.txt</code> or <code>proof.txt</code>, that has to be retrieved, submitted in your control panel, and included in a screenshot with your documentation.</p>
 
 <ul>
 <li><code>proof.txt</code> is only accessible to root/Administrator and can be found under the <code>/root</code> directory or the <code>Administrator desktop</code>.</li>
 <li><code>local.txt</code> is accessible to an unprivileged user account.</li>
 </ul>
 
-<p>just use <code>cat</code> or <code>type</code> to get the hash and submit it, but note that you won&#39;t get a confirmation whether or not the hash is correct in the exam control panel. in your screenshots, the proofs must be shown with those commands immediately followed by either <code>ipconfig</code>, <code>ifconfig</code>, or <code>ip addr</code> outputs:</p>
+<p>Just use <code>cat</code> or <code>type</code> to get the hash and submit it, but note that you won&#39;t get a confirmation whether or not the hash is correct in the exam control panel. In your screenshots, the proofs must be shown with those commands immediately followed by either <code>ipconfig</code>, <code>ifconfig</code>, or <code>ip addr</code> outputs:</p>
 
 <ul>
-<li><strong>failure to provide the proof files in a screenshot for any machine will result in zero points being awarded.</strong></li>
-<li><strong>obtaining the proof files in any other way (web shells included) will result in zero points too.</strong></li>
+<li><strong>Failure to provide the proof files in a screenshot for any machine will result in zero points being awarded.</strong></li>
+<li><strong>Obtaining the proof files in any other way (web shells included) will result in zero points too.</strong></li>
 </ul>
 
-<p>the entire exam is proctored, more info <a href="https://help.offsec.com/hc/en-us/sections/360008126631-Proctored-Exams" rel="nofollow">here</a>.</p>
+<p>The entire exam is proctored, more info <a href="https://help.offsec.com/hc/en-us/sections/360008126631-Proctored-Exams" rel="nofollow">here</a>.</p>
 
-<p>keep in mind that the following tools and methods are disallowed:</p>
+<p>Keep in mind that the following tools and methods are disallowed:</p>
 
 <ul>
-<li>spoofing (IP, ARP, DNS, NBNS, etc)</li>
-<li>commercial tools or services (metasploit pro, burp pro, etc.)</li>
-<li>automatic exploitation tools (e.g. db_autopwn, browser_autopwn, sqlmap, sqlninja etc.)</li>
-<li>mass vulnerability scanners (e.g. nessus, nexpose, openvas, canvas, core impact, saint, etc.)</li>
-<li>AI chatbots (e.g. chatGPT, youchat, etc.)</li>
-<li>features in other tools that utilize either forbidden or restricted exam limitations</li>
+<li>Spoofing (IP, ARP, DNS, NBNS, etc).</li>
+<li>Commercial tools or services (metasploit pro, burp pro, etc).</li>
+<li>Automatic exploitation tools (e.g. db_autopwn, browser_autopwn, sqlmap, sqlninja etc).</li>
+<li>Mass vulnerability scanners (e.g. nessus, nexpose, openvas, canvas, core impact, saint, etc).</li>
+<li>AI chatbots (e.g. chatGPT, youchat, etc).</li>
+<li>Features in other tools that utilize either forbidden or restricted exam limitations.</li>
 </ul>
 
-<p>you can only use metasploit modules (auxiliary, exploit and post) or the meterpreter payload against <strong>one</strong> single target of your choice. it may be simpler to not use them at all, and substitute meterpreter with <code>rlwrap</code> for instance.</p>
+<p>You can only use metasploit modules (auxiliary, exploit and post) or the meterpreter payload against <strong>one</strong> single target of your choice. It may be simpler to not use them at all, and substitute meterpreter with <code>rlwrap</code> for instance.</p>
 
-<p>if you do use it, it is locked on a single target of your choosing, and must not be used for pivoting either.</p>
+<p>If you do use it, it is locked on a single target of your choosing, and must not be used for pivoting either.</p>
 
-<p>you can however use <code>msfvenom</code> and <code>exploit/multi/handler</code> everywhere.</p>
+<p>You can however use <code>msfvenom</code> and <code>exploit/multi/handler</code> everywhere.</p>
 
-<p>keep in mind that you must not download any applications, files or source code from the target unless it is strictly necessary to compromise it. if you have to, delete everything after completing the exam objectives.</p>
+<p>Keep in mind that you must not download any applications, files or source code from the target unless it is strictly necessary to compromise it. If you have to, delete everything after completing the exam objectives.</p>
 
-<p>take extensive notes while hacking the targets. after your VPN connection expires and the exam ends, you have another 24 hours to write and submit your report.</p>
+<p>Take extensive notes while hacking the targets. After your VPN connection expires and the exam ends, you have another 24 hours to write and submit your report.</p>
 
-<p>your report must be thorough: a technically competent reader should be able to replicate your entire attacks step-by-step just by following the instructions. <strong>failure to provide sufficient documentation will result in either reduced or zero points.</strong></p>
+<p>Your report must be thorough: a technically competent reader should be able to replicate your entire attacks step-by-step just by following the instructions. <strong>Failure to provide sufficient documentation will result in either reduced or zero points.</strong></p>
 
-<p>if you use an exploit without any modifications, just provide the URL where the exploit can be found.</p>
+<p>If you use an exploit without any modifications, just provide the URL where the exploit can be found.</p>
 
-<p>if you use a modified exploit, you must include:</p>
+<p>If you use a modified exploit, you must include:</p>
 
 <ul>
-<li>the modified exploit code</li>
-<li>the URL to the original exploit</li>
-<li>the command used to generate any shellcode (with <code>msfvenom</code> for instance)</li>
-<li>highlighting of all changes made in the code</li>
-<li>explanation of why the changes were made</li>
+<li>The modified exploit code.</li>
+<li>The URL to the original exploit.</li>
+<li>The command used to generate any shellcode (with <code>msfvenom</code> for instance).</li>
+<li>Highlighting of all changes made in the code.</li>
+<li>Explanation of why the changes were made.</li>
 </ul>
 
-<p>you can use your own template as long as it is well structured, professional, and follow all requirements, but templates are also already provided:</p>
+<p>You can use your own template as long as it is well structured, professional, and follow all requirements, but templates are also already provided:</p>
 
 <ul>
-<li><a href="https://www.offsec.com/pwk-online/OSCP-Exam-Report.docx" rel="nofollow">microsoft word</a></li>
-<li><a href="https://www.offsec.com/pwk-online/OSCP-Exam-Report.odt" rel="nofollow">openoffice/libreoffice</a></li>
+<li><a href="https://www.offsec.com/pwk-online/OSCP-Exam-Report.docx" rel="nofollow">Microsoft Word</a></li>
+<li><a href="https://www.offsec.com/pwk-online/OSCP-Exam-Report.odt" rel="nofollow">OpenOffice/LibreOffice</a></li>
 </ul>
 
-<p>your report must be in the PDF format and follow this checklist:</p>
+<p>Your report must be in the PDF format and follow this checklist:</p>
 
 <ul>
-<li>your PDF file will be the only file submitted and must contain everything, including all your scripts and all POCs as text</li>
-<li>your PDF file name must be <code>OSCP-OS-XXXXX-Exam-Report.pdf</code>, where <code>OS-XXXXX</code> is your osid when you registered</li>
-<li>your PDF must be archived in a <code>.7z</code> file, <strong>without</strong> any password, by using the command <code>7z a &lt;your_archive&gt;.7z &lt;your_report&gt;.pdf</code></li>
-<li>your <code>.7z</code> archive file name must be <code>OSCP-OS-XXXXX-Exam-Report.7z</code>, where <code>OS-XXXXX</code> is your osid</li>
-<li>your archive file size must not be higher than 200MB</li>
-<li>your archive must be uploaded to <a href="https://upload.offsec.com" rel="nofollow">https://upload.offsec.com</a></li>
+<li>Your PDF file will be the only file submitted and must contain everything, including all your scripts and all POCs as text.</li>
+<li>Your PDF file name must be <code>OSCP-OS-XXXXX-Exam-Report.pdf</code>, where <code>OS-XXXXX</code> is your OSID when you registered.</li>
+<li>Your PDF must be archived in a <code>.7z</code> file, <strong>without</strong> any password, by using the command <code>7z a &lt;your_archive&gt;.7z &lt;your_report&gt;.pdf</code>.</li>
+<li>Your <code>.7z</code> archive file name must be <code>OSCP-OS-XXXXX-Exam-Report.7z</code>, where <code>OS-XXXXX</code> is your OSID.</li>
+<li>Your archive file size must not be higher than 200MB.</li>
+<li>Your archive must be uploaded to <a href="https://upload.offsec.com" rel="nofollow">https://upload.offsec.com</a>.</li>
 </ul>
 
-<p><strong>failure to follow any of these steps will either lead to the application not accepting the report or the report not being scored.</strong></p>
+<p><strong>Failure to follow any of these steps will either lead to the application not accepting the report or the report not being scored.</strong></p>
 
-<p>after uploading your archive, the site will provide you a MD5 hash that you can compare with your local archive to make sure that integrity has been maintained. if they don&#39;t match, reupload your archive.</p>
+<p>After uploading your archive, the site will provide you a MD5 hash that you can compare with your local archive to make sure that integrity has been maintained. If they don&#39;t match, reupload your archive.</p>
 
-<p>a confirmation email will be sent once the report is uploaded successfully. you&#39;ll know if you passed the exam or not roughly 2 weeks later.</p>
+<p>A confirmation email will be sent once the report is uploaded successfully. You&#39;ll know if you passed the exam or not roughly 2 weeks later.</p>
 
-<h2>how can you get bonus points before the exam? is it worth it?</h2>
+<h2>How can you get bonus points before the exam? Is it worth it?</h2>
 
-<p>you can get 10 bonus points before the exam by getting at least 80% of the correct solutions for topic exercises in every topic, and 30 correct <code>proof.txt</code> hashes from the offsec platform.</p>
+<p>You can get 10 bonus points before the exam by getting at least 80% of the correct solutions for topic exercises in every topic, and 30 correct <code>proof.txt</code> hashes from the offsec platform.</p>
 
-<p>now, is it worth it? here are possible scenarios to pass the exam:</p>
+<p>Now, is it worth it? here are possible scenarios to pass the exam:</p>
 
 <ul>
-<li>40 pts AD + 3 local.txt flags</li>
-<li>40 pts AD + 2 local.txt flags + 1 proof.txt flag</li>
-<li>40 pts AD + 2 local.txt flags + bonus points</li>
-<li>40 pts AD + 1 proof.txt + 1 local.txt + bonus points</li>
-<li>3 fully completed non-AD machines + bonus points</li>
+<li>40 pts AD + 3 local.txt flags.</li>
+<li>40 pts AD + 2 local.txt flags + 1 proof.txt flag.</li>
+<li>40 pts AD + 2 local.txt flags + bonus points.</li>
+<li>40 pts AD + 1 proof.txt + 1 local.txt + bonus points.</li>
+<li>3 fully completed non-AD machines + bonus points.</li>
 </ul>
 
-<p>bonus points can be valuable and even allow you to fully avoid the AD challenge. but putting all your eggs in one basket can be dangerous if you end up struggling with any of the independent targets. your choice, your risks.</p>
+<p>Bonus points can be valuable and even allow you to fully avoid the AD challenge. But putting all your eggs in one basket can be dangerous if you end up struggling with any of the independent targets. Your choice, your risks.</p>
 
-<h2>how many times can you retake the exam?</h2>
+<h2>How many times can you retake the exam?</h2>
 
-<p>as many times as you need as long as you have the money for retakes, but a cooling off period must be followed:</p>
+<p>As many times as you need as long as you have the money for retakes, but a cooling off period must be followed:</p>
 
 <ul>
-<li>after a first failed exam, you must wait 6 weeks before rescheduling a retake</li>
-<li>after a second failed exam, you must wait 8 weeks before rescheduling a retake</li>
-<li>after a third failed exam onward, you must wait 12 weeks before rescheduling a retake</li>
+<li>After a first failed exam, you must wait 6 weeks before rescheduling a retake.</li>
+<li>After a second failed exam, you must wait 8 weeks before rescheduling a retake.</li>
+<li>After a third failed exam onward, you must wait 12 weeks before rescheduling a retake.</li>
 </ul>
 
-<p>those cooling off periods apply only for the pen-200 individual course ($1499).</p>
+<p>Those cooling off periods apply only for the pen-200 individual course ($1499).</p>
 
-<h2>are there other training resources worth doing?</h2>
+<h2>Are there other training resources worth doing?</h2>
 
-<p>plenty of them: tryhackme, hackthebox are pretty good resources, as well as proving grounds which is also provided by offensive security for a monthly fee ($19/Mo).</p>
+<p>Plenty of them: TryHackMe, HackTheBox are pretty good resources, as well as Proving Grounds which is also provided by Offensive Security for a monthly fee ($19/Mo).</p>
 
-<p>for HTB boxes, it is highly recommended to follow <a href="https://docs.google.com/spreadsheets/d/1dwSMIAPIam0PuRBkCiDI88pU3yzrqqHkDtBngUHNCw8/edit#gid=721998175" rel="nofollow">TJ Null&#39;s lists</a> as the machines listed there are a close match to those encountered in the exam.</p>
+<p>For HTB boxes, it is highly recommended to follow <a href="https://docs.google.com/spreadsheets/d/1dwSMIAPIam0PuRBkCiDI88pU3yzrqqHkDtBngUHNCw8/edit#gid=721998175" rel="nofollow">TJ Null&#39;s lists</a> as the machines listed there are a close match to those encountered in the exam.</p>
 
 <p>You can also find a recently updated list from <a href="https://docs.google.com/spreadsheets/d/18weuz_Eeynr6sXFQ87Cd5F0slOj9Z6rt/edit?gid=487240997#gid=487240997" rel="nofollow">LainKusanagi</a>. For convenience, here are the recommended boxes on several platforms:</p>
 
-<p><img src="../../../assets/images/some-OSCP-considerations/lainkusanagi-list-1.jpg" alt="Screenshot of LainKusanagi&#39;s spreadsheet, showing hackthebox and tryhackme recommended boxes."><br>
-<img src="../../../assets/images/some-OSCP-considerations/lainkusanagi-list-2.jpg" alt="Screenshot of LainKusanagi&#39;s spreadsheet, showing proving grounds practice and virtual hacking labs recommended boxes."><br>
-<img src="../../../assets/images/some-OSCP-considerations/lainkusanagi-list-3.jpg" alt="Screenshot of LainKusanagi&#39;s spreadsheet, showing proving grounds play and vulnlab recommended boxes."></p>
+<p><img src="../../../assets/images/some-OSCP-considerations/lainkusanagi-list-1.jpg" alt="Screenshot of LainKusanagi&#39;s spreadsheet, showing HackTheBox and TryHackMe recommended boxes."><br>
+<img src="../../../assets/images/some-OSCP-considerations/lainkusanagi-list-2.jpg" alt="Screenshot of LainKusanagi&#39;s spreadsheet, showing Proving Grounds practice and Virtual Hacking Labs recommended boxes."><br>
+<img src="../../../assets/images/some-OSCP-considerations/lainkusanagi-list-3.jpg" alt="Screenshot of LainKusanagi&#39;s spreadsheet, showing Proving Grounds Play and VulnLab recommended boxes."></p>
 
-<h2>which tools are recommended beyond the usual ones?</h2>
+<h2>Which tools are recommended beyond the usual ones?</h2>
 
 <ul>
-<li><a href="https://github.com/Tib3rius/AutoRecon" rel="nofollow">autorecon, for fast enumeration of all exam machines</a></li>
-<li><a href="https://github.com/jpillora/chisel" rel="nofollow">chisel, for pivoting and port forwarding</a></li>
-<li><a href="https://github.com/DominicBreuker/pspy" rel="nofollow">pspy, to spy on running processes in linux</a></li>
+<li><a href="https://github.com/Tib3rius/AutoRecon" rel="nofollow">Autorecon, for fast enumeration of all exam machines</a></li>
+<li><a href="https://github.com/jpillora/chisel" rel="nofollow">Chisel, for pivoting and port forwarding</a></li>
+<li><a href="https://github.com/DominicBreuker/pspy" rel="nofollow">Pspy, to spy on running processes in linux</a></li>
 <li><a href="https://github.com/Anon-Exploiter/SUID3NUM" rel="nofollow">SUID3num, to exploit Linux with gtfobins</a></li>
 <li><a href="https://github.com/D35m0nd142/LFISuite" rel="nofollow">LFIsuite, to automatically detect lfi vulns</a></li>
 </ul>
 
-<h2>recommendations and resources</h2>
+<h2>Recommendations and resources</h2>
 
 <ul>
 <li><a href="https://blog.lukasec.ch/posts/oscpjourney.html" rel="nofollow">https://blog.lukasec.ch/posts/oscpjourney.html</a></li>
