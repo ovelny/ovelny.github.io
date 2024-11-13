@@ -49,9 +49,9 @@
     <main>
 
     
-    <h1>immutability vs mutability vs shadowing</h1>
+    <h1>Immutability vs mutability vs shadowing</h1>
 
-<p>variables in rust are immutable by default:</p>
+<p>Variables in rust are immutable by default:</p>
 
 <div class="highlight"><pre class="highlight rust"><code><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">let</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
@@ -59,11 +59,11 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p>to modify an existing variable, you can either declare it as mutable or shadow it.</p>
+<p>To modify an existing variable, you can either declare it as mutable or shadow it.</p>
 
-<h2>mutable variables</h2>
+<h2>Mutable variables</h2>
 
-<p>to make a variable mutable, just use the <code>mut</code> keyword after <code>let</code>:</p>
+<p>To make a variable mutable, just use the <code>mut</code> keyword after <code>let</code>:</p>
 
 <div class="highlight"><pre class="highlight rust"><code><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">let</span> <span class="k">mut</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
@@ -71,9 +71,9 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<h2>shadowing a variable</h2>
+<h2>Shadowing a variable</h2>
 
-<p>we can also re-declare a variable, so that it shadows the previous one:</p>
+<p>We can also re-declare a variable, so that it shadows the previous one:</p>
 
 <div class="highlight"><pre class="highlight rust"><code><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">let</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
@@ -82,12 +82,12 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<p>so why do we have different ways of changing a variable?</p>
+<p>So why do we have different ways of changing a variable?</p>
 
 <ul>
-<li>sometimes, we might want to change a variable and keep it immutable afterwards (shadowing)</li>
-<li>we might want to change a variable but make sure it keeps the same type as a safety check (mutable)</li>
-<li>on the contrary, we might want to change a variable&#39;s type along the way and keep its name (shadowing)</li>
+<li>Sometimes, we might want to change a variable and keep it immutable afterwards (shadowing).</li>
+<li>We might want to change a variable but make sure it keeps the same type as a safety check (mutable).</li>
+<li>On the contrary, we might want to change a variable&#39;s type along the way and keep its name (shadowing).</li>
 </ul>
 
     </main>
