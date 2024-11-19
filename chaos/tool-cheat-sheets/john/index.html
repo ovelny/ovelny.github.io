@@ -146,6 +146,11 @@ john <span class="nt">--incremental</span> &lt;<span class="nb">hash </span>or <
 <span class="c"># cracking files with a *2john tool</span>
 pdf2john example.pdf <span class="o">&gt;</span> example.hash
 john example.hash
+
+<span class="c"># Unshadow and crack hashes in found in /etc/shadow.</span>
+<span class="c"># Grab /etc/passwd and /etc/shadow and run the following:</span>
+unshadow passwd.txt shadow.txt <span class="o">&gt;</span> unshadowed.txt
+john <span class="nt">--wordlist</span><span class="o">=</span>&lt;wordlist path&gt; unshadowed.txt
 </code></pre></div>
 
     </main>
