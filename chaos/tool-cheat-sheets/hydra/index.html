@@ -49,38 +49,38 @@
     <main>
 
     
-    <h1>hydra</h1>
+    <h1>Hydra</h1>
 
-<p>perform password attacks on different protocols and services.<br>
-don&#39;t forget to use the <code>-f</code> flag, if you want to stop bruteforcing as soon as a pair of valid credentials is found.</p>
+<p>Perform password attacks on different protocols and services.<br>
+Don&#39;t forget to use the <code>-f</code> flag, if you want to stop bruteforcing as soon as a pair of valid credentials is found.</p>
 
-<p>the <code>-u</code> flag is also useful to remember, to loop each password around all users rather than the other way around.</p>
+<p>The <code>-u</code> flag is also useful to remember, to loop each password around all users rather than the other way around.</p>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># list all supported services / protocols:</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># List all supported services / protocols:</span>
 hydra <span class="nt">-h</span> | <span class="nb">grep</span> <span class="s2">"Supported services"</span> | <span class="nb">tr</span> <span class="s2">":"</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> | <span class="nb">tr</span> <span class="s2">" "</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> | column <span class="nt">-e</span>
 
-<span class="c"># get info about a specific service / protocol:</span>
+<span class="c"># Get info about a specific service / protocol:</span>
 hydra &lt;protocol&gt; <span class="nt">-U</span>
 
-<span class="c"># perform a ssh password attack for a specific user</span>
+<span class="c"># Perform a ssh password attack for a specific user</span>
 <span class="c"># and a wordlist, with 48 threads, verbose.</span>
-<span class="c"># replace ssh with smb, rdp, etc... for other services.</span>
+<span class="c"># Replace ssh with smb, rdp, etc... for other services:</span>
 hydra <span class="nt">-V</span> <span class="nt">-l</span> &lt;user&gt; <span class="nt">-P</span> &lt;wordlist&gt; <span class="nt">-t</span> 48 ssh://&lt;IP address&gt;
 
-<span class="c"># use a login:pass formatted wordlist:</span>
+<span class="c"># Use a login:pass formatted wordlist:</span>
 hydra <span class="nt">-C</span> &lt;wordlist&gt; &lt;protocol&gt;://&lt;IP address&gt;
 
-<span class="c"># bruteforce a POST form, template example:</span>
+<span class="c"># Bruteforce a POST form, template example:</span>
 hydra <span class="nt">-f</span> <span class="nt">-l</span> &lt;username&gt; <span class="nt">-P</span> &lt;wordlist&gt; http-post-form://&lt;IP address or domain name&gt;:&lt;port&gt;<span class="s2">"/login.php:username=^USER^&amp;password=^PASS^:F=&lt;source code fragment appearing during fails&gt;"</span>
 
-<span class="c"># perform a ssh password attack with a userlist and a</span>
-<span class="c"># wordlist</span>
+<span class="c"># Perform a SSH password attack with a userlist and a</span>
+<span class="c"># wordlist:</span>
 hydra <span class="nt">-V</span> <span class="nt">-L</span> &lt;userlist&gt; <span class="nt">-P</span> &lt;wordlist&gt; <span class="nt">-t</span> 48 ssh://&lt;IP address&gt;
 
-<span class="c"># perform credential stuffing</span>
-<span class="c"># the provided list must be in username:password format</span>
+<span class="c"># Perform credential stuffing.</span>
+<span class="c"># The provided list must be in username:password format:</span>
 hydra <span class="nt">-C</span> &lt;user:pass list&gt; &lt;protocol&gt;://&lt;IP address&gt;
 </code></pre></div>
 

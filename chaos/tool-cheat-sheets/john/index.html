@@ -49,101 +49,101 @@
     <main>
 
     
-    <h1>john</h1>
+    <h1>John</h1>
 
-<p>identify passwords and hashes and crack them.</p>
+<p>Identify passwords and hashes and crack them.</p>
 
-<h2>tools to crack files</h2>
+<h2>Tools to crack files</h2>
 
-<p>many additional tools can process files and produce hashes for john to crack:</p>
+<p>Many additional tools can process files and produce hashes for john to crack:</p>
 
 <table><thead>
 <tr>
-<th>tool</th>
-<th>description</th>
+<th>Tool</th>
+<th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
 <td>pd2john</td>
-<td>convert PDF documents</td>
+<td>Convert PDF documents.</td>
 </tr>
 <tr>
 <td>ssh2john</td>
-<td>convert SSH private keys</td>
+<td>Convert SSH private keys.</td>
 </tr>
 <tr>
 <td>mscash2john</td>
-<td>convert MS Cash hashes</td>
+<td>Convert MS Cash hashes.</td>
 </tr>
 <tr>
 <td>keychain2john</td>
-<td>convert OS X keychain files</td>
+<td>Convert OS X keychain files.</td>
 </tr>
 <tr>
 <td>rar2john</td>
-<td>convert RAR archives</td>
+<td>Convert RAR archives.</td>
 </tr>
 <tr>
 <td>pfx2john</td>
-<td>convert PKCS#12 files</td>
+<td>Convert PKCS#12 files.</td>
 </tr>
 <tr>
 <td>truecrypt_volume2john</td>
-<td>convert truecrypt volumes</td>
+<td>Convert truecrypt volumes.</td>
 </tr>
 <tr>
 <td>keepass2john</td>
-<td>convert keepass databases</td>
+<td>Convert keepass databases.</td>
 </tr>
 <tr>
 <td>vncpcap2john</td>
-<td>convert VNC PCAP files</td>
+<td>Convert VNC PCAP files.</td>
 </tr>
 <tr>
 <td>putty2john</td>
-<td>convert putty private keys</td>
+<td>Convert putty private keys.</td>
 </tr>
 <tr>
 <td>zip2john</td>
-<td>convert zip archives</td>
+<td>Convert zip archives.</td>
 </tr>
 <tr>
 <td>hccap2john</td>
-<td>convert WPA/WPA2 handshake captures</td>
+<td>Convert WPA/WPA2 handshake captures.</td>
 </tr>
 <tr>
 <td>office2john</td>
-<td>convert MS Office documents</td>
+<td>Convert MS Office documents.</td>
 </tr>
 <tr>
 <td>wpa2john</td>
-<td>convert WPA/WPA2 hanshakes</td>
+<td>Convert WPA/WPA2 hanshakes.</td>
 </tr>
 </tbody></table>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># identify hash</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Identify hash:</span>
 hashid <span class="nt">-j</span> &lt;<span class="nb">hash</span><span class="o">&gt;</span>
 
-<span class="c"># crack a hash</span>
+<span class="c"># Crack a hash:</span>
 john <span class="nt">--format</span><span class="o">=</span>&lt;<span class="nb">hash type</span><span class="o">&gt;</span> &lt;<span class="nb">hash </span>or <span class="nb">hash </span>file&gt;
 
-<span class="c"># crack with a wordlist</span>
-<span class="c"># multiple wordlists can be specified by</span>
-<span class="c"># separating them with a comma</span>
+<span class="c"># Crack with a wordlist.</span>
+<span class="c"># Multiple wordlists can be specified by</span>
+<span class="c"># separating them with a comma:</span>
 john <span class="nt">--format</span><span class="o">=</span>&lt;<span class="nb">hash type</span><span class="o">&gt;</span> <span class="nt">--wordlist</span><span class="o">=</span>&lt;wordlist file&gt; &lt;<span class="nb">hash </span>or <span class="nb">hash </span>file&gt;
 
-<span class="c"># check progress made</span>
+<span class="c"># Check progress made:</span>
 john <span class="nt">--show</span>
 
-<span class="c"># crack with incremental mode</span>
-<span class="c"># starting from a single character, john</span>
+<span class="c"># Crack with incremental mode.</span>
+<span class="c"># Starting from a single character, john</span>
 <span class="c"># will try to guess every possible combination</span>
-<span class="c"># of characters</span>
+<span class="c"># of characters:</span>
 john <span class="nt">--incremental</span> &lt;<span class="nb">hash </span>or <span class="nb">hash </span>file&gt;
 
-<span class="c"># cracking files with a *2john tool</span>
+<span class="c"># Cracking files with a *2john tool:</span>
 pdf2john example.pdf <span class="o">&gt;</span> example.hash
 john example.hash
 

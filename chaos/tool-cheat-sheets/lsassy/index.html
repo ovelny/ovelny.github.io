@@ -49,19 +49,19 @@
     <main>
 
     
-    <h1>lsassy</h1>
+    <h1>Lsassy</h1>
 
-<p>extract credentials from LSASS remotely.</p>
+<p>Extract credentials from LSASS remotely.</p>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># domain flag is optional, various ways to target a host or set of hosts:</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Domain flag is optional, various ways to target a host or set of hosts:</span>
 lsassy <span class="nt">-d</span> &lt;domain&gt; <span class="nt">-u</span> &lt;username&gt; <span class="nt">-p</span> &lt;password&gt; 192.168.1.0/24
 lsassy <span class="nt">-d</span> &lt;domain&gt; <span class="nt">-u</span> &lt;username&gt; <span class="nt">-p</span> &lt;password&gt; 192.168.1.1-10
 lsassy <span class="nt">-d</span> &lt;domain&gt; <span class="nt">-u</span> &lt;username&gt; <span class="nt">-p</span> &lt;password&gt; hosts.txt
 lsassy <span class="nt">-d</span> &lt;domain&gt; <span class="nt">-u</span> &lt;username&gt; <span class="nt">-p</span> &lt;password&gt; 192.168.1.1-192.168.1.10
 
-<span class="c"># specify the type of hashes you want to extract</span>
+<span class="c"># Specify the type of hashes you want to extract:</span>
 lsassy <span class="nt">-d</span> &lt;domain&gt; <span class="nt">-u</span> &lt;username&gt; <span class="nt">-p</span> &lt;password&gt; <span class="nt">-H</span> &lt;LM or NT or LM:NT&gt; &lt;target&gt;
 </code></pre></div>
 

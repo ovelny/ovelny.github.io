@@ -49,47 +49,47 @@
     <main>
 
     
-    <h1>hashcat</h1>
+    <h1>Hashcat</h1>
 
-<p>identify hashes and crack them, and more.</p>
+<p>Identify hashes and crack them, and more.</p>
 
-<h2>mutations</h2>
+<h2>Mutations</h2>
 
-<p>hashcat can be used to create custom wordlists with mutation rules. here are some of the usual functions that can create those rules:</p>
+<p>Hashcat can be used to create custom wordlists with mutation rules. Here are some of the usual functions that can create those rules:</p>
 
 <table><thead>
 <tr>
-<th>function</th>
-<th>description</th>
+<th>Function</th>
+<th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
 <td><code>:</code></td>
-<td>do nothing</td>
+<td>Do nothing.</td>
 </tr>
 <tr>
 <td><code>l</code></td>
-<td>lowercase all letters</td>
+<td>Lowercase all letters.</td>
 </tr>
 <tr>
 <td><code>u</code></td>
-<td>uppercase all letters</td>
+<td>Uppercase all letters.</td>
 </tr>
 <tr>
 <td><code>c</code></td>
-<td>capitalize the first letter</td>
+<td>Capitalize the first letter.</td>
 </tr>
 <tr>
 <td><code>sXY</code></td>
-<td>replace all instances of X with Y</td>
+<td>Replace all instances of X with Y.</td>
 </tr>
 <tr>
 <td><code>$!</code></td>
-<td>add the <code>!</code> character at the end</td>
+<td>Add the <code>!</code> character at the end.</td>
 </tr>
 </tbody></table>
 
-<p>each rule to mutate on is written on a new line in a file, like so:</p>
+<p>Each rule to mutate on is written on a new line in a file, like so:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">cat </span>mutation.rule
 
@@ -103,22 +103,22 @@ c sa@
 <span class="nt">---</span> SNIP <span class="nt">---</span>
 </code></pre></div>
 
-<p>with this file and a wordlist, you can then generate a mutated password list with the following command:</p>
+<p>With this file and a wordlist, you can then generate a mutated password list with the following command:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>hashcat <span class="nt">--force</span> &lt;wordlist&gt; <span class="nt">-r</span> mutation.rule <span class="nt">--stdout</span> | <span class="nb">sort</span> <span class="nt">-u</span> <span class="o">&gt;</span> &lt;mutated password list&gt;
 </code></pre></div>
 
-<p>pre-built rule lists are already present in <code>/usr/share/hashcat/rules</code>. <code>best64.rule</code> is usually the most popular.</p>
+<p>Pre-built rule lists are already present in <code>/usr/share/hashcat/rules</code>. <code>best64.rule</code> is usually the most popular.</p>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># identify hash</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Identify hash:</span>
 hashid <span class="nt">-m</span> &lt;<span class="nb">hash</span><span class="o">&gt;</span>
 
-<span class="c"># crack hash with custom wordlist</span>
+<span class="c"># Crack hash with custom wordlist:</span>
 hashcat <span class="nt">-a</span> 0 <span class="nt">-O</span> <span class="nt">-m</span> &lt;<span class="nb">hash </span>ID&gt; &lt;<span class="nb">hash</span><span class="o">&gt;</span> &lt;custom wordlist&gt;
 
-<span class="c"># crack hash with custom mask, trying a range of integers prepended with "password_"</span>
+<span class="c"># Crack hash with custom mask, trying a range of integers prepended with "password_":</span>
 hashcat <span class="nt">-a</span> 3 <span class="nt">-m</span> &lt;<span class="nb">hash </span>ID&gt; &lt;<span class="nb">hash</span><span class="o">&gt;</span> password_?d?d?d?d?d?d?d?d?d
 </code></pre></div>
 
