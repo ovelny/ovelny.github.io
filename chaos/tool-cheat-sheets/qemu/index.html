@@ -49,105 +49,105 @@
     <main>
 
     
-    <h1>qemu</h1>
+    <h1>Qemu</h1>
 
-<h2>expand qcow2 filesystem and remove swap partition</h2>
+<h2>Expand qcow2 filesystem and remove swap partition</h2>
 
-<p>having a swap partition on a VM is not always useful. for simple VMs, it is convenient to have a single partition to easily shrink or expand the root filesystem as needed.</p>
+<p>Having a swap partition on a VM is not always useful. For simple VMs, it is convenient to have a single partition to easily shrink or expand the root filesystem as needed.</p>
 
-<p>first, get detailed info about your qcow2 image:</p>
+<p>First, get detailed info about your qcow2 image:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>qemu-img info image.qcow2
 </code></pre></div>
 
-<p>make a backup as you will need to remove all snapshots for the next steps:</p>
+<p>Make a backup as you will need to remove all snapshots for the next steps:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">cp </span>image.qcow2 image_backup.qcow2
 </code></pre></div>
 
-<p>remove all snapshots listed earlier:</p>
+<p>Remove all snapshots listed earlier:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>qemu-img snapshot <span class="nt">-d</span> snapshot_name image.qcow2
 </code></pre></div>
 
-<p>expand your qcow2 filesystem with the desired size:</p>
+<p>Expand your qcow2 filesystem with the desired size:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>qemu-img resize vague_hope_backup.qcow2 +10G
 </code></pre></div>
 
-<p>log into the guest and check if free space has been made:</p>
+<p>Log into the guest and check if free space has been made:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>fdisk <span class="nt">-l</span>
 </code></pre></div>
 
-<p>enter fdisk interactive tool:</p>
+<p>Enter fdisk interactive tool:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>fdisk /dev/vda
 </code></pre></div>
 
-<p>print out the partition table to check everything:</p>
+<p>Print out the partition table to check everything:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>p
 </code></pre></div>
 
-<p>then delete all partitions, one by one:</p>
+<p>Then delete all partitions, one by one:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>d
 </code></pre></div>
 
-<p>you will be prompted to enter the partition number to delete.</p>
+<p>You will be prompted to enter the partition number to delete.</p>
 
-<p>once all partitions are gone, create a new one:</p>
+<p>Once all partitions are gone, create a new one:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>n
 </code></pre></div>
 
-<p>select p to make it a primary partition:</p>
+<p>Select p to make it a primary partition:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>p
 </code></pre></div>
 
-<p>accept all defaults but select <code>N</code> to keep the original signature when prompted.</p>
+<p>Accept all defaults but select <code>N</code> to keep the original signature when prompted.</p>
 
-<p>make the partition bootable next:</p>
+<p>Make the partition bootable next:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>a
 </code></pre></div>
 
-<p>write changes and quit:</p>
+<p>Write changes and quit:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>w
 </code></pre></div>
 
-<p>create a <code>forcefsck</code> file at the root level to perform a filesystem check at reboot:</p>
+<p>Create a <code>forcefsck</code> file at the root level to perform a filesystem check at reboot:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo touch</span> /forcefsck
 </code></pre></div>
 
-<p>comment out the swap partition line in <code>/etc/fstab</code> too:</p>
+<p>Comment out the swap partition line in <code>/etc/fstab</code> too:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>vim /etc/fstab
 </code></pre></div>
 
-<p>comment out / delete the swap line in <code>/etc/initramfs-tools/conf.d/resume</code> too:</p>
+<p>Comment out / delete the swap line in <code>/etc/initramfs-tools/conf.d/resume</code> too:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>vim /etc/initramfs-tools/conf.d/resume
 </code></pre></div>
 
-<p>recreate the boot images and update GRUB for good measure:</p>
+<p>Recreate the boot images and update GRUB for good measure:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>update-initramfs <span class="nt">-u</span> <span class="nt">-k</span> all
 <span class="nb">sudo </span>update-grub
 </code></pre></div>
 
-<p>reboot with <code>sudo reboot</code> and log back in. next, resize the filesystem so it can fill the partition:</p>
+<p>Reboot with <code>sudo reboot</code> and log back in. Next, resize the filesystem so it can fill the partition:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>resize2fs /dev/vda1
 </code></pre></div>
 
-<p>you should be all set, but keep your backup around for a while just in case.</p>
+<p>You should be all set, but keep your backup around for a while just in case.</p>
 
-<p>sources:</p>
+<p>Sources:</p>
 
 <ul>
 <li><a href="https://blog.programster.org/expand-qcow2-root-filesystem" rel="nofollow">https://blog.programster.org/expand-qcow2-root-filesystem</a></li>
@@ -155,28 +155,28 @@
 <li><a href="https://unix.stackexchange.com/questions/224156/how-to-safely-turn-off-swap-permanently-and-reclaim-the-space-on-debian-jessie" rel="nofollow">https://unix.stackexchange.com/questions/224156/how-to-safely-turn-off-swap-permanently-and-reclaim-the-space-on-debian-jessie</a></li>
 </ul>
 
-<h2>shrink qcow2 images</h2>
+<h2>Shrink qcow2 images</h2>
 
-<p>make first a backup of the image:</p>
+<p>Make first a backup of the image:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">cp </span>image.qcow2 image_backup.qcow2
 </code></pre></div>
 
-<p>shrink the disk without compression to avoid performance degradation:</p>
+<p>Shrink the disk without compression to avoid performance degradation:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>qemu-img convert <span class="nt">-O</span> qcow2 image.qcow2 shrunk_image.qcow2
 </code></pre></div>
 
-<p>check the new image size:</p>
+<p>Check the new image size:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>qemu-img info shrunk_image.qcow2
 </code></pre></div>
 
-<p><strong>warning</strong>: be aware that the shrunk image will not have any of the snapshots from the original one.</p>
+<p><strong>Warning</strong>: be aware that the shrunk image will not have any of the snapshots from the original one.</p>
 
-<p>if the new image is working as expected, it should now be safe to delete the old ones.</p>
+<p>If the new image is working as expected, it should now be safe to delete the old ones.</p>
 
-<p>sources:</p>
+<p>Sources:</p>
 
 <ul>
 <li><a href="https://serverfault.com/questions/432119/is-there-any-way-to-shrink-qcow2-image-without-converting-it-raw" rel="nofollow">https://serverfault.com/questions/432119/is-there-any-way-to-shrink-qcow2-image-without-converting-it-raw</a></li>
