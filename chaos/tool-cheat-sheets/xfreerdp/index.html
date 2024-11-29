@@ -49,25 +49,25 @@
     <main>
 
     
-    <h1>xfreerdp</h1>
+    <h1>Xfreerdp</h1>
 
-<p>xfreerdp works reliably but can be slow at times. still, i&#39;d rather use this tool rather than remmina or others because i prefer a command-line interface.</p>
+<p>Xfreerdp works reliably but can be slow at times. Still, I&#39;d rather use this tool rather than remmina or others because I prefer a command-line interface.</p>
 
-<p>here&#39;s an optimized command that helps alleviate latency issues and enforce an azerty keyboard on the target:</p>
+<p>Here&#39;s an optimized command that helps alleviate latency issues and enforce an azerty keyboard on the target:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>xfreerdp /u:&lt;username&gt; /p:&lt;password&gt; /v:&lt;IP&gt; /dynamic-resolution /kbd:0x0000040C /cert-ignore /bpp:8 /network:modem /compression <span class="nt">-themes</span> <span class="nt">-wallpaper</span> /relax-order-checks /auto-reconnect <span class="nt">-grab-keyboard</span> +clipboard
 </code></pre></div>
 
-<p>it doesn&#39;t make everything run smoothly but it still helps a lot!</p>
+<p>It doesn&#39;t make everything run smoothly but it still helps a lot!</p>
 
-<h2>socks proxy</h2>
+<h2>Socks proxy</h2>
 
-<p>when using proxychains, xfreerdp is usable by prepending the command like you normally would:</p>
+<p>When using proxychains, xfreerdp is usable by prepending the command like you normally would:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>proxychains xfreerdp /u:&lt;username&gt; /p:...
 </code></pre></div>
 
-<p>but if you use x11 forwarding, proxychains will fail to interpret the localhost display variable. what works is to use xfreerdp&#39;s proxy argument instead:</p>
+<p>But if you use x11 forwarding, proxychains will fail to interpret the localhost display variable. What works is to use xfreerdp&#39;s proxy argument instead:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>xfreerdp /u:&lt;username&gt; /p:&lt;password&gt; /proxy:socks5://127.0.0.1:1080 /v:&lt;target IP address&gt; ...
 </code></pre></div>
