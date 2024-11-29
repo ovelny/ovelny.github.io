@@ -49,13 +49,13 @@
     <main>
 
     
-    <h1>bluetoothctl</h1>
+    <h1>Bluetoothctl</h1>
 
-<p>scanning, connecting, pairing and trusting a bluetooth device with bluetoothctl.</p>
+<p>Scanning, connecting, pairing and trusting a bluetooth device with bluetoothctl.</p>
 
-<h2>base commands</h2>
+<h2>Base commands</h2>
 
-<p>run <code>bluetoothctl</code> to start the command prompt, then run:</p>
+<p>Run <code>bluetoothctl</code> to start the command prompt, then run:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>power on
 agent on
@@ -63,28 +63,28 @@ default-agent
 scan on
 </code></pre></div>
 
-<p>this should let you detect your devices if they are in pairing mode</p>
+<p>This should let you detect your devices if they are in pairing mode.</p>
 
-<h2>pairing and trusting</h2>
+<h2>Pairing and trusting</h2>
 
-<p>your device should get discovered and display its MAC address.<br>
-run the following to pair it, connect it and trust it:</p>
+<p>Your device should get discovered and display its MAC address.<br>
+Run the following to pair it, connect it and trust it:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>pair &lt;MAC-address&gt;
-connect &lt;MAC-address&gt; <span class="c"># if this doesn't work, run the trust command below first</span>
+connect &lt;MAC-address&gt; <span class="c"># If this doesn't work, run the trust command below first.</span>
 trust &lt;MAC-address&gt;
 </code></pre></div>
 
-<p>note that this won&#39;t make pipewire switch automatically to the device once auto-connecting.</p>
+<p>Note that this won&#39;t make pipewire switch automatically to the device once auto-connecting.</p>
 
-<p>to enable this with wireplumber, you should have a <code>~/.config/wireplumber/policy.lua.d/11-bluetooth-policy.lua</code> file with the following line:</p>
+<p>To enable this with wireplumber, you should have a <code>~/.config/wireplumber/policy.lua.d/11-bluetooth-policy.lua</code> file with the following line:</p>
 
 <div class="highlight"><pre class="highlight lua"><code><span class="n">bluetooth_policy</span><span class="p">.</span><span class="n">policy</span><span class="p">[</span><span class="s2">"media-role.use-headset-profile"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">true</span>
 </code></pre></div>
 
-<p>then restart <code>pipewire</code>, <code>pipewire-pulse</code> and <code>bluetooth</code> services with systemctl to make sure the change takes effect.</p>
+<p>Then restart <code>pipewire</code>, <code>pipewire-pulse</code> and <code>bluetooth</code> services with systemctl to make sure the change takes effect.</p>
 
-<h2>references</h2>
+<h2>References</h2>
 
 <ul>
 <li><a href="https://wiki.archlinux.org/title/bluetooth_headset" rel="nofollow">https://wiki.archlinux.org/title/bluetooth_headset</a></li>

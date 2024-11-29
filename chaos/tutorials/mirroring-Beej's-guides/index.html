@@ -49,11 +49,11 @@
     <main>
 
     
-    <h1>mirroring Beej&#39;s guides</h1>
+    <h1>Mirroring Beej&#39;s guides</h1>
 
-<p>Beej&#39;s guides are great. it is mentioned that <a href="https://beej.us/guide/bgc/html/split/foreword.html#mirroring" rel="nofollow">mirroring them is okay</a> so i really wanted to add them on chaos as raw markdown files, for consistency with my own theme.</p>
+<p>Beej&#39;s guides are great. It is mentioned that <a href="https://beej.us/guide/bgc/html/split/foreword.html#mirroring" rel="nofollow">mirroring them is okay</a> so I really wanted to add them on chaos as raw markdown files, for consistency with my own theme.</p>
 
-<p>here&#39;s how i did it for <code>Beej&#39;s Guide to C Programming</code>:</p>
+<p>Here&#39;s how i did it for <code>Beej&#39;s Guide to C Programming</code>:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c">#!/usr/bin/env bash</span>
 
@@ -66,9 +66,9 @@
 <span class="k">done</span>
 </code></pre></div>
 
-<p>yes, this means i gathered each chapter&#39;s link manually (not the sub-chapters though, thankfully). that pandoc line along with the grep + sed cleanups most likely work with the other guides as well.</p>
+<p>Yes, this means I gathered each chapter&#39;s link manually (not the sub-chapters though, thankfully). That pandoc line along with the grep + sed cleanups most likely work with the other guides as well.</p>
 
-<p>this doesn&#39;t do everything however: chapters 1-9 included have to be renamed 01-09, and headers and footers have to be removed in each markdown file:</p>
+<p>This doesn&#39;t do everything however: chapters 1-9 included have to be renamed 01-09, and headers and footers have to be removed in each markdown file:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="k">for </span>file <span class="k">in</span> <span class="k">*</span>.md<span class="p">;</span> <span class="k">do </span><span class="nb">cat</span> <span class="nv">$file</span> | <span class="nb">sed</span> <span class="s1">'1,6d'</span> | <span class="nb">head</span> <span class="nt">-n</span> <span class="nt">-6</span> <span class="o">&gt;</span> <span class="si">$(</span><span class="nb">basename</span> <span class="nv">$file</span> .md<span class="si">)</span>.trimmed<span class="p">;</span> <span class="k">done
 
@@ -79,35 +79,35 @@
 <span class="k">done</span>
 </code></pre></div>
 
-<p>(you should still check if there are no empty lines left)</p>
+<p>(You should still check if there are no empty lines left.)</p>
 
-<p>the indexes should also be stripped of their links, they just serve as a reference on chaos:</p>
+<p>The indexes should also be stripped of their links, they just serve as a reference on chaos:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">cat </span>00-index.md | <span class="nb">sed</span> <span class="nt">-e</span> <span class="s1">'s/\[//g'</span> <span class="nt">-e</span> <span class="s1">'s/\].*$//g'</span> <span class="o">&gt;</span> 99-index.md
 <span class="nb">mv </span>99-index.md 00-index.md
 </code></pre></div>
 
-<p>that leaves us with the footnotes. again, they&#39;ll be kept as reference and we won&#39;t exactly link every footnote to their HTML&#39;s ID like we should. which means we&#39;ll ctrl+f the ID once redirected to the footnotes&#39; page. bummer, but anything else is way too complicated for my tastes.</p>
+<p>That leaves us with the footnotes. Again, they&#39;ll be kept as reference and we won&#39;t exactly link every footnote to their HTML&#39;s ID like we should. Which means we&#39;ll ctrl+f the ID once redirected to the footnotes&#39; page. Bummer, but anything else is way too complicated for my tastes.</p>
 
-<p>download it and convert it into raw markdown as we did earlier:</p>
+<p>Download it and convert it into raw markdown as we did earlier:</p>
 
 <div class="highlight"><pre class="highlight shell"><code>curl <span class="nt">-O</span> https://beej.us/guide/bgc/html/split/footnotes.html
 pandoc <span class="nt">-f</span> html <span class="nt">-t</span> gfm-raw_html <span class="nt">--wrap</span><span class="o">=</span>none footnotes.html | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s2">"&lt;div"</span> | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s2">"&lt;/div"</span> | <span class="nb">sed</span> <span class="s2">"s/sourceCode/c/g"</span> <span class="o">&gt;</span> 99-<span class="si">$(</span><span class="nb">basename </span>footnotes.html .html<span class="si">)</span>.md
 <span class="nb">rm </span>footnotes.html
 </code></pre></div>
 
-<p>remove the header and footer just like the other pages, then brace yourself for sed horrors:</p>
+<p>Remove the header and footer just like the other pages, then brace yourself for sed horrors:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">cat </span>99-footnotes.md | <span class="nb">cut</span> <span class="nt">-d</span> <span class="s1">' '</span> <span class="nt">-f</span> 4- | <span class="nb">sed</span> <span class="s1">'/^[[:space:]]*$/d'</span> | <span class="nb">awk</span> <span class="s1">'{print NR "." $0}'</span> | <span class="nb">sed</span> <span class="nt">-e</span> <span class="s1">'s/\[↩.*//g'</span> | <span class="nb">tr</span> <span class="nt">-s</span> <span class="s1">' '</span> <span class="o">&gt;</span> 999-footnotes.md
 <span class="nb">mv </span>999-footnotes.md 99-footnotes.md
 </code></pre></div>
 
-<p>then list all markdown files and edit in place the links of the footnotes:</p>
+<p>Then list all markdown files and edit in place the links of the footnotes:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="k">for </span>file <span class="k">in</span> <span class="k">*</span>.md<span class="p">;</span> <span class="k">do </span><span class="nb">cat</span> <span class="nv">$file</span> | <span class="nb">sed</span> <span class="nt">-i</span> <span class="s2">"s/</span><span class="se">\(</span><span class="s2">footnotes</span><span class="se">\.</span><span class="s2">html</span><span class="se">\#</span><span class="s2">fn[0-9][0-9]</span><span class="se">\?</span><span class="s2">[0-9]</span><span class="se">\?\)</span><span class="s2">/</span><span class="se">\h</span><span class="s2">ttps:</span><span class="se">\/\/</span><span class="s2">ovelny.sh</span><span class="se">\/</span><span class="s2">chaos</span><span class="se">\/</span><span class="s2">beej</span><span class="se">\'</span><span class="s2">s-guide-to-c-programming</span><span class="se">\/</span><span class="s2">99-footnotes</span><span class="se">\/</span><span class="s2">/g"</span> <span class="nv">$file</span><span class="p">;</span> <span class="k">done</span>
 </code></pre></div>
 
-<p>change the URL according to the guide, of course. and you should hopefully be done with it.</p>
+<p>Change the URL according to the guide, of course. And you should hopefully be done with it.</p>
 
     </main>
     <footer id="footer">
