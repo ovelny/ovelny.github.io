@@ -49,249 +49,249 @@
     <main>
 
     
-    <h1>retroid pocket 3+ setup</h1>
+    <h1>Retroid pocket 3+ setup</h1>
 
-<p>this document aims to be a full guide to configure the retroid pocket 3+. unfortunately, it&#39;s a mess to set everything up and guides often contradict themselves depending on personal preferences. here, i lay out mine so i can always reproduce my setup.</p>
+<p>This document aims to be a full guide to configure the Retroid Pocket 3+. Unfortunately, it&#39;s a mess to set everything up and guides often contradict themselves depending on personal preferences. Here, I lay out mine so I can always reproduce my setup.</p>
 
-<h2>initial setup</h2>
+<h2>Initial setup</h2>
 
-<p>in the initial setup wizard:</p>
+<p>In the initial setup wizard:</p>
 
 <ul>
-<li>pick english</li>
-<li>connect to wi-fi</li>
-<li>disable google play services</li>
-<li>select all preinstalled apps</li>
-<li>pick RP3+ launcher</li>
+<li>Pick English.</li>
+<li>Connect to Wi-Fi.</li>
+<li>Disable google play services.</li>
+<li>Select all preinstalled apps.</li>
+<li>Pick RP3+ launcher.</li>
 </ul>
 
-<h2>android settings</h2>
+<h2>Android settings</h2>
 
 <ul>
-<li>go to settings -&gt; display -&gt; advanced, set screen timeout to <code>30 min</code> (maximum)</li>
-<li>go to settings -&gt; handheld settings -&gt; input -&gt; controller style, select <code>xbox</code></li>
-<li>go to settings -&gt; handheld settings -&gt; input -&gt; disable <code>prevent press home button accidentally</code></li>
-<li>go to settings -&gt; security -&gt; configure screen lock</li>
-<li>go to settings -&gt; system -&gt; languages and input -&gt; gboard and set keyboard layout</li>
+<li>Go to settings -&gt; display -&gt; advanced, set screen timeout to <code>30 min</code> (maximum).</li>
+<li>Go to settings -&gt; handheld settings -&gt; input -&gt; controller style, select <code>xbox</code>.</li>
+<li>Go to settings -&gt; handheld settings -&gt; input -&gt; disable <code>prevent press home button accidentally</code>.</li>
+<li>Go to settings -&gt; security -&gt; configure screen lock.</li>
+<li>Go to settings -&gt; system -&gt; languages and input -&gt; gboard and set keyboard layout.</li>
 </ul>
 
-<p>in top menu (drag it down), disable <code>floating icon</code> so it doesn&#39;t appear while playing fullscreen.</p>
+<p>In top menu (drag it down), disable <code>floating icon</code> so it doesn&#39;t appear while playing fullscreen.</p>
 
-<h2>download f-droid and install apps</h2>
+<h2>Download f-droid and install apps</h2>
 
-<p>install f-droid with the default browser, allow permissions to run the <code>.apk</code>, then run f-droid and install the following apps:</p>
+<p>Install f-droid with the default browser, allow permissions to run the <code>.apk</code>, then run f-droid and install the following apps:</p>
 
 <ul>
-<li>aurora store</li>
-<li>amaze</li>
+<li>Aurora store.</li>
+<li>Amaze.</li>
 </ul>
 
-<p>launch aurora store, set default settings during the wizard and download <code>daijisho</code> with it. we&#39;ll configure it later in this guide.</p>
+<p>Launch aurora store, set default settings during the wizard and download <code>daijisho</code> with it. We&#39;ll configure it later in this guide.</p>
 
-<h2>set up SD card</h2>
+<h2>Set up SD card</h2>
 
 <ul>
-<li>insert <strong>empty</strong> SD card, tap notification to set up: select <code>use for portable storage</code></li>
-<li>in RP3+ launcher -&gt; emulation -&gt; setup -&gt; create ROM folders, select <code>default SD card directory</code></li>
-<li>plug your SD card somewhere else and copy your BIOSes and ROMs in <code>RetroidPocketGames</code> directories</li>
+<li>Insert <strong>empty</strong> SD card, tap notification to set up: select <code>use for portable storage</code>.</li>
+<li>In RP3+ launcher -&gt; emulation -&gt; setup -&gt; create ROM folders, select <code>default SD card directory</code>.</li>
+<li>Plug your SD card somewhere else and copy your BIOSes and ROMs in <code>RetroidPocketGames</code> directories.</li>
 </ul>
 
-<h2>set up emulation systems and ROMs</h2>
+<h2>Set up emulation systems and ROMs</h2>
 
 <ul>
-<li>in RP3+ launcher -&gt; emulation -&gt; systems, select emulation systems you want to use</li>
-<li>tap <code>all select platform game</code> -&gt; roms -&gt; add -&gt; select <code>default SD card Directory</code></li>
-<li>tap <code>scan</code></li>
+<li>In RP3+ launcher -&gt; emulation -&gt; systems, select emulation systems you want to use.</li>
+<li>Tap <code>all select platform game</code> -&gt; roms -&gt; add -&gt; select <code>default SD card Directory</code>.</li>
+<li>Tap <code>scan</code>.</li>
 </ul>
 
-<p>all your games should show up. if not, check if they&#39;re in the right supported format for the retroid pocket 3+ (see resources).</p>
+<p>All your games should show up. If not, check if they&#39;re in the right supported format for the Retroid Pocket 3+ (see resources at the end of this document).</p>
 
-<h2>enable standalone emulators</h2>
+<h2>Enable standalone emulators</h2>
 
-<p>some standalone emulators seem to run better than those found in retroarch:</p>
-
-<ul>
-<li>in RP3+ launcher -&gt; emulation -&gt; setup -&gt; standalone setup, pick the following emulators:
+<p>Some standalone emulators seem to run better than those found in retroarch:</p>
 
 <ul>
-<li><code>Mupen 64</code></li>
-<li><code>PPSSPP</code></li>
-<li><code>Duckstation</code></li>
-<li><code>AetherSX2</code></li>
+<li>In RP3+ launcher -&gt; emulation -&gt; setup -&gt; standalone setup, pick the following emulators:
+
+<ul>
+<li><code>Mupen 64</code>.</li>
+<li><code>PPSSPP</code>.</li>
+<li><code>Duckstation</code>.</li>
+<li><code>AetherSX2</code>.</li>
 </ul></li>
 </ul>
 
-<p>for reference, here is the full list of recommended standalone emulators to pick:</p>
+<p>For reference, here is the full list of recommended standalone emulators to pick:</p>
 
 <ul>
 <li>N64:
 
 <ul>
-<li><code>M64plus FZ</code> (same as <code>Mupen 64</code>)</li>
+<li><code>M64plus FZ</code> (same as <code>Mupen 64</code>).</li>
 </ul></li>
-<li>sega saturn:
+<li>Sega saturn:
 
 <ul>
-<li><code>yaba sanshiro 2</code></li>
+<li><code>yaba sanshiro 2</code>.</li>
 </ul></li>
-<li>playstation:
+<li>Playstation:
 
 <ul>
-<li><code>duckstation</code></li>
+<li><code>duckstation</code>.</li>
 </ul></li>
-<li>nintendo DS:
+<li>Nintendo DS:
 
 <ul>
-<li><code>drastic</code> (paid app on play store)</li>
+<li><code>drastic</code> (paid app on play store).</li>
 </ul></li>
-<li>nintendo 3DS:
+<li>Nintendo 3DS:
 
 <ul>
-<li><code>citra MMJ</code></li>
+<li><code>citra MMJ</code>.</li>
 </ul></li>
 <li>PSP:
 
 <ul>
-<li><code>PPSSPP</code></li>
+<li><code>PPSSPP</code>.</li>
 </ul></li>
-<li>dreamcast:
+<li>Dreamcast:
 
 <ul>
-<li><code>redream</code></li>
-<li><code>flycast</code> (for some widescreen games)</li>
+<li><code>redream</code>.</li>
+<li><code>flycast</code> (for some widescreen games).</li>
 </ul></li>
-<li>gamecube:
+<li>Gamecube:
 
 <ul>
-<li><code>dolphin MMJR</code></li>
+<li><code>dolphin MMJR</code>.</li>
 </ul></li>
-<li>playstation 2:
+<li>Playstation 2:
 
 <ul>
-<li><code>aetherSX2</code></li>
+<li><code>aetherSX2</code>.</li>
 </ul></li>
-<li>wii:
+<li>Wii:
 
 <ul>
-<li><code>dolphin MMJR</code></li>
-<li><code>dolphin MMJR2</code> (some games work better with this one)</li>
+<li><code>dolphin MMJR</code>.</li>
+<li><code>dolphin MMJR2</code> (some games work better with this one).</li>
 </ul></li>
 </ul>
 
-<h2>install retroarch cores</h2>
+<h2>Install retroarch cores</h2>
 
-<p>cores in retroarch are essentially embedded emulators. they&#39;re good for most systems, even if the previous standalone emulators seem to perform better.</p>
+<p>Cores in retroarch are essentially embedded emulators. They&#39;re good for most systems, even if the previous standalone emulators seem to perform better.</p>
 
-<p>to install cores in retroarch:</p>
+<p>To install cores in retroarch:</p>
 
 <ul>
-<li>tap retroarch(AArch64) app</li>
-<li>allow storage access and let it initialize</li>
-<li>go to online updater -&gt; core downloader</li>
-<li>to install a core, tap it</li>
+<li>Tap retroarch(AArch64) app.</li>
+<li>Allow storage access and let it initialize.</li>
+<li>Go to online updater -&gt; core downloader.</li>
+<li>To install a core, tap it.</li>
 </ul>
 
-<p>here are the recommended cores for each system:</p>
+<p>Here are the recommended cores for each system:</p>
 
 <ul>
-<li>game boy / game boy color:
+<li>Game boy / game boy color:
 
 <ul>
-<li><code>gambatte</code></li>
+<li><code>gambatte</code>.</li>
 </ul></li>
-<li>game boy advance:
+<li>Game boy advance:
 
 <ul>
-<li><code>mGBA</code></li>
+<li><code>mGBA</code>.</li>
 </ul></li>
 <li>NES:
 
 <ul>
-<li><code>mesen</code></li>
+<li><code>mesen</code>.</li>
 </ul></li>
 <li>SNES:
 
 <ul>
-<li><code>SNES9x current</code></li>
-<li><code>BSNES HD Beta</code> (for games running in widescreen)</li>
+<li><code>SNES9x current</code>.</li>
+<li><code>BSNES HD Beta</code> (for games running in widescreen).</li>
 </ul></li>
-<li>sega master system / game gear:
+<li>Sega master system / game gear:
 
 <ul>
-<li><code>genesis plus GX</code></li>
+<li><code>genesis plus GX</code>.</li>
 </ul></li>
-<li>sega genesis / sega CD:
+<li>Sega genesis / sega CD:
 
 <ul>
-<li><code>genesis plus GX</code></li>
-<li><code>genesis plus GX wide</code> (widescreen)</li>
+<li><code>genesis plus GX</code>.</li>
+<li><code>genesis plus GX wide</code> (widescreen).</li>
 </ul></li>
-<li>sega 32x:
+<li>Sega 32x:
 
 <ul>
-<li><code>picodrive</code></li>
+<li><code>picodrive</code>.</li>
 </ul></li>
-<li>turbografx-16 / turbofrafx-CD:
+<li>Turbografx-16 / turbofrafx-CD:
 
 <ul>
-<li><code>beetle PCE fast</code></li>
+<li><code>beetle PCE fast</code>.</li>
 </ul></li>
-<li>arcade / neo geo:
+<li>Arcade / neo geo:
 
 <ul>
-<li><code>final burn neo</code></li>
-</ul></li>
-</ul>
-
-<h2>fix retroarch controls</h2>
-
-<p>most controls for retroarch are good by default but some buttons are missing:</p>
-
-<ul>
-<li>go to settings -&gt; input -&gt; scroll down and select <code>port 1 controls</code>:
-
-<ul>
-<li>remap select button</li>
-<li>remap L2 and R2 buttons</li>
+<li><code>final burn neo</code>.</li>
 </ul></li>
 </ul>
 
-<h2>set up retroarch hotkeys</h2>
+<h2>Fix retroarch controls</h2>
 
-<p>go to settings -&gt; input -&gt; hotkeys:</p>
-
-<ul>
-<li>turn off <code>confirm quit</code></li>
-<li>set <code>hotkey enable</code> to L3 (left analog stick &quot;click&quot;)</li>
-<li>set <code>load state</code> to L1</li>
-<li>set <code>rewind</code> to L2</li>
-<li>set <code>save state</code> to R1</li>
-<li>set <code>fast forward (hold)</code> to R2</li>
-<li>set <code>show fps</code> to Y</li>
-<li>set <code>menu toggle</code> to X</li>
-<li>set <code>reset game</code> to B</li>
-<li>set <code>quit retroarch</code> to R3 (right analog stick &quot;click&quot;)</li>
-<li>set <code>run ahead toggle</code> to d-pad Up</li>
-</ul>
-
-<p>all those keys are enabled in combination with L3 + your button, as an alternative mapping for retroarch controls.</p>
-
-<h2>other retroarch settings</h2>
+<p>Most controls for retroarch are good by default but some buttons are missing:</p>
 
 <ul>
-<li>in settings -&gt; saving, enable <code>auto save state</code> and <code>load state automatically</code></li>
-<li>in settings -&gt; frame throttle, set <code>fast-forward rate</code> to <code>2x</code></li>
-<li>in settings -&gt; on-screen display -&gt; on-screen notifications, disable <code>on-screen notifications</code></li>
-<li>in settings -&gt; on-screen display -&gt; on-screen overlay, disable <code>display overlay</code></li>
+<li>Go to settings -&gt; input -&gt; scroll down and select <code>port 1 controls</code>:
+
+<ul>
+<li>Remap select button.</li>
+<li>Remap L2 and R2 buttons.</li>
+</ul></li>
 </ul>
 
-<h2>console settings and controls</h2>
+<h2>Set up retroarch hotkeys</h2>
 
-<p>each console has specific settings that work well with the retroid, and can also provide more faithful graphics.</p>
+<p>Go to settings -&gt; input -&gt; hotkeys:</p>
 
-<p>i&#39;m only listing the consoles i&#39;m interested in at the moment. this section will be updated when i start playing other systems.</p>
+<ul>
+<li>Turn off <code>confirm quit</code>.</li>
+<li>Set <code>hotkey enable</code> to L3 (left analog stick &quot;click&quot;).</li>
+<li>Set <code>load state</code> to L1.</li>
+<li>Set <code>rewind</code> to L2.</li>
+<li>Set <code>save state</code> to R1.</li>
+<li>Set <code>fast forward (hold)</code> to R2.</li>
+<li>Set <code>show fps</code> to Y.</li>
+<li>Set <code>menu toggle</code> to X.</li>
+<li>Set <code>reset game</code> to B.</li>
+<li>Set <code>quit retroarch</code> to R3 (right analog stick &quot;click&quot;).</li>
+<li>Set <code>run ahead toggle</code> to d-pad Up.</li>
+</ul>
 
-<p>for retroarch controls, numbers are mapped to the following buttons:</p>
+<p>All those keys are enabled in combination with L3 + your button, as an alternative mapping for retroarch controls.</p>
+
+<h2>Other retroarch settings</h2>
+
+<ul>
+<li>In settings -&gt; saving, enable <code>auto save state</code> and <code>load state automatically</code>.</li>
+<li>In settings -&gt; frame throttle, set <code>fast-forward rate</code> to <code>2x</code>.</li>
+<li>In settings -&gt; on-screen display -&gt; on-screen notifications, disable <code>on-screen notifications</code>.</li>
+<li>In settings -&gt; on-screen display -&gt; on-screen overlay, disable <code>display overlay</code>.</li>
+</ul>
+
+<h2>Console settings and controls</h2>
+
+<p>Each console has specific settings that work well with the retroid, and can also provide more faithful graphics.</p>
+
+<p>I&#39;m only listing the consoles I&#39;m interested in at the moment. This section will be updated when I start playing on other systems.</p>
+
+<p>For retroarch controls, numbers are mapped to the following buttons:</p>
 
 <ul>
 <li>B -&gt; 96</li>
@@ -306,231 +306,231 @@
 <li>start -&gt; 108</li>
 </ul>
 
-<h3>gameboy / gameboy color - gambatte</h3>
+<h3>Gameboy / gameboy color - gambatte</h3>
 
-<p>start any gameboy game, and press R3 + X to access retroarch menu, then navigate to the <code>quick menu</code> -&gt; <code>shaders</code> section:</p>
+<p>Start any gameboy game, and press R3 + X to access retroarch menu, then navigate to the <code>quick menu</code> -&gt; <code>shaders</code> section:</p>
 
 <ul>
-<li>enable <code>video shaders</code></li>
-<li>go to <code>load</code></li>
-<li>pick <code>shaders_glsl</code> -&gt; <code>handheld</code> -&gt; <code>lcd3x.glslp</code></li>
-<li>go back to <code>shaders</code> section</li>
-<li>go to <code>shader parameters</code> and set <code>brighten LCD</code> to <code>8.00</code></li>
-<li>go back to <code>shaders</code>, go to <code>save</code> -&gt; <code>save core preset</code></li>
+<li>Enable <code>video shaders</code>.</li>
+<li>Go to <code>load</code>.</li>
+<li>Pick <code>shaders_glsl</code> -&gt; <code>handheld</code> -&gt; <code>lcd3x.glslp</code>.</li>
+<li>Go back to <code>shaders</code> section.</li>
+<li>Go to <code>shader parameters</code> and set <code>brighten LCD</code> to <code>8.00</code>.</li>
+<li>Go back to <code>shaders</code>, go to <code>save</code> -&gt; <code>save core preset</code>.</li>
 </ul>
 
-<p>to enable original gameboy color palette, go to retroarch menu again, then:</p>
+<p>To enable original gameboy color palette, go to retroarch menu again, then:</p>
 
 <ul>
-<li>go to <code>options</code> -&gt; <code>core options</code></li>
-<li>go to <code>GB colorization</code>, select <code>internal</code></li>
-<li>go back and select <code>internal palette</code> and pick <code>Special 1</code></li>
-<li>go back to <code>internal palette</code> menu and set <code>interframe blending</code> to <code>LCD ghosting (accurate)</code></li>
+<li>Go to <code>options</code> -&gt; <code>core options</code>.</li>
+<li>Go to <code>GB colorization</code>, select <code>internal</code>.</li>
+<li>Go back and select <code>internal palette</code> and pick <code>Special 1</code>.</li>
+<li>Go back to <code>internal palette</code> menu and set <code>interframe blending</code> to <code>LCD ghosting (accurate)</code>.</li>
 </ul>
 
-<p>to set up controls:</p>
+<p>To set up controls:</p>
 
 <ul>
-<li>go to <code>quick menu</code> -&gt; <code>controls</code></li>
-<li>go to <code>port 1 controls</code></li>
-<li>directional controls are already good</li>
-<li>set 97 to start</li>
-<li>set 96 to A</li>
-<li>set 100 to select</li>
-<li>set 99 to B</li>
-<li>disable everything else</li>
-<li>go back and tap <code>save core remap file</code></li>
+<li>Go to <code>quick menu</code> -&gt; <code>controls</code>.</li>
+<li>Go to <code>port 1 controls</code>.</li>
+<li>Directional controls are already good.</li>
+<li>Set 97 to start.</li>
+<li>Set 96 to A.</li>
+<li>Set 100 to select.</li>
+<li>Set 99 to B.</li>
+<li>Disable everything else.</li>
+<li>Go back and tap <code>save core remap file</code>.</li>
 </ul>
 
 <h3>SNES - BSNES HD Beta</h3>
 
-<p>go to your SNES games -&gt; edit -&gt; pick <code>Retroarch (bsnes)</code> in top dropdown menu (not very noticeable) -&gt; rename <code>retroarch core</code> to <code>bsnes_hd_beta_libretro_android.so</code> -&gt; tap <code>save</code>. for some reason the core is not automatically detected in RP3+ launcher.</p>
+<p>Go to your SNES games -&gt; edit -&gt; pick <code>Retroarch (bsnes)</code> in top dropdown menu (not very noticeable) -&gt; rename <code>retroarch core</code> to <code>bsnes_hd_beta_libretro_android.so</code> -&gt; tap <code>save</code>. For some reason the core is not automatically detected in RP3+ launcher.</p>
 
-<p>with this core however, controls are already mapped correctly!</p>
+<p>With this core however, controls are already mapped correctly!</p>
 
-<p>to set up graphics and widescreen hacks:</p>
+<p>To set up graphics and widescreen hacks:</p>
 
 <ul>
-<li>launch any games, go to retroid quick menu -&gt; options</li>
-<li>enable <code>blur emulation</code></li>
-<li>enable <code>hotfixes</code></li>
-<li>set <code>hd mode 7 - scale</code> to <code>240p (1x)</code></li>
-<li>set <code>hd mode 7 - perspective correction</code> to <code>ON (wide)</code></li>
-<li>set <code>widescreen mode</code> to <code>enable for all scenes</code></li>
-<li>keep all <code>widescreen - background layer #</code> options to defaults</li>
-<li>set <code>widescreen - sprites</code> to <code>render when in safe area</code></li>
-<li>set <code>widescreen - area background color</code> to <code>always fill</code></li>
-<li>set <code>widescreen - ignore window effects</code> to <code>OFF</code></li>
+<li>Launch any games, go to retroid quick menu -&gt; options.</li>
+<li>Enable <code>blur emulation</code>.</li>
+<li>Enable <code>hotfixes</code>.</li>
+<li>Set <code>hd mode 7 - scale</code> to <code>240p (1x)</code>.</li>
+<li>Set <code>hd mode 7 - perspective correction</code> to <code>ON (wide)</code>.</li>
+<li>Set <code>widescreen mode</code> to <code>enable for all scenes</code>.</li>
+<li>Keep all <code>widescreen - background layer #</code> options to defaults.</li>
+<li>Set <code>widescreen - sprites</code> to <code>render when in safe area</code>.</li>
+<li>Set <code>widescreen - area background color</code> to <code>always fill</code>.</li>
+<li>Set <code>widescreen - ignore window effects</code> to <code>OFF</code>.</li>
 </ul>
 
-<p>besides widescreen hacks, graphics look pretty good by default.</p>
+<p>Besides widescreen hacks, graphics look pretty good by default.</p>
 
 <h3>PS1 - duckstation</h3>
 
-<p>launch duckstation, enable storage permissions and tap menu -&gt; controller settings:</p>
+<p>Launch duckstation, enable storage permissions and tap menu -&gt; controller settings:</p>
 
 <ul>
-<li>enable <code>auto-hide touchscreen controller</code></li>
-<li>go to <code>port 1</code> tab, select controller type: <code>analog controller (dualshock)</code></li>
-<li>in the same tab, enable <code>use analog sticks for d-pad in digital mode</code></li>
-<li>click on each button and set them as you would expect</li>
+<li>Enable <code>auto-hide touchscreen controller</code>.</li>
+<li>Go to <code>port 1</code> tab, select controller type: <code>analog controller (dualshock)</code>.</li>
+<li>In the same tab, enable <code>use analog sticks for d-pad in digital mode</code>.</li>
+<li>Click on each button and set them as you would expect.</li>
 </ul>
 
-<p>go back to main menu -&gt; app settings -&gt; enhancements:</p>
+<p>Go back to main menu -&gt; app settings -&gt; enhancements:</p>
 
 <ul>
-<li>set <code>resolution scale</code> to <code>2x</code></li>
-<li>enable <code>PGXP geometry correction</code> (may impact performance)</li>
+<li>Set <code>resolution scale</code> to <code>2x</code>.</li>
+<li>Enable <code>PGXP geometry correction</code> (may impact performance).</li>
 </ul>
 
-<p>go to main menu -&gt; app settings -&gt; display:</p>
+<p>Go to main menu -&gt; app settings -&gt; display:</p>
 
 <ul>
-<li>set aspect ratio to <code>16:9</code></li>
+<li>Set aspect ratio to <code>16:9</code>.</li>
 </ul>
 
-<p>go back to main menu -&gt; app settings -&gt; ehhancements:</p>
+<p>Go back to main menu -&gt; app settings -&gt; ehhancements:</p>
 
 <ul>
-<li>enable <code>widescreen hack</code></li>
+<li>Enable <code>widescreen hack</code>.</li>
 </ul>
 
-<p>duckstation is <em>awful</em> to import the bios file. nothing works except the following:</p>
+<p>Duckstation is <em>awful</em> to import the bios file. Nothing works except the following:</p>
 
 <ul>
-<li>go to main menu -&gt; start file</li>
-<li>pick a random ROM to start</li>
-<li>when it prompts you to select a BIOS, navigate to your SD card and pick <code>scph1001.bin</code></li>
+<li>Go to main menu -&gt; start file.</li>
+<li>Pick a random ROM to start.</li>
+<li>When it prompts you to select a BIOS, navigate to your SD card and pick <code>scph1001.bin</code>.</li>
 </ul>
 
 <h3>N64 - mupen64</h3>
 
 <ul>
-<li>click on left menu bar -&gt; profiles -&gt; emulation</li>
-<li>select <code>rice-accurate</code> and <code>copy</code></li>
-<li>give it a unique name when prompted</li>
-<li>set <code>video plugin</code> to <code>gliden64 (gliden64 beta)</code></li>
-<li>enable <code>widescreen hack</code></li>
-<li>go back to main menu -&gt; profiles -&gt; select profiles -&gt; emulation profile</li>
-<li>pick your custom profile</li>
-<li>go back to main menu -&gt; settings -&gt; shaders</li>
-<li>set <code>shader scale factor</code> to 1</li>
-<li>tap add in <code>shader passes</code></li>
-<li>select <code>FXAA</code></li>
-<li>go back to main menu -&gt; settings -&gt; input -&gt; set <code>show in-game menu</code> to <code>when slide gesture is used</code></li>
-<li>go to main menu -&gt; settings -&gt; display -&gt; set <code>rendered resolution</code> to <code>native</code></li>
-<li>in the same menu, set <code>framerate</code> to <code>off</code></li>
+<li>Click on left menu bar -&gt; profiles -&gt; emulation.</li>
+<li>Select <code>rice-accurate</code> and <code>copy</code>.</li>
+<li>Give it a unique name when prompted.</li>
+<li>Set <code>video plugin</code> to <code>gliden64 (gliden64 beta)</code>.</li>
+<li>Enable <code>widescreen hack</code>.</li>
+<li>Go back to main menu -&gt; profiles -&gt; select profiles -&gt; emulation profile.</li>
+<li>Pick your custom profile.</li>
+<li>Go back to main menu -&gt; settings -&gt; shaders.</li>
+<li>Set <code>shader scale factor</code> to 1.</li>
+<li>Tap add in <code>shader passes</code>.</li>
+<li>Select <code>FXAA</code>.</li>
+<li>Go back to main menu -&gt; settings -&gt; input -&gt; set <code>show in-game menu</code> to <code>when slide gesture is used</code>.</li>
+<li>Go to main menu -&gt; settings -&gt; display -&gt; set <code>rendered resolution</code> to <code>native</code>.</li>
+<li>In the same menu, set <code>framerate</code> to <code>off</code>.</li>
 </ul>
 
-<p>to set up controls:</p>
+<p>To set up controls:</p>
 
 <ul>
-<li>go back to main menu -&gt; profiles -&gt; controller</li>
-<li>select <code>android gamepad</code> and <code>copy</code></li>
-<li>give it a unique name when prompted</li>
-<li>select the profile</li>
-<li>everything should be mapped correctly, just map <code>Z</code> to <code>R2</code> as well</li>
-<li>go back to main menu -&gt; profiles -&gt; select profiles -&gt; controller 1 profile</li>
-<li>pick your custom profile</li>
+<li>Go back to main menu -&gt; profiles -&gt; controller.</li>
+<li>Select <code>android gamepad</code> and <code>copy</code>.</li>
+<li>Give it a unique name when prompted.</li>
+<li>Select the profile.</li>
+<li>Everything should be mapped correctly, just map <code>Z</code> to <code>R2</code> as well.</li>
+<li>Go back to main menu -&gt; profiles -&gt; select profiles -&gt; controller 1 profile.</li>
+<li>Pick your custom profile.</li>
 </ul>
 
-<h3>gameboy advance - mGBA</h3>
+<h3>Gameboy advance - mGBA</h3>
 
-<p>if RP3+ launcher doesn&#39;t detect mGBA as the default emulator, go to your GBA games -&gt; edit -&gt; pick <code>mGBA</code> in top dropdown menu (not very noticeable) -&gt; tap <code>save</code>.</p>
+<p>If RP3+ launcher doesn&#39;t detect mGBA as the default emulator, go to your GBA games -&gt; edit -&gt; pick <code>mGBA</code> in top dropdown menu (not very noticeable) -&gt; tap <code>save</code>.</p>
 
-<p>launch any game, enter retroarch quick menu, and set up controls:</p>
+<p>Launch any game, enter retroarch quick menu, and set up controls:</p>
 
 <ul>
-<li>go to <code>quick menu</code> -&gt; <code>controls</code></li>
-<li>go to <code>port 1 controls</code></li>
-<li>directional controls are already good</li>
-<li>set 97 to start</li>
-<li>set 96 to A</li>
-<li>set 100 to select</li>
-<li>set 99 to B</li>
-<li>disable everything else except 102 and 103 (L and R)</li>
-<li>go back and tap <code>save core remap file</code></li>
+<li>Go to <code>quick menu</code> -&gt; <code>controls</code>.</li>
+<li>Go to <code>port 1 controls</code>.</li>
+<li>Directional controls are already good.</li>
+<li>Set 97 to start.</li>
+<li>Set 96 to A.</li>
+<li>Set 100 to select.</li>
+<li>Set 99 to B.</li>
+<li>Disable everything else except 102 and 103 (L and R).</li>
+<li>Go back and tap <code>save core remap file</code>.</li>
 </ul>
 
-<p>press R3 + X to access retroarch menu again, then navigate to the <code>quick menu</code> -&gt; <code>shaders</code> section:</p>
+<p>Press R3 + X to access retroarch menu again, then navigate to the <code>quick menu</code> -&gt; <code>shaders</code> section:</p>
 
 <ul>
-<li>enable <code>video shaders</code></li>
-<li>go to <code>load</code></li>
-<li>pick <code>shaders_glsl</code> -&gt; <code>handheld</code> -&gt; <code>lcd3x.glslp</code></li>
-<li>go back to <code>shaders</code> section</li>
-<li>go to <code>shader parameters</code> and set <code>brighten LCD</code> to <code>8.00</code></li>
-<li>go back to <code>shaders</code>, go to <code>save</code> -&gt; <code>save core preset</code></li>
+<li>Enable <code>video shaders</code>.</li>
+<li>Go to <code>load</code>.</li>
+<li>Pick <code>shaders_glsl</code> -&gt; <code>handheld</code> -&gt; <code>lcd3x.glslp</code>.</li>
+<li>Go back to <code>shaders</code> section.</li>
+<li>Go to <code>shader parameters</code> and set <code>brighten LCD</code> to <code>8.00</code>.</li>
+<li>Go back to <code>shaders</code>, go to <code>save</code> -&gt; <code>save core preset</code>.</li>
 </ul>
 
-<p>go back to <code>quick menu</code> -&gt; <code>options</code> -&gt; <code>video</code>:</p>
+<p>Go back to <code>quick menu</code> -&gt; <code>options</code> -&gt; <code>video</code>:</p>
 
 <ul>
-<li>set <code>color correction</code> to <code>game boy advance</code></li>
-<li>set <code>interframe blending</code> to <code>smart</code></li>
+<li>Set <code>color correction</code> to <code>game boy advance</code>.</li>
+<li>Set <code>interframe blending</code> to <code>smart</code>.</li>
 </ul>
 
-<h2>set up daijisho</h2>
+<h2>Set up daijisho</h2>
 
 <ul>
-<li>launch daijisho, tap on <code>download platforms</code>, select your console and tap <code>import</code></li>
-<li>tap <code>settings</code> -&gt; <code>video and sounds</code> -&gt; disable <code>make button sounds</code></li>
-<li>back in <code>platforms</code> menu, for each platform, tap <code>paths</code> -&gt; <code>add more</code> and select your games directory for the console</li>
-<li>for each platform, tap on the bottom-right edit icon -&gt; select your emulator in <code>player settings</code> and tap save. for retroarch cores, make sure to select those with <code>retroarch64</code></li>
-<li>for each platform, tap <code>paths</code> -&gt; <code>sync</code></li>
-<li>tap <code>settings</code> -&gt; <code>library</code> -&gt; enable <code>disable players warnings</code></li>
-<li>tap <code>settings</code> -&gt; <code>appearance</code> -&gt; <code>download platform wallpapers pack</code></li>
-<li>pick <code>alekfull-NX</code> -&gt; <code>download pack</code> -&gt; <code>confirm</code></li>
-<li>go to android settings -&gt; search for <code>home</code>, select <code>default home app</code> and pick <code>daijisho</code></li>
+<li>Launch daijisho, tap on <code>download platforms</code>, select your console and tap <code>import</code>.</li>
+<li>Tap <code>settings</code> -&gt; <code>video and sounds</code> -&gt; disable <code>make button sounds</code>.</li>
+<li>Back in <code>platforms</code> menu, for each platform, tap <code>paths</code> -&gt; <code>add more</code> and select your games directory for the console.</li>
+<li>For each platform, tap on the bottom-right edit icon -&gt; select your emulator in <code>player settings</code> and tap save. For retroarch cores, make sure to select those with <code>retroarch64</code>.</li>
+<li>For each platform, tap <code>paths</code> -&gt; <code>sync</code>.</li>
+<li>Tap <code>settings</code> -&gt; <code>library</code> -&gt; enable <code>disable players warnings</code>.</li>
+<li>Tap <code>settings</code> -&gt; <code>appearance</code> -&gt; <code>download platform wallpapers pack</code>.</li>
+<li>Pick <code>alekfull-NX</code> -&gt; <code>download pack</code> -&gt; <code>confirm</code>.</li>
+<li>Go to android settings -&gt; search for <code>home</code>, select <code>default home app</code> and pick <code>daijisho</code>.</li>
 </ul>
 
-<p>if some games need an alternate emulator (especially useful for snes games not working well with widescreen hacks):</p>
+<p>If some games need an alternate emulator (especially useful for SNES games not working well with widescreen hacks):</p>
 
 <ul>
-<li>select game</li>
-<li>tap <code>edit item</code></li>
-<li>scroll down and enable <code>custom player</code></li>
-<li>pick another emulator (like bsnes standard) and tap <code>save</code></li>
+<li>Select game.</li>
+<li>Tap <code>edit item</code>.</li>
+<li>Scroll down and enable <code>custom player</code>.</li>
+<li>Pick another emulator (like bsnes standard) and tap <code>save</code>.</li>
 </ul>
 
-<p>if some box art is missing:</p>
+<p>If some box art is missing:</p>
 
 <ul>
-<li>download box art on the web</li>
-<li>select game in <code>daijisho</code></li>
-<li>tap <code>edit item</code></li>
-<li>tap <code>edit preview media</code> and select <code>box art</code></li>
-<li>select your box art and save</li>
+<li>Download box art on the web.</li>
+<li>Select game in <code>daijisho</code>.</li>
+<li>Tap <code>edit item</code>.</li>
+<li>Tap <code>edit preview media</code> and select <code>box art</code>.</li>
+<li>Select your box art and save.</li>
 </ul>
 
-<h2>fix some emulators with daijisho</h2>
+<h2>Fix some emulators with daijisho</h2>
 
-<p>some emulators don&#39;t run with daijisho at first, here&#39;s how to fix them:</p>
+<p>Some emulators don&#39;t run with daijisho at first, here&#39;s how to fix them:</p>
 
-<p>mupen64: </p>
+<p>Mupen64: </p>
 
 <ul>
-<li>go to <code>settings</code> -&gt; <code>library</code> -&gt; <code>inspect players</code></li>
-<li>select <code>n64 - org.mupen64.plusae.v3.fzurita</code></li>
-<li>replace <code>{file.uri}</code> with <code>{file.path}</code> in <code>player am start arguments</code></li>
-<li>tap <code>save</code></li>
+<li>Go to <code>settings</code> -&gt; <code>library</code> -&gt; <code>inspect players</code>.</li>
+<li>Select <code>n64 - org.mupen64.plusae.v3.fzurita</code>.</li>
+<li>Replace <code>{file.uri}</code> with <code>{file.path}</code> in <code>player am start arguments</code>.</li>
+<li>Tap <code>save</code>.</li>
 </ul>
 
-<p>duckstation:</p>
+<p>Duckstation:</p>
 
 <ul>
-<li>same issue, fix the same parameter in <code>psx - Duckstation</code></li>
+<li>Same issue, fix the same parameter in <code>psx - Duckstation</code>.</li>
 </ul>
 
-<h2>backup and restore</h2>
+<h2>Backup and restore</h2>
 
-<p>you&#39;ve been through all of this and never want to do it again. same here. how do we backup everything?</p>
+<p>You&#39;ve been through all of this and never want to do it again. Same here. How do we backup everything?</p>
 
-<p>as far as i know, we can only make a copy of the SD card by copying its <code>RetroidPocketGames</code> directory. since we&#39;re dealing with an android device, full system backups are not a thing, even with <code>adb</code>.</p>
+<p>As far as i know, we can only make a copy of the SD card by copying its <code>RetroidPocketGames</code> directory. Since we&#39;re dealing with an android device, full system backups are not a thing, even with <code>adb</code>.</p>
 
-<p>i&#39;d like to be wrong about this however, and hope to find something.</p>
+<p>I&#39;d like to be wrong about this however, and hope to find something that works.</p>
 
-<h2>references</h2>
+<h2>References</h2>
 
 <ul>
 <li><a href="https://retrogamecorps.com/" rel="nofollow">https://retrogamecorps.com/</a></li>
