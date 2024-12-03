@@ -49,31 +49,31 @@
     <main>
 
     
-    <h1>smartctl usage</h1>
+    <h1>Smartctl usage</h1>
 
-<p>no-nonsense guide to monitor the health of HDDs and SSDs with smartctl.</p>
+<p>No-nonsense guide to monitor the health of HDDs and SSDs with smartctl.</p>
 
-<h2>run and check tests</h2>
+<h2>Run and check tests</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># run a short test</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Run a short test.</span>
 <span class="nb">sudo </span>smartctl <span class="nt">-t</span> short /dev/sd[x]
-<span class="c"># run a long test</span>
+<span class="c"># Run a long test.</span>
 <span class="nb">sudo </span>smartctl <span class="nt">-t</span> long /dev/sd[x]
-<span class="c"># check progress of running test</span>
+<span class="c"># Check progress of running test.</span>
 <span class="nb">sudo </span>smartctl <span class="nt">-a</span> /dev/sd[x] | <span class="nb">grep</span> <span class="s2">"of test"</span>
-<span class="c"># list test results</span>
+<span class="c"># List test results.</span>
 <span class="nb">sudo </span>smartctl <span class="nt">-l</span> selftest /dev/sd[x]
 </code></pre></div>
 
-<h2>monitor health</h2>
+<h2>Monitor health</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># check SMART reports</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Check SMART reports.</span>
 <span class="nb">sudo </span>smartctl <span class="nt">-H</span> /dev/sd[x]
-<span class="c"># check detailed info and all SMART attributes</span>
+<span class="c"># Check detailed info and all SMART attributes.</span>
 <span class="nb">sudo </span>smartctl <span class="nt">-a</span> /dev/sd[x]
 </code></pre></div>
 
-<p>suggested attributes that might indicate a failing HDD:</p>
+<p>Suggested attributes that might indicate a failing HDD:</p>
 
 <ul>
 <li><p>SMART 5: Reallocated_Sector_Count</p>
@@ -103,15 +103,15 @@
 </ul></li>
 </ul>
 
-<p>suggested attributes that might indicate a failing SSD:</p>
+<p>Suggested attributes that might indicate a failing SSD:</p>
 
 <ul>
-<li>check for Percent_Lifetime_Remain or similarly named attributes</li>
-<li>check for SMART 5 increasing</li>
-<li>check for SMART 180 decreasing</li>
+<li>Check for Percent_Lifetime_Remain or similarly named attributes.</li>
+<li>Check for SMART 5 increasing.</li>
+<li>Check for SMART 180 decreasing.</li>
 </ul>
 
-<h2>references</h2>
+<h2>References</h2>
 
 <ul>
 <li><a href="https://blog.programster.org/smartmontools-and-smartctl-cheatsheet" rel="nofollow">https://blog.programster.org/smartmontools-and-smartctl-cheatsheet</a></li>

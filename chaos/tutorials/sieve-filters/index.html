@@ -49,14 +49,14 @@
     <main>
 
     
-    <h1>sieve filters</h1>
+    <h1>Sieve filters</h1>
 
-<p>sieve rule to send everything in spam unless the address is already in your allowlist:</p>
+<p>Sieve rule to send everything in spam unless the address is already in your allowlist:</p>
 
 <div class="highlight"><pre class="highlight plaintext"><code>require ["fileinto", "extlists"];
 
-# if the address is not in the allowlist,
-# send to spam. that's it.
+# If the address is not in the allowlist,
+# send to spam. That's it.
 if not header :list "from" ":incomingdefaults:inbox"
 {
   fileinto "Spam";
