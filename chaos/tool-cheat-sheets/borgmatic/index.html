@@ -51,31 +51,19 @@
     
     <h1>Borgmatic</h1>
 
-<p>Easy backups with borg. Install it with <code>pipx install borgmatic</code> and install borgbackup preferably through <code>apt</code>.</p>
+<p>Easier backups with borg. Install it with <code>pipx install borgmatic</code> and install borgbackup preferably through <code>apt</code>.</p>
 
 <h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># List backups:</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Init encrypted repo according to your config.</span>
+<span class="c"># Blake 2 is usually a bit faster:</span>
+borgmatic init <span class="nt">--encryption</span> repokey-blake2
+
+<span class="c"># List backups:</span>
 borgmatic list
 
 <span class="c"># Export encryption key, don't lose it:</span>
 borgmatic key <span class="nb">export</span>
-
-<span class="c"># Do a dry run export with the latest archive.</span>
-<span class="c"># This will restore the full absolute path, if you</span>
-<span class="c"># want to avoid that, use --strip-components &lt;num&gt;</span>
-<span class="c"># where &lt;num&gt; removes a set number of the leading path:</span>
-<span class="c"># "--strip-components 2" for "home/user/Documents" will</span>
-<span class="c"># remove "home/user" from the path. Never use leading</span>
-<span class="c"># slashes for --path (e.g. "home/user" and not "/home/user"):</span>
-borgmatic <span class="nt">--dry-run</span> <span class="nt">-v</span> 2 extract <span class="nt">--archive</span> latest <span class="nt">--path</span> &lt;path to restore&gt;
-
-<span class="c"># Perform a real extract if everything is correct on dry run:</span>
-borgmatic extract <span class="nt">--archive</span> latest <span class="nt">--path</span> &lt;path to restore&gt;
-
-<span class="c"># Check archives for consistency.</span>
-<span class="c"># This is usually slow, brace yourself:</span>
-borgmatic check <span class="nt">--progress</span> <span class="nt">--repository</span> &lt;repository label <span class="k">in </span>config&gt;
 
 <span class="c"># Perform pruning, compaction, create backups</span>
 <span class="c"># according to your config file, and check backups</span>
@@ -86,6 +74,69 @@ borgmatic <span class="nt">--verbosity</span> 1 <span class="nt">--list</span> <
 <span class="c"># For instance, this does as the default borgmatic command</span>
 <span class="c"># but omit checks for consistency:</span>
 borgmatic prune compact create <span class="nt">--verbosity</span> 1 <span class="nt">--list</span> <span class="nt">--stats</span>
+
+<span class="c"># Check archives for consistency.</span>
+<span class="c"># This is usually slow, brace yourself:</span>
+borgmatic check <span class="nt">--progress</span> <span class="nt">--repository</span> &lt;repository label <span class="k">in </span>config&gt;
+
+<span class="c"># Do a dry run extract with the latest archive.</span>
+<span class="c"># This will restore the full absolute path, if you</span>
+<span class="c"># want to avoid that, use --strip-components &lt;num&gt;</span>
+<span class="c"># where &lt;num&gt; removes a set number of the leading path:</span>
+<span class="c"># "--strip-components 2" for "home/user/Documents" will</span>
+<span class="c"># remove "home/user" from the path. Never use leading</span>
+<span class="c"># slashes for --path (e.g. "home/user" and not "/home/user"):</span>
+borgmatic <span class="nt">--dry-run</span> <span class="nt">-v</span> 2 extract <span class="nt">--archive</span> latest <span class="nt">--path</span> &lt;path to restore&gt;
+
+<span class="c"># Perform a real extract if everything is correct on dry run:</span>
+borgmatic extract <span class="nt">--verbosity</span> 1 <span class="nt">--list</span> <span class="nt">--stats</span> <span class="nt">--archive</span> latest <span class="nt">--path</span> &lt;path to restore&gt;
+
+<span class="c"># Do a dry run to delete an archive:</span>
+borgmatic <span class="nt">--dry-run</span> <span class="nt">-v</span> 2 delete <span class="nt">--repository</span> &lt;repository label <span class="k">in </span>config&gt; <span class="nt">--archive</span> &lt;latest or archive name as shown <span class="k">in </span>borgmatic list output&gt;
+
+<span class="c"># Perform real archive deletion if everything is correct on dry run.</span>
+<span class="c"># We chain delete and compact to actually free up space afterwards:</span>
+borgmatic delete compact <span class="nt">--verbosity</span> 2 <span class="nt">--list</span> <span class="nt">--stats</span> <span class="nt">--repository</span> &lt;repository label <span class="k">in </span>config&gt; <span class="nt">--archive</span> &lt;latest or archive name as shown <span class="k">in </span>borgmatic list output&gt;
+
+<span class="c"># Remove a directory or a file in all archives. All "borg recreate"</span>
+<span class="c"># commands can be dangerous, so be careful. Compact must be run</span>
+<span class="c"># afterwards to reclaim saved space:</span>
+borgmatic <span class="nt">--verbosity</span> 2 borg <span class="nt">--repository</span> &lt;repository label <span class="k">in </span>config&gt; recreate <span class="nt">--exclude</span> home/&lt;user&gt;/&lt;directory&gt; <span class="o">&amp;&amp;</span> borgmatic compact <span class="nt">--verbosity</span> 2
+</code></pre></div>
+
+<h2>Configuration template</h2>
+
+<p>A simple but sufficient configuration template in <code>~/.config/borgmatic/config.yaml</code> can look like this:</p>
+
+<div class="highlight"><pre class="highlight yaml"><code><span class="na">encryption_passcommand</span><span class="pi">:</span> <span class="s">&lt;shell command to get encryption passphrase&gt;</span>
+
+<span class="na">archive_name_format</span><span class="pi">:</span> <span class="s1">'</span><span class="s">{hostname}-{now:%d-%m-%Y-%H:%M:%S}'</span>
+<span class="na">compression</span><span class="pi">:</span> <span class="s">zstd</span>
+<span class="na">retries</span><span class="pi">:</span> <span class="m">5</span>
+<span class="na">retry_wait</span><span class="pi">:</span> <span class="m">30</span>
+
+<span class="na">keep_daily</span><span class="pi">:</span> <span class="m">7</span>
+<span class="na">keep_weekly</span><span class="pi">:</span> <span class="m">4</span>
+<span class="na">keep_monthly</span><span class="pi">:</span> <span class="m">6</span>
+<span class="na">keep_yearly</span><span class="pi">:</span> <span class="m">1</span>
+
+<span class="na">repositories</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s">/mnt/backups/&lt;repository name&gt;</span>
+    <span class="na">label</span><span class="pi">:</span> <span class="s">local</span>
+
+<span class="na">source_directories</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">/home/&lt;user&gt;</span>
+  <span class="pi">-</span> <span class="s">/mnt/&lt;other_drive&gt;</span>
+  <span class="pi">-</span> <span class="s">/mnt/&lt;another_drive&gt;</span>
+
+<span class="na">exclude_patterns</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">/home/*/.cache</span>
+  <span class="pi">-</span> <span class="s">/home/*/.zsh_history</span>
+  <span class="pi">-</span> <span class="s">/home/*/.bash_history</span>
+  <span class="pi">-</span> <span class="s">/mnt/*/lost+found</span>
+
+<span class="na">exclude_if_present</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">.nobackup</span>
 </code></pre></div>
 
     </main>
