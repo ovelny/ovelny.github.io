@@ -55,7 +55,10 @@
 
 <h2>Commands</h2>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># Init encrypted repo according to your config.</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Check if config file is valid:</span>
+borgmatic config validate
+
+<span class="c"># Init encrypted repo according to your config.</span>
 <span class="c"># Blake 2 is usually a bit faster:</span>
 borgmatic init <span class="nt">--encryption</span> repokey-blake2
 
