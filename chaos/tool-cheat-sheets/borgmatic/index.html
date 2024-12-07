@@ -108,35 +108,35 @@ borgmatic <span class="nt">--verbosity</span> 2 borg <span class="nt">--reposito
 
 <p>A simple but sufficient configuration template in <code>~/.config/borgmatic/config.yaml</code> can look like this:</p>
 
-<div class="highlight"><pre class="highlight yaml"><code><span class="na">encryption_passcommand</span><span class="pi">:</span> <span class="s">&lt;shell command to get encryption passphrase&gt;</span>
+<div class="highlight"><pre class="highlight plaintext"><code>encryption_passcommand: &lt;shell command to get encryption passphrase&gt;
 
-<span class="na">archive_name_format</span><span class="pi">:</span> <span class="s1">'</span><span class="s">{hostname}-{now:%d-%m-%Y-%H:%M:%S}'</span>
-<span class="na">compression</span><span class="pi">:</span> <span class="s">zstd</span>
-<span class="na">retries</span><span class="pi">:</span> <span class="m">5</span>
-<span class="na">retry_wait</span><span class="pi">:</span> <span class="m">30</span>
+archive_name_format: '{hostname}-{now:%d-%m-%Y-%H:%M:%S}'
+compression: zstd
+retries: 5
+retry_wait: 30
 
-<span class="na">keep_daily</span><span class="pi">:</span> <span class="m">7</span>
-<span class="na">keep_weekly</span><span class="pi">:</span> <span class="m">4</span>
-<span class="na">keep_monthly</span><span class="pi">:</span> <span class="m">6</span>
-<span class="na">keep_yearly</span><span class="pi">:</span> <span class="m">1</span>
+keep_daily: 7
+keep_weekly: 4
+keep_monthly: 6
+keep_yearly: 1
 
-<span class="na">repositories</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s">/mnt/backups/&lt;repository name&gt;</span>
-    <span class="na">label</span><span class="pi">:</span> <span class="s">local</span>
+repositories:
+  - path: /mnt/backups/&lt;repository name&gt;
+    label: local
 
-<span class="na">source_directories</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="s">/home/&lt;user&gt;</span>
-  <span class="pi">-</span> <span class="s">/mnt/&lt;other_drive&gt;</span>
-  <span class="pi">-</span> <span class="s">/mnt/&lt;another_drive&gt;</span>
+source_directories:
+  - /home/&lt;user&gt;
+  - /mnt/&lt;other_drive&gt;
+  - /mnt/&lt;another_drive&gt;
 
-<span class="na">exclude_patterns</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="s">/home/*/.cache</span>
-  <span class="pi">-</span> <span class="s">/home/*/.zsh_history</span>
-  <span class="pi">-</span> <span class="s">/home/*/.bash_history</span>
-  <span class="pi">-</span> <span class="s">/mnt/*/lost+found</span>
+exclude_patterns:
+  - /home/*/.cache
+  - /home/*/.zsh_history
+  - /home/*/.bash_history
+  - /mnt/*/lost+found
 
-<span class="na">exclude_if_present</span><span class="pi">:</span>
-  <span class="pi">-</span> <span class="s">.nobackup</span>
+exclude_if_present:
+  - .nobackup
 </code></pre></div>
 
     </main>
