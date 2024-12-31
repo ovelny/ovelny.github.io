@@ -2,13 +2,36 @@
 <feed xmlns="http://www.w3.org/2005/Atom" xml:base="https://ovelny.sh/">
   <id>https://ovelny.sh/</id>
   <title>ovelny</title>
-  <updated>2022-05-24T00:00:00Z</updated>
+  <updated>2024-12-31T00:00:00Z</updated>
   <link rel="alternate" href="https://ovelny.sh/" type="text/html"/>
   <link rel="self" href="https://ovelny.sh/atom.xml" type="application/atom+xml"/>
   <author>
     <name>ovelny</name>
     <uri>https://ovelny.sh</uri>
   </author>
+  <entry>
+    <id>tag:ovelny.sh,2024-12-31:/blog/a-quick-post-before-2025/</id>
+    <title type="html">A quick post before 2025</title>
+    <published>2024-12-31T00:00:00Z</published>
+    <updated>2024-12-31T00:00:00Z</updated>
+    <link rel="alternate" href="https://ovelny.sh/blog/a-quick-post-before-2025/" type="text/html"/>
+    <content type="html">&lt;p&gt;I&amp;#39;m taking the opportunity to make one last post for 2024, a few hours before the new year begins.&lt;/p&gt;
+
+&lt;p&gt;I want this place to be more active! While I&amp;#39;ve been updating my wikis quite a lot, I didn&amp;#39;t post anything new since a long while.&lt;/p&gt;
+
+&lt;p&gt;This needs to change for 2025.&lt;/p&gt;
+
+&lt;p&gt;I need to make this place truly mine.&lt;/p&gt;
+
+&lt;p&gt;Not everything has to be an elaborate, exhaustive post that I&amp;#39;ll proofread into oblivion. Not everything needs to be a showcase of tech proficiency. Writing about anything else matters just as much.&lt;/p&gt;
+
+&lt;p&gt;Perfectionism leads nowhere, even when you take things slow. I aim to break that cycle and embrace the fear leading up to that change. We&amp;#39;ll see where that goes (•ᴗ•)&lt;/p&gt;
+
+&lt;p&gt;While my next post will be about tech, the others might not.&lt;/p&gt;
+
+&lt;p&gt;Happy new year for anyone celebrating it, and thanks for reading 💜&lt;/p&gt;
+</content>
+  </entry>
   <entry>
     <id>tag:ovelny.sh,2022-05-24:/blog/tryhackme-writeup-brainstorm/</id>
     <title type="html">TryHackMe writeup: Brainstorm</title>
