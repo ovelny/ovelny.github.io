@@ -158,6 +158,13 @@ img.logo:hover {
   text-align: left;
 }
 
+.support {
+  border-radius: 8px;
+  border: 2px solid #666666;
+  background-color: #282828;
+  padding: 8px;
+}
+
 code,
 .now-date {
   font-weight: bold;
