@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - A complete guide for your GoToSocial server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - A complete guide for your GoToSocial server"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+      <h1>A complete guide for your GoToSocial server</h1>
+    
+    <p><a href="https://gotosocial.org/" rel="nofollow">GoToSocial</a> is an <a href="https://activitypub.rocks/" rel="nofollow">ActivityPub</a> server that lets you interact with your friends on the Fediverse. It&#39;s written in Golang and is very lightweight compared to other softwares, especially Mastodon. It&#39;s not particularly designed to host large communities, sure, but it has the advantage of being easier to maintain and can run on any cheap VPS: 1 CPU core, 1 GB of memory and 15-20GB of available space is all you need. Even a single-board computer will do.</p>
+
+<p>Plus, it has an amazing set of requirements for <a href="https://github.com/superseriousbusiness/gotosocial#corporate-sponsorship" rel="nofollow">corporate sponsorship</a>! Something that many open-source projects should take a page from.</p>
+
+<p>For all these reasons, I picked this server for my upcoming single-user instance. It might grow and host a few folks later on, but a large userbase is definitely <em>not</em> something I&#39;ll need.</p>
+
+<p>The <a href="https://docs.gotosocial.org/en/latest/" rel="nofollow">official documentation</a> is already exhaustive, but I want to make an attempt at a fully fledged guide, one that covers more than the instance setup:</p>
+
+<ul>
+<li>Initial VPS setup and hardening.</li>
+<li>Reverse proxying with <a href="https://caddyserver.com/" rel="nofollow">Caddy</a>.</li>
+<li>More hardening with <a href="https://github.com/fail2ban/fail2ban" rel="nofollow">fail2ban</a>.</li>
+<li>Additional rate limiting.</li>
+<li>Web Application Firewall setup with <a href="https://owasp.org/www-project-coraza-web-application-firewall/" rel="nofollow">OWASP Coraza</a>.</li>
+<li>Automated backups with <a href="https://restic.net/" rel="nofollow">restic</a>.</li>
+</ul>
+
+<p>We will also set up GoToSocial with a <a href="https://docs.gotosocial.org/en/latest/advanced/host-account-domain/" rel="nofollow">split-domain deployment</a>, so we can have usernames like <code>@user@example.net</code>, even if the instance is running on a subdomain such as <code>gts.example.net</code>. That way, you can use the domain for anything else you want, such as a custom landing page.</p>
+
+<p>This guide is provider-agnostic, but we will use Debian (currently version 12) on top of the aforementioned tools.</p>
+
+<p><strong>Important note</strong>: all fields surrounded by brackets in this guide, like <code>&lt;this&gt;</code>, are values to replace accordingly, depending on context that will be specified.</p>
+
+<p>Let&#39;s get started, assuming you already got a domain and subdomain tied to your VPS IP. Even if this guide aims for completeness, don&#39;t hesitate to search and investigate for more details, and be sure to check the references at the end.</p>
+
+<h2>Basic VPS setup and hardening</h2>
+
+<p>Your provider most likely has a dashboard to let you upload your SSH public key, so you can SSH in your VPS once it&#39;s deployed. Let&#39;s log in with <code>ssh root@&lt;VPS IP address&gt;</code> and work on hardening the server first:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Create a user for yourself and</span>
+<span class="c"># grant it admin privileges:</span>
+adduser &lt;username&gt;
+usermod <span class="nt">-aG</span> <span class="nb">sudo</span> &lt;username&gt;
+
+<span class="c"># Switch to your newly created user:</span>
+su &lt;username&gt;
+
+<span class="c"># Move root's authorized_keys so you can SSH with this user:</span>
+<span class="nb">mkdir</span> ~/.ssh
+<span class="nb">sudo mv</span> /root/.ssh/authorized_keys ~/.ssh/
+
+<span class="c"># Change permissions accordingly:</span>
+<span class="nb">sudo chown</span> &lt;username&gt;:&lt;username&gt; ~/.ssh/authorized_keys
+<span class="nb">chmod </span>700 ~/.ssh
+
+<span class="c"># Set root shell to nologin and lock the account:</span>
+<span class="nb">sudo </span>usermod root <span class="nt">--shell</span> /sbin/nologin
+<span class="nb">sudo </span>passwd <span class="nt">--lock</span> root
+
+<span class="c"># Update everything:</span>
+<span class="nb">sudo </span>apt update <span class="o">&amp;&amp;</span> <span class="nb">sudo </span>apt full-upgrade
+
+<span class="c"># Install and setup ufw:</span>
+<span class="nb">sudo </span>apt <span class="nb">install </span>ufw
+<span class="nb">sudo </span>ufw default deny outgoing comment <span class="s1">'Deny all outgoing traffic'</span>
+<span class="nb">sudo </span>ufw default deny incoming comment <span class="s1">'Deny all incoming traffic'</span>
+<span class="nb">sudo </span>ufw limit <span class="k">in </span>ssh <span class="c"># we don't wanna lock ourselves out, do we?</span>
+<span class="nb">sudo </span>ufw allow out 53 comment <span class="s1">'Allow DNS calls out'</span>
+<span class="nb">sudo </span>ufw allow out 123 comment <span class="s1">'Allow NTP out'</span>
+<span class="nb">sudo </span>ufw allow out http comment <span class="s1">'Allow HTTP traffic out'</span>
+<span class="nb">sudo </span>ufw allow out https comment <span class="s1">'Allow HTTPS traffic out'</span>
+<span class="nb">sudo </span>ufw allow out whois comment <span class="s1">'Allow WHOIS'</span>
+<span class="nb">sudo </span>ufw allow <span class="k">in </span>http <span class="c"># for GoToSocial</span>
+<span class="nb">sudo </span>ufw allow <span class="k">in </span>https <span class="c"># for Caddy</span>
+<span class="nb">sudo </span>ufw <span class="nb">enable
+sudo </span>ufw status verbose <span class="c"># check that everything is set up</span>
+
+<span class="c"># Set up your timezone. Replace &lt;your timezone&gt;</span>
+<span class="c"># with any value found by running `timedatectl list-timezones`:</span>
+<span class="nb">sudo </span>timedatectl set-timezone &lt;your timezone&gt;
+
+<span class="c"># Set up unattended-upgrades:</span>
+<span class="nb">sudo </span>apt <span class="nb">install </span>unattended-upgrades
+<span class="nb">sudo </span>systemctl status unattended-upgrades <span class="c"># check if service is loaded and active</span>
+
+<span class="c"># Set up fail2ban:</span>
+<span class="nb">sudo </span>apt <span class="nb">install </span>fail2ban
+<span class="nb">sudo </span>systemctl status fail2ban <span class="c"># check if fail2ban is loaded and active</span>
+
+<span class="c"># Create a group for SSH users, for easier management:</span>
+<span class="nb">sudo </span>groupadd sshusers
+
+<span class="c"># Create a group to limit su usage:</span>
+<span class="nb">sudo </span>groupadd suusers
+
+<span class="c"># Restrict /bin/su usage to members of suusers group:</span>
+<span class="nb">sudo </span>dpkg-statoverride <span class="nt">--update</span> <span class="nt">--add</span> root suusers 4750 /bin/su
+
+<span class="c"># Add ourselves to both groups:</span>
+<span class="nb">sudo </span>usermod <span class="nt">-aG</span> sshusers &lt;username&gt;
+<span class="nb">sudo </span>usermod <span class="nt">-aG</span> suusers &lt;username&gt;
+
+<span class="c"># Configure swap space and swappiness.</span>
+<span class="c"># A decent rule of thumb for swap space is the following:</span>
+<span class="c"># * Less than 2GB of RAM: swap == RAM * 2.</span>
+<span class="c"># * More than 2GB of RAM: swap == RAM, up to 8G.</span>
+<span class="c"># Use free -h to get your current swap space.</span>
+<span class="nb">sudo </span>fallocate <span class="nt">-l</span> &lt;swap size, i.e. 4G&gt; /swapfile
+<span class="nb">ls</span> <span class="nt">-lsah</span> /swapfile <span class="c"># make sure the correct amount of space has been allocated</span>
+<span class="nb">sudo chmod </span>600 /swapfile <span class="c"># make file only accessible by root</span>
+<span class="nb">sudo </span>mkswap /swapfile <span class="c"># define file as swap space</span>
+<span class="nb">sudo </span>swapon /swapfile <span class="c"># enable swap space</span>
+<span class="nb">sudo </span>swapon <span class="nt">--show</span> <span class="c"># check that swap is available</span>
+free <span class="nt">-h</span> <span class="c"># check again with free, just in case</span>
+<span class="nb">sudo cp</span> /etc/fstab /etc/fstab.bak <span class="c"># backup fstab file in case anything goes wrong</span>
+<span class="nb">echo</span> <span class="s1">'/swapfile none swap sw 0 0'</span> | <span class="nb">sudo tee</span> <span class="nt">-a</span> /etc/fstab <span class="c"># add swap file permanently to /etc/fstab</span>
+<span class="nb">cat</span> /proc/sys/vm/swappiness <span class="c"># check current swappiness value</span>
+<span class="nb">sudo </span>sysctl vm.swappiness<span class="o">=</span>10 <span class="c"># change swappiness for a server value, to avoid swapping too early</span>
+<span class="nb">sudo </span>vi /etc/sysctl.conf <span class="c"># edit settings to make this change permanent</span>
+vm.swappiness<span class="o">=</span>10 <span class="c"># add the following line at the very bottom of sysctl.conf</span>
+</code></pre></div>
+
+<p>Next, remove everything in <code>/etc/ssh/sshd_config</code> and replace it with the following. Be sure to change <code>&lt;XXXX&gt;</code> in the first line with a port number of your choice. This is merely security by obscurity, but changing it is easy and may avoid some log spam:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>Port &lt;XXXX&gt;
+Protocol 2
+LoginGraceTime 1m
+MaxAuthTries 3
+MaxSessions 2
+MaxStartups 2
+ClientAliveInterval 180
+ClientAliveCountMax 0
+LogLevel VERBOSE
+PermitRootLogin no
+PermitUserEnvironment no
+PubkeyAuthentication yes
+PasswordAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+AllowGroups sshusers
+X11Forwarding no
+UsePAM yes
+AllowTcpForwarding no
+AllowStreamLocalForwarding no
+GatewayPorts no
+PermitTunnel no
+IgnoreRhosts yes
+HostbasedAuthentication no
+UseDNS yes
+Compression no
+TCPKeepAlive no
+AllowAgentForwarding no
+PrintMotd no
+PrintLastLog no
+</code></pre></div>
+
+<p>Allow your custom SSH port in <code>ufw</code> with <code>sudo ufw limit in &lt;XXXX&gt;/tcp</code>. Delete your previous SSH rules with <code>sudo ufw status numbered</code> and choosing the rule&#39;s IDs with <code>sudo ufw delete &lt;ID&gt;</code>. Be sure to also delete the <code>(v6)</code> rules.</p>
+
+<p>Apply changes by restarting sshd with <code>sudo systemctl restart ssh</code>. Check that your custom port has been applied with <code>sudo systemctl status ssh</code>.</p>
+
+<p>Create <code>/etc/fail2ban/jail.local</code> with the following configuration, be sure to specify the same SSH port we used in <code>/etc/ssh/sshd_config</code>:</p>
+
+<div class="highlight"><pre class="highlight toml"><code><span class="nn">[DEFAULT]</span>
+<span class="py">bantime</span> <span class="p">=</span> <span class="mi">1</span><span class="err">d</span>
+<span class="py">findtime</span> <span class="p">=</span> <span class="mi">15</span><span class="err">m</span>
+<span class="py">maxretry</span> <span class="p">=</span> <span class="mi">3</span>
+<span class="py">backend</span> <span class="p">=</span> <span class="err">auto</span>
+
+<span class="nn">[sshd]</span>
+<span class="py">enabled</span> <span class="p">=</span> <span class="kc">true</span>
+<span class="py">port</span> <span class="p">=</span> <span class="err">&lt;XXXX&gt;</span>
+<span class="py">banaction</span> <span class="p">=</span> <span class="err">ufw</span>
+</code></pre></div>
+
+<p>Apply changes by restarting fail2ban with <code>sudo systemctl restart fail2ban</code>. Check that the service is active and loaded with <code>sudo systemctl status fail2ban</code>.</p>
+
+<p>This might be a good time to log out and log back in, just to check that everything is working as expected. Make sure to use your username and custom port to log back in.</p>
+
+<h2>Base packages installation</h2>
+
+<p>Before configuring anything, let&#39;s install the base packages you will need with the following commands:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Install required apt packages:</span>
+<span class="nb">sudo </span>apt <span class="nb">install </span>debian-keyring debian-archive-keyring curl apt-transport-https restic gpg gpg-agent libnss3-tools git man-db postgresql postgresql-contrib sshpass
+
+<span class="c"># Update restic to latest version:</span>
+<span class="nb">sudo </span>restic self-update
+
+<span class="c"># Add cloudsmith repo for xcaddy:</span>
+curl <span class="nt">-1sLf</span> <span class="s1">'https://dl.cloudsmith.io/public/caddy/xcaddy/gpg.key'</span> | <span class="nb">sudo </span>gpg <span class="nt">--dearmor</span> <span class="nt">-o</span> /usr/share/keyrings/caddy-xcaddy-archive-keyring.gpg
+curl <span class="nt">-1sLf</span> <span class="s1">'https://dl.cloudsmith.io/public/caddy/xcaddy/debian.deb.txt'</span> | <span class="nb">sudo tee</span> /etc/apt/sources.list.d/caddy-xcaddy.list
+
+<span class="c"># Install xcaddy:</span>
+<span class="nb">sudo </span>apt update
+<span class="nb">sudo </span>apt <span class="nb">install </span>xcaddy
+
+<span class="c"># Install go with g: https://github.com/stefanmaric/g</span>
+<span class="c"># Read the script first before running it, and pick</span>
+<span class="c"># default settings along with latest go version install:</span>
+curl <span class="nt">-sSL</span> https://git.io/g-install | sh <span class="nt">-s</span>
+
+<span class="c"># Apply changes made to $PATH:</span>
+<span class="nb">source</span> ~/.bashrc
+
+<span class="c"># Install gopass:</span>
+go <span class="nb">install </span>github.com/gopasspw/gopass@latest
+
+<span class="c"># Install gotop. It's a graphical activity monitor I like,</span>
+<span class="c"># completely optional:</span>
+go <span class="nb">install </span>github.com/xxxserxxx/gotop/v4/cmd/gotop@latest
+</code></pre></div>
+
+<h2>xcaddy setup</h2>
+
+<p>To install Caddy, let&#39;s use <a href="https://github.com/caddyserver/xcaddy" rel="nofollow">xcaddy</a> so you can build it with additional plugins: the ones you must pick for this guide are <a href="https://github.com/mholt/caddy-ratelimit" rel="nofollow">caddy-ratelimit</a>, <a href="https://github.com/caddyserver/transform-encoder" rel="nofollow">transform-encoder</a> and <a href="https://github.com/corazawaf/coraza-caddy" rel="nofollow">coraza-caddy</a>, respectively for rate limiting, easier log parsing with fail2ban, and Coraza WAF.</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Build caddy with ratelimit, transform-encoder and Coraza WAF plugins.</span>
+<span class="c"># The environment variable is used to fix a RAM consumption issue with</span>
+<span class="c"># Coraza, as shown here: https://github.com/corazawaf/coraza-caddy/issues/76</span>
+<span class="nv">XCADDY_GO_BUILD_FLAGS</span><span class="o">=</span><span class="s1">'-tags=memoize_builders'</span> xcaddy build <span class="nt">--with</span> github.com/mholt/caddy-ratelimit <span class="nt">--with</span> github.com/caddyserver/transform-encoder <span class="nt">--with</span> github.com/corazawaf/coraza-caddy/v2
+
+<span class="c"># Create a system group for caddy:</span>
+<span class="nb">sudo </span>groupadd <span class="nt">--system</span> caddy
+
+<span class="c"># Create a system user for caddy:</span>
+<span class="nb">sudo </span>useradd <span class="nt">--system</span> <span class="se">\</span>
+    <span class="nt">--gid</span> caddy <span class="se">\</span>
+    <span class="nt">--create-home</span> <span class="se">\</span>
+    <span class="nt">--home-dir</span> /var/lib/caddy <span class="se">\</span>
+    <span class="nt">--shell</span> /usr/sbin/nologin <span class="se">\</span>
+    <span class="nt">--comment</span> <span class="s1">'Caddy web server'</span> <span class="se">\</span>
+    caddy
+
+<span class="c"># Limit permissions for caddy binary</span>
+<span class="c"># and move it into $PATH:</span>
+<span class="nb">sudo chmod </span><span class="nv">u</span><span class="o">=</span>x,g<span class="o">=</span>x,o-rwx caddy
+<span class="nb">sudo chown </span>caddy:caddy caddy
+<span class="nb">sudo mv </span>caddy /usr/bin/
+</code></pre></div>
+
+<p>Add the following systemd unit file in <code>/etc/systemd/system/caddy.service</code>, which can be found <a href="https://github.com/caddyserver/dist/blob/master/init/caddy.service" rel="nofollow">here</a>. Let&#39;s just add restart directives to it, in case it crashes:</p>
+
+<div class="highlight"><pre class="highlight systemd"><code><span class="k">[Unit]</span>
+<span class="nt">Description</span><span class="p">=</span>Caddy
+<span class="nt">Documentation</span><span class="p">=</span>https://caddyserver.com/docs/
+<span class="nt">After</span><span class="p">=</span>network.target network-online.target
+<span class="nt">Requires</span><span class="p">=</span>network-online.target
+
+<span class="k">[Service]</span>
+<span class="nt">Type</span><span class="p">=</span>notify
+<span class="nt">User</span><span class="p">=</span>caddy
+<span class="nt">Group</span><span class="p">=</span>caddy
+<span class="nt">ExecStart</span><span class="p">=</span>/usr/bin/caddy run --environ --config /etc/caddy/Caddyfile
+<span class="nt">ExecReload</span><span class="p">=</span>/usr/bin/caddy reload --config /etc/caddy/Caddyfile --force
+<span class="nt">RestartPreventExitStatus</span><span class="p">=</span>1
+<span class="nt">Restart</span><span class="p">=</span>on-failure
+<span class="nt">RestartSec</span><span class="p">=</span>5s
+<span class="nt">TimeoutStopSec</span><span class="p">=</span>5s
+<span class="nt">LimitNOFILE</span><span class="p">=</span>1048576
+<span class="nt">PrivateTmp</span><span class="p">=</span>true
+<span class="nt">ProtectSystem</span><span class="p">=</span>full
+<span class="nt">AmbientCapabilities</span><span class="p">=</span>CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+
+<span class="k">[Install]</span>
+<span class="nt">WantedBy</span><span class="p">=</span>multi-user.target
+</code></pre></div>
+
+<p>Create an empty CaddyFile and its directory for the service you just created. This file will contain all of your reverse proxying logic:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo mkdir</span> /etc/caddy
+<span class="nb">sudo touch</span> /etc/caddy/Caddyfile
+<span class="nb">sudo chown</span> <span class="nt">-R</span> caddy:caddy /etc/caddy <span class="c"># limit owner and group to caddy</span>
+<span class="nb">sudo chmod </span>o-rwx /etc/caddy/Caddyfile <span class="c"># change permissions accordingly</span>
+</code></pre></div>
+
+<p>Let&#39;s make a quick test by adding the following in your <code>/etc/caddy/Caddyfile</code>:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>localhost:8089 {
+        respond "hey there"
+}
+</code></pre></div>
+
+<p>You&#39;re now ready to start the service and see if it runs:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>systemctl daemon-reload
+<span class="nb">sudo </span>systemctl <span class="nb">enable</span> <span class="nt">--now</span> caddy
+systemctl status caddy <span class="c"># check if caddy is loaded and active</span>
+</code></pre></div>
+
+<p>If caddy is working as expected, run the following to install the root CA certificate and check your Caddyfile test:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>caddy trust
+curl https://localhost:8089
+</code></pre></div>
+
+<p>If you got a response, you have your basic setup! Let&#39;s stop caddy for now with <code>sudo caddy stop</code> until you have a complete <code>Caddyfile</code>.</p>
+
+<h2>PostgreSQL installation and setup</h2>
+
+<p>We will use PostgreSQL as the database of your GoToSocial instance: while more complex, it can be the right choice in case your instance grows larger than anticiped. For small instances, SQLite can be used, but keep in mind that migrating from SQLite to PostgreSQL or the other way around is a manual process, and can quickly become a nightmare on its own.</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Start and enable PostgreSQL service:</span>
+<span class="nb">sudo </span>systemctl start postgresql.service
+<span class="nb">sudo </span>systemctl <span class="nb">enable </span>postgresql.service
+
+<span class="c"># Check that PostgreSQL is running:</span>
+<span class="nb">sudo </span>systemctl status postgresql.service
+</code></pre></div>
+
+<h2>GoToSocial installation and setup</h2>
+
+<p>Just like caddy, let&#39;s make a system group and user for GoToSocial:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Create a system group for gotosocial:</span>
+<span class="nb">sudo </span>groupadd <span class="nt">--system</span> gotosocial
+
+<span class="c"># Create a system user for gotosocial:</span>
+<span class="nb">sudo </span>useradd <span class="nt">--system</span> <span class="se">\</span>
+    <span class="nt">--gid</span> gotosocial <span class="se">\</span>
+    <span class="nt">--create-home</span> <span class="se">\</span>
+    <span class="nt">--home-dir</span> /var/lib/gotosocial <span class="se">\</span>
+    <span class="nt">--shell</span> /usr/sbin/nologin <span class="se">\</span>
+    <span class="nt">--comment</span> <span class="s1">'GoToSocial server'</span> <span class="se">\</span>
+    gotosocial
+</code></pre></div>
+
+<p>Then, let&#39;s download and extract GoToSocial:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Create the default hierarchy:</span>
+<span class="nb">sudo mkdir</span> <span class="nt">-p</span> /var/lib/gotosocial/storage/certs
+<span class="nb">sudo mkdir</span> <span class="nt">-p</span> /var/lib/gotosocial/.config
+<span class="nb">sudo mkdir</span> <span class="nt">-p</span> /var/lib/gotosocial/.cache
+
+<span class="c"># Download GoToSocial.</span>
+<span class="c"># Get the latest version here and change it accordingly below: https://github.com/superseriousbusiness/gotosocial/releases</span>
+<span class="nb">cd</span> /var/lib/gotosocial
+<span class="nb">sudo </span>wget https://github.com/superseriousbusiness/gotosocial/releases/download/v0.17.3/gotosocial_0.17.3_linux_amd64.tar.gz
+
+<span class="c"># Grab the checksum file too:</span>
+<span class="nb">sudo </span>wget https://github.com/superseriousbusiness/gotosocial/releases/download/v0.17.3/checksums.txt
+
+<span class="c"># Check if checksum matches the one corresponding to your version:</span>
+<span class="nb">cat </span>checksums.txt
+<span class="nb">sha256sum </span>gotosocial_0.17.3_linux_amd64.tar.gz
+
+<span class="c"># All good? Then let's extract the archive:</span>
+<span class="nb">sudo tar</span> <span class="nt">-xzf</span> gotosocial_0.17.3_linux_amd64.tar.gz
+
+<span class="c"># Move the config example file in the /.config directory and</span>
+<span class="c"># change permissions accordingly:</span>
+<span class="nb">sudo mv</span> /var/lib/gotosocial/example/config.yaml /var/lib/gotosocial/.config/
+<span class="nb">sudo chmod </span>o-rwx /var/lib/gotosocial/.config/config.yaml
+
+<span class="c"># Move the systemd unit file example to /etc/systemd/system/:</span>
+<span class="nb">sudo mv</span> /var/lib/gotosocial/example/gotosocial.service /etc/systemd/system/
+
+<span class="c"># Move the binary to $PATH and change permissions accordingly:</span>
+<span class="nb">sudo chmod </span><span class="nv">u</span><span class="o">=</span>x,g<span class="o">=</span>x,o-rwx /var/lib/gotosocial/gotosocial
+<span class="nb">sudo chown </span>gotosocial:gotosocial /var/lib/gotosocial/gotosocial
+<span class="nb">sudo mv</span> /var/lib/gotosocial/gotosocial /usr/bin/
+
+<span class="c"># Do a bit of cleanup in /var/lib/gotosocial:</span>
+<span class="nb">sudo rm</span> <span class="nt">-rf</span> /var/lib/gotosocial/checksums.txt /var/lib/gotosocial/example/ /var/lib/gotosocial/gotosocial_0.17.3_linux_amd64.tar.gz
+
+<span class="c"># Finally, set permissions for user and group gotosocial, so only</span>
+<span class="c"># them can own /var/lib/gotosocial:</span>
+<span class="nb">sudo chown</span> <span class="nt">-R</span> gotosocial:gotosocial /var/lib/gotosocial
+</code></pre></div>
+
+<p>Now, let&#39;s configure your instance settings and the systemd unit file. Change, and uncomment if necessary, the following settings in <code>/etc/systemd/system/gotosocial.service</code>:</p>
+
+<div class="highlight"><pre class="highlight systemd"><code><span class="nt">Environment</span><span class="p">=</span>"GTS_WAZERO_COMPILATION_CACHE=/var/lib/gotosocial/.cache"
+<span class="nt">ExecStart</span><span class="p">=</span>/usr/bin/gotosocial --config-path /var/lib/gotosocial/.config/config.yaml server start
+<span class="nt">WorkingDirectory</span><span class="p">=</span>/var/lib/gotosocial
+</code></pre></div>
+
+<p>Change, and uncomment if necessary, the following settings in <code>/var/lib/gotosocial/.config/config.yaml</code>. Replace <code>example.net</code> with your own domain name:</p>
+
+<div class="highlight"><pre class="highlight yaml"><code><span class="na">host</span><span class="pi">:</span> <span class="s">gts.example.net</span>
+<span class="na">account-domain</span><span class="pi">:</span> <span class="s">example.net</span>
+<span class="na">letsencrypt-enabled</span><span class="pi">:</span> <span class="kc">false</span>
+<span class="na">bind-address</span><span class="pi">:</span> <span class="s2">"</span><span class="s">localhost"</span>
+<span class="na">web-template-base-dir</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/var/lib/gotosocial/web/template/"</span>
+<span class="na">web-asset-base-dir</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/var/lib/gotosocial/web/assets/"</span>
+<span class="na">storage-local-base-path</span><span class="pi">:</span> <span class="s2">"</span><span class="s">/var/lib/gotosocial/storage"</span>
+</code></pre></div>
+
+<p>We&#39;ll come back later to this config file for a few more settings.</p>
+
+<h2>Getting coreruleset and coraza config</h2>
+
+<p>For coraza-caddy to work properly as a WAF, you must download its rules and config and include them later on. There is a newer way to load them, as described in the <a href="https://github.com/corazawaf/coraza-caddy?tab=readme-ov-file#using-owasp-core-ruleset" rel="nofollow">README</a>, but it simply didn&#39;t work in my case. The &quot;old&quot; method is also more modular if we ever need to create / update / delete some rules, as they&#39;re just editable config files. Let&#39;s opt for that method.</p>
+
+<p>To download the rules, let&#39;s do the following:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Create directory and clone coreruleset, as well</span>
+<span class="c"># as corazawaf for its config:</span>
+<span class="nb">cd</span> /etc/caddy
+<span class="nb">sudo mkdir </span>waf <span class="o">&amp;&amp;</span> <span class="nb">cd </span>waf
+<span class="nb">sudo </span>git clone https://github.com/coreruleset/coreruleset.git
+<span class="nb">sudo </span>git clone https://github.com/corazawaf/coraza.git
+
+<span class="c"># Set owner and group of /etc/caddy to caddy:</span>
+<span class="nb">sudo chown</span> <span class="nt">-R</span> caddy:caddy /etc/caddy
+</code></pre></div>
+
+<p>You also need to edit coreruleset&#39;s setup to accept more HTTP methods. In <code>/etc/caddy/waf/coreruleset/crs-setup.conf.example</code>, uncomment the following rules:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>#SecAction \
+#    "id:900200,\
+#    phase:1,\
+#    pass,\
+#    t:none,\
+#    nolog,\
+#    tag:'OWASP_CRS',\
+#    ver:'OWASP_CRS/4.10.0-dev',\
+#    setvar:'tx.allowed_methods=GET HEAD POST OPTIONS'"
+</code></pre></div>
+
+<p>And add PUT, PATCH and DELETE methods, like the following:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>SecAction \
+    "id:900200,\
+    phase:1,\
+    pass,\
+    t:none,\
+    nolog,\
+    tag:'OWASP_CRS',\
+    ver:'OWASP_CRS/4.10.0-dev',\
+    setvar:'tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE'"
+</code></pre></div>
+
+<h2>Putting it all together</h2>
+
+<p>You&#39;re now ready to reverse proxy GoToSocial with Caddy. The following <code>Caddyfile</code> should replace the quick test made in <code>/etc/caddy/Caddyfile</code> earlier. GoToSocial has rate limiting by default, but we&#39;ll harden it at the <code>/auth/sign_in</code> endpoint for good measure. Other settings are also commented. Don&#39;t forget to replace <code>your-email@example.net</code> with, well, your email address, as well as <code>example.net</code> with your domain name. It&#39;s not necessary for your email address to be from the same domain as your instance.</p>
+
+<p><strong>Take your time and make sure you replace <code>example.net</code> everywhere! Your configuration has to be right before federating with people. Your domain can&#39;t be changed afterwards unless every other admin messes with their own database to resolve it.</strong></p>
+
+<div class="highlight"><pre class="highlight plaintext"><code># Specify the email that will be used for the TLS certificates, and
+# set up proper order settings.
+{
+        email your-email@example.net
+        order coraza_waf first
+        order rate_limit before basic_auth
+}
+
+# Common snippet for various base settings.
+(common) {
+        # Remove 'Server:' response header to avoid exposing Caddy usage.
+        header /* {
+                -Server
+        }
+
+        # Log requests in common log format, each host with their own file.
+        # This will permit easier parsing with fail2ban.
+        log {
+                format transform "{common_log}"
+                output file /var/log/{args[0]}.access.log {
+                        roll_keep_for 30d
+                }
+        }
+
+        # Compress traffic with proper protocols.
+        encode zstd gzip
+}
+
+# Coraza WAF rules.
+(waf) {
+        coraza_waf {
+                directives `
+                Include /etc/caddy/waf/coraza/coraza.conf-recommended
+                Include /etc/caddy/waf/coreruleset/crs-setup.conf.example
+                Include /etc/caddy/waf/coreruleset/rules/*.conf
+                SecRuleEngine On
+                `
+        }
+}
+
+example.net {
+        import common example.net
+        import waf
+
+        # Required redirections for split-domain deployment.
+        redir /.well-known/host-meta* https://gts.example.net{uri} permanent
+        redir /.well-known/webfinger* https://gts.example.net{uri} permanent
+        redir /.well-known/nodeinfo* https://gts.example.net{uri} permanent
+}
+
+gts.example.net {
+        import common gts.example.net
+        import waf
+
+        # Add rate limiting for admin endpoint, with key {remote_host}.
+        # This is a pretty strong rate limit, as bruteforcing the
+        # admin's password would mean game over: there is no 2FA for
+        # logging into the admin's dashboard at the moment. Yes, if
+        # you enter the wrong password, you'll have to grab a coffee
+        # for the next 30 minutes and bear with it. If that's
+        # overkill, you can change the window directive accordingly.
+        rate_limit {
+                zone auth {
+                        match {
+                                path /auth/sign_in
+                                method POST
+                        }
+                        key {remote_host} # For this IP...
+                        events 2 # ... Allow only 2 requests...
+                        window 30m # ... In a period of 30 minutes.
+                }
+        }
+
+        # Reverse proxying the rest of our GoToSocial instance normally.
+        reverse_proxy http://localhost:8080 {
+                # Flush immediately and prevent buffered response to the client.
+                flush_interval -1
+        }
+}
+</code></pre></div>
+
+<p>Create the log files that caddy will use in /var/log, as specified in your Caddyfile. Replace <code>example.net</code> accordingly:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo touch</span> /var/log/gts.example.net.access.log
+<span class="nb">sudo touch</span> /var/log/example.net.access.log
+<span class="nb">sudo chown </span>caddy:caddy /var/log/gts.example.net.access.log
+<span class="nb">sudo chown </span>caddy:caddy /var/log/example.net.access.log
+</code></pre></div>
+
+<p>Run <code>sudo -u caddy caddy validate --config /etc/caddy/Caddyfile</code> to check that your Caddyfile has no errors, and <code>sudo -u caddy caddy fmt --overwrite /etc/caddy/Caddyfile</code> to properly format it.</p>
+
+<p><strong>Note</strong>: if caddy&#39;s validation returns an error similar to <code>invalid WAF config from string: failed to parse string: &lt;...&gt;</code>, this is likely because some default WAF rules cannot be used with our server. I&#39;m honestly at a bit of a loss as to how to fix this for the moment. You can keep proceeding anyway, as long as no other errors are found.</p>
+
+<p>Next, let&#39;s create the default PostgreSQL database for your GoToSocial instance:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Switch to postgres system account:</span>
+<span class="nb">sudo</span> <span class="nt">-i</span> <span class="nt">-u</span> postgres
+
+<span class="c"># Access postgreSQL prompt:</span>
+psql
+
+<span class="c"># Create GoToSocial database, replacing the placeholder</span>
+<span class="c"># surrounded by brackets with a *strong*, *unique* password:</span>
+create database gotosocial with locale <span class="s1">'C.UTF-8'</span> template template0<span class="p">;</span>
+create user gotosocial with password <span class="s1">'&lt;some really good password&gt;'</span><span class="p">;</span>
+grant all privileges on database gotosocial to gotosocial<span class="p">;</span>
+
+<span class="c"># Switch to gotosocial user:</span>
+<span class="se">\c</span> gotosocial postgres
+
+<span class="c"># Grant access to schema public for gotosocial user:</span>
+grant all on schema public to gotosocial<span class="p">;</span>
+
+<span class="c"># Check if the database has been created:</span>
+<span class="se">\l</span>
+</code></pre></div>
+
+<p>You&#39;ll also need to add PostgreSQL settings in <code>/var/lib/gotosocial/.config/config.yaml</code>, specifying the strong password you created earlier. Make sure to keep it safely outside of your VPS, such as in a password manager:</p>
+
+<div class="highlight"><pre class="highlight yaml"><code><span class="na">db-type</span><span class="pi">:</span> <span class="s2">"</span><span class="s">postgres"</span>
+<span class="na">db-address</span><span class="pi">:</span> <span class="s2">"</span><span class="s">127.0.0.1"</span>
+<span class="na">db-port</span><span class="pi">:</span> <span class="m">5432</span>
+<span class="na">db-user</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gotosocial"</span>
+<span class="na">db-password</span><span class="pi">:</span> <span class="s2">"</span><span class="s">&lt;some</span><span class="nv"> </span><span class="s">really</span><span class="nv"> </span><span class="s">good</span><span class="nv"> </span><span class="s">password&gt;"</span>
+<span class="na">db-database</span><span class="pi">:</span> <span class="s2">"</span><span class="s">gotosocial"</span>
+</code></pre></div>
+
+<h2>Additional hardening with fail2ban</h2>
+
+<p>You can use fail2ban to temporarily ban IPs getting you a lot of client request errors, as this could indicate some malicious behavior against your instance. Create the following filter rule with <code>sudo vi /etc/fail2ban/filter.d/gotosocial-4xx.conf</code>:</p>
+
+<div class="highlight"><pre class="highlight toml"><code><span class="nn">[Definition]</span>
+<span class="py">failregex</span> <span class="p">=</span> <span class="err">^&lt;HOST&gt;.*</span><span class="s">"(GET|POST|OPTION).*"</span> <span class="err">(</span><span class="mi">4</span><span class="p">[</span><span class="mi">0-9</span><span class="p">][</span><span class="mi">0-9</span><span class="p">]</span><span class="err">)</span><span class="p">[</span> <span class="err">\d</span><span class="p">]</span><span class="err">*$</span>
+<span class="py">ignoreregex</span> <span class="p">=</span>
+</code></pre></div>
+
+<p>Then, add the following entry at the bottom of <code>/etc/fail2ban/jail.local</code>, replacing <code>gts.example.net</code> with your domain name:</p>
+
+<div class="highlight"><pre class="highlight toml"><code><span class="nn">[gotosocial-4xx]</span>
+<span class="py">enabled</span> <span class="p">=</span> <span class="kc">true</span>
+<span class="py">logpath</span> <span class="p">=</span> <span class="err">/var/log/gts.example.net.access.log</span>
+<span class="py">port</span> <span class="p">=</span> <span class="err">http</span><span class="p">,</span><span class="err">https</span>
+<span class="py">maxretry</span> <span class="p">=</span> <span class="mi">5</span>
+<span class="py">findtime</span> <span class="p">=</span> <span class="mi">1</span><span class="err">m</span>
+<span class="py">bantime</span> <span class="p">=</span> <span class="mi">30</span><span class="err">m</span>
+<span class="py">banaction</span> <span class="p">=</span> <span class="err">ufw</span>
+</code></pre></div>
+
+<p>Restart fail2ban with <code>sudo systemctl restart fail2ban</code> to apply changes.</p>
+
+<h2>All set for launch</h2>
+
+<p>All should be ready to run your instance. Hold your breath and start all services:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Enable and start all services:</span>
+<span class="nb">sudo </span>systemctl <span class="nb">enable </span>postgresql fail2ban caddy gotosocial
+<span class="nb">sudo </span>systemctl start postgresql fail2ban caddy gotosocial
+
+<span class="c"># Check that all previous services are loaded and running:</span>
+<span class="nb">sudo </span>systemctl status postgresql fail2ban caddy gotosocial
+</code></pre></div>
+
+<p>Browse your domain such as <a href="https://gts.example.net" rel="nofollow">https://gts.example.net</a>. If you see the default page, congratulations! You can now check your configuration then setup your admin access.</p>
+
+<h2>Hardening checklist</h2>
+
+<ul>
+<li>Check that Coraza WAF is working by accessing <code>https://gts.example.net/&lt;script&gt;</code>: does this return a 403 error rather than 404?</li>
+<li>Check that rate limiting is working on <code>https://gts.example.net/auth/sign_in</code> by entering nonexistent credentials twice (no account have been created yet anyway). Do subsequent attempts return 429 for the duration we expect?</li>
+<li>Check that your fail2ban config works by accessing an invalid page, such as running <code>curl https://gts.example.net/notavalidpage</code> several times. Does this return <code>Couldn&#39;t connect to server</code> after 5 attempts within a minute? Run <code>sudo ufw status verbose</code> to make sure your IP gets (temporarily) rejected by fail2ban, and <em>not</em> by GoToSocial&#39;s default rate limiting.</li>
+</ul>
+
+<h2>Admin setup</h2>
+
+<p>Let&#39;s create an admin user first:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Create a regular account:</span>
+<span class="nb">sudo</span> <span class="nt">-u</span> gotosocial gotosocial <span class="se">\</span>
+    <span class="nt">--config-path</span> /var/lib/gotosocial/.config/config.yaml <span class="se">\</span>
+    admin account create <span class="se">\</span>
+    <span class="nt">--username</span> &lt;username&gt; <span class="se">\</span>
+    <span class="nt">--email</span> &lt;email@example.net&gt; <span class="se">\</span>
+    <span class="nt">--password</span> <span class="s1">'&lt;some very strong password&gt;'</span>
+
+<span class="c"># Validate the account without email confirmation:</span>
+<span class="nb">sudo</span> <span class="nt">-u</span> gotosocial gotosocial <span class="se">\</span>
+    <span class="nt">--config-path</span> /var/lib/gotosocial/.config/config.yaml <span class="se">\</span>
+    admin account confirm <span class="nt">--username</span> &lt;username&gt;
+
+<span class="c"># Promote the account to admin:</span>
+<span class="nb">sudo</span> <span class="nt">-u</span> gotosocial gotosocial <span class="se">\</span>
+    <span class="nt">--config-path</span> /var/lib/gotosocial/.config/config.yaml <span class="se">\</span>
+    admin account promote <span class="nt">--username</span> &lt;username&gt;
+</code></pre></div>
+
+<p>Log in with the admin account on <code>https://gts.example.net/settings</code>. Admin settings should now be accessible for this account.</p>
+
+<p><strong>Important</strong>: the first command you ran in this section could leak your account&#39;s password in <code>~/.bash_history</code>: log out and log back in with SSH, open the file and remove the related lines if that&#39;s the case. Better safe than sorry.</p>
+
+<h2>Backing up your instance</h2>
+
+<p>Your instance will only be as reliable as your backups. Anything can fail at any moment and you should always be prepared for that.</p>
+
+<p>Several methods for backups are listed in <a href="https://docs.gotosocial.org/en/latest/admin/backup_and_restore/" rel="nofollow">GoToSocial&#39;s documentation</a>, with various advantages or disadvantages. Naturally, performing an entire backup directly from your VPS provider&#39;s interface is the easiest method, but that would require possibly more downtime to proceed and can easily become expensive.</p>
+
+<p>I like to do the following backups:</p>
+
+<ul>
+<li>Exports from GoToSocial CLI tool: it won&#39;t save statuses, media, faves, bookmarks, pins, applications and tokens, but it&#39;s very lightweight, so not much of an additional cost to keep them.</li>
+<li>PostgreSQL dump, saving the entire database.</li>
+<li><code>/var/lib/gotosocial</code>, mostly for GoToSocial&#39;s config, media files and emojis.</li>
+<li><code>/etc/caddy</code>, for Caddyfile and Coraza WAF.</li>
+<li><code>/etc/fail2ban/jail.local</code> and <code>/etc/fail2ban/filter.d/gotosocial-4xx.conf</code>.</li>
+<li><code>/etc/systemd/system/caddy.service</code> and <code>/etc/systemd/system/gotosocial.service</code>.</li>
+</ul>
+
+<p>This means that if you were to lose <em>everything</em>, the only thing you would have to set up again is your VPS initial configuration: users, groups, firewall, sshd setup, caddy, gotosocial and PostgreSQL installation. Everything else will be restored.</p>
+
+<p>We will use restic for this, which has <a href="https://words.filippo.io/restic-cryptography/" rel="nofollow">encryption has a first-class feature</a> and now supports compression. We will also use <a href="https://github.com/gopasspw/gopass" rel="nofollow">gopass</a> to manage the passphrases of your encrypted backups. You&#39;ve already installed everything you need earlier on, so let&#39;s get right to it.</p>
+
+<p>Let&#39;s create a GPG key to manage the <code>gopass</code> password store. I&#39;m aware GPG sucks, but our use is fairly limited here: encrypting and decrypting passwords, so we can call a <code>gopass</code> command rather than storing our restic passwords in plaintext. I would gladly use age instead, but it doesn&#39;t have an agent and we&#39;re looking to automate this.</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Create a keypair with gpg:</span>
+gpg <span class="nt">--expert</span> <span class="nt">--pinentry-mode</span><span class="o">=</span>loopback <span class="nt">--full-gen-key</span>
+
+<span class="c"># * Choose "(9) ECC and ECC".</span>
+<span class="c"># * Choose "(1) Curve 25519".</span>
+<span class="c"># * Choose any expiration you desire for the key.</span>
+<span class="c"># * Enter required information, such as your email address.</span>
+<span class="c"># * Choose a strong and unique passphrase, and don't lose it!</span>
+
+<span class="c"># Export your public and private keys:</span>
+gpg <span class="nt">--armor</span> <span class="nt">--export</span> &lt;username&gt; <span class="o">&gt;</span> pubkey.asc
+gpg <span class="nt">--armor</span> <span class="nt">--export-secret-keys</span> &lt;username&gt; <span class="o">&gt;</span> privkey.asc
+
+<span class="c"># Keep them somewhere safe outside of your VPS, and *don't* lose them.</span>
+<span class="c"># Once copied, remove pubkey.asc and privkey.asc.</span>
+
+<span class="c"># Also add the following line at the end of ~/.bashrc:</span>
+<span class="nb">export </span><span class="nv">GPG_TTY</span><span class="o">=</span><span class="si">$(</span><span class="nb">tty</span><span class="si">)</span>
+</code></pre></div>
+
+<p>To make sure <code>gpg-agent</code> keeps your passphrase cached, create the following <code>~/.gnupg/gpg-agent.conf</code> file:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>default-cache-ttl 34560000
+max-cache-ttl 34560000
+</code></pre></div>
+
+<p>Kill gpg-agent (and let it restart automatically) with <code>gpgconf --kill gpg-agent</code>. This configuration will ensure that after your passphrase is entered once, it will stay cached for more than a year. You&#39;ll need this, as your fully automated backups won&#39;t run for long with the default cache ttl.</p>
+
+<p>We can now create our password store and passwords with gopass. We will perform local backups and use <a href="https://www.hetzner.com/storage/storage-box/" rel="nofollow">Hetzner storage box</a> for remote backups. We&#39;ll only pick this provider for the sake of this guide, as our configuration can be easily tweaked for any other provider:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Run gopass initializer:</span>
+gopass setup <span class="nt">--storage</span><span class="o">=</span>fs
+
+<span class="c"># * Select the private key we created earlier.</span>
+<span class="c"># * Don't add a git remote if asked.</span>
+
+<span class="c"># Create a secret for borgmatic:</span>
+gopass create
+
+<span class="c"># * Choose '[ 0] Website login' (this actually works for any kind of password).</span>
+<span class="c"># * Enter 'restic-local' in place of the website URL.</span>
+<span class="c"># * Enter your username.</span>
+<span class="c"># * Choose to generate a password: keep all default settings but pick ~64 characters or more.</span>
+<span class="c"># * You may get a warning about not having a clipboard, like xclip: no need for it here, so nothing to worry about.</span>
+<span class="c"># * Repeat this step once again with gopass create, and create a 'restic-hetzner' password.</span>
+</code></pre></div>
+
+<p>Running <code>gopass -o restic-local</code> and <code>gopass -o restic-hetzner</code> should output your passwords now, which is what you&#39;ll use in your restic scripts. Copy these passwords somewhere safe, outside of your VPS. Don&#39;t lose them.</p>
+
+<p>Create the following scripts in your home directory:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">mkdir</span> ~/backups
+<span class="nb">touch</span> ~/backups/restic-local ~/backups/restic-hetzner
+<span class="nb">chmod</span> +x ~/backups/restic-local ~/backups/restic-hetzner
+</code></pre></div>
+
+<p>Here&#39;s what <code>restic-local</code> will look like. Don&#39;t forget to replace <code>&lt;username&gt;</code> accordingly:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c">#!/usr/bin/env bash</span>
+<span class="nb">set</span> <span class="nt">-euo</span> pipefail
+<span class="nv">IFS</span><span class="o">=</span><span class="s1">$'</span><span class="se">\n\t</span><span class="s1">'</span>
+
+<span class="c"># Environment variables for local restic repository:</span>
+<span class="nb">export </span><span class="nv">RESTIC_CACHE_DIR</span><span class="o">=</span><span class="s2">"/root/.cache/restic"</span>
+<span class="nv">RESTIC_REPOSITORY</span><span class="o">=</span><span class="s2">"/home/&lt;username&gt;/backups/</span><span class="si">$(</span><span class="nb">hostname</span><span class="si">)</span><span class="s2">-vps-backup"</span>
+<span class="nb">export </span>RESTIC_REPOSITORY
+<span class="nb">export </span><span class="nv">RESTIC_PASSWORD_COMMAND</span><span class="o">=</span><span class="s2">"sudo -u &lt;username&gt; /home/&lt;username&gt;/go/bin/gopass -o websites/restic-local/&lt;username&gt;"</span>
+
+<span class="k">if</span> <span class="o">[[</span> <span class="nv">$# </span><span class="nt">-ne</span> 0 <span class="o">]]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">exec </span>restic <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+    <span class="nb">exit
+</span><span class="k">fi</span>
+
+<span class="c"># Directories and files to save:</span>
+<span class="nv">PATHS</span><span class="o">=(</span><span class="s2">"/var/lib/gotosocial"</span> <span class="s2">"/etc/systemd/system/gotosocial.service"</span> <span class="s2">"/etc/caddy"</span> <span class="s2">"/etc/systemd/system/caddy.service"</span> <span class="s2">"/etc/fail2ban/jail.local"</span> <span class="s2">"/etc/fail2ban/filter.d/gotosocial-4xx.conf"</span><span class="o">)</span>
+
+<span class="c"># Perform backups for directories and files:</span>
+<span class="k">for </span>path <span class="k">in</span> <span class="s2">"</span><span class="k">${</span><span class="nv">PATHS</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span><span class="p">;</span> <span class="k">do
+    </span>restic backup <span class="s2">"</span><span class="nv">$path</span><span class="s2">"</span>
+<span class="k">done</span>
+
+<span class="c"># Backup GoToSocial export:</span>
+<span class="nb">sudo</span> <span class="nt">-u</span> gotosocial gotosocial admin <span class="nb">export</span> <span class="nt">--config-path</span> /var/lib/gotosocial/.config/config.yaml <span class="nt">--path</span> /var/lib/gotosocial/export.json
+restic backup /var/lib/gotosocial/export.json
+<span class="nb">rm</span> /var/lib/gotosocial/export.json
+
+<span class="c"># Backup postgreSQL dump:</span>
+restic backup <span class="nt">--stdin-filename</span> postgres.dump <span class="nt">--stdin-from-command</span> <span class="nt">--</span> <span class="nb">sudo</span> <span class="nt">-u</span> postgres pg_dumpall <span class="nt">--clean</span> <span class="nt">--if-exists</span>
+
+<span class="c"># Retention policy and cleanup:</span>
+restic forget <span class="nt">--keep-daily</span> 7 <span class="se">\</span>
+    <span class="nt">--keep-weekly</span> 4 <span class="se">\</span>
+    <span class="nt">--keep-monthly</span> 6 <span class="se">\</span>
+    <span class="nt">--keep-yearly</span> 1 <span class="se">\</span>
+    <span class="nt">--prune</span>
+
+<span class="c"># Make a tar archive of your local restic repository,</span>
+<span class="c"># owned by your main user:</span>
+<span class="nb">tar </span>czf /home/&lt;username&gt;/backups/<span class="s2">"</span><span class="si">$(</span><span class="nb">hostname</span><span class="si">)</span><span class="s2">"</span><span class="nt">-vps-backup</span>.tar.gz <span class="nt">--directory</span><span class="o">=</span>/home/&lt;username&gt;/backups <span class="s2">"</span><span class="si">$(</span><span class="nb">hostname</span><span class="si">)</span><span class="s2">"</span><span class="nt">-vps-backup</span>
+<span class="nb">chown</span> &lt;username&gt;:&lt;username&gt; /home/&lt;username&gt;/backups/<span class="s2">"</span><span class="si">$(</span><span class="nb">hostname</span><span class="si">)</span><span class="s2">"</span><span class="nt">-vps-backup</span>.tar.gz
+
+<span class="nb">unset </span>RESTIC_CACHE_DIR
+<span class="nb">unset </span>RESTIC_REPOSITORY
+<span class="nb">unset </span>RESTIC_PASSWORD_COMMAND
+</code></pre></div>
+
+<p>We will come back to that <code>tar</code> archive later on.</p>
+
+<p>Our <code>restic-hetzner</code> script will be mostly similar, except we will need to fiddle with SSH and SFTP settings. Hetzner storage boxes enable password authentication for both protocols, and there is no way to disable it. To make this safer, change your storage box&#39;s password on robot.hetzner.com to something unbelievably long and random, then add the password in <code>gopass</code> by using <code>gopass create</code> as shown earlier. Name that password <code>hetzner-storage-box</code>.</p>
+
+<p>Then, let&#39;s add a SSH config file for your current user with <code>touch ~/.ssh/config</code> and add the following entry in it. Change the first two fields according to your storage box&#39;s settings:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>Host storagebox
+  HostName &lt;hostname as shown on robot.hetzner.com&gt;
+  User &lt;username as shown on robot.hetzner.com&gt;
+  Port 23
+  ServerAliveInterval 60
+  ServerAliveCountMax 240
+</code></pre></div>
+
+<p>You&#39;ll also need to add a ufw rule for port 23: run <code>sudo ufw allow out 23 comment &#39;Allow SFTP out (hetzner backups)&#39;</code>.</p>
+
+<p>Our <code>restic-hetzner</code> script will make use of what you just configured and look like this. As before, replace <code>&lt;username&gt;</code> accordingly:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c">#!/usr/bin/env bash</span>
+<span class="nb">set</span> <span class="nt">-euo</span> pipefail
+<span class="nv">IFS</span><span class="o">=</span><span class="s1">$'</span><span class="se">\n\t</span><span class="s1">'</span>
+
+<span class="c"># Environment variables for local restic repository:</span>
+<span class="nb">export </span><span class="nv">RESTIC_CACHE_DIR</span><span class="o">=</span><span class="s2">"/root/.cache/restic"</span>
+<span class="nv">RESTIC_REPOSITORY</span><span class="o">=</span><span class="s2">"sftp::/home/backups/</span><span class="si">$(</span><span class="nb">hostname</span><span class="si">)</span><span class="s2">-vps-backup"</span>
+<span class="nb">export </span>RESTIC_REPOSITORY
+<span class="nb">export </span><span class="nv">RESTIC_PASSWORD_COMMAND</span><span class="o">=</span><span class="s2">"sudo -u &lt;username&gt; /home/&lt;username&gt;/go/bin/gopass -o websites/restic-hetzner/&lt;username&gt;"</span>
+<span class="nv">SSHPASS</span><span class="o">=</span><span class="s2">"</span><span class="si">$(</span><span class="nb">sudo</span> <span class="nt">-u</span> &lt;username&gt; /home/&lt;username&gt;/go/bin/gopass <span class="nt">-o</span> <span class="s1">'websites/hetzner-storage-box/&lt;username&gt;'</span><span class="si">)</span><span class="s2">"</span>
+<span class="nb">export </span>SSHPASS
+
+<span class="c"># Additional variable for sftp connection:</span>
+<span class="nv">SSHPASS_SFTP_COMMAND</span><span class="o">=</span><span class="s2">"sshpass -e ssh storagebox -p 23 -F /home/&lt;username&gt;/.ssh/config -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -s sftp"</span>
+
+<span class="k">if</span> <span class="o">[[</span> <span class="nv">$# </span><span class="nt">-ne</span> 0 <span class="o">]]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">exec </span>restic <span class="nt">-o</span> sftp.command<span class="o">=</span><span class="s2">"</span><span class="nv">$SSHPASS_SFTP_COMMAND</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+    <span class="nb">exit
+</span><span class="k">fi</span>
+
+<span class="c"># Directories and files to save:</span>
+<span class="nv">PATHS</span><span class="o">=(</span><span class="s2">"/var/lib/gotosocial"</span> <span class="s2">"/etc/systemd/system/gotosocial.service"</span> <span class="s2">"/etc/caddy"</span> <span class="s2">"/etc/systemd/system/caddy.service"</span> <span class="s2">"/etc/fail2ban/jail.local"</span> <span class="s2">"/etc/fail2ban/filter.d/gotosocial-4xx.conf"</span><span class="o">)</span>
+
+<span class="c"># Perform backups for directories and files:</span>
+<span class="k">for </span>path <span class="k">in</span> <span class="s2">"</span><span class="k">${</span><span class="nv">PATHS</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span><span class="p">;</span> <span class="k">do
+    </span>restic <span class="nt">-o</span> sftp.command<span class="o">=</span><span class="s2">"</span><span class="nv">$SSHPASS_SFTP_COMMAND</span><span class="s2">"</span> backup <span class="s2">"</span><span class="nv">$path</span><span class="s2">"</span>
+<span class="k">done</span>
+
+<span class="c"># Backup GoToSocial export:</span>
+<span class="nb">sudo</span> <span class="nt">-u</span> gotosocial gotosocial admin <span class="nb">export</span> <span class="nt">--config-path</span> /var/lib/gotosocial/.config/config.yaml <span class="nt">--path</span> /var/lib/gotosocial/export.json
+restic <span class="nt">-o</span> sftp.command<span class="o">=</span><span class="s2">"</span><span class="nv">$SSHPASS_SFTP_COMMAND</span><span class="s2">"</span> backup /var/lib/gotosocial/export.json
+<span class="nb">rm</span> /var/lib/gotosocial/export.json
+
+<span class="c"># Backup postgreSQL dump:</span>
+restic <span class="nt">-o</span> sftp.command<span class="o">=</span><span class="s2">"</span><span class="nv">$SSHPASS_SFTP_COMMAND</span><span class="s2">"</span> backup <span class="nt">--stdin-filename</span> postgres.dump <span class="nt">--stdin-from-command</span> <span class="nt">--</span> <span class="nb">sudo</span> <span class="nt">-u</span> postgres pg_dumpall <span class="nt">--clean</span> <span class="nt">--if-exists</span>
+
+<span class="c"># Retention policy and cleanup:</span>
+restic <span class="nt">-o</span> sftp.command<span class="o">=</span><span class="s2">"</span><span class="nv">$SSHPASS_SFTP_COMMAND</span><span class="s2">"</span> forget <span class="se">\</span>
+    <span class="nt">--keep-daily</span> 7 <span class="se">\</span>
+    <span class="nt">--keep-weekly</span> 4 <span class="se">\</span>
+    <span class="nt">--keep-monthly</span> 6 <span class="se">\</span>
+    <span class="nt">--keep-yearly</span> 1 <span class="se">\</span>
+    <span class="nt">--prune</span>
+
+<span class="nb">unset </span>RESTIC_CACHE_DIR
+<span class="nb">unset </span>RESTIC_REPOSITORY
+<span class="nb">unset </span>RESTIC_PASSWORD_COMMAND
+<span class="nb">unset </span>SSHPASS
+</code></pre></div>
+
+<p>Make sure that the <code>/home/backups</code> directory is present on your Hetzner storage box: create it with <code>mkdir /home/backups</code> if needed.</p>
+
+<p>If you&#39;re using another provider (Backblaze for instance), this script will be mostly similar except for its environment variables: take a look at <code>AWS_ACCESS_KEY_ID</code>, <code>AWS_SECRET_ACCESS_KEY</code>, and other env variables restic uses in their <a href="https://restic.readthedocs.io/en/latest/040_backup.html#environment-variables" rel="nofollow">documentation</a>. Chances are, it will be easier to set up than Hetzner&#39;s SFTP transfers. Feel free to use <code>gopass</code> like we did earlier for any additional credentials.</p>
+
+<p>If ran without any arguments, these scripts will take care of your backups and retention policy, but passing anything to them will simply forward commands to the local and remote repositories. Run <code>sudo ~/backups/restic-local init</code> and <code>sudo ~/backups/restic-hetzner init</code> to create them.</p>
+
+<p>You&#39;re now ready to add these scripts to a systemd service and timer that will run as root. Create the following <code>/etc/systemd/system/restic.service</code>, replacing <code>&lt;username&gt;</code> accordingly once more:</p>
+
+<div class="highlight"><pre class="highlight systemd"><code><span class="k">[Unit]</span>
+<span class="nt">Description</span><span class="p">=</span>restic backup
+<span class="nt">Wants</span><span class="p">=</span>network-online.target
+<span class="nt">After</span><span class="p">=</span>network-online.target
+
+<span class="k">[Service]</span>
+<span class="nt">Type</span><span class="p">=</span>oneshot
+<span class="nt">RuntimeDirectory</span><span class="p">=</span>restic
+<span class="nt">StateDirectory</span><span class="p">=</span>restic
+<span class="nt">LockPersonality</span><span class="p">=</span>true
+<span class="nt">MemoryDenyWriteExecute</span><span class="p">=</span>no
+<span class="nt">NoNewPrivileges</span><span class="p">=</span>yes
+<span class="nt">PrivateTmp</span><span class="p">=</span>yes
+<span class="nt">ProtectClock</span><span class="p">=</span>yes
+<span class="nt">ProtectControlGroups</span><span class="p">=</span>yes
+<span class="nt">ProtectHostname</span><span class="p">=</span>yes
+<span class="nt">ProtectKernelLogs</span><span class="p">=</span>yes
+<span class="nt">ProtectKernelModules</span><span class="p">=</span>yes
+<span class="nt">ProtectKernelTunables</span><span class="p">=</span>yes
+<span class="nt">RestrictAddressFamilies</span><span class="p">=</span>AF_UNIX AF_INET AF_INET6 AF_NETLINK
+<span class="nt">RestrictNamespaces</span><span class="p">=</span>yes
+<span class="nt">RestrictRealtime</span><span class="p">=</span>yes
+<span class="nt">RestrictSUIDSGID</span><span class="p">=</span>yes
+<span class="nt">SystemCallArchitectures</span><span class="p">=</span>native
+<span class="nt">SystemCallErrorNumber</span><span class="p">=</span>EPERM
+<span class="nt">ProtectSystem</span><span class="p">=</span>full
+
+<span class="c"># Lower CPU and I/O priority.</span>
+<span class="nt">Nice</span><span class="p">=</span>19
+<span class="nt">CPUSchedulingPolicy</span><span class="p">=</span>batch
+<span class="nt">IOSchedulingClass</span><span class="p">=</span>best-effort
+<span class="nt">IOSchedulingPriority</span><span class="p">=</span>7
+<span class="nt">IOWeight</span><span class="p">=</span>100
+
+<span class="nt">Restart</span><span class="p">=</span>no
+
+<span class="nt">ExecStartPre</span><span class="p">=</span>systemd-inhibit --who="gotosocial-service-stop" --what="sleep:shutdown" --why="Prevent interrupting scheduled backup" /usr/bin/systemctl stop gotosocial
+
+<span class="nt">ExecStart</span><span class="p">=</span>systemd-inhibit --who="restic-local" --what="sleep:shutdown" --why="Prevent interrupting scheduled backup" /home/&lt;username&gt;/backups/restic-local
+
+<span class="nt">ExecStart</span><span class="p">=</span>systemd-inhibit --who="restic-hetzner" --what="sleep:shutdown" --why="Prevent interrupting scheduled backup" /home/&lt;username&gt;/backups/restic-hetzner
+
+<span class="nt">ExecStart</span><span class="p">=</span>systemd-inhibit --who="gotosocial-service-start" --what="sleep:shutdown" --why="Prevent interrupting scheduled backup" /usr/bin/systemctl start gotosocial
+</code></pre></div>
+
+<p>Create the following <code>/etc/systemd/system/restic.timer</code>:</p>
+
+<div class="highlight"><pre class="highlight systemd"><code><span class="k">[Unit]</span>
+<span class="nt">Description</span><span class="p">=</span>Run restic backup
+
+<span class="k">[Timer]</span>
+<span class="nt">OnCalendar</span><span class="p">=</span>*-*-* 07:00:00
+<span class="nt">OnBootSec</span><span class="p">=</span>10m
+<span class="nt">Persistent</span><span class="p">=</span>true
+
+<span class="k">[Install]</span>
+<span class="nt">WantedBy</span><span class="p">=</span>timers.target
+</code></pre></div>
+
+<p>This will ensure your <code>restic.service</code> runs every day at 07 AM, and also catches up any missed run if the VPS was ever powered off during that time. Run <code>systemd-analyze verify /etc/systemd/system/restic.*</code> to make sure both service and timer files are valid (it returns nothing if everything is OK), and run <code>sudo systemctl start restic.timer &amp;&amp; sudo systemctl enable restic.timer</code> to enable your service.</p>
+
+<p>We can check if everything is running smoothly or not with <code>sudo journalctl -u restic</code>, and when the next backup is supposed to run with <code>sudo systemctl status restic.timer</code>.</p>
+
+<p>Once your first backup is done, run <code>sudo ~/backups/restic-local snapshots</code> and <code>sudo ~/backups/restic-hetzner snapshots</code> to check if every path has been added to your repositories. The <code>check</code> command is also useful to ensure nothing has been corrupted in your backups.</p>
+
+<p>Remember that tar archive we created at the end of our <code>restic-local</code> script? This is because local backups would hardly be useful on their own, being stored in the exact same drive as the original data. Let&#39;s save that archive on your actual computer and automate the process with another systemd service and timer.</p>
+
+<p>If you haven&#39;t already, add an entry to your VPS in <code>~/.ssh/config</code>, replacing <code>&lt;my-vps&gt;</code> and all other fields to match your config:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>Host &lt;my-vps&gt;
+  HostName &lt;VPS IP&gt;
+  User &lt;username&gt;
+  Port &lt;custom port number&gt;
+</code></pre></div>
+
+<p>Create the following <code>~/.config/systemd/user/vps-backup.service</code> on your laptop, dekstop, etc. Replace <code>&lt;my-vps&gt;</code>, <code>&lt;username&gt;</code>, <code>&lt;hostname&gt;</code>, and <code>&lt;path of your choosing&gt;</code> accordingly:</p>
+
+<div class="highlight"><pre class="highlight systemd"><code><span class="k">[Unit]</span>
+<span class="nt">Description</span><span class="p">=</span>VPS backup
+<span class="nt">Wants</span><span class="p">=</span>network-online.target
+<span class="nt">After</span><span class="p">=</span>network-online.target
+
+<span class="k">[Service]</span>
+<span class="nt">Type</span><span class="p">=</span>oneshot
+<span class="nt">Restart</span><span class="p">=</span>no
+
+<span class="nt">ExecStart</span><span class="p">=</span>systemd-inhibit --who="scp" --what="sleep:shutdown" --why="Prevent interrupting VPS backup" scp -O &lt;my-vps&gt;:/home/&lt;username&gt;/backups/&lt;hostname&gt;-vps-backup.tar.gz /&lt;path of your choosing&gt;/&lt;hostname&gt;-vps-backup.tar.gz
+</code></pre></div>
+
+<p>Control this service by adding the following <code>~/.config/systemd/user/vps-backup.timer</code>:</p>
+
+<div class="highlight"><pre class="highlight systemd"><code><span class="k">[Unit]</span>
+<span class="nt">Description</span><span class="p">=</span>VPS backup
+
+<span class="k">[Timer]</span>
+<span class="nt">OnCalendar</span><span class="p">=</span>*-*-* 10:00:00
+<span class="nt">OnBootSec</span><span class="p">=</span>10m
+<span class="nt">Persistent</span><span class="p">=</span>true
+
+<span class="k">[Install]</span>
+<span class="nt">WantedBy</span><span class="p">=</span>timers.target
+</code></pre></div>
+
+<p>Our VPS backups are quite light, so setting this service to run at 10 AM should be plenty enough time to get your daily archive. Run <code>systemd-analyze verify ~/.config/systemd/user/vps-backup.*</code> to check all files are valid and <code>systemctl --user start vps-backup.timer &amp;&amp; systemctl --user enable vps-backup.timer</code> to enable the service. Your archive should end up being copied in the specified path.</p>
+
+<h2>Restoring files and directories from your backups</h2>
+
+<p>Some disaster happened and it&#39;s now time to make your backups worth their while. If you still have access to your local archive, copy it to your VPS with <code>scp -O /&lt;path of your choosing&gt;/&lt;hostname&gt;-vps-backup.tar.gz my-vps:/home/&lt;username&gt;/backups</code>, SSH into your VPS and untar it with <code>sudo tar xzvf /home/&lt;username&gt;/backups/&lt;hostname&gt;-vps-backup.tar.gz --directory=/home/&lt;username&gt;/backups</code>.</p>
+
+<p>Then, use your <code>restic-local</code> script (or copy it like shown earlier if it was also lost), and restore anything needed in a temporary location:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Grab the ID of the snapshot you wanna use:</span>
+<span class="nb">sudo</span> ~/backups/restic-local snapshots 
+
+<span class="c"># Restore a directory or file:</span>
+<span class="nb">sudo</span> ~/backups/restic-local restore &lt;ID&gt; <span class="nt">--target</span> /tmp <span class="nt">--include</span> /&lt;path of directory or file to restore&gt; 
+</code></pre></div>
+
+<p>Navigate to <code>/tmp</code>, browse and select any file to restore. Before copying them however, be sure to run <code>sudo systemctl stop gotosocial</code>. Run the same command using <code>start</code> when you&#39;re done restoring.</p>
+
+<p>If you&#39;re restoring a systemd service file, run <code>sudo systemctl daemon-reload</code> afterwards to scan for changes.</p>
+
+<p>If you&#39;re restoring the entire database from your <code>postgres.dump</code>, run <code>sudo -u postgres psql -f postgres.dump postgres</code> from the directory where the dump is present.</p>
+
+<p>This general restore process is the same if you only have access to your remote backups, using your <code>restic-hetzner</code> script or any other provider you have.</p>
+
+<p>Delete the files and directories from their temporary locations in <code>/tmp</code> afterwards, and you should be all set.</p>
+
+<h2>Additional maintenance tips and FAQs</h2>
+
+<h3>I changed my Caddyfile config, how do I apply changes without any downtime?</h3>
+
+<p>Run <code>sudo -u caddy caddy reload --config /etc/caddy/Caddyfile</code> after editing your Caddyfile.</p>
+
+<h3>I need to check IPs banned by fail2ban.</h3>
+
+<p>Run <code>sudo fail2ban-client status gotosocial-4xx</code> to get a list of banned IPs. You should also see them in ufw with <code>sudo ufw status verbose</code>.</p>
+
+<h3>I messed up, how do I manually unban an IP in fail2ban?</h3>
+
+<p>Run <code>sudo fail2ban-client set gotosocial-4xx unbanip &lt;IP address&gt;</code>. Check if it worked with <code>sudo cat /var/log/fail2ban.log</code>.</p>
+
+<h3>I screwed up keys generation with GPG, how do I delete them before re-creating them?</h3>
+
+<p>Run <code>gpg --list-keys</code> and use the long ID it outputs with the following commands:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>gpg <span class="nt">--delete-secret-key</span> &lt;ID&gt;
+gpg <span class="nt">--delete-key</span> &lt;ID&gt;
+</code></pre></div>
+
+<p>Run <code>gpg --list-keys</code> one more time to make sure they&#39;ve been deleted.</p>
+
+<h3>I&#39;ve had to restore everything: how do I import my saved GPG keys on a new VPS?</h3>
+
+<p>Transfer your keys in your new VPS (assuming <code>gpg</code> + <code>gpg-agent</code> are already installed there), then run the following:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>gpg <span class="nt">--import</span> &lt;mygpgkey_pub.asc&gt;
+gpg <span class="nt">--allow-secret-key-import</span> <span class="nt">--import</span> &lt;mygpgkey_sec.asc&gt;
+gpg <span class="nt">--edit-key</span> &lt;email address&gt; <span class="c"># Run trust in gpg prompt and select "ultimate trust (5)".</span>
+gpg <span class="nt">--list-secret-keys</span> <span class="c"># Check if trust changed accordingly.</span>
+</code></pre></div>
+
+<p>Don&#39;t forget to delete the keys you transferred, now that they&#39;re in your GPG keyring.</p>
+
+<h2>All done?</h2>
+
+<p>Although this should be a good start for a GoToSocial instance, there is always room for improvement: adjusting media caching, database maintenance, tweaking WAF rules... The list is endless, and it doesn&#39;t even mention moderation and domain blocks / allows, which are arguably the hardest parts about managing an instance.</p>
+
+<p>It can be hell at times, but you now have full control over it!</p>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://docs.gotosocial.org/en/latest/" rel="nofollow">https://docs.gotosocial.org/en/latest/</a></li>
+<li><a href="https://github.com/imthenachoman/How-To-Secure-A-Linux-Server" rel="nofollow">https://github.com/imthenachoman/How-To-Secure-A-Linux-Server</a></li>
+<li><a href="https://kenhv.com/blog/securing-a-linux-server" rel="nofollow">https://kenhv.com/blog/securing-a-linux-server</a></li>
+<li><a href="https://github.com/caddyserver/xcaddy" rel="nofollow">https://github.com/caddyserver/xcaddy</a></li>
+<li><a href="https://github.com/mholt/caddy-ratelimit" rel="nofollow">https://github.com/mholt/caddy-ratelimit</a></li>
+<li><a href="https://aussedatlo.me/posts/02-caddy-hardening" rel="nofollow">https://aussedatlo.me/posts/02-caddy-hardening</a></li>
+<li><a href="https://caddyserver.com/docs/running" rel="nofollow">https://caddyserver.com/docs/running</a></li>
+<li><a href="https://www.ottorask.com/blog/caddy-and-fail2ban" rel="nofollow">https://www.ottorask.com/blog/caddy-and-fail2ban</a></li>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-debian-11" rel="nofollow">https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-debian-11</a></li>
+</ul>
+
+    
+      <p class="support">
+      If you enjoyed this post or found any of my other work helpful, feel free 
+      to support me on my <a href="https://ko-fi.com/ovelny" rel="nofollow">ko-fi</a>. 
+      Any contribution will help me tremendously!
+      </p>
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
