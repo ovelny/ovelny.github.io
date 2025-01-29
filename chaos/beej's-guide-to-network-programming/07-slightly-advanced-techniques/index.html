@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-network-programming/07-slightly-advanced-techniques</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-network-programming/07-slightly-advanced-techniques"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>7 Slightly Advanced Techniques</h1>
+
+<p>These aren’t <em>really</em> advanced, but they’re getting out of the more basic levels we’ve already covered. In fact, if you’ve gotten this far, you should consider yourself fairly accomplished in the basics of Unix network programming! Congratulations!</p>
+
+<p>So here we go into the brave new world of some of the more esoteric things you might want to learn about sockets. Have at it!</p>
+
+<h2>7.1 Blocking</h2>
+
+<p>Blocking. You’ve heard about it—now what the heck is it? In a nutshell, “block” is techie jargon for “sleep”. You probably noticed that when you run <code>listener</code>, above, it just sits there until a packet arrives. What happened is that it called <code>recvfrom()</code>, there was no data, and so <code>recvfrom()</code> is said to “block” (that is, sleep there) until some data arrives.</p>
+
+<p>Lots of functions block. <code>accept()</code> blocks. All the <code>recv()</code> functions block. The reason they can do this is because they’re allowed to. When you first create the socket descriptor with <code>socket()</code>, the kernel sets it to blocking. If you don’t want a socket to be blocking, you have to make a call to <code>fcntl()</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;fcntl.h&gt;</span><span class="cp">
+</span><span class="p">.</span>
+<span class="p">.</span>
+<span class="p">.</span>
+<span class="n">sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">PF_INET</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="n">fcntl</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">F_SETFL</span><span class="p">,</span> <span class="n">O_NONBLOCK</span><span class="p">);</span>
+<span class="p">.</span>
+<span class="p">.</span>
+<span class="p">.</span> 
+</code></pre></div>
+
+<p>By setting a socket to non-blocking, you can effectively “poll” the socket for information. If you try to read from a non-blocking socket and there’s no data there, it’s not allowed to block—it will return <code>-1</code> and <code>errno</code> will be set to <code>EAGAIN</code> or <code>EWOULDBLOCK</code>.</p>
+
+<p>(Wait—it can return <code>EAGAIN</code> <em>or</em> <code>EWOULDBLOCK</code>? Which do you check for? The specification doesn’t actually specify which your system will return, so for portability, check them both.)</p>
+
+<p>Generally speaking, however, this type of polling is a bad idea. If you put your program in a busy-wait looking for data on the socket, you’ll suck up CPU time like it was going out of style. A more elegant solution for checking to see if there’s data waiting to be read comes in the following section on <code>poll()</code>.</p>
+
+<h2>7.2 <code>poll()</code>—Synchronous I/O Multiplexing</h2>
+
+<p>What you really want to be able to do is somehow monitor a <em>bunch</em> of sockets at once and then handle the ones that have data ready. This way you don’t have to continuously poll all those sockets to see which are ready to read.</p>
+
+<blockquote>
+<p><em>A word of warning: <code>poll()</code> is horribly slow when it comes to giant numbers of connections. In those circumstances, you’ll get better performance out of an event library such as <a href="https://libevent.org/" rel="nofollow">libevent</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁷</a> that attempts to use the fastest possible method availabile on your system.</em></p>
+</blockquote>
+
+<p>So how can you avoid polling? Not slightly ironically, you can avoid polling by using the <code>poll()</code> system call. In a nutshell, we’re going to ask the operating system to do all the dirty work for us, and just let us know when some data is ready to read on which sockets. In the meantime, our process can go to sleep, saving system resources.</p>
+
+<p>The general gameplan is to keep an array of <code>struct pollfd</code>s with information about which socket descriptors we want to monitor, and what kind of events we want to monitor for. The OS will block on the <code>poll()</code> call until one of those events occurs (e.g. “socket ready to read!”) or until a user-specified timeout occurs.</p>
+
+<p>Usefully, a <code>listen()</code>ing socket will return “ready to read” when a new incoming connection is ready to be <code>accept()</code>ed.</p>
+
+<p>That’s enough banter. How do we use this?</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;poll.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">poll</span><span class="p">(</span><span class="k">struct</span> <span class="n">pollfd</span> <span class="n">fds</span><span class="p">[],</span> <span class="n">nfds_t</span> <span class="n">nfds</span><span class="p">,</span> <span class="kt">int</span> <span class="n">timeout</span><span class="p">);</span>
+</code></pre></div>
+
+<p><code>fds</code> is our array of information (which sockets to monitor for what), <code>nfds</code> is the count of elements in the array, and <code>timeout</code> is a timeout in milliseconds. It returns the number of elements in the array that have had an event occur.</p>
+
+<p>Let’s have a look at that <code>struct</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">pollfd</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>         <span class="c1">// the socket descriptor</span>
+    <span class="kt">short</span> <span class="n">events</span><span class="p">;</span>   <span class="c1">// bitmap of events we're interested in</span>
+    <span class="kt">short</span> <span class="n">revents</span><span class="p">;</span>  <span class="c1">// when poll() returns, bitmap of events that occurred</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>So we’re going to have an array of those, and we’ll set the <code>fd</code> field for each element to a socket descriptor we’re interested in monitoring. And then we’ll set the <code>events</code> field to indicate the type of events we’re interested in.</p>
+
+<p>The <code>events</code> field is the bitwise-OR of the following:</p>
+
+<table><thead>
+<tr>
+<th>Macro</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>POLLIN</code></td>
+<td>Alert me when data is ready to <code>recv()</code> on this socket.</td>
+</tr>
+<tr>
+<td><code>POLLOUT</code></td>
+<td>Alert me when I can <code>send()</code> data to this socket without blocking.</td>
+</tr>
+</tbody></table>
+
+<p>Once you have your array of <code>struct pollfd</code>s in order, then you can pass it to <code>poll()</code>, also passing the size of the array, as well as a timeout value in milliseconds. (You can specify a negative timeout to wait forever.)</p>
+
+<p>After <code>poll()</code> returns, you can check the <code>revents</code> field to see if <code>POLLIN</code> or <code>POLLOUT</code> is set, indicating that event occurred.</p>
+
+<p>(There’s actually more that you can do with the <code>poll()</code> call. See the <a href="man-pages.html#pollman" rel="nofollow"><code>poll()</code> man page, below</a>, for more details.)</p>
+
+<p>Here’s <a href="https://beej.us/guide/bgnet/examples/poll.c" rel="nofollow">an example</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁸</a> where we’ll wait 2.5 seconds for data to be ready to read from standard input, i.e. when you hit <code>RETURN</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;poll.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">pollfd</span> <span class="n">pfds</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span> <span class="c1">// More if you want to monitor more</span>
+
+    <span class="n">pfds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">fd</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>          <span class="c1">// Standard input</span>
+    <span class="n">pfds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLIN</span><span class="p">;</span> <span class="c1">// Tell me when ready to read</span>
+
+    <span class="c1">// If you needed to monitor other things, as well:</span>
+    <span class="c1">//pfds[1].fd = some_socket; // Some socket descriptor</span>
+    <span class="c1">//pfds[1].events = POLLIN;  // Tell me when ready to read</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Hit RETURN or wait 2.5 seconds for timeout</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">num_events</span> <span class="o">=</span> <span class="n">poll</span><span class="p">(</span><span class="n">pfds</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">);</span> <span class="c1">// 2.5 second timeout</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">num_events</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Poll timed out!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">pollin_happened</span> <span class="o">=</span> <span class="n">pfds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">revents</span> <span class="o">&amp;</span> <span class="n">POLLIN</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">pollin_happened</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"File descriptor %d is ready to read</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">pfds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">fd</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Unexpected event occurred: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">pfds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">revents</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Notice again that <code>poll()</code> returns the number of elements in the <code>pfds</code> array for which events have occurred. It doesn’t tell you <em>which</em> elements in the array (you still have to scan for that), but it does tell you how many entries have a non-zero <code>revents</code> field (so you can stop scanning after you find that many).</p>
+
+<p>A couple questions might come up here: how to add new file descriptors to the set I pass to <code>poll()</code>? For this, simply make sure you have enough space in the array for all you need, or <code>realloc()</code> more space as needed.</p>
+
+<p>What about deleting items from the set? For this, you can copy the last element in the array over-top the one you’re deleting. And then pass in one fewer as the count to <code>poll()</code>. Another option is that you can set any <code>fd</code> field to a negative number and <code>poll()</code> will ignore it.</p>
+
+<p>How can we put it all together into a chat server that you can <code>telnet</code> to?</p>
+
+<p>What we’ll do is start a listener socket, and add it to the set of file descriptors to <code>poll()</code>. (It will show ready-to-read when there’s an incoming connection.)</p>
+
+<p>Then we’ll add new connections to our <code>struct pollfd</code> array. And we’ll grow it dynamically if we run out of space.</p>
+
+<p>When a connection is closed, we’ll remove it from the array.</p>
+
+<p>And when a connection is ready-to-read, we’ll read the data from it and send that data to all the other connections so they can see what the other users typed.</p>
+
+<p>So give <a href="https://beej.us/guide/bgnet/examples/pollserver.c" rel="nofollow">this poll server</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²⁹</a> a try. Run it in one window, then <code>telnet localhost 9034</code> from a number of other terminal windows. You should be able to see what you type in one window in the other ones (after you hit RETURN).</p>
+
+<p>Not only that, but if you hit <code>CTRL-]</code> and type <code>quit</code> to exit <code>telnet</code>, the server should detect the disconnection and remove you from the array of file descriptors.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cm">/*
+** pollserver.c -- a cheezy multiperson chat server
+*/</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sys/socket.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;netinet/in.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;arpa/inet.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;netdb.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;poll.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define PORT "9034"   // Port we're listening on
+</span>
+<span class="c1">// Get sockaddr, IPv4 or IPv6:</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">get_in_addr</span><span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">sa</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">sa</span><span class="o">-&gt;</span><span class="n">sa_family</span> <span class="o">==</span> <span class="n">AF_INET</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">&amp;</span><span class="p">(((</span><span class="k">struct</span> <span class="n">sockaddr_in</span><span class="o">*</span><span class="p">)</span><span class="n">sa</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">sin_addr</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="o">&amp;</span><span class="p">(((</span><span class="k">struct</span> <span class="n">sockaddr_in6</span><span class="o">*</span><span class="p">)</span><span class="n">sa</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">sin6_addr</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Return a listening socket</span>
+<span class="kt">int</span> <span class="nf">get_listener_socket</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">listener</span><span class="p">;</span>     <span class="c1">// Listening socket descriptor</span>
+    <span class="kt">int</span> <span class="n">yes</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>        <span class="c1">// For setsockopt() SO_REUSEADDR, below</span>
+    <span class="kt">int</span> <span class="n">rv</span><span class="p">;</span>
+
+    <span class="k">struct</span> <span class="n">addrinfo</span> <span class="n">hints</span><span class="p">,</span> <span class="o">*</span><span class="n">ai</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+
+    <span class="c1">// Get us a socket and bind it</span>
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">hints</span><span class="p">);</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_family</span> <span class="o">=</span> <span class="n">AF_UNSPEC</span><span class="p">;</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_socktype</span> <span class="o">=</span> <span class="n">SOCK_STREAM</span><span class="p">;</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_flags</span> <span class="o">=</span> <span class="n">AI_PASSIVE</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">rv</span> <span class="o">=</span> <span class="n">getaddrinfo</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">PORT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ai</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"selectserver: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">gai_strerror</span><span class="p">(</span><span class="n">rv</span><span class="p">));</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="n">ai</span><span class="p">;</span> <span class="n">p</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">ai_next</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">listener</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">ai_family</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">ai_socktype</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">ai_protocol</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">listener</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> 
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// Lose the pesky "address already in use" error message</span>
+        <span class="n">setsockopt</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">yes</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">close</span><span class="p">(</span><span class="n">listener</span><span class="p">);</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">ai</span><span class="p">);</span> <span class="c1">// All done with this</span>
+
+    <span class="c1">// If we got here, it means we didn't get bound</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Listen</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">listen</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">listener</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Add a new file descriptor to the set</span>
+<span class="kt">void</span> <span class="nf">add_to_pfds</span><span class="p">(</span><span class="k">struct</span> <span class="n">pollfd</span> <span class="o">*</span><span class="n">pfds</span><span class="p">[],</span> <span class="kt">int</span> <span class="n">newfd</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">fd_count</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">fd_size</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// If we don't have room, add more space in the pfds array</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">fd_count</span> <span class="o">==</span> <span class="o">*</span><span class="n">fd_size</span><span class="p">)</span> <span class="p">{</span>
+        <span class="o">*</span><span class="n">fd_size</span> <span class="o">*=</span> <span class="mi">2</span><span class="p">;</span> <span class="c1">// Double it</span>
+
+        <span class="o">*</span><span class="n">pfds</span> <span class="o">=</span> <span class="n">realloc</span><span class="p">(</span><span class="o">*</span><span class="n">pfds</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">**</span><span class="n">pfds</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="o">*</span><span class="n">fd_size</span><span class="p">));</span>
+    <span class="p">}</span>
+
+    <span class="p">(</span><span class="o">*</span><span class="n">pfds</span><span class="p">)[</span><span class="o">*</span><span class="n">fd_count</span><span class="p">].</span><span class="n">fd</span> <span class="o">=</span> <span class="n">newfd</span><span class="p">;</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">pfds</span><span class="p">)[</span><span class="o">*</span><span class="n">fd_count</span><span class="p">].</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLIN</span><span class="p">;</span> <span class="c1">// Check ready-to-read</span>
+
+    <span class="p">(</span><span class="o">*</span><span class="n">fd_count</span><span class="p">)</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Remove an index from the set</span>
+<span class="kt">void</span> <span class="nf">del_from_pfds</span><span class="p">(</span><span class="k">struct</span> <span class="n">pollfd</span> <span class="n">pfds</span><span class="p">[],</span> <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">fd_count</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Copy the one from the end over this one</span>
+    <span class="n">pfds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pfds</span><span class="p">[</span><span class="o">*</span><span class="n">fd_count</span><span class="o">-</span><span class="mi">1</span><span class="p">];</span>
+
+    <span class="p">(</span><span class="o">*</span><span class="n">fd_count</span><span class="p">)</span><span class="o">--</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Main</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">listener</span><span class="p">;</span>     <span class="c1">// Listening socket descriptor</span>
+
+    <span class="kt">int</span> <span class="n">newfd</span><span class="p">;</span>        <span class="c1">// Newly accept()ed socket descriptor</span>
+    <span class="k">struct</span> <span class="n">sockaddr_storage</span> <span class="n">remoteaddr</span><span class="p">;</span> <span class="c1">// Client address</span>
+    <span class="n">socklen_t</span> <span class="n">addrlen</span><span class="p">;</span>
+
+    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>    <span class="c1">// Buffer for client data</span>
+
+    <span class="kt">char</span> <span class="n">remoteIP</span><span class="p">[</span><span class="n">INET6_ADDRSTRLEN</span><span class="p">];</span>
+
+    <span class="c1">// Start off with room for 5 connections</span>
+    <span class="c1">// (We'll realloc as necessary)</span>
+    <span class="kt">int</span> <span class="n">fd_count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">fd_size</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">pollfd</span> <span class="o">*</span><span class="n">pfds</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span> <span class="o">*</span><span class="n">pfds</span> <span class="o">*</span> <span class="n">fd_size</span><span class="p">);</span>
+
+    <span class="c1">// Set up and get a listening socket</span>
+    <span class="n">listener</span> <span class="o">=</span> <span class="n">get_listener_socket</span><span class="p">();</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">listener</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"error getting listening socket</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Add the listener to set</span>
+    <span class="n">pfds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">fd</span> <span class="o">=</span> <span class="n">listener</span><span class="p">;</span>
+    <span class="n">pfds</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">events</span> <span class="o">=</span> <span class="n">POLLIN</span><span class="p">;</span> <span class="c1">// Report ready to read on incoming connection</span>
+
+    <span class="n">fd_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// For the listener</span>
+
+    <span class="c1">// Main loop</span>
+    <span class="k">for</span><span class="p">(;;)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">poll_count</span> <span class="o">=</span> <span class="n">poll</span><span class="p">(</span><span class="n">pfds</span><span class="p">,</span> <span class="n">fd_count</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">poll_count</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">perror</span><span class="p">(</span><span class="s">"poll"</span><span class="p">);</span>
+            <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c1">// Run through the existing connections looking for data to read</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">fd_count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+
+            <span class="c1">// Check if someone's ready to read</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">pfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">revents</span> <span class="o">&amp;</span> <span class="n">POLLIN</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// We got one!!</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">pfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span> <span class="o">==</span> <span class="n">listener</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="c1">// If listener is ready to read, handle new connection</span>
+
+                    <span class="n">addrlen</span> <span class="o">=</span> <span class="k">sizeof</span> <span class="n">remoteaddr</span><span class="p">;</span>
+                    <span class="n">newfd</span> <span class="o">=</span> <span class="n">accept</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span>
+                        <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">remoteaddr</span><span class="p">,</span>
+                        <span class="o">&amp;</span><span class="n">addrlen</span><span class="p">);</span>
+
+                    <span class="k">if</span> <span class="p">(</span><span class="n">newfd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="n">perror</span><span class="p">(</span><span class="s">"accept"</span><span class="p">);</span>
+                    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="n">add_to_pfds</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pfds</span><span class="p">,</span> <span class="n">newfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">fd_count</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">fd_size</span><span class="p">);</span>
+
+                        <span class="n">printf</span><span class="p">(</span><span class="s">"pollserver: new connection from %s on "</span>
+                            <span class="s">"socket %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+                            <span class="n">inet_ntop</span><span class="p">(</span><span class="n">remoteaddr</span><span class="p">.</span><span class="n">ss_family</span><span class="p">,</span>
+                                <span class="n">get_in_addr</span><span class="p">((</span><span class="k">struct</span> <span class="n">sockaddr</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">remoteaddr</span><span class="p">),</span>
+                                <span class="n">remoteIP</span><span class="p">,</span> <span class="n">INET6_ADDRSTRLEN</span><span class="p">),</span>
+                            <span class="n">newfd</span><span class="p">);</span>
+                    <span class="p">}</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                    <span class="c1">// If not the listener, we're just a regular client</span>
+                    <span class="kt">int</span> <span class="n">nbytes</span> <span class="o">=</span> <span class="n">recv</span><span class="p">(</span><span class="n">pfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">buf</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+                    <span class="kt">int</span> <span class="n">sender_fd</span> <span class="o">=</span> <span class="n">pfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">;</span>
+
+                    <span class="k">if</span> <span class="p">(</span><span class="n">nbytes</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="c1">// Got error or connection closed by client</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">nbytes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="c1">// Connection closed</span>
+                            <span class="n">printf</span><span class="p">(</span><span class="s">"pollserver: socket %d hung up</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">sender_fd</span><span class="p">);</span>
+                        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                            <span class="n">perror</span><span class="p">(</span><span class="s">"recv"</span><span class="p">);</span>
+                        <span class="p">}</span>
+
+                        <span class="n">close</span><span class="p">(</span><span class="n">pfds</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">fd</span><span class="p">);</span> <span class="c1">// Bye!</span>
+
+                        <span class="n">del_from_pfds</span><span class="p">(</span><span class="n">pfds</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">fd_count</span><span class="p">);</span>
+
+                    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="c1">// We got some good data from a client</span>
+
+                        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">fd_count</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="c1">// Send to everyone!</span>
+                            <span class="kt">int</span> <span class="n">dest_fd</span> <span class="o">=</span> <span class="n">pfds</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">fd</span><span class="p">;</span>
+
+                            <span class="c1">// Except the listener and ourselves</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">dest_fd</span> <span class="o">!=</span> <span class="n">listener</span> <span class="o">&amp;&amp;</span> <span class="n">dest_fd</span> <span class="o">!=</span> <span class="n">sender_fd</span><span class="p">)</span> <span class="p">{</span>
+                                <span class="k">if</span> <span class="p">(</span><span class="n">send</span><span class="p">(</span><span class="n">dest_fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                                    <span class="n">perror</span><span class="p">(</span><span class="s">"send"</span><span class="p">);</span>
+                                <span class="p">}</span>
+                            <span class="p">}</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">}</span> <span class="c1">// END handle data from client</span>
+            <span class="p">}</span> <span class="c1">// END got ready-to-read from poll()</span>
+        <span class="p">}</span> <span class="c1">// END looping through file descriptors</span>
+    <span class="p">}</span> <span class="c1">// END for(;;)--and you thought it would never end!</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>In the next section, we’ll look at a similar, older function called <code>select()</code>. Both <code>select()</code> and <code>poll()</code> offer similar functionality and performance, and only really differ in how they’re used. <code>select()</code> might be slightly more portable, but is perhaps a little clunkier in use. Choose the one you like the best, as long as it’s supported on your system.</p>
+
+<h2>7.3 <code>select()</code>—Synchronous I/O Multiplexing, Old School</h2>
+
+<p>This function is somewhat strange, but it’s very useful. Take the following situation: you are a server and you want to listen for incoming connections as well as keep reading from the connections you already have.</p>
+
+<p>No problem, you say, just an <code>accept()</code> and a couple of <code>recv()</code>s. Not so fast, buster! What if you’re blocking on an <code>accept()</code> call? How are you going to <code>recv()</code> data at the same time? “Use non-blocking sockets!” No way! You don’t want to be a CPU hog. What, then?</p>
+
+<p><code>select()</code> gives you the power to monitor several sockets at the same time. It’ll tell you which ones are ready for reading, which are ready for writing, and which sockets have raised exceptions, if you really want to know that.</p>
+
+<blockquote>
+<p><em>A word of warning: <code>select()</code>, though very portable, is terribly slow when it comes to giant numbers of connections. In those circumstances, you’ll get better performance out of an event library such as <a href="https://libevent.org/" rel="nofollow">libevent</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁰</a> that attempts to use the fastest possible method availabile on your system.</em></p>
+</blockquote>
+
+<p>Without any further ado, I’ll offer the synopsis of <code>select()</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;sys/time.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">select</span><span class="p">(</span><span class="kt">int</span> <span class="n">numfds</span><span class="p">,</span> <span class="n">fd_set</span> <span class="o">*</span><span class="n">readfds</span><span class="p">,</span> <span class="n">fd_set</span> <span class="o">*</span><span class="n">writefds</span><span class="p">,</span>
+           <span class="n">fd_set</span> <span class="o">*</span><span class="n">exceptfds</span><span class="p">,</span> <span class="k">struct</span> <span class="n">timeval</span> <span class="o">*</span><span class="n">timeout</span><span class="p">);</span> 
+</code></pre></div>
+
+<p>The function monitors “sets” of file descriptors; in particular <code>readfds</code>, <code>writefds</code>, and <code>exceptfds</code>. If you want to see if you can read from standard input and some socket descriptor, <code>sockfd</code>, just add the file descriptors <code>0</code> and <code>sockfd</code> to the set <code>readfds</code>. The parameter <code>numfds</code> should be set to the values of the highest file descriptor plus one. In this example, it should be set to <code>sockfd+1</code>, since it is assuredly higher than standard input (<code>0</code>).</p>
+
+<p>When <code>select()</code> returns, <code>readfds</code> will be modified to reflect which of the file descriptors you selected which is ready for reading. You can test them with the macro <code>FD_ISSET()</code>, below.</p>
+
+<p>Before progressing much further, I’ll talk about how to manipulate these sets. Each set is of the type <code>fd_set</code>. The following macros operate on this type:</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>FD_SET(int fd, fd_set *set);</code></td>
+<td>Add <code>fd</code> to the <code>set</code>.</td>
+</tr>
+<tr>
+<td><code>FD_CLR(int fd, fd_set *set);</code></td>
+<td>Remove <code>fd</code> from the <code>set</code>.</td>
+</tr>
+<tr>
+<td><code>FD_ISSET(int fd, fd_set *set);</code></td>
+<td>Return true if <code>fd</code> is in the <code>set</code>.</td>
+</tr>
+<tr>
+<td><code>FD_ZERO(fd_set *set);</code></td>
+<td>Clear all entries from the <code>set</code>.</td>
+</tr>
+</tbody></table>
+
+<p>Finally, what is this weirded-out <code>struct timeval</code>? Well, sometimes you don’t want to wait forever for someone to send you some data. Maybe every 96 seconds you want to print “Still Going…” to the terminal even though nothing has happened. This time structure allows you to specify a timeout period. If the time is exceeded and <code>select()</code> still hasn’t found any ready file descriptors, it’ll return so you can continue processing.</p>
+
+<p>The <code>struct timeval</code> has the follow fields:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">timeval</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">tv_sec</span><span class="p">;</span>     <span class="c1">// seconds</span>
+    <span class="kt">int</span> <span class="n">tv_usec</span><span class="p">;</span>    <span class="c1">// microseconds</span>
+<span class="p">};</span> 
+</code></pre></div>
+
+<p>Just set <code>tv_sec</code> to the number of seconds to wait, and set <code>tv_usec</code> to the number of microseconds to wait. Yes, that’s _micro_seconds, not milliseconds. There are 1,000 microseconds in a millisecond, and 1,000 milliseconds in a second. Thus, there are 1,000,000 microseconds in a second. Why is it “usec”? The “u” is supposed to look like the Greek letter μ (Mu) that we use for “micro”. Also, when the function returns, <code>timeout</code> <em>might</em> be updated to show the time still remaining. This depends on what flavor of Unix you’re running.</p>
+
+<p>Yay! We have a microsecond resolution timer! Well, don’t count on it. You’ll probably have to wait some part of your standard Unix timeslice no matter how small you set your <code>struct timeval</code>.</p>
+
+<p>Other things of interest: If you set the fields in your <code>struct timeval</code> to <code>0</code>, <code>select()</code> will timeout immediately, effectively polling all the file descriptors in your sets. If you set the parameter <code>timeout</code> to NULL, it will never timeout, and will wait until the first file descriptor is ready. Finally, if you don’t care about waiting for a certain set, you can just set it to NULL in the call to <code>select()</code>.</p>
+
+<p><a href="https://beej.us/guide/bgnet/examples/select.c" rel="nofollow">The following code snippet</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³¹</a> waits 2.5 seconds for something to appear on standard input:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cm">/*
+** select.c -- a select() demo
+*/</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sys/time.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define STDIN 0  // file descriptor for standard input
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">timeval</span> <span class="n">tv</span><span class="p">;</span>
+    <span class="n">fd_set</span> <span class="n">readfds</span><span class="p">;</span>
+
+    <span class="n">tv</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="n">tv</span><span class="p">.</span><span class="n">tv_usec</span> <span class="o">=</span> <span class="mi">500000</span><span class="p">;</span>
+
+    <span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">readfds</span><span class="p">);</span>
+    <span class="n">FD_SET</span><span class="p">(</span><span class="n">STDIN</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readfds</span><span class="p">);</span>
+
+    <span class="c1">// don't care about writefds and exceptfds:</span>
+    <span class="n">select</span><span class="p">(</span><span class="n">STDIN</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readfds</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">tv</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">STDIN</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readfds</span><span class="p">))</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"A key was pressed!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Timed out.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span> 
+</code></pre></div>
+
+<p>If you’re on a line buffered terminal, the key you hit should be RETURN or it will time out anyway.</p>
+
+<p>Now, some of you might think this is a great way to wait for data on a datagram socket—and you are right: it <em>might</em> be. Some Unices can use select in this manner, and some can’t. You should see what your local man page says on the matter if you want to attempt it.</p>
+
+<p>Some Unices update the time in your <code>struct timeval</code> to reflect the amount of time still remaining before a timeout. But others do not. Don’t rely on that occurring if you want to be portable. (Use <code>gettimeofday()</code> if you need to track time elapsed. It’s a bummer, I know, but that’s the way it is.)</p>
+
+<p>What happens if a socket in the read set closes the connection? Well, in that case, <code>select()</code> returns with that socket descriptor set as “ready to read”. When you actually do <code>recv()</code> from it, <code>recv()</code> will return <code>0</code>. That’s how you know the client has closed the connection.</p>
+
+<p>One more note of interest about <code>select()</code>: if you have a socket that is <code>listen()</code>ing, you can check to see if there is a new connection by putting that socket’s file descriptor in the <code>readfds</code> set.</p>
+
+<p>And that, my friends, is a quick overview of the almighty <code>select()</code> function.</p>
+
+<p>But, by popular demand, here is an in-depth example. Unfortunately, the difference between the dirt-simple example, above, and this one here is significant. But have a look, then read the description that follows it.</p>
+
+<p><a href="https://beej.us/guide/bgnet/examples/selectserver.c" rel="nofollow">This program</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³²</a> acts like a simple multi-user chat server. Start it running in one window, then <code>telnet</code> to it (“<code>telnet hostname 9034</code>”) from multiple other windows. When you type something in one <code>telnet</code> session, it should appear in all the others.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cm">/*
+** selectserver.c -- a cheezy multiperson chat server
+*/</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sys/socket.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;netinet/in.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;arpa/inet.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;netdb.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define PORT "9034"   // port we're listening on
+</span>
+<span class="c1">// get sockaddr, IPv4 or IPv6:</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">get_in_addr</span><span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">sa</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">sa</span><span class="o">-&gt;</span><span class="n">sa_family</span> <span class="o">==</span> <span class="n">AF_INET</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">&amp;</span><span class="p">(((</span><span class="k">struct</span> <span class="n">sockaddr_in</span><span class="o">*</span><span class="p">)</span><span class="n">sa</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">sin_addr</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="o">&amp;</span><span class="p">(((</span><span class="k">struct</span> <span class="n">sockaddr_in6</span><span class="o">*</span><span class="p">)</span><span class="n">sa</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">sin6_addr</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">fd_set</span> <span class="n">master</span><span class="p">;</span>    <span class="c1">// master file descriptor list</span>
+    <span class="n">fd_set</span> <span class="n">read_fds</span><span class="p">;</span>  <span class="c1">// temp file descriptor list for select()</span>
+    <span class="kt">int</span> <span class="n">fdmax</span><span class="p">;</span>        <span class="c1">// maximum file descriptor number</span>
+
+    <span class="kt">int</span> <span class="n">listener</span><span class="p">;</span>     <span class="c1">// listening socket descriptor</span>
+    <span class="kt">int</span> <span class="n">newfd</span><span class="p">;</span>        <span class="c1">// newly accept()ed socket descriptor</span>
+    <span class="k">struct</span> <span class="n">sockaddr_storage</span> <span class="n">remoteaddr</span><span class="p">;</span> <span class="c1">// client address</span>
+    <span class="n">socklen_t</span> <span class="n">addrlen</span><span class="p">;</span>
+
+    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>    <span class="c1">// buffer for client data</span>
+    <span class="kt">int</span> <span class="n">nbytes</span><span class="p">;</span>
+
+    <span class="kt">char</span> <span class="n">remoteIP</span><span class="p">[</span><span class="n">INET6_ADDRSTRLEN</span><span class="p">];</span>
+
+    <span class="kt">int</span> <span class="n">yes</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>        <span class="c1">// for setsockopt() SO_REUSEADDR, below</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">rv</span><span class="p">;</span>
+
+    <span class="k">struct</span> <span class="n">addrinfo</span> <span class="n">hints</span><span class="p">,</span> <span class="o">*</span><span class="n">ai</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+
+    <span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">master</span><span class="p">);</span>    <span class="c1">// clear the master and temp sets</span>
+    <span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">read_fds</span><span class="p">);</span>
+
+    <span class="c1">// get us a socket and bind it</span>
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">hints</span><span class="p">);</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_family</span> <span class="o">=</span> <span class="n">AF_UNSPEC</span><span class="p">;</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_socktype</span> <span class="o">=</span> <span class="n">SOCK_STREAM</span><span class="p">;</span>
+    <span class="n">hints</span><span class="p">.</span><span class="n">ai_flags</span> <span class="o">=</span> <span class="n">AI_PASSIVE</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">rv</span> <span class="o">=</span> <span class="n">getaddrinfo</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">PORT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ai</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"selectserver: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">gai_strerror</span><span class="p">(</span><span class="n">rv</span><span class="p">));</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="n">ai</span><span class="p">;</span> <span class="n">p</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">ai_next</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">listener</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">ai_family</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">ai_socktype</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">ai_protocol</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">listener</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> 
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// lose the pesky "address already in use" error message</span>
+        <span class="n">setsockopt</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">yes</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">bind</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">close</span><span class="p">(</span><span class="n">listener</span><span class="p">);</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// if we got here, it means we didn't get bound</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"selectserver: failed to bind</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">freeaddrinfo</span><span class="p">(</span><span class="n">ai</span><span class="p">);</span> <span class="c1">// all done with this</span>
+
+    <span class="c1">// listen</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">listen</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"listen"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// add the listener to the master set</span>
+    <span class="n">FD_SET</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">master</span><span class="p">);</span>
+
+    <span class="c1">// keep track of the biggest file descriptor</span>
+    <span class="n">fdmax</span> <span class="o">=</span> <span class="n">listener</span><span class="p">;</span> <span class="c1">// so far, it's this one</span>
+
+    <span class="c1">// main loop</span>
+    <span class="k">for</span><span class="p">(;;)</span> <span class="p">{</span>
+        <span class="n">read_fds</span> <span class="o">=</span> <span class="n">master</span><span class="p">;</span> <span class="c1">// copy it</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">fdmax</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">read_fds</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">perror</span><span class="p">(</span><span class="s">"select"</span><span class="p">);</span>
+            <span class="n">exit</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="c1">// run through the existing connections looking for data to read</span>
+        <span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">fdmax</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">read_fds</span><span class="p">))</span> <span class="p">{</span> <span class="c1">// we got one!!</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">listener</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="c1">// handle new connections</span>
+                    <span class="n">addrlen</span> <span class="o">=</span> <span class="k">sizeof</span> <span class="n">remoteaddr</span><span class="p">;</span>
+                    <span class="n">newfd</span> <span class="o">=</span> <span class="n">accept</span><span class="p">(</span><span class="n">listener</span><span class="p">,</span>
+                        <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">remoteaddr</span><span class="p">,</span>
+                        <span class="o">&amp;</span><span class="n">addrlen</span><span class="p">);</span>
+
+                    <span class="k">if</span> <span class="p">(</span><span class="n">newfd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="n">perror</span><span class="p">(</span><span class="s">"accept"</span><span class="p">);</span>
+                    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="n">FD_SET</span><span class="p">(</span><span class="n">newfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">master</span><span class="p">);</span> <span class="c1">// add to master set</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">newfd</span> <span class="o">&gt;</span> <span class="n">fdmax</span><span class="p">)</span> <span class="p">{</span>    <span class="c1">// keep track of the max</span>
+                            <span class="n">fdmax</span> <span class="o">=</span> <span class="n">newfd</span><span class="p">;</span>
+                        <span class="p">}</span>
+                        <span class="n">printf</span><span class="p">(</span><span class="s">"selectserver: new connection from %s on "</span>
+                            <span class="s">"socket %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+                            <span class="n">inet_ntop</span><span class="p">(</span><span class="n">remoteaddr</span><span class="p">.</span><span class="n">ss_family</span><span class="p">,</span>
+                                <span class="n">get_in_addr</span><span class="p">((</span><span class="k">struct</span> <span class="n">sockaddr</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">remoteaddr</span><span class="p">),</span>
+                                <span class="n">remoteIP</span><span class="p">,</span> <span class="n">INET6_ADDRSTRLEN</span><span class="p">),</span>
+                            <span class="n">newfd</span><span class="p">);</span>
+                    <span class="p">}</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                    <span class="c1">// handle data from a client</span>
+                    <span class="k">if</span> <span class="p">((</span><span class="n">nbytes</span> <span class="o">=</span> <span class="n">recv</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">buf</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="c1">// got error or connection closed by client</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">nbytes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="c1">// connection closed</span>
+                            <span class="n">printf</span><span class="p">(</span><span class="s">"selectserver: socket %d hung up</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+                        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                            <span class="n">perror</span><span class="p">(</span><span class="s">"recv"</span><span class="p">);</span>
+                        <span class="p">}</span>
+                        <span class="n">close</span><span class="p">(</span><span class="n">i</span><span class="p">);</span> <span class="c1">// bye!</span>
+                        <span class="n">FD_CLR</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">master</span><span class="p">);</span> <span class="c1">// remove from master set</span>
+                    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="c1">// we got some data from a client</span>
+                        <span class="k">for</span><span class="p">(</span><span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">fdmax</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                            <span class="c1">// send to everyone!</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">FD_ISSET</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">master</span><span class="p">))</span> <span class="p">{</span>
+                                <span class="c1">// except the listener and ourselves</span>
+                                <span class="k">if</span> <span class="p">(</span><span class="n">j</span> <span class="o">!=</span> <span class="n">listener</span> <span class="o">&amp;&amp;</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+                                    <span class="k">if</span> <span class="p">(</span><span class="n">send</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">nbytes</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                                        <span class="n">perror</span><span class="p">(</span><span class="s">"send"</span><span class="p">);</span>
+                                    <span class="p">}</span>
+                                <span class="p">}</span>
+                            <span class="p">}</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                <span class="p">}</span> <span class="c1">// END handle data from client</span>
+            <span class="p">}</span> <span class="c1">// END got new incoming connection</span>
+        <span class="p">}</span> <span class="c1">// END looping through file descriptors</span>
+    <span class="p">}</span> <span class="c1">// END for(;;)--and you thought it would never end!</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Notice I have two file descriptor sets in the code: <code>master</code> and <code>read_fds</code>. The first, <code>master</code>, holds all the socket descriptors that are currently connected, as well as the socket descriptor that is listening for new connections.</p>
+
+<p>The reason I have the <code>master</code> set is that <code>select()</code> actually <em>changes</em> the set you pass into it to reflect which sockets are ready to read. Since I have to keep track of the connections from one call of <code>select()</code> to the next, I must store these safely away somewhere. At the last minute, I copy the <code>master</code> into the <code>read_fds</code>, and then call <code>select()</code>.</p>
+
+<p>But doesn’t this mean that every time I get a new connection, I have to add it to the <code>master</code> set? Yup! And every time a connection closes, I have to remove it from the <code>master</code> set? Yes, it does.</p>
+
+<p>Notice I check to see when the <code>listener</code> socket is ready to read. When it is, it means I have a new connection pending, and I <code>accept()</code> it and add it to the <code>master</code> set. Similarly, when a client connection is ready to read, and <code>recv()</code> returns <code>0</code>, I know the client has closed the connection, and I must remove it from the <code>master</code> set.</p>
+
+<p>If the client <code>recv()</code> returns non-zero, though, I know some data has been received. So I get it, and then go through the <code>master</code> list and send that data to all the rest of the connected clients.</p>
+
+<p>And that, my friends, is a less-than-simple overview of the almighty <code>select()</code> function.</p>
+
+<p>Quick note to all you Linux fans out there: sometimes, in rare circumstances, Linux’s <code>select()</code> can return “ready-to-read” and then not actually be ready to read! This means it will block on the <code>read()</code> after the <code>select()</code> says it won’t! Why you little—! Anyway, the workaround solution is to set the <code>O_NONBLOCK</code> flag on the receiving socket so it errors with <code>EWOULDBLOCK</code> (which you can just safely ignore if it occurs). See the <a href="man-pages.html#fcntlman" rel="nofollow"><code>fcntl()</code> reference page</a> for more info on setting a socket to non-blocking.</p>
+
+<p>In addition, here is a bonus afterthought: there is another function called <code>poll()</code> which behaves much the same way <code>select()</code> does, but with a different system for managing the file descriptor sets. <a href="man-pages.html#pollman" rel="nofollow">Check it out!</a></p>
+
+<h2>7.4 Handling Partial <code>send()</code>s</h2>
+
+<p>Remember back in the <a href="system-calls-or-bust.html#sendrecv" rel="nofollow">section about <code>send()</code></a>, above, when I said that <code>send()</code> might not send all the bytes you asked it to? That is, you want it to send 512 bytes, but it returns 412. What happened to the remaining 100 bytes?</p>
+
+<p>Well, they’re still in your little buffer waiting to be sent out. Due to circumstances beyond your control, the kernel decided not to send all the data out in one chunk, and now, my friend, it’s up to you to get the data out there.</p>
+
+<p>You could write a function like this to do it, too:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sys/socket.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">sendall</span><span class="p">(</span><span class="kt">int</span> <span class="n">s</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">len</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>        <span class="c1">// how many bytes we've sent</span>
+    <span class="kt">int</span> <span class="n">bytesleft</span> <span class="o">=</span> <span class="o">*</span><span class="n">len</span><span class="p">;</span> <span class="c1">// how many we have left to send</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">total</span> <span class="o">&lt;</span> <span class="o">*</span><span class="n">len</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">send</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">buf</span><span class="o">+</span><span class="n">total</span><span class="p">,</span> <span class="n">bytesleft</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span> <span class="k">break</span><span class="p">;</span> <span class="p">}</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">n</span><span class="p">;</span>
+        <span class="n">bytesleft</span> <span class="o">-=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="o">*</span><span class="n">len</span> <span class="o">=</span> <span class="n">total</span><span class="p">;</span> <span class="c1">// return number actually sent here</span>
+
+    <span class="k">return</span> <span class="n">n</span><span class="o">==-</span><span class="mi">1</span><span class="o">?-</span><span class="mi">1</span><span class="o">:</span><span class="mi">0</span><span class="p">;</span> <span class="c1">// return -1 on failure, 0 on success</span>
+<span class="p">}</span> 
+</code></pre></div>
+
+<p>In this example, <code>s</code> is the socket you want to send the data to, <code>buf</code> is the buffer containing the data, and <code>len</code> is a pointer to an <code>int</code> containing the number of bytes in the buffer.</p>
+
+<p>The function returns <code>-1</code> on error (and <code>errno</code> is still set from the call to <code>send()</code>). Also, the number of bytes actually sent is returned in <code>len</code>. This will be the same number of bytes you asked it to send, unless there was an error. <code>sendall()</code> will do it’s best, huffing and puffing, to send the data out, but if there’s an error, it gets back to you right away.</p>
+
+<p>For completeness, here’s a sample call to the function:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="s">"Beej!"</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">len</span><span class="p">;</span>
+
+<span class="n">len</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">sendall</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">len</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"sendall"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"We only sent %d bytes because of the error!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+<span class="p">}</span> 
+</code></pre></div>
+
+<p>What happens on the receiver’s end when part of a packet arrives? If the packets are variable length, how does the receiver know when one packet ends and another begins? Yes, real-world scenarios are a royal pain in the donkeys. You probably have to <em>encapsulate</em> (remember that from the <a href="what-is-a-socket.html#lowlevel" rel="nofollow">data encapsulation section</a> way back there at the beginning?) Read on for details!</p>
+
+<h2>7.5 Serialization—How to Pack Data</h2>
+
+<p>It’s easy enough to send text data across the network, you’re finding, but what happens if you want to send some “binary” data like <code>int</code>s or <code>float</code>s? It turns out you have a few options.</p>
+
+<ol>
+<li><p>Convert the number into text with a function like <code>sprintf()</code>, then send the text. The receiver will parse the text back into a number using a function like <code>strtol()</code>.</p></li>
+<li><p>Just send the data raw, passing a pointer to the data to <code>send()</code>.</p></li>
+<li><p>Encode the number into a portable binary form. The receiver will decode it.</p></li>
+</ol>
+
+<p>Sneak preview! Tonight only!</p>
+
+<p>[<em>Curtain raises</em>]</p>
+
+<p>Beej says, “I prefer Method Three, above!”</p>
+
+<p>[<em>THE END</em>]</p>
+
+<p>(Before I begin this section in earnest, I should tell you that there are libraries out there for doing this, and rolling your own and remaining portable and error-free is quite a challenge. So hunt around and do your homework before deciding to implement this stuff yourself. I include the information here for those curious about how things like this work.)</p>
+
+<p>Actually all the methods, above, have their drawbacks and advantages, but, like I said, in general, I prefer the third method. First, though, let’s talk about some of the drawbacks and advantages to the other two.</p>
+
+<p>The first method, encoding the numbers as text before sending, has the advantage that you can easily print and read the data that’s coming over the wire. Sometimes a human-readable protocol is excellent to use in a non-bandwidth-intensive situation, such as with <a href="https://en.wikipedia.org/wiki/Internet_Relay_Chat" rel="nofollow">Internet Relay Chat (IRC)</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³³</a>. However, it has the disadvantage that it is slow to convert, and the results almost always take up more space than the original number!</p>
+
+<p>Method two: passing the raw data. This one is quite easy (but dangerous!): just take a pointer to the data to send, and call send with it.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">double</span> <span class="n">d</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">.</span><span class="mi">15926535</span><span class="p">;</span>
+
+<span class="n">send</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">d</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">d</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>  <span class="cm">/* DANGER--non-portable! */</span>
+</code></pre></div>
+
+<p>The receiver gets it like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">double</span> <span class="n">d</span><span class="p">;</span>
+
+<span class="n">recv</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">d</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">d</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>  <span class="cm">/* DANGER--non-portable! */</span>
+</code></pre></div>
+
+<p>Fast, simple—what’s not to like? Well, it turns out that not all architectures represent a <code>double</code> (or <code>int</code> for that matter) with the same bit representation or even the same byte ordering! The code is decidedly non-portable. (Hey—maybe you don’t need portability, in which case this is nice and fast.)</p>
+
+<p>When packing integer types, we’ve already seen how the <code>htons()</code>-class of functions can help keep things portable by transforming the numbers into Network Byte Order, and how that’s the Right Thing to do. Unfortunately, there are no similar functions for <code>float</code> types. Is all hope lost?</p>
+
+<p>Fear not! (Were you afraid there for a second? No? Not even a little bit?) There is something we can do: we can pack (or “marshal”, or “serialize”, or one of a thousand million other names) the data into a known binary format that the receiver can unpack on the remote side.</p>
+
+<p>What do I mean by “known binary format”? Well, we’ve already seen the <code>htons()</code> example, right? It changes (or “encodes”, if you want to think of it that way) a number from whatever the host format is into Network Byte Order. To reverse (unencode) the number, the receiver calls <code>ntohs()</code>.</p>
+
+<p>But didn’t I just get finished saying there wasn’t any such function for other non-integer types? Yes. I did. And since there’s no standard way in C to do this, it’s a bit of a pickle (that a gratuitous pun there for you Python fans).</p>
+
+<p>The thing to do is to pack the data into a known format and send that over the wire for decoding. For example, to pack <code>float</code>s, here’s <a href="https://beej.us/guide/bgnet/examples/pack.c" rel="nofollow">something quick and dirty with plenty of room for improvement</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁴</a>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdint.h&gt;</span><span class="cp">
+</span>
+<span class="kt">uint32_t</span> <span class="nf">htonf</span><span class="p">(</span><span class="kt">float</span> <span class="n">f</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">uint32_t</span> <span class="n">p</span><span class="p">;</span>
+    <span class="kt">uint32_t</span> <span class="n">sign</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">f</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="n">sign</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">f</span> <span class="o">=</span> <span class="o">-</span><span class="n">f</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span> <span class="n">sign</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="p">((((</span><span class="kt">uint32_t</span><span class="p">)</span><span class="n">f</span><span class="p">)</span><span class="o">&amp;</span><span class="mh">0x7fff</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">sign</span><span class="o">&lt;&lt;</span><span class="mi">31</span><span class="p">);</span> <span class="c1">// whole part and sign</span>
+    <span class="n">p</span> <span class="o">|=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="p">)(((</span><span class="n">f</span> <span class="o">-</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">f</span><span class="p">)</span> <span class="o">*</span> <span class="mi">65536</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">))</span><span class="o">&amp;</span><span class="mh">0xffff</span><span class="p">;</span> <span class="c1">// fraction</span>
+
+    <span class="k">return</span> <span class="n">p</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">float</span> <span class="nf">ntohf</span><span class="p">(</span><span class="kt">uint32_t</span> <span class="n">p</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">float</span> <span class="n">f</span> <span class="o">=</span> <span class="p">((</span><span class="n">p</span><span class="o">&gt;&gt;</span><span class="mi">16</span><span class="p">)</span><span class="o">&amp;</span><span class="mh">0x7fff</span><span class="p">);</span> <span class="c1">// whole part</span>
+    <span class="n">f</span> <span class="o">+=</span> <span class="p">(</span><span class="n">p</span><span class="o">&amp;</span><span class="mh">0xffff</span><span class="p">)</span> <span class="o">/</span> <span class="mi">65536</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">;</span> <span class="c1">// fraction</span>
+
+    <span class="k">if</span> <span class="p">(((</span><span class="n">p</span><span class="o">&gt;&gt;</span><span class="mi">31</span><span class="p">)</span><span class="o">&amp;</span><span class="mh">0x1</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x1</span><span class="p">)</span> <span class="p">{</span> <span class="n">f</span> <span class="o">=</span> <span class="o">-</span><span class="n">f</span><span class="p">;</span> <span class="p">}</span> <span class="c1">// sign bit set</span>
+
+    <span class="k">return</span> <span class="n">f</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The above code is sort of a naive implementation that stores a <code>float</code> in a 32-bit number. The high bit (31) is used to store the sign of the number (“1” means negative), and the next seven bits (30-16) are used to store the whole number portion of the <code>float</code>. Finally, the remaining bits (15-0) are used to store the fractional portion of the number.</p>
+
+<p>Usage is fairly straightforward:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">float</span> <span class="n">f</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">1415926</span><span class="p">,</span> <span class="n">f2</span><span class="p">;</span>
+    <span class="kt">uint32_t</span> <span class="n">netf</span><span class="p">;</span>
+
+    <span class="n">netf</span> <span class="o">=</span> <span class="n">htonf</span><span class="p">(</span><span class="n">f</span><span class="p">);</span>  <span class="c1">// convert to "network" form</span>
+    <span class="n">f2</span> <span class="o">=</span> <span class="n">ntohf</span><span class="p">(</span><span class="n">netf</span><span class="p">);</span> <span class="c1">// convert back to test</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Original: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span>        <span class="c1">// 3.141593</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">" Network: 0x%08X</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">netf</span><span class="p">);</span> <span class="c1">// 0x0003243F</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Unpacked: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">f2</span><span class="p">);</span>       <span class="c1">// 3.141586</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>On the plus side, it’s small, simple, and fast. On the minus side, it’s not an efficient use of space and the range is severely restricted—try storing a number greater-than 32767 in there and it won’t be very happy! You can also see in the above example that the last couple decimal places are not correctly preserved.</p>
+
+<p>What can we do instead? Well, <em>The</em> Standard for storing floating point numbers is known as <a href="https://en.wikipedia.org/wiki/IEEE_754" rel="nofollow">IEEE-754</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁵</a>. Most computers use this format internally for doing floating point math, so in those cases, strictly speaking, conversion wouldn’t need to be done. But if you want your source code to be portable, that’s an assumption you can’t necessarily make. (On the other hand, if you want things to be fast, you should optimize this out on platforms that don’t need to do it! That’s what <code>htons()</code> and its ilk do.)</p>
+
+<p><a href="https://beej.us/guide/bgnet/examples/ieee754.c" rel="nofollow">Here’s some code that encodes floats and doubles into IEEE-754 format</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁶</a>. (Mostly—it doesn’t encode NaN or Infinity, but it could be modified to do that.)</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#define pack754_32(f) (pack754((f), 32, 8))
+#define pack754_64(f) (pack754((f), 64, 11))
+#define unpack754_32(i) (unpack754((i), 32, 8))
+#define unpack754_64(i) (unpack754((i), 64, 11))
+</span>
+<span class="kt">uint64_t</span> <span class="nf">pack754</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">f</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="n">bits</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="n">expbits</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">long</span> <span class="kt">double</span> <span class="n">fnorm</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">shift</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="n">sign</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">significand</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="n">significandbits</span> <span class="o">=</span> <span class="n">bits</span> <span class="o">-</span> <span class="n">expbits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// -1 for sign bit</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">f</span> <span class="o">==</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// get this special case out of the way</span>
+
+    <span class="c1">// check sign and begin normalization</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">f</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="n">sign</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">fnorm</span> <span class="o">=</span> <span class="o">-</span><span class="n">f</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span> <span class="n">sign</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">fnorm</span> <span class="o">=</span> <span class="n">f</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="c1">// get the normalized form of f and track the exponent</span>
+    <span class="n">shift</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">fnorm</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="n">fnorm</span> <span class="o">/=</span> <span class="mi">2</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span> <span class="n">shift</span><span class="o">++</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">fnorm</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="n">fnorm</span> <span class="o">*=</span> <span class="mi">2</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span> <span class="n">shift</span><span class="o">--</span><span class="p">;</span> <span class="p">}</span>
+    <span class="n">fnorm</span> <span class="o">=</span> <span class="n">fnorm</span> <span class="o">-</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+
+    <span class="c1">// calculate the binary form (non-float) of the significand data</span>
+    <span class="n">significand</span> <span class="o">=</span> <span class="n">fnorm</span> <span class="o">*</span> <span class="p">((</span><span class="mi">1LL</span><span class="o">&lt;&lt;</span><span class="n">significandbits</span><span class="p">)</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="n">f</span><span class="p">);</span>
+
+    <span class="c1">// get the biased exponent</span>
+    <span class="n">exp</span> <span class="o">=</span> <span class="n">shift</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">expbits</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span> <span class="c1">// shift + bias</span>
+
+    <span class="c1">// return the final answer</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">sign</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">bits</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">|</span> <span class="p">(</span><span class="n">exp</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">bits</span><span class="o">-</span><span class="n">expbits</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">|</span> <span class="n">significand</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="nf">unpack754</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">i</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="n">bits</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="n">expbits</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">long</span> <span class="kt">double</span> <span class="n">result</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="n">shift</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="n">bias</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="n">significandbits</span> <span class="o">=</span> <span class="n">bits</span> <span class="o">-</span> <span class="n">expbits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// -1 for sign bit</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+
+    <span class="c1">// pull the significand</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">&amp;</span><span class="p">((</span><span class="mi">1LL</span><span class="o">&lt;&lt;</span><span class="n">significandbits</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">));</span> <span class="c1">// mask</span>
+    <span class="n">result</span> <span class="o">/=</span> <span class="p">(</span><span class="mi">1LL</span><span class="o">&lt;&lt;</span><span class="n">significandbits</span><span class="p">);</span> <span class="c1">// convert back to float</span>
+    <span class="n">result</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">;</span> <span class="c1">// add the one back on</span>
+
+    <span class="c1">// deal with the exponent</span>
+    <span class="n">bias</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">expbits</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">shift</span> <span class="o">=</span> <span class="p">((</span><span class="n">i</span><span class="o">&gt;&gt;</span><span class="n">significandbits</span><span class="p">)</span><span class="o">&amp;</span><span class="p">((</span><span class="mi">1LL</span><span class="o">&lt;&lt;</span><span class="n">expbits</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">-</span> <span class="n">bias</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">shift</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="o">*=</span> <span class="mi">2</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span> <span class="n">shift</span><span class="o">--</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">shift</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="o">/=</span> <span class="mi">2</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span> <span class="n">shift</span><span class="o">++</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="c1">// sign it</span>
+    <span class="n">result</span> <span class="o">*=</span> <span class="p">(</span><span class="n">i</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">bits</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">&amp;</span><span class="mi">1</span><span class="o">?</span> <span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="o">:</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>I put some handy macros up there at the top for packing and unpacking 32-bit (probably a <code>float</code>) and 64-bit (probably a <code>double</code>) numbers, but the <code>pack754()</code> function could be called directly and told to encode <code>bits</code>-worth of data (<code>expbits</code> of which are reserved for the normalized number’s exponent).</p>
+
+<p>Here’s sample usage:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdint.h&gt;</span><span class="c1"> // defines uintN_t types</span><span class="cp">
+#include</span> <span class="cpf">&lt;inttypes.h&gt;</span><span class="c1"> // defines PRIx macros</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">float</span> <span class="n">f</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">1415926</span><span class="p">,</span> <span class="n">f2</span><span class="p">;</span>
+    <span class="kt">double</span> <span class="n">d</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14159265358979323</span><span class="p">,</span> <span class="n">d2</span><span class="p">;</span>
+    <span class="kt">uint32_t</span> <span class="n">fi</span><span class="p">;</span>
+    <span class="kt">uint64_t</span> <span class="n">di</span><span class="p">;</span>
+
+    <span class="n">fi</span> <span class="o">=</span> <span class="n">pack754_32</span><span class="p">(</span><span class="n">f</span><span class="p">);</span>
+    <span class="n">f2</span> <span class="o">=</span> <span class="n">unpack754_32</span><span class="p">(</span><span class="n">fi</span><span class="p">);</span>
+
+    <span class="n">di</span> <span class="o">=</span> <span class="n">pack754_64</span><span class="p">(</span><span class="n">d</span><span class="p">);</span>
+    <span class="n">d2</span> <span class="o">=</span> <span class="n">unpack754_64</span><span class="p">(</span><span class="n">di</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"float before : %.7f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"float encoded: 0x%08"</span> <span class="n">PRIx32</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">fi</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"float after  : %.7f</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="n">f2</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"double before : %.20lf</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">d</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"double encoded: 0x%016"</span> <span class="n">PRIx64</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">di</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"double after  : %.20lf</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">d2</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The above code produces this output:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>float before : 3.1415925
+float encoded: 0x40490FDA
+float after  : 3.1415925
+
+double before : 3.14159265358979311600
+double encoded: 0x400921FB54442D18
+double after  : 3.14159265358979311600
+</code></pre></div>
+
+<p>Another question you might have is how do you pack <code>struct</code>s? Unfortunately for you, the compiler is free to put padding all over the place in a <code>struct</code>, and that means you can’t portably send the whole thing over the wire in one chunk. (Aren’t you getting sick of hearing “can’t do this”, “can’t do that”? Sorry! To quote a friend, “Whenever anything goes wrong, I always blame Microsoft.” This one might not be Microsoft’s fault, admittedly, but my friend’s statement is completely true.)</p>
+
+<p>Back to it: the best way to send the <code>struct</code> over the wire is to pack each field independently and then unpack them into the <code>struct</code> when they arrive on the other side.</p>
+
+<p>That’s a lot of work, is what you’re thinking. Yes, it is. One thing you can do is write a helper function to help pack the data for you. It’ll be fun! Really!</p>
+
+<p>In the book <a href="https://beej.us/guide/url/tpop" rel="nofollow"><em>The Practice of Programming</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁷</a> by Kernighan and Pike, they implement <code>printf()</code>-like functions called <code>pack()</code> and <code>unpack()</code> that do exactly this. I’d link to them, but apparently those functions aren’t online with the rest of the source from the book.</p>
+
+<p>(The Practice of Programming is an excellent read. Zeus saves a kitten every time I recommend it.)</p>
+
+<p>At this point, I’m going to drop a pointer to a <a href="https://github.com/protobuf-c/protobuf-c" rel="nofollow">Protocol Buffers implementation in C</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁸</a> which I’ve never used, but looks completely respectable. Python and Perl programmers will want to check out their language’s <code>pack()</code> and <code>unpack()</code> functions for accomplishing the same thing. And Java has a big-ol’ Serializable interface that can be used in a similar way.</p>
+
+<p>But if you want to write your own packing utility in C, K&amp;P’s trick is to use variable argument lists to make <code>printf()</code>-like functions to build the packets. <a href="https://beej.us/guide/bgnet/examples/pack2.c" rel="nofollow">Here’s a version I cooked up</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³⁹</a> on my own based on that which hopefully will be enough to give you an idea of how such a thing can work.</p>
+
+<p>(This code references the <code>pack754()</code> functions, above. The <code>packi*()</code> functions operate like the familiar <code>htons()</code> family, except they pack into a <code>char</code> array instead of another integer.)</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="cm">/*
+** packi16() -- store a 16-bit int into a char buffer (like htons())
+*/</span> 
+<span class="kt">void</span> <span class="nf">packi16</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">i</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="o">&gt;&gt;</span><span class="mi">8</span><span class="p">;</span> <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+** packi32() -- store a 32-bit int into a char buffer (like htonl())
+*/</span> 
+<span class="kt">void</span> <span class="nf">packi32</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">i</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="o">&gt;&gt;</span><span class="mi">24</span><span class="p">;</span> <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="o">&gt;&gt;</span><span class="mi">16</span><span class="p">;</span>
+    <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="o">&gt;&gt;</span><span class="mi">8</span><span class="p">;</span>  <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+** packi64() -- store a 64-bit int into a char buffer (like htonl())
+*/</span> 
+<span class="kt">void</span> <span class="nf">packi64</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">i</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="o">&gt;&gt;</span><span class="mi">56</span><span class="p">;</span> <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="o">&gt;&gt;</span><span class="mi">48</span><span class="p">;</span>
+    <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="o">&gt;&gt;</span><span class="mi">40</span><span class="p">;</span> <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="o">&gt;&gt;</span><span class="mi">32</span><span class="p">;</span>
+    <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="o">&gt;&gt;</span><span class="mi">24</span><span class="p">;</span> <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="o">&gt;&gt;</span><span class="mi">16</span><span class="p">;</span>
+    <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="o">&gt;&gt;</span><span class="mi">8</span><span class="p">;</span>  <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+** unpacki16() -- unpack a 16-bit int from a char buffer (like ntohs())
+*/</span> 
+<span class="kt">int</span> <span class="nf">unpacki16</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">i2</span> <span class="o">=</span> <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">buf</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+    <span class="c1">// change unsigned numbers to signed</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">i2</span> <span class="o">&lt;=</span> <span class="mh">0x7fffu</span><span class="p">)</span> <span class="p">{</span> <span class="n">i</span> <span class="o">=</span> <span class="n">i2</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span> <span class="n">i</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span><span class="p">)(</span><span class="mh">0xffffu</span> <span class="o">-</span> <span class="n">i2</span><span class="p">);</span> <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">i</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+** unpacku16() -- unpack a 16-bit unsigned from a char buffer (like ntohs())
+*/</span> 
+<span class="kt">unsigned</span> <span class="kt">int</span> <span class="nf">unpacku16</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="n">buf</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+** unpacki32() -- unpack a 32-bit int from a char buffer (like ntohl())
+*/</span> 
+<span class="kt">long</span> <span class="kt">int</span> <span class="nf">unpacki32</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">i2</span> <span class="o">=</span> <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">24</span><span class="p">)</span> <span class="o">|</span>
+                           <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span> <span class="o">|</span>
+                           <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span>  <span class="o">|</span>
+                           <span class="n">buf</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+    <span class="kt">long</span> <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+    <span class="c1">// change unsigned numbers to signed</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">i2</span> <span class="o">&lt;=</span> <span class="mh">0x7fffffffu</span><span class="p">)</span> <span class="p">{</span> <span class="n">i</span> <span class="o">=</span> <span class="n">i2</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span> <span class="n">i</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="kt">long</span> <span class="kt">int</span><span class="p">)(</span><span class="mh">0xffffffffu</span> <span class="o">-</span> <span class="n">i2</span><span class="p">);</span> <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">i</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+** unpacku32() -- unpack a 32-bit unsigned from a char buffer (like ntohl())
+*/</span> 
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span> <span class="nf">unpacku32</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">24</span><span class="p">)</span> <span class="o">|</span>
+           <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span> <span class="o">|</span>
+           <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span>  <span class="o">|</span>
+           <span class="n">buf</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+** unpacki64() -- unpack a 64-bit int from a char buffer (like ntohl())
+*/</span> 
+<span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="nf">unpacki64</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">i2</span> <span class="o">=</span> <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">56</span><span class="p">)</span> <span class="o">|</span>
+                                <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">48</span><span class="p">)</span> <span class="o">|</span>
+                                <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">40</span><span class="p">)</span> <span class="o">|</span>
+                                <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">32</span><span class="p">)</span> <span class="o">|</span>
+                                <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">24</span><span class="p">)</span> <span class="o">|</span>
+                                <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span> <span class="o">|</span>
+                                <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span>  <span class="o">|</span>
+                                <span class="n">buf</span><span class="p">[</span><span class="mi">7</span><span class="p">];</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+    <span class="c1">// change unsigned numbers to signed</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">i2</span> <span class="o">&lt;=</span> <span class="mh">0x7fffffffffffffffu</span><span class="p">)</span> <span class="p">{</span> <span class="n">i</span> <span class="o">=</span> <span class="n">i2</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span> <span class="n">i</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">-</span><span class="p">(</span><span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)(</span><span class="mh">0xffffffffffffffffu</span> <span class="o">-</span> <span class="n">i2</span><span class="p">);</span> <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">i</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+** unpacku64() -- unpack a 64-bit unsigned from a char buffer (like ntohl())
+*/</span> 
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="nf">unpacku64</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">56</span><span class="p">)</span> <span class="o">|</span>
+           <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">48</span><span class="p">)</span> <span class="o">|</span>
+           <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">40</span><span class="p">)</span> <span class="o">|</span>
+           <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">32</span><span class="p">)</span> <span class="o">|</span>
+           <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">24</span><span class="p">)</span> <span class="o">|</span>
+           <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">16</span><span class="p">)</span> <span class="o">|</span>
+           <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">buf</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">&lt;&lt;</span><span class="mi">8</span><span class="p">)</span>  <span class="o">|</span>
+           <span class="n">buf</span><span class="p">[</span><span class="mi">7</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+** pack() -- store data dictated by the format string in the buffer
+**
+**   bits |signed   unsigned   float   string
+**   -----+----------------------------------
+**      8 |   c        C         
+**     16 |   h        H         f
+**     32 |   l        L         d
+**     64 |   q        Q         g
+**      - |                               s
+**
+**  (16-bit unsigned length is automatically prepended to strings)
+*/</span> 
+
+<span class="kt">unsigned</span> <span class="kt">int</span> <span class="nf">pack</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="kt">va_list</span> <span class="n">ap</span><span class="p">;</span>
+
+    <span class="kt">signed</span> <span class="kt">char</span> <span class="n">c</span><span class="p">;</span>              <span class="c1">// 8-bit</span>
+    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">C</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">h</span><span class="p">;</span>                      <span class="c1">// 16-bit</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">H</span><span class="p">;</span>
+
+    <span class="kt">long</span> <span class="kt">int</span> <span class="n">l</span><span class="p">;</span>                 <span class="c1">// 32-bit</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">L</span><span class="p">;</span>
+
+    <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">q</span><span class="p">;</span>            <span class="c1">// 64-bit</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">Q</span><span class="p">;</span>
+
+    <span class="kt">float</span> <span class="n">f</span><span class="p">;</span>                    <span class="c1">// floats</span>
+    <span class="kt">double</span> <span class="n">d</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">double</span> <span class="n">g</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">fhold</span><span class="p">;</span>
+
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">;</span>                    <span class="c1">// strings</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">len</span><span class="p">;</span>
+
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="n">va_start</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="n">format</span><span class="p">);</span>
+
+    <span class="k">for</span><span class="p">(;</span> <span class="o">*</span><span class="n">format</span> <span class="o">!=</span> <span class="sc">'\0'</span><span class="p">;</span> <span class="n">format</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">switch</span><span class="p">(</span><span class="o">*</span><span class="n">format</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="sc">'c'</span><span class="p">:</span> <span class="c1">// 8-bit</span>
+            <span class="n">size</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="kt">signed</span> <span class="kt">char</span><span class="p">)</span><span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span> <span class="c1">// promoted</span>
+            <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'C'</span><span class="p">:</span> <span class="c1">// 8-bit unsigned</span>
+            <span class="n">size</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="n">C</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="p">)</span><span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span><span class="p">);</span> <span class="c1">// promoted</span>
+            <span class="o">*</span><span class="n">buf</span><span class="o">++</span> <span class="o">=</span> <span class="n">C</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'h'</span><span class="p">:</span> <span class="c1">// 16-bit</span>
+            <span class="n">size</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+            <span class="n">packi16</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">h</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'H'</span><span class="p">:</span> <span class="c1">// 16-bit unsigned</span>
+            <span class="n">size</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span><span class="p">);</span>
+            <span class="n">packi16</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">H</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'l'</span><span class="p">:</span> <span class="c1">// 32-bit</span>
+            <span class="n">size</span> <span class="o">+=</span> <span class="mi">4</span><span class="p">;</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">);</span>
+            <span class="n">packi32</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">l</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">4</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'L'</span><span class="p">:</span> <span class="c1">// 32-bit unsigned</span>
+            <span class="n">size</span> <span class="o">+=</span> <span class="mi">4</span><span class="p">;</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">);</span>
+            <span class="n">packi32</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">L</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">4</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'q'</span><span class="p">:</span> <span class="c1">// 64-bit</span>
+            <span class="n">size</span> <span class="o">+=</span> <span class="mi">8</span><span class="p">;</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">);</span>
+            <span class="n">packi64</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">q</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">8</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'Q'</span><span class="p">:</span> <span class="c1">// 64-bit unsigned</span>
+            <span class="n">size</span> <span class="o">+=</span> <span class="mi">8</span><span class="p">;</span>
+            <span class="n">Q</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="p">);</span>
+            <span class="n">packi64</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">Q</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">8</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'f'</span><span class="p">:</span> <span class="c1">// float-16</span>
+            <span class="n">size</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">double</span><span class="p">);</span> <span class="c1">// promoted</span>
+            <span class="n">fhold</span> <span class="o">=</span> <span class="n">pack754_16</span><span class="p">(</span><span class="n">f</span><span class="p">);</span> <span class="c1">// convert to IEEE 754</span>
+            <span class="n">packi16</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">fhold</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'d'</span><span class="p">:</span> <span class="c1">// float-32</span>
+            <span class="n">size</span> <span class="o">+=</span> <span class="mi">4</span><span class="p">;</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">double</span><span class="p">);</span>
+            <span class="n">fhold</span> <span class="o">=</span> <span class="n">pack754_32</span><span class="p">(</span><span class="n">d</span><span class="p">);</span> <span class="c1">// convert to IEEE 754</span>
+            <span class="n">packi32</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">fhold</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">4</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'g'</span><span class="p">:</span> <span class="c1">// float-64</span>
+            <span class="n">size</span> <span class="o">+=</span> <span class="mi">8</span><span class="p">;</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">double</span><span class="p">);</span>
+            <span class="n">fhold</span> <span class="o">=</span> <span class="n">pack754_64</span><span class="p">(</span><span class="n">g</span><span class="p">);</span> <span class="c1">// convert to IEEE 754</span>
+            <span class="n">packi64</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">fhold</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">8</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'s'</span><span class="p">:</span> <span class="c1">// string</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span><span class="p">);</span>
+            <span class="n">len</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+            <span class="n">size</span> <span class="o">+=</span> <span class="n">len</span> <span class="o">+</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="n">packi16</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="n">memcpy</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="n">len</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">va_end</span><span class="p">(</span><span class="n">ap</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">size</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/*
+** unpack() -- unpack data dictated by the format string into the buffer
+**
+**   bits |signed   unsigned   float   string
+**   -----+----------------------------------
+**      8 |   c        C         
+**     16 |   h        H         f
+**     32 |   l        L         d
+**     64 |   q        Q         g
+**      - |                               s
+**
+**  (string is extracted based on its stored length, but 's' can be
+**  prepended with a max length)
+*/</span>
+<span class="kt">void</span> <span class="nf">unpack</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="kt">va_list</span> <span class="n">ap</span><span class="p">;</span>
+
+    <span class="kt">signed</span> <span class="kt">char</span> <span class="o">*</span><span class="n">c</span><span class="p">;</span>              <span class="c1">// 8-bit</span>
+    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">C</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="o">*</span><span class="n">h</span><span class="p">;</span>                      <span class="c1">// 16-bit</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="o">*</span><span class="n">H</span><span class="p">;</span>
+
+    <span class="kt">long</span> <span class="kt">int</span> <span class="o">*</span><span class="n">l</span><span class="p">;</span>                 <span class="c1">// 32-bit</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span> <span class="o">*</span><span class="n">L</span><span class="p">;</span>
+
+    <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="o">*</span><span class="n">q</span><span class="p">;</span>            <span class="c1">// 64-bit</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="o">*</span><span class="n">Q</span><span class="p">;</span>
+
+    <span class="kt">float</span> <span class="o">*</span><span class="n">f</span><span class="p">;</span>                    <span class="c1">// floats</span>
+    <span class="kt">double</span> <span class="o">*</span><span class="n">d</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">double</span> <span class="o">*</span><span class="n">g</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">fhold</span><span class="p">;</span>
+
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">len</span><span class="p">,</span> <span class="n">maxstrlen</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">count</span><span class="p">;</span>
+
+    <span class="n">va_start</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="n">format</span><span class="p">);</span>
+
+    <span class="k">for</span><span class="p">(;</span> <span class="o">*</span><span class="n">format</span> <span class="o">!=</span> <span class="sc">'\0'</span><span class="p">;</span> <span class="n">format</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">switch</span><span class="p">(</span><span class="o">*</span><span class="n">format</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="sc">'c'</span><span class="p">:</span> <span class="c1">// 8-bit</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">signed</span> <span class="kt">char</span><span class="o">*</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">buf</span> <span class="o">&lt;=</span> <span class="mh">0x7f</span><span class="p">)</span> <span class="p">{</span> <span class="o">*</span><span class="n">c</span> <span class="o">=</span> <span class="o">*</span><span class="n">buf</span><span class="p">;}</span> <span class="c1">// re-sign</span>
+            <span class="k">else</span> <span class="p">{</span> <span class="o">*</span><span class="n">c</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="p">)(</span><span class="mh">0xffu</span> <span class="o">-</span> <span class="o">*</span><span class="n">buf</span><span class="p">);</span> <span class="p">}</span>
+            <span class="n">buf</span><span class="o">++</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'C'</span><span class="p">:</span> <span class="c1">// 8-bit unsigned</span>
+            <span class="n">C</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span><span class="p">);</span>
+            <span class="o">*</span><span class="n">C</span> <span class="o">=</span> <span class="o">*</span><span class="n">buf</span><span class="o">++</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'h'</span><span class="p">:</span> <span class="c1">// 16-bit</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">int</span><span class="o">*</span><span class="p">);</span>
+            <span class="o">*</span><span class="n">h</span> <span class="o">=</span> <span class="n">unpacki16</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'H'</span><span class="p">:</span> <span class="c1">// 16-bit unsigned</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span><span class="o">*</span><span class="p">);</span>
+            <span class="o">*</span><span class="n">H</span> <span class="o">=</span> <span class="n">unpacku16</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'l'</span><span class="p">:</span> <span class="c1">// 32-bit</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">int</span><span class="o">*</span><span class="p">);</span>
+            <span class="o">*</span><span class="n">l</span> <span class="o">=</span> <span class="n">unpacki32</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">4</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'L'</span><span class="p">:</span> <span class="c1">// 32-bit unsigned</span>
+            <span class="n">L</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span><span class="o">*</span><span class="p">);</span>
+            <span class="o">*</span><span class="n">L</span> <span class="o">=</span> <span class="n">unpacku32</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">4</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'q'</span><span class="p">:</span> <span class="c1">// 64-bit</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="o">*</span><span class="p">);</span>
+            <span class="o">*</span><span class="n">q</span> <span class="o">=</span> <span class="n">unpacki64</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">8</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'Q'</span><span class="p">:</span> <span class="c1">// 64-bit unsigned</span>
+            <span class="n">Q</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span><span class="o">*</span><span class="p">);</span>
+            <span class="o">*</span><span class="n">Q</span> <span class="o">=</span> <span class="n">unpacku64</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">8</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'f'</span><span class="p">:</span> <span class="c1">// float</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">float</span><span class="o">*</span><span class="p">);</span>
+            <span class="n">fhold</span> <span class="o">=</span> <span class="n">unpacku16</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+            <span class="o">*</span><span class="n">f</span> <span class="o">=</span> <span class="n">unpack754_16</span><span class="p">(</span><span class="n">fhold</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'d'</span><span class="p">:</span> <span class="c1">// float-32</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">double</span><span class="o">*</span><span class="p">);</span>
+            <span class="n">fhold</span> <span class="o">=</span> <span class="n">unpacku32</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+            <span class="o">*</span><span class="n">d</span> <span class="o">=</span> <span class="n">unpack754_32</span><span class="p">(</span><span class="n">fhold</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">4</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'g'</span><span class="p">:</span> <span class="c1">// float-64</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">double</span><span class="o">*</span><span class="p">);</span>
+            <span class="n">fhold</span> <span class="o">=</span> <span class="n">unpacku64</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+            <span class="o">*</span><span class="n">g</span> <span class="o">=</span> <span class="n">unpack754_64</span><span class="p">(</span><span class="n">fhold</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">8</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="sc">'s'</span><span class="p">:</span> <span class="c1">// string</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">ap</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span><span class="p">);</span>
+            <span class="n">len</span> <span class="o">=</span> <span class="n">unpacku16</span><span class="p">(</span><span class="n">buf</span><span class="p">);</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">maxstrlen</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">len</span> <span class="o">&gt;=</span> <span class="n">maxstrlen</span><span class="p">)</span> <span class="n">count</span> <span class="o">=</span> <span class="n">maxstrlen</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="k">else</span> <span class="n">count</span> <span class="o">=</span> <span class="n">len</span><span class="p">;</span>
+            <span class="n">memcpy</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>
+            <span class="n">s</span><span class="p">[</span><span class="n">count</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span>
+            <span class="n">buf</span> <span class="o">+=</span> <span class="n">len</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="nl">default:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">isdigit</span><span class="p">(</span><span class="o">*</span><span class="n">format</span><span class="p">))</span> <span class="p">{</span> <span class="c1">// track max str len</span>
+                <span class="n">maxstrlen</span> <span class="o">=</span> <span class="n">maxstrlen</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">+</span> <span class="p">(</span><span class="o">*</span><span class="n">format</span><span class="o">-</span><span class="sc">'0'</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">isdigit</span><span class="p">(</span><span class="o">*</span><span class="n">format</span><span class="p">))</span> <span class="n">maxstrlen</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">va_end</span><span class="p">(</span><span class="n">ap</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>And <a href="https://beej.us/guide/bgnet/examples/pack2.c" rel="nofollow">here is a demonstration program</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁰</a> of the above code that packs some data into <code>buf</code> and then unpacks it into variables. Note that when calling <code>unpack()</code> with a string argument (format specifier “<code>s</code>”), it’s wise to put a maximum length count in front of it to prevent a buffer overrun, e.g. “<code>96s</code>”. Be wary when unpacking data you get over the network—a malicious user might send badly-constructed packets in an effort to attack your system!</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// various bits for floating point types--</span>
+<span class="c1">// varies for different architectures</span>
+<span class="k">typedef</span> <span class="kt">float</span> <span class="n">float32_t</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="kt">double</span> <span class="n">float64_t</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
+    <span class="kt">int8_t</span> <span class="n">magic</span><span class="p">;</span>
+    <span class="kt">int16_t</span> <span class="n">monkeycount</span><span class="p">;</span>
+    <span class="kt">int32_t</span> <span class="n">altitude</span><span class="p">;</span>
+    <span class="n">float32_t</span> <span class="n">absurdityfactor</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Great unmitigated Zot! You've found the Runestaff!"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">s2</span><span class="p">[</span><span class="mi">96</span><span class="p">];</span>
+    <span class="kt">int16_t</span> <span class="n">packetsize</span><span class="p">,</span> <span class="n">ps2</span><span class="p">;</span>
+
+    <span class="n">packetsize</span> <span class="o">=</span> <span class="n">pack</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="s">"chhlsf"</span><span class="p">,</span> <span class="p">(</span><span class="kt">int8_t</span><span class="p">)</span><span class="sc">'B'</span><span class="p">,</span> <span class="p">(</span><span class="kt">int16_t</span><span class="p">)</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="kt">int16_t</span><span class="p">)</span><span class="mi">37</span><span class="p">,</span> 
+            <span class="p">(</span><span class="kt">int32_t</span><span class="p">)</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="n">float32_t</span><span class="p">)</span><span class="o">-</span><span class="mi">3490</span><span class="p">.</span><span class="mi">6677</span><span class="p">);</span>
+    <span class="n">packi16</span><span class="p">(</span><span class="n">buf</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">packetsize</span><span class="p">);</span> <span class="c1">// store packet size in packet for kicks</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"packet is %"</span> <span class="n">PRId32</span> <span class="s">" bytes</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">packetsize</span><span class="p">);</span>
+
+    <span class="n">unpack</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="s">"chhl96sf"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">magic</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ps2</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">monkeycount</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">altitude</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span>
+        <span class="o">&amp;</span><span class="n">absurdityfactor</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"'%c' %"</span> <span class="n">PRId32</span><span class="s">" %"</span> <span class="n">PRId16</span> <span class="s">" %"</span> <span class="n">PRId32</span>
+            <span class="s">" </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"</span><span class="s"> %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">magic</span><span class="p">,</span> <span class="n">ps2</span><span class="p">,</span> <span class="n">monkeycount</span><span class="p">,</span>
+            <span class="n">altitude</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="n">absurdityfactor</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Whether you roll your own code or use someone else’s, it’s a good idea to have a general set of data packing routines for the sake of keeping bugs in check, rather than packing each bit by hand each time.</p>
+
+<p>When packing the data, what’s a good format to use? Excellent question. Fortunately, <a href="https://tools.ietf.org/html/rfc4506" rel="nofollow">RFC 4506</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴¹</a>, the External Data Representation Standard, already defines binary formats for a bunch of different types, like floating point types, integer types, arrays, raw data, etc. I suggest conforming to that if you’re going to roll the data yourself. But you’re not obligated to. The Packet Police are not right outside your door. At least, I don’t <em>think</em> they are.</p>
+
+<p>In any case, encoding the data somehow or another before you send it is the right way of doing things!</p>
+
+<h2>7.6 Son of Data Encapsulation</h2>
+
+<p>What does it really mean to encapsulate data, anyway? In the simplest case, it means you’ll stick a header on there with either some identifying information or a packet length, or both.</p>
+
+<p>What should your header look like? Well, it’s just some binary data that represents whatever you feel is necessary to complete your project.</p>
+
+<p>Wow. That’s vague.</p>
+
+<p>Okay. For instance, let’s say you have a multi-user chat program that uses <code>SOCK_STREAM</code>s. When a user types (“says”) something, two pieces of information need to be transmitted to the server: what was said and who said it.</p>
+
+<p>So far so good? “What’s the problem?” you’re asking.</p>
+
+<p>The problem is that the messages can be of varying lengths. One person named “tom” might say, “Hi”, and another person named “Benjamin” might say, “Hey guys what is up?”</p>
+
+<p>So you <code>send()</code> all this stuff to the clients as it comes in. Your outgoing data stream looks like this:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>t o m H i B e n j a m i n H e y g u y s w h a t i s u p ?
+</code></pre></div>
+
+<p>And so on. How does the client know when one message starts and another stops? You could, if you wanted, make all messages the same length and just call the <code>sendall()</code> we implemented, <a href="slightly-advanced-techniques.html#sendall" rel="nofollow">above</a>. But that wastes bandwidth! We don’t want to <code>send()</code> 1024 bytes just so “tom” can say “Hi”.</p>
+
+<p>So we <em>encapsulate</em> the data in a tiny header and packet structure. Both the client and server know how to pack and unpack (sometimes referred to as “marshal” and “unmarshal”) this data. Don’t look now, but we’re starting to define a <em>protocol</em> that describes how a client and server communicate!</p>
+
+<p>In this case, let’s assume the user name is a fixed length of 8 characters, padded with <code>&#39;\0&#39;</code>. And then let’s assume the data is variable length, up to a maximum of 128 characters. Let’s have a look a sample packet structure that we might use in this situation:</p>
+
+<ol>
+<li><p><code>len</code> (1 byte, unsigned)—The total length of the packet, counting the 8-byte user name and chat data.</p></li>
+<li><p><code>name</code> (8 bytes)—The user’s name, NUL-padded if necessary.</p></li>
+<li><p><code>chatdata</code> (<em>n</em>-bytes)—The data itself, no more than 128 bytes. The length of the packet should be calculated as the length of this data plus 8 (the length of the name field, above).</p></li>
+</ol>
+
+<p>Why did I choose the 8-byte and 128-byte limits for the fields? I pulled them out of the air, assuming they’d be long enough. Maybe, though, 8 bytes is too restrictive for your needs, and you can have a 30-byte name field, or whatever. The choice is up to you.</p>
+
+<p>Using the above packet definition, the first packet would consist of the following information (in hex and ASCII):</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>   0A     74 6F 6D 00 00 00 00 00      48 69
+(length)  T  o  m    (padding)         H  i
+</code></pre></div>
+
+<p>And the second is similar:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>   18     42 65 6E 6A 61 6D 69 6E      48 65 79 20 67 75 79 73 20 77 ...
+(length)  B  e  n  j  a  m  i  n       H  e  y     g  u  y  s     w  ...
+</code></pre></div>
+
+<p>(The length is stored in Network Byte Order, of course. In this case, it’s only one byte so it doesn’t matter, but generally speaking you’ll want all your binary integers to be stored in Network Byte Order in your packets.)</p>
+
+<p>When you’re sending this data, you should be safe and use a command similar to <a href="slightly-advanced-techniques.html#sendall" rel="nofollow"><code>sendall()</code></a>, above, so you know all the data is sent, even if it takes multiple calls to <code>send()</code> to get it all out.</p>
+
+<p>Likewise, when you’re receiving this data, you need to do a bit of extra work. To be safe, you should assume that you might receive a partial packet (like maybe we receive “<code>18 42 65 6E 6A</code>” from Benjamin, above, but that’s all we get in this call to <code>recv()</code>). We need to call <code>recv()</code> over and over again until the packet is completely received.</p>
+
+<p>But how? Well, we know the number of bytes we need to receive in total for the packet to be complete, since that number is tacked on the front of the packet. We also know the maximum packet size is 1+8+128, or 137 bytes (because that’s how we defined the packet).</p>
+
+<p>There are actually a couple things you can do here. Since you know every packet starts off with a length, you can call <code>recv()</code> just to get the packet length. Then once you have that, you can call it again specifying exactly the remaining length of the packet (possibly repeatedly to get all the data) until you have the complete packet. The advantage of this method is that you only need a buffer large enough for one packet, while the disadvantage is that you need to call <code>recv()</code> at least twice to get all the data.</p>
+
+<p>Another option is just to call <code>recv()</code> and say the amount you’re willing to receive is the maximum number of bytes in a packet. Then whatever you get, stick it onto the back of a buffer, and finally check to see if the packet is complete. Of course, you might get some of the next packet, so you’ll need to have room for that.</p>
+
+<p>What you can do is declare an array big enough for two packets. This is your work array where you will reconstruct packets as they arrive.</p>
+
+<p>Every time you <code>recv()</code> data, you’ll append it into the work buffer and check to see if the packet is complete. That is, the number of bytes in the buffer is greater than or equal to the length specified in the header (+1, because the length in the header doesn’t include the byte for the length itself). If the number of bytes in the buffer is less than 1, the packet is not complete, obviously. You have to make a special case for this, though, since the first byte is garbage and you can’t rely on it for the correct packet length.</p>
+
+<p>Once the packet is complete, you can do with it what you will. Use it, and remove it from your work buffer.</p>
+
+<p>Whew! Are you juggling that in your head yet? Well, here’s the second of the one-two punch: you might have read past the end of one packet and onto the next in a single <code>recv()</code> call. That is, you have a work buffer with one complete packet, and an incomplete part of the next packet! Bloody heck. (But this is why you made your work buffer large enough to hold <em>two</em> packets—in case this happened!)</p>
+
+<p>Since you know the length of the first packet from the header, and you’ve been keeping track of the number of bytes in the work buffer, you can subtract and calculate how many of the bytes in the work buffer belong to the second (incomplete) packet. When you’ve handled the first one, you can clear it out of the work buffer and move the partial second packet down the to front of the buffer so it’s all ready to go for the next <code>recv()</code>.</p>
+
+<p>(Some of you readers will note that actually moving the partial second packet to the beginning of the work buffer takes time, and the program can be coded to not require this by using a circular buffer. Unfortunately for the rest of you, a discussion on circular buffers is beyond the scope of this article. If you’re still curious, grab a data structures book and go from there.)</p>
+
+<p>I never said it was easy. Ok, I did say it was easy. And it is; you just need practice and pretty soon it’ll come to you naturally. By Excalibur I swear it!</p>
+
+<h2>7.7 Broadcast Packets—Hello, World!</h2>
+
+<p>So far, this guide has talked about sending data from one host to one other host. But it is possible, I insist, that you can, with the proper authority, send data to multiple hosts <em>at the same time</em>!</p>
+
+<p>With UDP (only UDP, not TCP) and standard IPv4, this is done through a mechanism called <em>broadcasting</em>. With IPv6, broadcasting isn’t supported, and you have to resort to the often superior technique of <em>multicasting</em>, which, sadly I won’t be discussing at this time. But enough of the starry-eyed future—we’re stuck in the 32-bit present.</p>
+
+<p>But wait! You can’t just run off and start broadcasting willy-nilly; You have to set the socket option <code>SO_BROADCAST</code> before you can send a broadcast packet out on the network. It’s like a one of those little plastic covers they put over the missile launch switch! That’s just how much power you hold in your hands!</p>
+
+<p>But seriously, though, there is a danger to using broadcast packets, and that is: every system that receives a broadcast packet must undo all the onion-skin layers of data encapsulation until it finds out what port the data is destined to. And then it hands the data over or discards it. In either case, it’s a lot of work for each machine that receives the broadcast packet, and since it is all of them on the local network, that could be a lot of machines doing a lot of unnecessary work. When the game Doom first came out, this was a complaint about its network code.</p>
+
+<p>Now, there is more than one way to skin a cat… wait a minute. Is there really more than one way to skin a cat? What kind of expression is that? Uh, and likewise, there is more than one way to send a broadcast packet. So, to get to the meat and potatoes of the whole thing: how do you specify the destination address for a broadcast message? There are two common ways:</p>
+
+<ol>
+<li><p>Send the data to a specific subnet’s broadcast address. This is the subnet’s network number with all one-bits set for the host portion of the address. For instance, at home my network is <code>192.168.1.0</code>, my netmask is <code>255.255.255.0</code>, so the last byte of the address is my host number (because the first three bytes, according to the netmask, are the network number). So my broadcast address is <code>192.168.1.255</code>. Under Unix, the <code>ifconfig</code> command will actually give you all this data. (If you’re curious, the bitwise logic to get your broadcast address is <code>network_number</code> OR (NOT <code>netmask</code>).) You can send this type of broadcast packet to remote networks as well as your local network, but you run the risk of the packet being dropped by the destination’s router. (If they didn’t drop it, then some random smurf could start flooding their LAN with broadcast traffic.)</p></li>
+<li><p>Send the data to the “global” broadcast address. This is <code>255.255.255.255</code>, aka <code>INADDR_BROADCAST</code>. Many machines will automatically bitwise AND this with your network number to convert it to a network broadcast address, but some won’t. It varies. Routers do not forward this type of broadcast packet off your local network, ironically enough.</p></li>
+</ol>
+
+<p>So what happens if you try to send data on the broadcast address without first setting the <code>SO_BROADCAST</code> socket option? Well, let’s fire up good old <a href="client-server-background.html#datagram" rel="nofollow"><code>talker</code> and <code>listener</code></a> and see what happens.</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>$ talker 192.168.1.2 foo
+sent 3 bytes to 192.168.1.2
+$ talker 192.168.1.255 foo
+sendto: Permission denied
+$ talker 255.255.255.255 foo
+sendto: Permission denied
+</code></pre></div>
+
+<p>Yes, it’s not happy at all…because we didn’t set the <code>SO_BROADCAST</code> socket option. Do that, and now you can <code>sendto()</code> anywhere you want!</p>
+
+<p>In fact, that’s the <em>only difference</em> between a UDP application that can broadcast and one that can’t. So let’s take the old <code>talker</code> application and add one section that sets the <code>SO_BROADCAST</code> socket option. We’ll call this program <a href="https://beej.us/guide/bgnet/examples/broadcaster.c" rel="nofollow"><code>broadcaster.c</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴²</a>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cm">/*
+** broadcaster.c -- a datagram "client" like talker.c, except
+**                  this one can broadcast
+*/</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;errno.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sys/socket.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;netinet/in.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;arpa/inet.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;netdb.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define SERVERPORT 4950 // the port users will be connecting to
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">sockfd</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="n">their_addr</span><span class="p">;</span> <span class="c1">// connector's address information</span>
+    <span class="k">struct</span> <span class="n">hostent</span> <span class="o">*</span><span class="n">he</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">numbytes</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">broadcast</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="c1">//char broadcast = '1'; // if that doesn't work, try this</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="s">"usage: broadcaster hostname message</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">((</span><span class="n">he</span><span class="o">=</span><span class="n">gethostbyname</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>  <span class="c1">// get the host info</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"gethostbyname"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">((</span><span class="n">sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_DGRAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"socket"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// this call is what allows broadcast packets to be sent:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">SO_BROADCAST</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">broadcast</span><span class="p">,</span>
+        <span class="k">sizeof</span> <span class="n">broadcast</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"setsockopt (SO_BROADCAST)"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">their_addr</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>     <span class="c1">// host byte order</span>
+    <span class="n">their_addr</span><span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">SERVERPORT</span><span class="p">);</span> <span class="c1">// short, network byte order</span>
+    <span class="n">their_addr</span><span class="p">.</span><span class="n">sin_addr</span> <span class="o">=</span> <span class="o">*</span><span class="p">((</span><span class="k">struct</span> <span class="n">in_addr</span> <span class="o">*</span><span class="p">)</span><span class="n">he</span><span class="o">-&gt;</span><span class="n">h_addr</span><span class="p">);</span>
+    <span class="n">memset</span><span class="p">(</span><span class="n">their_addr</span><span class="p">.</span><span class="n">sin_zero</span><span class="p">,</span> <span class="sc">'\0'</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">their_addr</span><span class="p">.</span><span class="n">sin_zero</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">((</span><span class="n">numbytes</span><span class="o">=</span><span class="n">sendto</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span>
+             <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">their_addr</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">their_addr</span><span class="p">))</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"sendto"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"sent %d bytes to %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">numbytes</span><span class="p">,</span>
+        <span class="n">inet_ntoa</span><span class="p">(</span><span class="n">their_addr</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">));</span>
+
+    <span class="n">close</span><span class="p">(</span><span class="n">sockfd</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>What’s different between this and a “normal” UDP client/server situation? Nothing! (With the exception of the client being allowed to send broadcast packets in this case.) As such, go ahead and run the old UDP <a href="client-server-background.html#datagram" rel="nofollow"><code>listener</code></a> program in one window, and <code>broadcaster</code> in another. You should be now be able to do all those sends that failed, above.</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>$ broadcaster 192.168.1.2 foo
+sent 3 bytes to 192.168.1.2
+$ broadcaster 192.168.1.255 foo
+sent 3 bytes to 192.168.1.255
+$ broadcaster 255.255.255.255 foo
+sent 3 bytes to 255.255.255.255
+</code></pre></div>
+
+<p>And you should see <code>listener</code> responding that it got the packets. (If <code>listener</code> doesn’t respond, it could be because it’s bound to an IPv6 address. Try changing the <code>AF_INET6</code> in <code>listener.c</code> to <code>AF_INET</code> to force IPv4.)</p>
+
+<p>Well, that’s kind of exciting. But now fire up <code>listener</code> on another machine next to you on the same network so that you have two copies going, one on each machine, and run <code>broadcaster</code> again with your broadcast address… Hey! Both <code>listener</code>s get the packet even though you only called <code>sendto()</code> once! Cool!</p>
+
+<p>If the <code>listener</code> gets data you send directly to it, but not data on the broadcast address, it could be that you have a firewall on your local machine that is blocking the packets. (Yes, Pat and Bapper, thank you for realizing before I did that this is why my sample code wasn’t working. I told you I’d mention you in the guide, and here you are. So <em>nyah</em>.)</p>
+
+<p>Again, be careful with broadcast packets. Since every machine on the LAN will be forced to deal with the packet whether it <code>recvfrom()</code>s it or not, it can present quite a load to the entire computing network. They are definitely to be used sparingly and appropriately.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

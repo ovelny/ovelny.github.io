@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/18-stdatomic</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/18-stdatomic"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>18 <code>&lt;stdatomic.h&gt;</code> Atomic-Related Functions</h1>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_strong_explicit()</code></a></td>
+<td>Atomic compare and exchange, strong, explicit</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_strong()</code></a></td>
+<td>Atomic compare and exchange, strong</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_weak_explicit()</code></a></td>
+<td>Atomic compare and exchange, weak, explicit</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_weak()</code></a></td>
+<td>Atomic compare and exchange, weak</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_exchange" rel="nofollow"><code>atomic_exchange_explicit()</code></a></td>
+<td>Replace a value in an atomic object, explicit</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_exchange" rel="nofollow"><code>atomic_exchange()</code></a></td>
+<td>Replace a value in an atomic object</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_fetch" rel="nofollow"><code>atomic_fetch_add_explicit()</code></a></td>
+<td>Atomically add to an atomic integer, explicit</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_fetch" rel="nofollow"><code>atomic_fetch_add()</code></a></td>
+<td>Atomically add to an atomic integer</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_fetch" rel="nofollow"><code>atomic_fetch_and_explicit()</code></a></td>
+<td>Atomically bitwise-AND an atomic integer, explicit</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_fetch" rel="nofollow"><code>atomic_fetch_and()</code></a></td>
+<td>Atomically bitwise-AND an atomic integer</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_fetch" rel="nofollow"><code>atomic_fetch_or_explicit()</code></a></td>
+<td>Atomically bitwise-OR an atomic integer, explicit</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_fetch" rel="nofollow"><code>atomic_fetch_or()</code></a></td>
+<td>Atomically bitwise-OR an atomic integer</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_fetch" rel="nofollow"><code>atomic_fetch_sub_explicit()</code></a></td>
+<td>Atomically subtract from an atomic integer, explicit</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_fetch" rel="nofollow"><code>atomic_fetch_sub()</code></a></td>
+<td>Atomically subtract from an atomic integer</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_fetch" rel="nofollow"><code>atomic_fetch_xor_explicit()</code></a></td>
+<td>Atomically bitwise-XOR an atomic integer, explicit</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_fetch" rel="nofollow"><code>atomic_fetch_xor()</code></a></td>
+<td>Atomically bitwise-XOR an atomic integer</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_flag_clear" rel="nofollow"><code>atomic_flag_clear_explicit()</code></a></td>
+<td>Clear an atomic flag, explicit</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_flag_clear" rel="nofollow"><code>atomic_flag_clear()</code></a></td>
+<td>Clear an atomic flag</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_flag_test_and_set" rel="nofollow"><code>atomic_flag_test_and_set_explicit()</code></a></td>
+<td>Test and set an atomic flag, explicit</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_flag_test_and_set" rel="nofollow"><code>atomic_flag_test_and_set()</code></a></td>
+<td>Test and set an atomic flag</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_init" rel="nofollow"><code>atomic_init()</code></a></td>
+<td>Initialize an atomic variable</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_is_lock_free" rel="nofollow"><code>atomic_is_lock_free()</code></a></td>
+<td>Determine if an atomic type is lock free</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_load" rel="nofollow"><code>atomic_load_explicit()</code></a></td>
+<td>Return a value from an atomic variable, explicit</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_load" rel="nofollow"><code>atomic_load()</code></a></td>
+<td>Return a value from an atomic variable</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_signal_fence" rel="nofollow"><code>atomic_signal_fence()</code></a></td>
+<td>Fence for intra-thread signal handlers</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_store" rel="nofollow"><code>atomic_store_explicit()</code></a></td>
+<td>Store a value in an atomic variable, explicit</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_store" rel="nofollow"><code>atomic_store()</code></a></td>
+<td>Store a value in an atomic variable</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-atomic_thread_fence" rel="nofollow"><code>atomic_thread_fence()</code></a></td>
+<td>Set up a fence</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-ATOMIC_VAR_INIT" rel="nofollow"><code>ATOMIC_VAR_INIT()</code></a></td>
+<td>Create an initializer for an atomic variable</td>
+</tr>
+<tr>
+<td><a href="stdatomic.html#man-kill_dependency" rel="nofollow"><code>kill_dependency()</code></a></td>
+<td>End a dependency chain</td>
+</tr>
+</tbody></table>
+
+<p>You might need to add <code>-latomic</code> to your compilation command line on Unix-like operating systems.</p>
+
+<h2>18.1 Atomic Types</h2>
+
+<p>A bunch of types are predefined by this header:</p>
+
+<table><thead>
+<tr>
+<th>Atomic type</th>
+<th>Longhand equivalent</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>atomic_bool</code></td>
+<td><code>_Atomic _Bool</code></td>
+</tr>
+<tr>
+<td><code>atomic_char</code></td>
+<td><code>_Atomic char</code></td>
+</tr>
+<tr>
+<td><code>atomic_schar</code></td>
+<td><code>_Atomic signed char</code></td>
+</tr>
+<tr>
+<td><code>atomic_uchar</code></td>
+<td><code>_Atomic unsigned char</code></td>
+</tr>
+<tr>
+<td><code>atomic_short</code></td>
+<td><code>_Atomic short</code></td>
+</tr>
+<tr>
+<td><code>atomic_ushort</code></td>
+<td><code>_Atomic unsigned short</code></td>
+</tr>
+<tr>
+<td><code>atomic_int</code></td>
+<td><code>_Atomic int</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint</code></td>
+<td><code>_Atomic unsigned int</code></td>
+</tr>
+<tr>
+<td><code>atomic_long</code></td>
+<td><code>_Atomic long</code></td>
+</tr>
+<tr>
+<td><code>atomic_ulong</code></td>
+<td><code>_Atomic unsigned long</code></td>
+</tr>
+<tr>
+<td><code>atomic_llong</code></td>
+<td><code>_Atomic long long</code></td>
+</tr>
+<tr>
+<td><code>atomic_ullong</code></td>
+<td><code>_Atomic unsigned long long</code></td>
+</tr>
+<tr>
+<td><code>atomic_char16_t</code></td>
+<td><code>_Atomic char16_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_char32_t</code></td>
+<td><code>_Atomic char32_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_wchar_t</code></td>
+<td><code>_Atomic wchar_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_least8_t</code></td>
+<td><code>_Atomic int_least8_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_least8_t</code></td>
+<td><code>_Atomic uint_least8_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_least16_t</code></td>
+<td><code>_Atomic int_least16_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_least16_t</code></td>
+<td><code>_Atomic uint_least16_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_least32_t</code></td>
+<td><code>_Atomic int_least32_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_least32_t</code></td>
+<td><code>_Atomic uint_least32_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_least64_t</code></td>
+<td><code>_Atomic int_least64_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_least64_t</code></td>
+<td><code>_Atomic uint_least64_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_fast8_t</code></td>
+<td><code>_Atomic int_fast8_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_fast8_t</code></td>
+<td><code>_Atomic uint_fast8_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_fast16_t</code></td>
+<td><code>_Atomic int_fast16_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_fast16_t</code></td>
+<td><code>_Atomic uint_fast16_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_fast32_t</code></td>
+<td><code>_Atomic int_fast32_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_fast32_t</code></td>
+<td><code>_Atomic uint_fast32_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_fast64_t</code></td>
+<td><code>_Atomic int_fast64_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_fast64_t</code></td>
+<td><code>_Atomic uint_fast64_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_intptr_t</code></td>
+<td><code>_Atomic intptr_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uintptr_t</code></td>
+<td><code>_Atomic uintptr_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_size_t</code></td>
+<td><code>_Atomic size_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_ptrdiff_t</code></td>
+<td><code>_Atomic ptrdiff_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_intmax_t</code></td>
+<td><code>_Atomic intmax_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uintmax_t</code></td>
+<td><code>_Atomic uintmax_t</code></td>
+</tr>
+</tbody></table>
+
+<p>You can make your own additional types with the <code>_Atomic</code> type qualifier:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">_Atomic</span> <span class="kt">double</span> <span class="n">x</span><span class="p">;</span>
+</code></pre></div>
+
+<p>or the <code>_Atomic()</code> type specifier:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">_Atomic</span><span class="p">(</span><span class="kt">double</span><span class="p">)</span> <span class="n">x</span><span class="p">;</span>
+</code></pre></div>
+
+<h2>18.2 Lock-free Macros</h2>
+
+<p>These macros let you know if a type is lock-free or not. Maybe.</p>
+
+<p>They can be used at compile time with <code>#if</code>. They apply to both signed and unsigned types.</p>
+
+<table><thead>
+<tr>
+<th>Atomic Type</th>
+<th>Lock Free Macro</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>atomic_bool</code></td>
+<td><code>ATOMIC_BOOL_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_char</code></td>
+<td><code>ATOMIC_CHAR_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_char16_t</code></td>
+<td><code>ATOMIC_CHAR16_T_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_char32_t</code></td>
+<td><code>ATOMIC_CHAR32_T_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_wchar_t</code></td>
+<td><code>ATOMIC_WCHAR_T_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_short</code></td>
+<td><code>ATOMIC_SHORT_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_int</code></td>
+<td><code>ATOMIC_INT_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_long</code></td>
+<td><code>ATOMIC_LONG_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_llong</code></td>
+<td><code>ATOMIC_LLONG_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_intptr_t</code></td>
+<td><code>ATOMIC_POINTER_LOCK_FREE</code></td>
+</tr>
+</tbody></table>
+
+<p>These macros can interestingly have <em>three</em> different values:</p>
+
+<table><thead>
+<tr>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>0</code></td>
+<td>Never lock-free.</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><em>Sometimes</em> lock-free<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³⁸</a>.</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>Always lock-free.</td>
+</tr>
+</tbody></table>
+
+<h2>18.3 Atomic Flag</h2>
+
+<p>The <code>atomic_flag</code> opaque type is the only time guaranteed to be lock-free. Though your PC implementation probably does a lot more.</p>
+
+<p>It is accessed through the <a href="stdatomic.html#man-atomic_flag_test_and_set" rel="nofollow"><code>atomic_flag_test_and_set()</code></a> and <a href="stdatomic.html#man-atomic_flag_clear" rel="nofollow"><code>atomic_flag_clear()</code></a> functions.</p>
+
+<p>Before use, it can be initialized to a clear state with:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">atomic_flag</span> <span class="n">f</span> <span class="o">=</span> <span class="n">ATOMIC_FLAG_INIT</span><span class="p">;</span>
+</code></pre></div>
+
+<h2>18.4 Memory Order</h2>
+
+<p>This header introduces a new <code>enum</code> type called <code>memory_order</code>. This is used by a bunch of the functions to specify memory orders other than sequential consistency.</p>
+
+<table><thead>
+<tr>
+<th><code>memory_order</code></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>memory_order_seq_cst</code></td>
+<td>Sequential Consistency</td>
+</tr>
+<tr>
+<td><code>memory_order_acq_rel</code></td>
+<td>Acquire/Release</td>
+</tr>
+<tr>
+<td><code>memory_order_release</code></td>
+<td>Release</td>
+</tr>
+<tr>
+<td><code>memory_order_acquire</code></td>
+<td>Acquire</td>
+</tr>
+<tr>
+<td><code>memory_order_consume</code></td>
+<td>Consume</td>
+</tr>
+<tr>
+<td><code>memory_order_relaxed</code></td>
+<td>Relaxed</td>
+</tr>
+</tbody></table>
+
+<p>You can feed these into atomic functions with the <code>_explicit</code> suffix.</p>
+
+<p>The non-<code>_explcit</code> versions of the functions are the same as if you’d called the <code>_explicit</code> counterpart with <code>memory_order_seq_cst</code>.</p>
+
+<p><hr></p>
+
+<h2>18.5 <code>ATOMIC_VAR_INIT()</code></h2>
+
+<p>Create an initializer for an atomic variable</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define ATOMIC_VAR_INIT(C value)   // Deprecated
+</span></code></pre></div>
+
+<h3>Description</h3>
+
+<p>This macro expands to an initializer, so you can use it when a variable is defined.</p>
+
+<p>The type of the <code>value</code> should be the base type of the atomic variable.</p>
+
+<p>The initialization itself is <em>not</em> an atomic operation, ironically.</p>
+
+<p><a href="https://en.cppreference.com/w/cpp/atomic/ATOMIC_VAR_INIT" rel="nofollow">CPPReference says this is deprecated</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³⁹</a> and likely to be removed. Standards document <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1138r0.pdf" rel="nofollow">p1138r0</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴⁰</a> elaborates that the macro is limited in that it can’t properly initialize atomic <code>struct</code>s, and its original <em>raison d’être</em> turned out to not be useful.</p>
+
+<p>Just initialize the variable straight-up, instead.</p>
+
+<h3>Return Value</h3>
+
+<p>Expands to an initializer suitable for this atomic variable.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">atomic_int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">ATOMIC_VAR_INIT</span><span class="p">(</span><span class="mi">3490</span><span class="p">);</span>  <span class="c1">// Deprecated</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdatomic.html#man-atomic_init" rel="nofollow"><code>atomic_init()</code></a></p>
+
+<p><hr></p>
+
+<h2>18.6 <code>atomic_init()</code></h2>
+
+<p>Initialize an atomic variable</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">atomic_init</span><span class="p">(</span><span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">obj</span><span class="p">,</span> <span class="n">C</span> <span class="n">value</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>You can use this to initialize an atomic variable.</p>
+
+<p>The type of the <code>value</code> should be the base type of the atomic variable.</p>
+
+<p>The initialization itself is <em>not</em> an atomic operation, ironically.</p>
+
+<p>As far as I can tell, there’s no difference between this and assigning directly to the atomic variable. The spec says it’s there to allow the compiler to inject any additional initialization that needs doing, but everything seems fine without it. If anyone has more info, send it my way.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns nothing!</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">atomic_int</span> <span class="n">x</span><span class="p">;</span>
+
+    <span class="n">atomic_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">3490</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdatomic.html#man-ATOMIC_VAR_INIT" rel="nofollow"><code>ATOMIC_VAR_INIT()</code></a>, <a href="stdatomic.html#man-atomic_store" rel="nofollow"><code>atomic_store()</code></a>, <a href="stdatomic.html#man-atomic_store" rel="nofollow"><code>atomic_store_explicit()</code></a></p>
+
+<p><hr></p>
+
+<h2>18.7 <code>kill_dependency()</code></h2>
+
+<p>End a dependency chain</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="n">type</span> <span class="nf">kill_dependency</span><span class="p">(</span><span class="n">type</span> <span class="n">y</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is potentially useful for optimizing if you’re using <code>memory_order_consume</code> anywhere.</p>
+
+<p>And if you know what you’re doing. If unsure, learn more before trying to use this.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the value passed in.</p>
+
+<h3>Example</h3>
+
+<p>In this example, <code>i</code> carries a dependency into <code>x</code>. And would do into <code>y</code>, except for the call to <code>kill_dependency()</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">atomic_int</span> <span class="n">a</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+
+    <span class="n">atomic_store_explicit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="mi">3490</span><span class="p">,</span> <span class="n">memory_order_release</span><span class="p">);</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="n">atomic_load_explicit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="n">memory_order_consume</span><span class="p">);</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">kill_dependency</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>  <span class="c1">// 3490 and either 3490 or 10</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><hr></p>
+
+<h2>18.8 <code>atomic_thread_fence()</code></h2>
+
+<p>Set up a fence</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">atomic_thread_fence</span><span class="p">(</span><span class="n">memory_order</span> <span class="n">order</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This sets up a memory fence with the specified <code>order</code>.</p>
+
+<table><thead>
+<tr>
+<th><code>order</code></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>memory_order_seq_cst</code></td>
+<td>Sequentially consistency acquire/release fence</td>
+</tr>
+<tr>
+<td><code>memory_order_acq_rel</code></td>
+<td>Acquire/release dence</td>
+</tr>
+<tr>
+<td><code>memory_order_release</code></td>
+<td>Release fence</td>
+</tr>
+<tr>
+<td><code>memory_order_acquire</code></td>
+<td>Acquire fence</td>
+</tr>
+<tr>
+<td><code>memory_order_consume</code></td>
+<td>Acquire fence (again)</td>
+</tr>
+<tr>
+<td><code>memory_order_relaxed</code></td>
+<td>No fence at all—no point in calling with this</td>
+</tr>
+</tbody></table>
+
+<p>You might try to avoid using these and just stick with the different modes with <a href="stdatomic.html#man-atomic_store" rel="nofollow"><code>atomic_store_explicit()</code></a> and <a href="stdatomic.html#man-atomic_load" rel="nofollow"><code>atomic_load_explicit()</code></a>. Or not.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns nothing!</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="n">atomic_int</span> <span class="n">shared_1</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">atomic_int</span> <span class="n">shared_2</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">thread_1</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+
+    <span class="n">atomic_store_explicit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">shared_1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">memory_order_relaxed</span><span class="p">);</span>
+
+    <span class="n">atomic_thread_fence</span><span class="p">(</span><span class="n">memory_order_release</span><span class="p">);</span>
+
+    <span class="n">atomic_store_explicit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">shared_2</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">memory_order_relaxed</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">thread_2</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+
+    <span class="c1">// If this fence runs after the release fence, we're</span>
+    <span class="c1">// guaranteed to see thread_1's changes to the shared</span>
+    <span class="c1">// varaibles.</span>
+
+    <span class="n">atomic_thread_fence</span><span class="p">(</span><span class="n">memory_order_acquire</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">shared_2</span> <span class="o">==</span> <span class="mi">20</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Shared_1 better be 10 and it's %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">shared_1</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Anything's possible: %d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">shared_1</span><span class="p">,</span> <span class="n">shared_2</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_t</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">;</span>
+
+    <span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t2</span><span class="p">,</span> <span class="n">thread_2</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t1</span><span class="p">,</span> <span class="n">thread_1</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="n">thrd_join</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">thrd_join</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdatomic.html#man-atomic_store" rel="nofollow"><code>atomic_store_explicit()</code></a>, <a href="stdatomic.html#man-atomic_load" rel="nofollow"><code>atomic_load_explicit()</code></a>, <a href="stdatomic.html#man-atomic_signal_fence" rel="nofollow"><code>atomic_signal_fence()</code></a></p>
+
+<p><hr></p>
+
+<h2>18.9 <code>atomic_signal_fence()</code></h2>
+
+<p>Fence for intra-thread signal handlers</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">atomic_signal_fence</span><span class="p">(</span><span class="n">memory_order</span> <span class="n">order</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This works like <code>atomic_thread_fence()</code> except its purpose is within in a single thread; notably for use in a signal handler in that thread.</p>
+
+<p>Since signals can happen at any time, we might need a way to be certain that any writes by the thread that happened before the signal handler be visible within that signal handler.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns nothing!</p>
+
+<h3>Example</h3>
+
+<p>Partial demo. (Note that it’s technically undefined behavior to call <code>printf()</code> in a signal handler.)</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;signal.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="n">global</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">handler</span><span class="p">(</span><span class="kt">int</span> <span class="n">sig</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">sig</span><span class="p">;</span>
+
+    <span class="c1">// If this runs before the release, the handler will</span>
+    <span class="c1">// potentially see global == 0.</span>
+    <span class="c1">//</span>
+    <span class="c1">// Otherwise, it will definitely see global == 10.</span>
+
+    <span class="n">atomic_signal_fence</span><span class="p">(</span><span class="n">memory_order_acquire</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">global</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">signal</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">handler</span><span class="p">);</span>
+
+    <span class="n">global</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+    <span class="n">atomic_signal_fence</span><span class="p">(</span><span class="n">memory_order_release</span><span class="p">);</span>
+
+    <span class="c1">// If the signal handler runs after the release</span>
+    <span class="c1">// it will definitely see the value 10 in global.</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdatomic.html#man-atomic_thread_fence" rel="nofollow"><code>atomic_thread_fence()</code></a>, <a href="signal.html#man-signal" rel="nofollow"><code>signal()</code></a></p>
+
+<p><hr></p>
+
+<h2>18.10 <code>atomic_is_lock_free()</code></h2>
+
+<p>Determine if an atomic type is lock free</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">_Bool</span> <span class="nf">atomic_is_lock_free</span><span class="p">(</span><span class="k">const</span> <span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">obj</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Determines if the variable <code>obj</code> of type <code>A</code> is lock-free. Can be used with any type.</p>
+
+<p>Unlike the <a href="stdatomic.html#lock-free-macros" rel="nofollow">lock-free macros</a> which can be used at compile-time, this is strictly a run-time function. So in places where the macros say “maybe”, this function will definitely tell you one way or another if the atomic variable is lock-free.</p>
+
+<p>This is useful when you’re defining your own atomic variables and want to know their lock-free status.</p>
+
+<h3>Return Value</h3>
+
+<p>True if the variable is lock-free, false otherwise.</p>
+
+<h3>Example</h3>
+
+<p>Test if a couple <code>struct</code>s and an atomic <code>double</code> are lock-free. On my system, the larger <code>struct</code> is too big to be lock-free, but the other two are OK.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">foo</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="k">struct</span> <span class="n">bar</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="k">_Atomic</span><span class="p">(</span><span class="kt">double</span><span class="p">)</span> <span class="n">a</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">foo</span> <span class="n">b</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">bar</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"a is lock-free: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">atomic_is_lock_free</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"b is lock-free: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">atomic_is_lock_free</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"c is lock-free: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">atomic_is_lock_free</span><span class="p">(</span><span class="o">&amp;</span><span class="n">c</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system (YMMV):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">a</span> <span class="n">is</span> <span class="n">lock</span><span class="o">-</span><span class="n">free</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">b</span> <span class="n">is</span> <span class="n">lock</span><span class="o">-</span><span class="n">free</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">c</span> <span class="n">is</span> <span class="n">lock</span><span class="o">-</span><span class="n">free</span><span class="o">:</span> <span class="mi">0</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdatomic.html#lock-free-macros" rel="nofollow">Lock-free Macros</a></p>
+
+<p><hr></p>
+
+<h2>18.11 <code>atomic_store()</code></h2>
+
+<p>Store a value in an atomic variable</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">atomic_store</span><span class="p">(</span><span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">C</span> <span class="n">desired</span><span class="p">);</span>
+
+<span class="kt">void</span> <span class="nf">atomic_store_explicit</span><span class="p">(</span><span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span>
+                           <span class="n">C</span> <span class="n">desired</span><span class="p">,</span> <span class="n">memory_order</span> <span class="n">order</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Store a value in an atomic variable, possible synchronized.</p>
+
+<p>This is like a plain assignment, but with more flexibility.</p>
+
+<p>These have the same storage effect for an <code>atomic_int x</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="n">atomic_store</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+<span class="n">atomic_store_explicit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">memory_order_seq_cst</span><span class="p">);</span>
+</code></pre></div>
+
+<p>But the last function, <code>atomic_store_explicit()</code>, lets you specify the memory order.</p>
+
+<p>Since this is a “release-y” operation, none of the “acquire-y” memory orders are legal. <code>order</code> can be only be <code>memory_order_seq_cst</code>, <code>memory_order_release</code>, or <code>memory_order_relaxed</code>.</p>
+
+<p><code>order</code> cannot be <code>memory_order_acq_rel</code>, <code>memory_order_acquire</code>, or <code>memory_order_consume</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns nothing!</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">atomic_int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">atomic_int</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="n">atomic_store</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+
+    <span class="n">atomic_store_explicit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">y</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">memory_order_relaxed</span><span class="p">);</span>
+
+    <span class="c1">// Will print either "10 20" or "10 0":</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdatomic.html#man-atomic_init" rel="nofollow"><code>atomic_init()</code></a>, <a href="stdatomic.html#man-atomic_load" rel="nofollow"><code>atomic_load()</code></a>, <a href="stdatomic.html#man-atomic_load" rel="nofollow"><code>atomic_load_explicit()</code></a>, <a href="stdatomic.html#man-atomic_exchange" rel="nofollow"><code>atomic_exchange()</code></a>,<br><br>
+<a href="stdatomic.html#man-atomic_exchange" rel="nofollow"><code>atomic_exchange_explicit()</code></a>, <a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_strong()</code></a>,<br><br>
+<a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_strong_explicit()</code></a>, <a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_weak()</code></a>,<br><br>
+<a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_weak_explicit()</code></a>, <a href="stdatomic.html#man-atomic_fetch" rel="nofollow"><code>atomic_fetch_*()</code></a></p>
+
+<p><hr></p>
+
+<h2>18.12 <code>atomic_load()</code></h2>
+
+<p>Return a value from an atomic variable</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="n">C</span> <span class="nf">atomic_load</span><span class="p">(</span><span class="k">const</span> <span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">object</span><span class="p">);</span>
+
+<span class="n">C</span> <span class="nf">atomic_load_explicit</span><span class="p">(</span><span class="k">const</span> <span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">memory_order</span> <span class="n">order</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>For a pointer to an <code>object</code> of type <code>A</code>, atomically returns its value <code>C</code>. This is a generic function that can be used with any type.</p>
+
+<p>The function <code>atomic_load_explicit()</code> lets you specify the memory order.</p>
+
+<p>Since this is an “acquire-y” operation, none of the “release-y” memory orders are legal. <code>order</code> can be only be <code>memory_order_seq_cst</code>, <code>memory_order_acquire</code>, <code>memory_order_consume</code>, or <code>memory_order_relaxed</code>.</p>
+
+<p><code>order</code> cannot be <code>memory_order_acq_rel</code> or <code>memory_order_release</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the value stored in <code>object</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">atomic_int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="n">atomic_load</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">v</span><span class="p">);</span>  <span class="c1">// 10</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdatomic.html#man-atomic_store" rel="nofollow"><code>atomic_store()</code></a>, <a href="stdatomic.html#man-atomic_store" rel="nofollow"><code>atomic_store_explicit()</code></a></p>
+
+<p><hr></p>
+
+<h2>18.13 <code>atomic_exchange()</code></h2>
+
+<p>Replace a value in an atomic object</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="n">C</span> <span class="nf">atomic_exchange</span><span class="p">(</span><span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">C</span> <span class="n">desired</span><span class="p">);</span>
+
+<span class="n">C</span> <span class="nf">atomic_exchange_explicit</span><span class="p">(</span><span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">C</span> <span class="n">desired</span><span class="p">,</span>
+                           <span class="n">memory_order</span> <span class="n">order</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Sets the value in <code>object</code> to <code>desired</code>.</p>
+
+<p><code>object</code> is type <code>A</code>, some atomic type.</p>
+
+<p><code>desired</code> is type <code>C</code>, the respective non-atomic type to <code>A</code>.</p>
+
+<p>This is very similar to <code>atomic_store()</code>, except the previous value is atomically returned.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the previous value of <code>object</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">atomic_int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">previous</span> <span class="o">=</span> <span class="n">atomic_exchange</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">20</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"x is  %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"x was %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">previous</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">x</span> <span class="n">is</span>  <span class="mi">20</span>
+<span class="n">x</span> <span class="n">was</span> <span class="mi">10</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdatomic.html#man-atomic_init" rel="nofollow"><code>atomic_init()</code></a>, <a href="stdatomic.html#man-atomic_load" rel="nofollow"><code>atomic_load()</code></a>, <a href="stdatomic.html#man-atomic_load" rel="nofollow"><code>atomic_load_explicit()</code></a>, <a href="stdatomic.html#man-atomic_store" rel="nofollow"><code>atomic_store()</code></a>,<br><br>
+<a href="stdatomic.html#man-atomic_store" rel="nofollow"><code>atomic_store_explicit()</code></a> <a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_strong()</code></a>,<br><br>
+<a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_strong_explicit()</code></a>, <a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_weak()</code></a>,<br><br>
+<a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_weak_explicit()</code></a></p>
+
+<p><hr></p>
+
+<h2>18.14 <code>atomic_compare_exchange_*()</code></h2>
+
+<p>Atomic compare and exchange</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">_Bool</span> <span class="nf">atomic_compare_exchange_strong</span><span class="p">(</span><span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span>
+                                     <span class="n">C</span> <span class="o">*</span><span class="n">expected</span><span class="p">,</span> <span class="n">C</span> <span class="n">desired</span><span class="p">);</span>
+
+<span class="kt">_Bool</span> <span class="nf">atomic_compare_exchange_strong_explicit</span><span class="p">(</span><span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span>
+                                              <span class="n">C</span> <span class="o">*</span><span class="n">expected</span><span class="p">,</span> <span class="n">C</span> <span class="n">desired</span><span class="p">,</span>
+                                              <span class="n">memory_order</span> <span class="n">success</span><span class="p">,</span>
+                                              <span class="n">memory_order</span> <span class="n">failure</span><span class="p">);</span>
+
+<span class="kt">_Bool</span> <span class="nf">atomic_compare_exchange_weak</span><span class="p">(</span><span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span>
+                                   <span class="n">C</span> <span class="o">*</span><span class="n">expected</span><span class="p">,</span> <span class="n">C</span> <span class="n">desired</span><span class="p">);</span>
+
+<span class="kt">_Bool</span> <span class="nf">atomic_compare_exchange_weak_explicit</span><span class="p">(</span><span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span>
+                                            <span class="n">C</span> <span class="o">*</span><span class="n">expected</span><span class="p">,</span> <span class="n">C</span> <span class="n">desired</span><span class="p">,</span>
+                                            <span class="n">memory_order</span> <span class="n">success</span><span class="p">,</span>
+                                            <span class="n">memory_order</span> <span class="n">failure</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>The venerable basis for some many things lock-free: compare and exchange.</p>
+
+<p>In the above prototypes, <code>A</code> is the type of the atomic object, and <code>C</code> is the equivalent base type.</p>
+
+<p>Ignoring the <code>_explicit</code> versions for a moment, what these do is:</p>
+
+<ul>
+<li><p>If the value pointed to by <code>object</code> is equal to the value pointed to by <code>expected</code>, then the value pointed to by <code>object</code> is set to <code>desired</code>. And the function returns <code>true</code> indicating the exchange did take place.</p></li>
+<li><p>Else the value pointed to by <code>expected</code> (yes, <code>expected</code>) is set to <code>desired</code> and the function returns <code>false</code> indicating the exchange did not take place.</p></li>
+</ul>
+
+<p>Pseudocode for the exchange would look like this<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴¹</a>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">bool</span> <span class="nf">compare_exchange</span><span class="p">(</span><span class="n">atomic_A</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">C</span> <span class="o">*</span><span class="n">expected</span><span class="p">,</span> <span class="n">C</span> <span class="n">desired</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">object</span> <span class="n">is</span> <span class="n">the</span> <span class="n">same</span> <span class="n">as</span> <span class="o">*</span><span class="n">expected</span><span class="p">)</span> <span class="p">{</span>
+        <span class="o">*</span><span class="n">object</span> <span class="o">=</span> <span class="n">desired</span>
+        <span class="k">return</span> <span class="nb">true</span>
+    <span class="p">}</span>
+
+    <span class="o">*</span><span class="n">expected</span> <span class="o">=</span> <span class="n">desired</span>
+    <span class="k">return</span> <span class="nb">false</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The <code>_weak</code> variants might spontaneously fail, so even if <code>*object == *desired</code>, it might not change the value and will return <code>false</code>. So you’ll want that in a loop if you use it<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴²</a>.</p>
+
+<p>The <code>_explicit</code> variants have two memory orders: <code>success</code> if <code>*object</code> is set to <code>desired</code>, and <code>failure</code> if it is not.</p>
+
+<p>These are test-and-set functions, so you can use <code>memory_order_acq_rel</code> with the <code>_explicit</code> variants.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns <code>true</code> if <code>*object</code> was <code>*expected</code>. Otherwise, <code>false</code>.</p>
+
+<h3>Example</h3>
+
+<p>A contrived example where multiple threads add <code>2</code> to a shared value in a lock-free way.</p>
+
+<p>(It would be better to use <code>+= 2</code> to get this done in real life unless you were using some <code>_explicit</code> wizardry.)</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define LOOP_COUNT 10000
+</span>
+<span class="n">atomic_int</span> <span class="n">value</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">LOOP_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="kt">int</span> <span class="n">cur</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">next</span><span class="p">;</span>
+
+        <span class="k">do</span> <span class="p">{</span>
+            <span class="n">next</span> <span class="o">=</span> <span class="n">cur</span> <span class="o">+</span> <span class="mi">2</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">atomic_compare_exchange_strong</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cur</span><span class="p">,</span> <span class="n">next</span><span class="p">));</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_t</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">;</span>
+
+    <span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t1</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t2</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="n">thrd_join</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">thrd_join</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d should equal %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">LOOP_COUNT</span> <span class="o">*</span> <span class="mi">4</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Just replacing this with <code>value = value + 2</code> causes data trampling.</p>
+
+<h3>See Also</h3>
+
+<p><a href="stdatomic.html#man-atomic_load" rel="nofollow"><code>atomic_load()</code></a>, <a href="stdatomic.html#man-atomic_load" rel="nofollow"><code>atomic_load_explicit()</code></a>, <a href="stdatomic.html#man-atomic_store" rel="nofollow"><code>atomic_store()</code></a>, <a href="stdatomic.html#man-atomic_store" rel="nofollow"><code>atomic_store_explicit()</code></a>, <a href="stdatomic.html#man-atomic_exchange" rel="nofollow"><code>atomic_exchange()</code></a>, <a href="stdatomic.html#man-atomic_exchange" rel="nofollow"><code>atomic_exchange_explicit()</code></a>, <a href="stdatomic.html#man-atomic_fetch" rel="nofollow"><code>atomic_fetch_*()</code></a></p>
+
+<p><hr></p>
+
+<h2>18.15 <code>atomic_fetch_*()</code></h2>
+
+<p>Atomically modify atomic variables</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="n">C</span> <span class="nf">atomic_fetch_KEY</span><span class="p">(</span><span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">M</span> <span class="n">operand</span><span class="p">);</span>
+
+<span class="n">C</span> <span class="nf">atomic_fetch_KEY_explicit</span><span class="p">(</span><span class="k">volatile</span> <span class="n">A</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span> <span class="n">M</span> <span class="n">operand</span><span class="p">,</span>
+                            <span class="n">memory_order</span> <span class="n">order</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are actually a group of 10 functions. You substitute one of the following for <code>KEY</code> to perform that operation:</p>
+
+<ul>
+<li>  <code>add</code></li>
+<li>  <code>sub</code></li>
+<li>  <code>or</code></li>
+<li>  <code>xor</code></li>
+<li>  <code>and</code></li>
+</ul>
+
+<p>So these functions can add or subtract values to or from an atomic variable, or can perform bitwise-OR, XOR, or AND on them.</p>
+
+<p>Use it with integer or pointer types. Though the spec is a little vague on the matter, other types make C unhappy. It goes out of its way to avoid undefined behavior with signed integers, as well:</p>
+
+<p>C18 §7.17.7.5 ¶3:</p>
+
+<blockquote>
+<p>For signed integer types, arithmetic is defined to use two’s complement representation with silent wrap-around on overflow; there are no undefined results.</p>
+</blockquote>
+
+<p>In the synopsis, above, <code>A</code> is an atomic type, and <code>M</code> is the corresponding non-atomic type for <code>A</code> (or <code>ptrdiff_t</code> for atomic pointers), and <code>C</code> is the corresponding non-atomic type for <code>A</code>.</p>
+
+<p>For example, here are some operations on an <code>atomic_int</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">atomic_fetch_add</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">20</span><span class="p">);</span>
+<span class="n">atomic_fetch_sub</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">37</span><span class="p">);</span>
+<span class="n">atomic_fetch_xor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">3490</span><span class="p">);</span>
+</code></pre></div>
+
+<p>They are the same as <code>+=</code>, <code>-=</code>, <code>|=</code>, <code>^=</code> and <code>&amp;=</code>, except the return value is the <em>previous</em> value of the atomic object. (With the assignment operators, the value of the expression is that <em>after</em> its evaluation.)</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">atomic_int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">prev</span> <span class="o">=</span> <span class="n">atomic_fetch_add</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">20</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="c1">// 10 30</span>
+</code></pre></div>
+
+<p>versus:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">atomic_int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">prev</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">+=</span> <span class="mi">20</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="c1">// 30 30</span>
+</code></pre></div>
+
+<p>And, of course, the <code>_explicit</code> version allows you to specify a memory order and all the assignment operators are <code>memory_order_seq_cst</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the previous value of the atomic object before the modification.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">atomic_int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">prev</span><span class="p">;</span>
+
+    <span class="n">atomic_fetch_add</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">3490</span><span class="p">);</span>
+    <span class="n">atomic_fetch_sub</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">12</span><span class="p">);</span>
+    <span class="n">atomic_fetch_xor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">444</span><span class="p">);</span>
+    <span class="n">atomic_fetch_or</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">12</span><span class="p">);</span>
+    <span class="n">prev</span> <span class="o">=</span> <span class="n">atomic_fetch_and</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>   <span class="c1">// 3118 42</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdatomic.html#man-atomic_exchange" rel="nofollow"><code>atomic_exchange()</code></a>, <a href="stdatomic.html#man-atomic_exchange" rel="nofollow"><code>atomic_exchange_explicit()</code></a>, <a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_strong()</code></a>,<br><br>
+<a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_strong_explicit()</code></a>, <a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_weak()</code></a>,<br><br>
+<a href="stdatomic.html#man-atomic_compare_exchange" rel="nofollow"><code>atomic_compare_exchange_weak_explicit()</code></a></p>
+
+<p><hr></p>
+
+<h2>18.16 <code>atomic_flag_test_and_set()</code></h2>
+
+<p>Test and set an atomic flag</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">_Bool</span> <span class="nf">atomic_flag_test_and_set</span><span class="p">(</span><span class="k">volatile</span> <span class="n">atomic_flag</span> <span class="o">*</span><span class="n">object</span><span class="p">);</span>
+
+<span class="kt">_Bool</span> <span class="nf">atomic_flag_test_and_set_explicit</span><span class="p">(</span><span class="k">volatile</span> <span class="n">atomic_flag</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span>
+                                        <span class="n">memory_order</span> <span class="n">order</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>One of the venerable old functions of lock-free programming, this function sets the given atomic flag in <code>object</code>, and returns the previous value of the flag.</p>
+
+<p>As usual, the <code>_explicit</code> allows you to specify an alternate memory order.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns <code>true</code> if the flag was set previously, and <code>false</code> if it wasn’t.</p>
+
+<h3>Example</h3>
+
+<p>Using test-and-set to implement a spin lock<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴³</a>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// Shared non-atomic struct</span>
+<span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">s</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">};</span>
+
+<span class="n">atomic_flag</span> <span class="n">f</span> <span class="o">=</span> <span class="n">ATOMIC_FLAG_INIT</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">tid</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %d: waiting for lock...</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">tid</span><span class="p">);</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">atomic_flag_test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="p">));</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %d: got lock, s is {%d, %d, %d}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span>
+                                                       <span class="n">s</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+    <span class="n">s</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">tid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">+</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">s</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">tid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">s</span><span class="p">.</span><span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">tid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">+</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %d: set s to {%d, %d, %d}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %d: releasing lock...</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">tid</span><span class="p">);</span>
+    <span class="n">atomic_flag_clear</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_t</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">tid</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">};</span>
+
+    <span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t1</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">tid</span><span class="o">+</span><span class="mi">0</span><span class="p">);</span>
+    <span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t2</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">tid</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+
+    <span class="n">thrd_join</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">thrd_join</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Example output (varies run to run):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Thread</span> <span class="mi">0</span><span class="o">:</span> <span class="n">waiting</span> <span class="k">for</span> <span class="n">lock</span><span class="p">...</span>
+<span class="n">Thread</span> <span class="mi">0</span><span class="o">:</span> <span class="n">got</span> <span class="n">lock</span><span class="p">,</span> <span class="n">s</span> <span class="n">is</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">}</span>
+<span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">waiting</span> <span class="k">for</span> <span class="n">lock</span><span class="p">...</span>
+<span class="n">Thread</span> <span class="mi">0</span><span class="o">:</span> <span class="n">set</span> <span class="n">s</span> <span class="n">to</span> <span class="p">{</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">}</span>
+<span class="n">Thread</span> <span class="mi">0</span><span class="o">:</span> <span class="n">releasing</span> <span class="n">lock</span><span class="p">...</span>
+<span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">got</span> <span class="n">lock</span><span class="p">,</span> <span class="n">s</span> <span class="n">is</span> <span class="p">{</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">}</span>
+<span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">set</span> <span class="n">s</span> <span class="n">to</span> <span class="p">{</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">}</span>
+<span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">releasing</span> <span class="n">lock</span><span class="p">...</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdatomic.html#man-atomic_flag_clear" rel="nofollow"><code>atomic_flag_clear()</code></a></p>
+
+<p><hr></p>
+
+<h2>18.17 <code>atomic_flag_clear()</code></h2>
+
+<p>Clear an atomic flag</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">atomic_flag_clear</span><span class="p">(</span><span class="k">volatile</span> <span class="n">atomic_flag</span> <span class="o">*</span><span class="n">object</span><span class="p">);</span>
+
+<span class="kt">void</span> <span class="nf">atomic_flag_clear_explicit</span><span class="p">(</span><span class="k">volatile</span> <span class="n">atomic_flag</span> <span class="o">*</span><span class="n">object</span><span class="p">,</span>
+                                <span class="n">memory_order</span> <span class="n">order</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Clears an atomic flag.</p>
+
+<p>As usual, the <code>_explicit</code> allows you to specify an alternate memory order.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns nothing!</p>
+
+<h3>Example</h3>
+
+<p>Using test-and-set to implement a spin lock<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴⁴</a>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// Shared non-atomic struct</span>
+<span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">s</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">};</span>
+
+<span class="n">atomic_flag</span> <span class="n">f</span> <span class="o">=</span> <span class="n">ATOMIC_FLAG_INIT</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">tid</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %d: waiting for lock...</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">tid</span><span class="p">);</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">atomic_flag_test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="p">));</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %d: got lock, s is {%d, %d, %d}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span>
+                                                       <span class="n">s</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+    <span class="n">s</span><span class="p">.</span><span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">tid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">+</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">s</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">tid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">s</span><span class="p">.</span><span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">tid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">+</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %d: set s to {%d, %d, %d}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">tid</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %d: releasing lock...</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">tid</span><span class="p">);</span>
+    <span class="n">atomic_flag_clear</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_t</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">tid</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">};</span>
+
+    <span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t1</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">tid</span><span class="o">+</span><span class="mi">0</span><span class="p">);</span>
+    <span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t2</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">tid</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+
+    <span class="n">thrd_join</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">thrd_join</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Example output (varies run to run):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Thread</span> <span class="mi">0</span><span class="o">:</span> <span class="n">waiting</span> <span class="k">for</span> <span class="n">lock</span><span class="p">...</span>
+<span class="n">Thread</span> <span class="mi">0</span><span class="o">:</span> <span class="n">got</span> <span class="n">lock</span><span class="p">,</span> <span class="n">s</span> <span class="n">is</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">}</span>
+<span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">waiting</span> <span class="k">for</span> <span class="n">lock</span><span class="p">...</span>
+<span class="n">Thread</span> <span class="mi">0</span><span class="o">:</span> <span class="n">set</span> <span class="n">s</span> <span class="n">to</span> <span class="p">{</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">}</span>
+<span class="n">Thread</span> <span class="mi">0</span><span class="o">:</span> <span class="n">releasing</span> <span class="n">lock</span><span class="p">...</span>
+<span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">got</span> <span class="n">lock</span><span class="p">,</span> <span class="n">s</span> <span class="n">is</span> <span class="p">{</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">}</span>
+<span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">set</span> <span class="n">s</span> <span class="n">to</span> <span class="p">{</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">}</span>
+<span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">releasing</span> <span class="n">lock</span><span class="p">...</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdatomic.html#man-atomic_flag_test_and_set" rel="nofollow"><code>atomic_flag_test_and_set()</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

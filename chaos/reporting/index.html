@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/reporting</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/reporting"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Reporting</h1>
+
+<p>Reporting skills are invaluable: what good is it to be highly technical if you&#39;re unable to communicate your findings efficiently? This document focuses solely on this important soft skill.</p>
+
+<p>Pentests, by nature, can also inspire doubt and even hostility among the internal IT team. It is vital to document everything, so the blame isn&#39;t placed on us when something unrelated to our activities goes wrong. We should be able to justify our actions at any point during an assessment.</p>
+
+<p>We won&#39;t recommend any specific notetaking tools in this document, as it always comes down to personal preferences.</p>
+
+<h2>Organization for notetaking</h2>
+
+<p>A solid notetaking structure is important, but there is no single defined convention to follow: everyone has their preferences, but some categories should always be noted down, although this depends on the type of assessment.</p>
+
+<ul>
+<li><p><strong>Attack path</strong>: an outline of the entire path from our external host to the gain of a foothold, or how we compromised internal hosts if we&#39;re conducting an internal pentest. Use as many screenshots as possible as well as command outputs during the pentest, so we only need to worry about detailing and formatting each step later on.</p></li>
+<li><p><strong>Credentials</strong>: a category dedicated to keep all compromised credentials and secrets as we make progress.</p></li>
+<li><p><strong>Findings</strong>: making a subdirectory for each finding, along with the narrative / description and all gathered evidence, such as screenshots and command outputs.</p></li>
+<li><p><strong>Vulnerability scan research</strong>: documenting everything we tried with our vulnerability scans.</p></li>
+<li><p><strong>Service enumeration research</strong>: documenting everything we tried with enumerated services, exploitation attempts, vulnerablities, etc.</p></li>
+<li><p><strong>Web application research</strong>: documenting all web applications found through various methods, and all methods used against them: default credentials, etc.</p></li>
+<li><p><strong>Active Directory enumeration research</strong>: all enumeration performed on Active Directory, and areas of interest for further exploitation during the assessment.</p></li>
+<li><p><strong>OSINT</strong>: all interesting info collected with OSINT, if that method is allowed for the assessment.</p></li>
+<li><p><strong>Administrative info</strong>: dedicated category to store contact info of other stakeholders in the project: project managers, points of contact, unique objectives defined in the Rules of Engagement (RoE). Can double up as todo list depending on personal preferences.</p></li>
+<li><p><strong>Scoping info</strong>: category for all in-scope IP addresses or CIDR ranges, URLs, credentials for web applications, VPN or AD provided by our client. Anything relevant to the scope of the assessment.</p></li>
+<li><p><strong>Activity log</strong>: tracking and summarizing everything we did so far during the assessment.</p></li>
+<li><p><strong>Payload log</strong>: tracking all payload we used and uploaded, as well as where we uploaded them and their file hashes.</p></li>
+</ul>
+
+<h2>Logging everything</h2>
+
+<p>Logging everything we do in the terminal is paramount: scanning, attack attempts, tools output, everything will come to be valuable. Although we are taking detailed notes, logs will be useful if we ever miss something and will add more evidence for all our actions. It&#39;s also a good step to record everything we tried in case we are facing a well-secured target.</p>
+
+<p>A good choice for logging is <a href="https://github.com/tmux-plugins/tmux-logging" rel="nofollow">tmux-logging</a>. Once installed, we can use the following commands to log our sessions:</p>
+
+<ul>
+<li>Prefix + Shift + P: start/stop recording your session.</li>
+<li>Prefix + Alt + Shift + P: log retroactively if you forgot to start recording earlier.</li>
+<li>Prefix + Alt + P: take text &quot;screenshot&quot; of the current pane, very useful to copy a pane&#39;s content without messing with the others.</li>
+</ul>
+
+<p>It&#39;s also a good idea to increase tmux&#39;s history limit in <code>~/.tmux.conf</code> with <code>set -g history-limit 100000</code> to log retroactively with a large buffer.</p>
+
+<p>Keep in mind that ANSI codes will also be recorded so the file will be a mess if you wanna see the output outside of your terminal.</p>
+
+<h2>Tracking payloads and changes</h2>
+
+<p>At a minimum, we should track the following whenever we use a payload during the assessment:</p>
+
+<ul>
+<li>When it was used.</li>
+<li>On which host it was used.</li>
+<li>What file path was it placed in.</li>
+<li>Whether it has been cleaned up afterwards or needs to be cleaned by our client.</li>
+<li>A file hash of the file.</li>
+</ul>
+
+<p>All of this should be provided even if we delete everything afterwards.</p>
+
+<p>We also need to track all changes we performed on the target system(s). If we cannot revert them for some reason, our client will know what has been changed in detail:</p>
+
+<ul>
+<li>IP address of the host(s) where changes has been made.</li>
+<li>Timestamp of the change.</li>
+<li>Description of the change.</li>
+<li>Location on the host(s) where changes has been made.</li>
+<li>Application or service that got tampered.</li>
+<li>Account name and password if we created one.</li>
+</ul>
+
+<p>Of course, all possible changes on a system should get an approval before being performed.</p>
+
+<h2>Capturing all evidence</h2>
+
+<p>What matters most to our client is to deliver a report that they can act on, so that the internal team can fix what we found and reproduce all of our steps.</p>
+
+<p>Each finding will need to have evidence: because automatic logging&#39;s output with ANSI codes can be terrible, it&#39;s a good idea to manually copy our output for all significant steps we make. Outside of terminal outputs (web apps, etc), we must take and join screenshots.</p>
+
+<p>Organizing collected data is an important topic as well, to find everything we did easily and avoid performing actions we already tried that will waste our time. The following directory structure is an example we can take inspiration from:</p>
+
+<ul>
+<li><p>Admin:</p>
+
+<ul>
+<li>Scope of Work (SoW) we&#39;re working on, notes from the project kickoff meeting, status reports, etc.</li>
+</ul></li>
+<li><p>Deliverables:</p>
+
+<ul>
+<li>Will contain our report but also additional documents, like spreadsheets, slides, etc.</li>
+</ul></li>
+<li><p>Evidence:</p>
+
+<ul>
+<li>Findings:</li>
+<li>Create a directory for each finding we will include in our report.</li>
+<li>Scans:</li>
+<li>Vulnerability scans:
+
+<ul>
+<li>Export files from vulnerability scans we conducted.</li>
+</ul></li>
+<li>Service enumeration:
+
+<ul>
+<li>Export files from tools that enumerated services, such as nmap.</li>
+</ul></li>
+<li>Web:
+
+<ul>
+<li>Export files from tools such as ZAP or Burp, eyewitness/aquatone, etc.</li>
+</ul></li>
+<li>AD enumeration:
+
+<ul>
+<li>Export files from Bloodhound, PowerView, ADRecon, Ping Castle, Snaffler, crackmapexec/netexec, impacket, and more.</li>
+</ul></li>
+</ul></li>
+<li><p>Notes:</p>
+
+<ul>
+<li>Keeping all your notes here.</li>
+</ul></li>
+<li><p>OSINT:</p>
+
+<ul>
+<li>Export files from Intelx, Maltego, etc.</li>
+</ul></li>
+<li><p>Wireless:</p>
+
+<ul>
+<li>If wireless testing is in scope, export files related to this part of the assessment.</li>
+</ul></li>
+<li><p>Logging output:</p>
+
+<ul>
+<li>Output from tmux, Metasploit, and all other outputs that don&#39;t fit the previous sections.</li>
+</ul></li>
+<li><p>Misc files:</p>
+
+<ul>
+<li>Web shells, payloads, custom scripts, and all relevant files created for the assessment.</li>
+</ul></li>
+<li><p>Retest:</p>
+
+<ul>
+<li>Optional directory if a second assessment is asked by our client. Can replicate the directory structure of the first one.</li>
+</ul></li>
+</ul>
+
+<p>Such a directory structure can be automated with the following bash one-liner:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">mkdir</span> <span class="nt">-p</span> &lt;client company&gt;/<span class="o">{</span>Admin,Deliverables,Evidence/<span class="o">{</span>Findings,Scans/<span class="o">{</span>Vuln,Service,Web,<span class="s1">'AD Enumeration'</span><span class="o">}</span>,Notes,OSINT,Wireless,<span class="s1">'Logging output'</span>,<span class="s1">'Misc Files'</span><span class="o">}</span>,Retest<span class="o">}</span>
+</code></pre></div>
+
+<h2>Formatting the report</h2>
+
+<p>All PII (Personal Identifiable Information) and credentials should be redacted in screenshots, as well as anything morally objectionable (obscene comments, etc). It&#39;s also a good idea to annotate screenshots to highlight important parts, and add a border to distinguish the screenshots from the document background.</p>
+
+<p>Don&#39;t leave out important elements, such as the address bar in the browser if we&#39;re targeting a web target.</p>
+
+<p>Terminal output should always be preferred over screenshots: it&#39;s easier to edit and highlight relevant sections, and will keep our report neat and tidy. Output can be cropped with <code>&lt;SNIP&gt;</code> sections, but never alter sections shown as it needs to be reproducible, and even copy/pasted by the internal team. Make sure that all formatting is stripped so we don&#39;t introduce non-UTF8 characters that might render the command invalid.</p>
+
+<p>Never use pixelation as a redaction technique, as shown with <a href="https://github.com/bishopfox/unredacter" rel="nofollow">this repo</a>. Edit the image directly, and not on MS Word or through HTML/CSS styling on the web, as this can easily be bypassed. Just redact with solid black bars.</p>
+
+<p>To redact password hashes, it&#39;s okay to mask everything but the first and last 3-4 characters, to still prove we got a hash through various means. For cleartext passwords, using a <code>&lt;REDACTED&gt;</code> placeholder is also fine.</p>
+
+<p>Don&#39;t store or view sensitive data if you get access to it: just screenshot the directory containing sensitive files to get the message across. Anything more could trigger compliance obligations like GDPR.</p>
+
+<h2>Types of assessments</h2>
+
+<p>Different types of reports can be made depending on our client&#39;s needs. First, let&#39;s define key differences in types of <em>assessments</em>:</p>
+
+<ul>
+<li><p>Vulnerability assessment: authenticated or unauthenticated, automated scans of an environment. No exploitation done, but we check for false positives and actual issues to be fixed. Sometimes, the validation part is not even required by our client.</p></li>
+<li><p>Internal or external: external assessments are done from the perspective of an anonymous user on the internet, targeting the client&#39;s public systems. Internal assessments are done on the inside, scanning the internal hosts behind the firewall. Different scenarios may apply: anonymous user on the corporate network, credentialed scans, etc.</p></li>
+<li><p>Report contents: focuses on themes observed in the scan results, highlighting the number of vulnerabilities and their severity levels.</p></li>
+</ul>
+
+<p>Other types of assessments are related to the people with diverse skillsets involved. Some of these include:</p>
+
+<ul>
+<li><p>Purple team assessments: when the blue and red team combine efforts, typically a penetration tester and an incident responder. The penetration tester will usually simulates a threat while the incident responder will test if their alerting systems detect it properly, and reconfigure it if needed.</p></li>
+<li><p>Cloud penetration testing: will typically involve a penetration tester and someone specialized in cloud architecture and administration, to highlight what can be done  from an offensive standpoint with the info and configuration we might discover.</p></li>
+<li><p>IoT testing: involve testing the 3 major components of IoT, which are network, cloud and application. Doesn&#39;t rely on one person but rather people specialized in each of these areas, collaborating.</p></li>
+</ul>
+
+<h2>Types of reports</h2>
+
+<p>The different types of assessments mentioned above can be found in various types of reports:</p>
+
+<ul>
+<li>Penetration testing: goes beyond automated scans but might use them to identify vulnerabilities. These reports can be produced from various perspectives:
+
+<ul>
+<li>black box: when we only have the name of the company during an external assessment and only a network connection for a internal assessment.</li>
+<li>grey box: when we are given in-scope IP addresses and/or CIDR network ranges.</li>
+<li>white box: when we are given additional data, like credentials, source code and more.</li>
+</ul></li>
+</ul>
+
+<p>Penetration testing reports can also differ in evasiveness:</p>
+
+<ul>
+<li>Zero evasion: when we attempt to uncover as many vulnerabilities as we can, not minding about being detected.</li>
+<li>Hybrid evasive: when we start as quietly as possible and progressively increase noise, until the internal security team detects us.</li>
+<li>Evasive testing: when we try to remain undetected as long as possible, to simulate a more advanced attacker.</li>
+</ul>
+
+<p>They can also be either external or internal, as defined above.</p>
+
+<p>Other types of reports include:</p>
+
+<ul>
+<li><p>Web application penetration testing: this report can involve an assessment that will solely test the web application(s) of our client, or use them for leverage to gain a potential foothold into their internal network. As a result, this can be considered an inter-disciplinary assessment in some cases.</p></li>
+<li><p>Hardware penetration testing: often done on IoT devices, but can be extended to test the physical security of a device, like an ATM. This highly depends on the Rules of Engagement defined with our client.</p></li>
+</ul>
+
+<p>It&#39;s important to note that our clients might want to get involved into the creation of the report, submitting feedback and tweak the language, among other things. For these reasons, a draft report might be submitted first for review, and discussed in further meetings before reaching completion. When it is cleared, the final report can be issued.</p>
+
+<p>It&#39;s common that our client requests to test again our findings after correcting them: this will call for the creation of a post-remediation report, which should only be focused on the findings being retested and <em>not</em> the entire engagement done in the first place. If desired, this report should be done after a specific time limit, as doing it too late might vastly complicates the scope if the client&#39;s environment changed.</p>
+
+<p>Finally, some clients might request an attestation letter or attestation report, showing evidence that a penetration test has been done. This is derived from the actual report and only focuses on the number of findings discovered, general comments about the environment, etc. It is usually no longer than a page or two.</p>
+
+<p>Other deliverables include presentations / slide decks, tailored specifically to the audience depending on their technical level, spreadsheet of all findings that can be sorted by severity, and more.</p>
+
+<h2>Vulnerability notifications</h2>
+
+<p>During an assessment, we might encounter a critical vulnerability that will require us to stop everything and inform our clients. At a minimum, this should be done when a finding is directly exploitable and exposed on the internet, resulting in unauthenticated RCE or sensitive data exposure. That baseline should be defined during project kickoff and changed accordingly, depending on the findings.</p>
+
+<p>Because thoses flaws are critical, the documents sent to the internal team should be straigthforward and brief, allowing them to reproduce and fix the issue as fast as possible.</p>
+
+<h2>Elements of a report</h2>
+
+<h3>Writing the attack chain</h3>
+
+<p>The attack chain is probably the most pleasant part to write in a pentest report, as it allows us to show the ingenuity that led to a domain compromise, RCE, etc. It helps connect the dots between all the findings and how they&#39;ve been used in conjunction for maximum effectiveness. Here is some advice about writing this section:</p>
+
+<ul>
+<li><p>Start with a summary of the attack chain: only a few lines describing how everything went down on a surface level. Mention that this is the initial path of least resistance, but not necessarily the only way to reach that level of access.</p></li>
+<li><p>Walk through each step and include all command output and screenshots required to reproduce the attack. Don&#39;t hide anything about the process, but keep it straightforward.</p></li>
+<li><p>Make it reusable: each step of the attack chain can be reused in the findings section, if we followed a step-by-step description of the chain.</p></li>
+</ul>
+
+<h2>Writing the executive summary</h2>
+
+<p>One of the most important parts of the report, the executive summary is written for IT and IT security management, C-level management and more. The content of this summary must be easily understood by people without technical knowledge.</p>
+
+<p>This summary might allow our client to finally get funding to fix the issues we encountered, so its content needs to be understood by the target audience. Here are some key points:</p>
+
+<ul>
+<li><p>Anyone should be able to read this summary and understand the point we&#39;re making. Forget about password spraying or mentioning specific tools, as the audience will have no idea what we&#39;re talking about.</p></li>
+<li><p>The audience shouldn&#39;t need to google anything to understand this summary.</p></li>
+<li><p>All metrics should be specific and include an actual number. Even if that number can vary depending on what we found or missed, for instance the number of vulnerabilities on a host.</p></li>
+<li><p>It&#39;s a summary, so it shouldn&#39;t be longer than 2 pages.</p></li>
+<li><p>Describe what you managed to access. Anyone can understand that accessing HR documents is a bad thing.</p></li>
+<li><p>Describe what must be improved to mitigate risks, in a general sense. For instance, what could be improved to efficiently set strong passwords across the entire organization.</p></li>
+<li><p>Don&#39;t recommend a specific vendor, this is not a sales pitch. Only mention the technologies needed to improve the security risks that we encountered.</p></li>
+<li><p>Don&#39;t use acronyms, as our audience won&#39;t know them.</p></li>
+<li><p>Don&#39;t spend time on low-impact vulnerabilities, attention should be steered towards high-impact ones. </p></li>
+<li><p>Don&#39;t use fancy vocabulary, keep it clear and straightforward.</p></li>
+<li><p>Don&#39;t reference another technical section in the report, the executive summary must stand on its own for the intended audience.</p></li>
+</ul>
+
+<h2>Writing a remediation summary</h2>
+
+<p>The remerdiation summary lists all short to long term recommendations based on the client&#39;s environment and our findings. Our client might have a say in this section, and might also use this section for their remediation roadpmap in the near future. If we don&#39;t provide this section, it&#39;s almost certain that we will be asked to prioritize remediation for our client.</p>
+
+<p>Only recommendations linked to findings in the report should be listed, both long-term and short-term ones.</p>
+
+<h2>Writing the findings section</h2>
+
+<p>Besides the executive summary, this is one of the most important sections of our report.</p>
+
+<h2>Writing the appendices</h2>
+
+<h3>Static appendices</h3>
+
+<p>Among static appendices in our report, the scope of the assessment should be there: URLs, network ranges, facilities and more.</p>
+
+<p>Our methodology should also be explained, to show the repeatable process we follow for consistency.</p>
+
+<p>If we don&#39;t use known severity ratings like CVSS, we should also take time to mention our reasoning for our rating in the static appendices. The process should be sound and we should be able to defend it if necessary.</p>
+
+<p>Biographies of employees that participated in the assessment can also be included, either to bring some peace of mind about everyone&#39;s qualifications, or for compliance obligations.</p>
+
+<h3>Dynamic appendices</h3>
+
+<p>Dynamic appendices may not be necessary for all reports and depend on the work being done.</p>
+
+<p>Including a list of our exploitation attempts and payloads dropped for the incident response team is a good idea, as this will help distinguish which artifacts were used by an actual attacker rather than us. All details about our payloads should be included, namely their locations, file names and hashes.</p>
+
+<p>Listing all compromised credentials, if this was part of our assessment, is also a good thing to add among the dynamic appendices.</p>
+
+<p>Other dynamic appendices include:</p>
+
+<ul>
+<li><p>Configuration changes: listing all changes we made in the client environment, especially if we couldn&#39;t revert them.</p></li>
+<li><p>Additional lists of affected hosts for a finding: in case there are too many hosts to be added among the finding, we can make an appendix to add them in this section.</p></li>
+<li><p>Information gathering: whois data, subdomains, emails and more that we found to show the external footprint of the client&#39;s organization.</p></li>
+<li><p>Domain passwords analysis: if we performed various attempts at cracking hashes on a domain, say after dumping the NTDS database, we can generate password statistics with <a href="https://github.com/clr2of8/DPAT" rel="nofollow">DPAT</a>.</p></li>
+</ul>
+
+<h2>Writing a finding</h2>
+
+<p>The <code>Findings</code> section is the heart of a report: this is where we show what we found, how we exploited vulnerabilities, and give remediation guidance for our client. We need to put as much detail as possible into each finding so the internal team can easily reproduce it.</p>
+
+<p>Findings can start off generic, for instance a default credentials issue which could be found in a varitety of services, but needs to be tailored and customized for our client&#39;s circumstances. Each finding should include the following at a minimum:</p>
+
+<ul>
+<li>Description of the finding and what platform(s) it affects.</li>
+<li>Impact of the finding if left as it is.</li>
+<li>Affected systems, networks, environments, etc of our client.</li>
+<li>Recommendations for remediation.</li>
+<li>Links with additional info about the finding and how to resolve it.</li>
+<li>Reproducible steps for the issue and the evidence we gathered.</li>
+</ul>
+
+<p>Optional fields may include the CVE, OWASP, MITRE IDs, the CVSS score or a similar score, ease of exploitation and probability of attack, etc.</p>
+
+<p>While our point-of-contact for our report is often technical, they often won&#39;t have a pentesting background and know the tools we&#39;re using, or know what we must be aware of in command outputs. Here&#39;s what we should consider:</p>
+
+<ul>
+<li><p>Each step should have its own figure. If we cram several steps into a single one, our point-of-contact might not understand what is happening in a screenshot and be unable to reproduce our finding.</p></li>
+<li><p>Include all configuration if it is required to reproduce our finding, for instance ofr a specific payload. Include a second figure to show the results after running it.</p></li>
+<li><p>Describe what is happening between each figure and what&#39;s going through our head at this point of the assessment.</p></li>
+<li><p>Mention alternative tools to reproduce the same finding if there are any, with a reference link.</p></li>
+<li><p>Our evidence should be completely defensible: if information is transmitted in cleartext, show it with a wireshark packet capture. If we become a local admin on Windows, show the output of the <code>net localgroup /administrators</code> command, along with <code>ipconfig</code> output. It shouldn&#39;t give room for any doubt.</p></li>
+<li><p>Remediation recommendations should be fully detailed and explain if the required changes should be approached with caution or not.</p></li>
+<li><p>Use vendor-agnostic sources for links and references. We don&#39;t want to imply that a specific vendor should be contacted to remediate a finding. Use articles that quickly get to the point, don&#39;t link a paywalled article and choose reliable sources without intrusive ads. Ideally, use your own content if you&#39;re communicating about it.</p></li>
+</ul>
+
+<p>Copy/pasting our payloads should be easily done and not require to manually type them from a screenshot.</p>
+
+<h2>Tips and tricks</h2>
+
+<ul>
+<li><p>Use templates. Have templates ready for every possible assessment type. Start with blank templates, don&#39;t reuse an already filled one for another client.</p></li>
+<li><p>Avoid formatting in your document if possible, especially if using MS Word. Style choices should be part of a template so if you want to change how headers look, they&#39;ll all be updated at once rather than having to edit them manually and waste our time. The same goes for table styles.</p></li>
+<li><p>Use page numbers so our client can quickly refer to specific parts of your report. Use a table of contents as well.</p></li>
+<li><p>Use reporting tools and a database of findings. Many clients will face the same problems and having to rewrite the same content for them will be a waste of time, although we should always customize the findings to our client&#39;s specific situation in the end.</p></li>
+<li><p>Our report should be a story, to make it relatable to the non-technical folks that will read it. We should show why it matters that we did what we did.</p></li>
+<li><p>Write as you perform the pentest. No need to be perfect during the assessment, but this will ensure we don&#39;t leave out anything in the final report.</p></li>
+<li><p>Stay organized and chronological in your notes.</p></li>
+<li><p>Aim for evidence completeness without being overly verbose.</p></li>
+<li><p>Clearly show and highlight important parts in screenshots.</p></li>
+<li><p>Redact tool output if it seems unprofessional, such as the <code>Pwn3d!</code> in crackmapexec output.</p></li>
+<li><p>Spell out acronyms when they&#39;re used for the first time in the report.</p></li>
+<li><p>Our report should go to a QA process, that is, proofreading by two reviewers besides ourselves. If we&#39;re on our own, we should at least sleep on it for a night before reviewing our report again.</p></li>
+</ul>
+
+<h2>Communicating with our client</h2>
+
+<p>Good written and verbal communication skills are paramount with our client. They are trusting us with their networks and as advisors, and we must remain in constant contact with them. We should set a start notification email at the start of every engagement, and a stop notification email at the end of each day. The latter can also be used to join a high-level summary of current findings, especially if the report is going to mention a lot of them, so our client doesn&#39;t get overwhelmed at the end of the assessment.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

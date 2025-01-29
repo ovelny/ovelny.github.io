@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/40-chapter-atomics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/40-chapter-atomics"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>40 Atomics</h1>
+
+<blockquote>
+<p><em>“They tried and failed, all of them?”</em><br><br>
+<em>“Oh, no.” She shook her head. “They tried and died.”</em></p>
+
+<p>—Paul Atreides and The Reverend Mother Gaius Helen Mohiam, <em>Dune</em></p>
+</blockquote>
+
+<p>This is one of the more challenging aspects of multithreading with C. But we’ll try to take it easy.</p>
+
+<p>Basically, I’ll talk about the more straightforward uses of atomic variables, what they are, and how they work, etc. And I’ll mention some of the more insanely-complex paths that are available to you.</p>
+
+<p>But I won’t go down those paths. Not only am I barely qualified to even write about them, but I figure if you know you need them, you already know more than I do.</p>
+
+<p>But there are some weird things out here even in the basics. So buckle your seatbelts, everyone, ‘cause Kansas is goin’ bye-bye.</p>
+
+<h2>40.1 Testing for Atomic Support</h2>
+
+<p>Atomics are an optional feature. There’s a macro <code>__STDC_NO_ATOMICS__</code> that’s <code>1</code> if you <em>don’t</em> have atomics.</p>
+
+<p>That macro might not exist pre-C11, so we should test the language version with <code>__STDC_VERSION__</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁷</a>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#if __STDC_VERSION__ &lt; 201112L || __STDC_NO_ATOMICS__ == 1
+#define HAS_ATOMICS 0
+#else
+#define HAS_ATOMICS 1
+#endif
+</span></code></pre></div>
+
+<p>If those tests pass, then you can safely include <code>&lt;stdatomic.h&gt;</code>, the header on which the rest of this chapter is based. But if there is no atomic support, that header might not even exist.</p>
+
+<p>On some systems, you might need to add <code>-latomic</code> to the end of your compilation command line to use any functions in the header file.</p>
+
+<h2>40.2 Atomic Variables</h2>
+
+<p>Here’s <em>part</em> of how atomic variables work:</p>
+
+<p>If you have a shared atomic variable and you write to it from one thread, that write will be <em>all-or-nothing</em> in a different thread.</p>
+
+<p>That is, the other thread will see the entire write of, say, a 32-bit value. Not half of it. There’s no way for one thread to interrupt another that is in the <em>middle</em> of an atomic multi-byte write.</p>
+
+<p>It’s almost like there’s a little lock around the getting and setting of that one variable. (And there <em>might</em> be! See <a href="chapter-atomics.html#lock-free-atomic" rel="nofollow">Lock-Free Atomic Variables</a>, below.)</p>
+
+<p>And on that note, you can get away with never using atomics if you use mutexes to lock your critical sections. It’s just that there are a class of <em>lock-free data structures</em> that always allow other threads to make progress instead of being blocked by a mutex… but these are tough to create correctly from scratch, and are one of the things that are beyond the scope of the guide, sadly.</p>
+
+<p>That’s only part of the story. But it’s the part we’ll start with.</p>
+
+<p>Before we go further, how do you declare a variable to be atomic?</p>
+
+<p>First, include <code>&lt;stdatomic.h&gt;</code>.</p>
+
+<p>This gives us types such as <code>atomic_int</code>.</p>
+
+<p>And then we can simply declare variables to be of that type.</p>
+
+<p>But let’s do a demo where we have two threads. The first runs for a while and then sets a variable to a specific value, then exits. The other runs until it sees that value get set, and then it exits.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="n">atomic_int</span> <span class="n">x</span><span class="p">;</span>   <span class="c1">// THE POWER OF ATOMICS! BWHAHAHA!</span>
+
+<span class="kt">int</span> <span class="nf">thread1</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread 1: Sleeping for 1.5 seconds</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">thrd_sleep</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="k">struct</span> <span class="n">timespec</span><span class="p">){.</span><span class="n">tv_sec</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="p">.</span><span class="n">tv_nsec</span><span class="o">=</span><span class="mi">500000000</span><span class="p">},</span> <span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread 1: Setting x to 3490</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread 1: Exiting</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">thread2</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread 2: Waiting for 3490</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">x</span> <span class="o">!=</span> <span class="mi">3490</span><span class="p">)</span> <span class="p">{}</span>  <span class="c1">// spin here</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread 2: Got 3490--exiting!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="n">thrd_t</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">;</span>
+
+    <span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t1</span><span class="p">,</span> <span class="n">thread1</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t2</span><span class="p">,</span> <span class="n">thread2</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="n">thrd_join</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">thrd_join</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Main    : Threads are done, so x better be 3490</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Main    : And indeed, x == %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The second thread spins in place, looking at the flag and waiting for it to get set to the value <code>3490</code>. And the first one does that.</p>
+
+<p>And I get this output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">Sleeping</span> <span class="k">for</span> <span class="mi">1</span><span class="p">.</span><span class="mi">5</span> <span class="n">seconds</span>
+<span class="n">Thread</span> <span class="mi">2</span><span class="o">:</span> <span class="n">Waiting</span> <span class="k">for</span> <span class="mi">3490</span>
+<span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">Setting</span> <span class="n">x</span> <span class="n">to</span> <span class="mi">3490</span>
+<span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">Exiting</span>
+<span class="n">Thread</span> <span class="mi">2</span><span class="o">:</span> <span class="n">Got</span> <span class="mi">3490</span><span class="o">--</span><span class="n">exiting</span><span class="o">!</span>
+<span class="n">Main</span>    <span class="o">:</span> <span class="n">Threads</span> <span class="n">are</span> <span class="n">done</span><span class="p">,</span> <span class="n">so</span> <span class="n">x</span> <span class="n">better</span> <span class="n">be</span> <span class="mi">3490</span>
+<span class="n">Main</span>    <span class="o">:</span> <span class="n">And</span> <span class="n">indeed</span><span class="p">,</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">3490</span>
+</code></pre></div>
+
+<p>Look, ma! We’re accessing a variable from different threads and not using a mutex! And that’ll work every time thanks to the atomic nature of atomic variables.</p>
+
+<p>You might be wondering what happens if that’s a regular non-atomic <code>int</code>, instead. Well, on my system it still works… unless I do an optimized build in which case it hangs on thread 2 waiting to see the 3490 to get set<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁸</a>.</p>
+
+<p>But that’s just the beginning of the story. The next part is going to require more brain power and has to do with something called <em>synchronization</em>.</p>
+
+<h2>40.3 Synchronization</h2>
+
+<p>The next part of our story is all about when certain memory writes in one thread become visible to those in another thread.</p>
+
+<p>You might think, it’s right away, right? But it’s not. A number of things can go wrong. Weirdly wrong.</p>
+
+<p>The compiler might have rearranged memory accesses so that when you think you set a value relative to another might not be true. And even if the compiler didn’t, your CPU might have done it on the fly. Or maybe there’s something else about this architecture that causes writes on one CPU to be delayed before they’re visible on another.</p>
+
+<p>The good news is that we can condense all these potential troubles into one: unsynchronized memory accesses can appear out of order depending on which thread is doing the observing, as if the lines of code themselves had been rearranged.</p>
+
+<p>By way of example, which happens first in the following code, the write to <code>x</code> or the write to <code>y</code>?</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>  <span class="c1">// global</span>
+
+<span class="c1">// ...</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="n">y</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Answer: we don’t know. The compiler or CPU could silently reverse lines 5 and 6 and we’d be none-the-wiser. The code would run single-threaded <em>as-if</em> it were executed in code order.</p>
+
+<p>In a multithreaded scenario, we might have something like this pseudocode:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="n">thread1</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">thread2</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">y</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{}</span>  <span class="c1">// spin</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"x is now %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="c1">// 2? ...or 0?</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>What is the output from thread 2?</p>
+
+<p>Well, if <code>x</code> gets assigned <code>2</code> <em>before</em> <code>y</code> is assigned <code>3</code>, then I’d expect the output to be the very sensible:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">x</span> <span class="n">is</span> <span class="n">now</span> <span class="mi">2</span> 
+</code></pre></div>
+
+<p>But something sneaky could rearrange lines 4 and 5 causing us to see the value of <code>0</code> for <code>x</code> when we print it.</p>
+
+<p>In other words, all bets are off unless we can somehow say, “As of this point, I expect all previous writes in another thread to be visible in this thread.”</p>
+
+<p>Two threads <em>synchronize</em> when they agree on the state of shared memory. As we’ve seen, they’re not always in agreement with the code. So how do they agree?</p>
+
+<p>Using atomic variables can force the agreement<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁹</a>. If a thread writes to an atomic variable, it’s saying “anyone who reads this atomic variable in the future will also see all the changes I made to memory (atomic or not) up to and including the atomic variable”.</p>
+
+<p>Or, in more human terms, let’s sit around the conference table and make sure we’re on the same page as to which pieces of shared memory hold what values. You agree that the memory changes that you’d made up-to-and-including the atomic store will be visible to me after I do a load of the same atomic variable.</p>
+
+<p>So we can easily fix our example:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">atomic</span> <span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>  <span class="c1">// Make y atomic</span>
+
+<span class="n">thread1</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>             <span class="c1">// Synchronize on write</span>
+<span class="p">}</span>
+
+<span class="n">thread2</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">y</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{}</span>  <span class="c1">// Synchronize on read</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"x is now %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="c1">// 2, period.</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Because the threads synchronize across <code>y</code>, all writes in thread 1 that happened <em>before</em> the write to <code>y</code> are visible in thread 2 <em>after</em> the read from <code>y</code> (in the <code>while</code> loop).</p>
+
+<p>It’s important to note a couple things here:</p>
+
+<ol>
+<li><p>Nothing sleeps. The synchronization is not a blocking operation. Both threads are running full bore until they exit. Even the one stuck in the spin loop isn’t blocking anyone else from running.</p></li>
+<li><p>The synchronization happens when one thread reads an atomic variable another thread wrote. So when thread 2 reads <code>y</code>, all previous memory writes in thread 1 (namely setting <code>x</code>) will be visible in thread 2.</p></li>
+<li><p>Notice that <code>x</code> isn’t atomic. That’s OK because we’re not synchronizing over <code>x</code>, and the synchronization over <code>y</code> when we write it in thread 1 means that all previous writes—including <code>x</code>—in thread 1 will become visible to other threads… if those other threads read <code>y</code> to synchronize.</p></li>
+</ol>
+
+<p>Forcing this synchronization is inefficient and can be a lot slower than just using a regular variable. This is why we don’t use atomics unless we have to for a particular application.</p>
+
+<p>So that’s the basics. Let’s look deeper.</p>
+
+<h2>40.4 Acquire and Release</h2>
+
+<p>More terminology! It’ll pay off to learn this now.</p>
+
+<p>When a thread reads an atomic variable, it is said to be an <em>acquire</em> operation.</p>
+
+<p>When a thread writes an atomic variable, it is said to be a <em>release</em> operation.</p>
+
+<p>What are these? Let’s line them up with terms you already know when it comes to atomic variables:</p>
+
+<p><strong>Read = Load = Acquire</strong>. Like when you compare an atomic variable or read it to copy it to another value.</p>
+
+<p><strong>Write = Store = Release</strong>. Like when you assign a value into an atomic variable.</p>
+
+<p>When using atomic variables with these acquire/release semantics, C spells out what can happen when.</p>
+
+<p>Acquire/release form the basis for the synchronization we just talked about.</p>
+
+<p>When a thread acquires an atomic variable, it can see values set in another thread that released that same variable.</p>
+
+<p>In other words:</p>
+
+<p>When a thread reads an atomic variable, it can see values set in another thread that wrote to that same variable.</p>
+
+<p>The synchronization happens across the acquire/release pair.</p>
+
+<p>More details:</p>
+
+<p>With read/load/acquire of a particular atomic variable:</p>
+
+<ul>
+<li><p>All writes (atomic or non-atomic) in another thread that happened before that other thread wrote/stored/released this atomic variable are now visible in this thread.</p></li>
+<li><p>The new value of the atomic variable set by the other thread is also visible in this thread.</p></li>
+<li><p>No reads or writes of any variables/memory in the current thread can be reordered to happen before this acquire.</p></li>
+<li><p>The acquire acts as a one-way barrier when it comes to code reordering; reads and writes in the current thread can be moved down from <em>before</em> the acquire to <em>after</em> it. But, more importantly for synchronization, nothing can move up from <em>after</em> the acquire to <em>before</em> it.</p></li>
+</ul>
+
+<p>With write/store/release of a particular atomic variable:</p>
+
+<ul>
+<li><p>All writes (atomic or non-atomic) in the current thread that happened before this release become visible to other threads that have read/loaded/acquired the same atomic variable.</p></li>
+<li><p>The value written to this atomic variable by this thread is also visible to other threads.</p></li>
+<li><p>No reads or writes of any variables/memory in the current thread can be reordered to happen after this release.</p></li>
+<li><p>The release acts as a one-way barrier when it comes to code reordering: reads and writes in the current thread can be moved up from <em>after</em> the release to <em>before</em> it. But, more importantly for synchronization, nothing can move down from <em>before</em> the release to <em>after</em> it.</p></li>
+</ul>
+
+<p>Again, the upshot is synchronization of memory from one thread to another. The second thread can be sure that variables and memory are written in the order the programmer intended.</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>int x, y, z = 0;
+atomic_int a = 0;
+
+thread1() {
+    x = 10;
+    y = 20;
+    a = 999;  // Release
+    z = 30;
+}
+
+thread2()
+{
+    while (a != 999) { } // Acquire
+
+    assert(x == 10);  // never asserts, x is always 10
+    assert(y == 20);  // never asserts, y is always 20
+
+    assert(z == 0);  // might assert!!
+}
+</code></pre></div>
+
+<p>In the above example, <code>thread2</code> can be sure of the values in <code>x</code> and <code>y</code> after it acquires <code>a</code> because they were set before <code>thread1</code> released the atomic <code>a</code>.</p>
+
+<p>But <code>thread2</code> can’t be sure of <code>z</code>’s value because it happened after the release. Maybe the assignment to <code>z</code> got moved before the assignment to <code>a</code>.</p>
+
+<p>An important note: releasing one atomic variable has no effect on acquires of different atomic variables. Each variable is isolated from the others.</p>
+
+<h2>40.5 Sequential Consistency</h2>
+
+<p>You hanging in there? We’re through the meat of the simpler usage of atomics. And since we’re not even going to talk about the more complex uses here, you can relax a bit.</p>
+
+<p><em>Sequential consistency</em> is what’s called a <em>memory ordering</em>. There are many memory orderings, but sequential consistency is the sanest<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁰</a> C has to offer. It is also the default. You have to go out of your way to use other memory orderings.</p>
+
+<p>All the stuff we’ve been talking about so far has happened within the realm of sequential consistency.</p>
+
+<p>We’ve talked about how the compiler or CPU can rearrange memory reads and writes in a single thread as long as it follows the <em>as-if</em> rule.</p>
+
+<p>And we’ve seen how we can put the brakes on this behavior by synchronizing over atomic variables.</p>
+
+<p>Let’s formalize just a little more.</p>
+
+<p>If operations are <em>sequentially consistent</em>, it means at the end of the day, when all is said and done, all the threads can kick up their feet, open their beverage of choice, and all agree on the order in which memory changes occurred during the run. And that order is the one specified by the code.</p>
+
+<p>One won’t say, “But didn’t <em>B</em> happen before <em>A</em>?” if the rest of them say, “<em>A</em> definitely happened before <em>B</em>”. They’re all friends, here.</p>
+
+<p>In particular, within a thread, none of the acquires and releases can be reordered with respect to one another. This is in addition to the rules about what other memory accesses can be reordered around them.</p>
+
+<p>This rule gives an additional level of sanity to the progression of atomic loads/acquires and stores/releases.</p>
+
+<p>Every other memory order in C involves a relaxation of the reordering rules, either for acquires/releases or other memory accesses, atomic or otherwise. You’d do that if you <em>really</em> knew what you were doing and needed the speed boost. <em>Here be armies of dragons…</em></p>
+
+<p>More on that later, but for now, let’s stick to the safe and practical.</p>
+
+<h2>40.6 Atomic Assignments and Operators</h2>
+
+<p>Certain operators on atomic variables are atomic. And others aren’t.</p>
+
+<p>Let’s start with a counter-example:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">atomic_int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="n">thread1</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">3</span><span class="p">;</span>  <span class="c1">// NOT atomic!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Since there’s a read of <code>x</code> on the right hand side of the assignment and a write effectively on the left, these are two operations. Another thread could sneak in the middle and make you unhappy.</p>
+
+<p>But you <em>can</em> use the shorthand <code>+=</code> to get an atomic operation:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">atomic_int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="n">thread1</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">x</span> <span class="o">+=</span> <span class="mi">3</span><span class="p">;</span>   <span class="c1">// ATOMIC!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>In that case, <code>x</code> will be atomically incremented by <code>3</code>—no other thread can jump in the middle.</p>
+
+<p>In particular, the following operators are atomic read-modify-write operations with sequential consistency, so use them with gleeful abandon. (In the example, <code>a</code> is atomic.)</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">a</span><span class="o">++</span>       <span class="n">a</span><span class="o">--</span>       <span class="o">--</span><span class="n">a</span>       <span class="o">++</span><span class="n">a</span>
+<span class="n">a</span> <span class="o">+=</span> <span class="n">b</span>    <span class="n">a</span> <span class="o">-=</span> <span class="n">b</span>    <span class="n">a</span> <span class="o">*=</span> <span class="n">b</span>    <span class="n">a</span> <span class="o">/=</span> <span class="n">b</span>    <span class="n">a</span> <span class="o">%=</span> <span class="n">b</span>
+<span class="n">a</span> <span class="o">&amp;=</span> <span class="n">b</span>    <span class="n">a</span> <span class="o">|=</span> <span class="n">b</span>    <span class="n">a</span> <span class="o">^=</span> <span class="n">b</span>    <span class="n">a</span> <span class="o">&gt;&gt;=</span> <span class="n">b</span>   <span class="n">a</span> <span class="o">&lt;&lt;=</span> <span class="n">b</span>
+</code></pre></div>
+
+<h2>40.7 Library Functions that Automatically Synchronize</h2>
+
+<p>So far we’ve talked about how you can synchronize with atomic variables, but it turns out there are a few library functions that do some limited behind-the-scenes synchronization, themselves.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">call_once</span><span class="p">()</span>      <span class="n">thrd_create</span><span class="p">()</span>       <span class="n">thrd_join</span><span class="p">()</span>
+<span class="n">mtx_lock</span><span class="p">()</span>       <span class="n">mtx_timedlock</span><span class="p">()</span>     <span class="n">mtx_trylock</span><span class="p">()</span>
+<span class="n">malloc</span><span class="p">()</span>         <span class="n">calloc</span><span class="p">()</span>            <span class="n">realloc</span><span class="p">()</span>
+<span class="n">aligned_alloc</span><span class="p">()</span>
+</code></pre></div>
+
+<p><strong><code>call_once()</code></strong>—Synchronizes with all subsequent calls to <code>call_once()</code> for a particular flag. This way subsequent calls can rest assured that if another thread sets the flag, they will see it.</p>
+
+<p><strong><code>thrd_create()</code></strong>—Synchronizes with the beginning of the new thread. The new thread can be sure it will see all shared memory writes from the parent thread from before the <code>thrd_create()</code> call.</p>
+
+<p><strong><code>thrd_join()</code></strong>—When a thread dies, it synchronizes with this function. The thread that has called <code>thrd_join()</code> can be assured that it can see all the late thread’s shared writes.</p>
+
+<p><strong><code>mtx_lock()</code></strong>—Earlier calls to <code>mtx_unlock()</code> on the same mutex synchronize on this call. This is the case that most mirrors the acquire/release process we’ve already talked about. <code>mtx_unlock()</code> performs a release on the mutex variable, assuring any subsequent thread that makes an acquire with <code>mtx_lock()</code> can see all the shared memory changes in the critical section.</p>
+
+<p><strong><code>mtx_timedlock()</code></strong> and <strong><code>mtx_trylock()</code></strong>—Similar to the situation with <code>mtx_lock()</code>, if this call succeeds, earlier calls to <code>mtx_unlock()</code> synchronize with this one.</p>
+
+<p><strong>Dynamic Memory Functions</strong>: if you allocate memory, it synchronizes with the previous deallocation of that same memory. And allocations and deallocations of that particular memory region happen in a single total order that all threads can agree upon. I <em>think</em> the idea here is that the deallocation can wipe the region if it chooses, and we want to be sure that a subsequent allocation doesn’t see the non-wiped data. Someone let me know if there’s more to it.</p>
+
+<h2>40.8 Atomic Type Specifier, Qualifier</h2>
+
+<p>Let’s take it down a notch and see what types we have available, and how we can even make new atomic types.</p>
+
+<p>First things first, let’s look at the built-in atomic types and what they are <code>typedef</code>’d to. (Spoiler: <code>_Atomic</code> is a type qualifier!)</p>
+
+<table><thead>
+<tr>
+<th>Atomic type</th>
+<th>Longhand equivalent</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>atomic_bool</code></td>
+<td><code>_Atomic _Bool</code></td>
+</tr>
+<tr>
+<td><code>atomic_char</code></td>
+<td><code>_Atomic char</code></td>
+</tr>
+<tr>
+<td><code>atomic_schar</code></td>
+<td><code>_Atomic signed char</code></td>
+</tr>
+<tr>
+<td><code>atomic_uchar</code></td>
+<td><code>_Atomic unsigned char</code></td>
+</tr>
+<tr>
+<td><code>atomic_short</code></td>
+<td><code>_Atomic short</code></td>
+</tr>
+<tr>
+<td><code>atomic_ushort</code></td>
+<td><code>_Atomic unsigned short</code></td>
+</tr>
+<tr>
+<td><code>atomic_int</code></td>
+<td><code>_Atomic int</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint</code></td>
+<td><code>_Atomic unsigned int</code></td>
+</tr>
+<tr>
+<td><code>atomic_long</code></td>
+<td><code>_Atomic long</code></td>
+</tr>
+<tr>
+<td><code>atomic_ulong</code></td>
+<td><code>_Atomic unsigned long</code></td>
+</tr>
+<tr>
+<td><code>atomic_llong</code></td>
+<td><code>_Atomic long long</code></td>
+</tr>
+<tr>
+<td><code>atomic_ullong</code></td>
+<td><code>_Atomic unsigned long long</code></td>
+</tr>
+<tr>
+<td><code>atomic_char16_t</code></td>
+<td><code>_Atomic char16_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_char32_t</code></td>
+<td><code>_Atomic char32_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_wchar_t</code></td>
+<td><code>_Atomic wchar_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_least8_t</code></td>
+<td><code>_Atomic int_least8_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_least8_t</code></td>
+<td><code>_Atomic uint_least8_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_least16_t</code></td>
+<td><code>_Atomic int_least16_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_least16_t</code></td>
+<td><code>_Atomic uint_least16_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_least32_t</code></td>
+<td><code>_Atomic int_least32_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_least32_t</code></td>
+<td><code>_Atomic uint_least32_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_least64_t</code></td>
+<td><code>_Atomic int_least64_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_least64_t</code></td>
+<td><code>_Atomic uint_least64_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_fast8_t</code></td>
+<td><code>_Atomic int_fast8_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_fast8_t</code></td>
+<td><code>_Atomic uint_fast8_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_fast16_t</code></td>
+<td><code>_Atomic int_fast16_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_fast16_t</code></td>
+<td><code>_Atomic uint_fast16_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_fast32_t</code></td>
+<td><code>_Atomic int_fast32_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_fast32_t</code></td>
+<td><code>_Atomic uint_fast32_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_int_fast64_t</code></td>
+<td><code>_Atomic int_fast64_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uint_fast64_t</code></td>
+<td><code>_Atomic uint_fast64_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_intptr_t</code></td>
+<td><code>_Atomic intptr_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uintptr_t</code></td>
+<td><code>_Atomic uintptr_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_size_t</code></td>
+<td><code>_Atomic size_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_ptrdiff_t</code></td>
+<td><code>_Atomic ptrdiff_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_intmax_t</code></td>
+<td><code>_Atomic intmax_t</code></td>
+</tr>
+<tr>
+<td><code>atomic_uintmax_t</code></td>
+<td><code>_Atomic uintmax_t</code></td>
+</tr>
+</tbody></table>
+
+<p>Use those at will! They’re consistent with the atomic aliases found in C++, if that helps.</p>
+
+<p>But what if you want more?</p>
+
+<p>You can do it either with a type qualifier or type specifier.</p>
+
+<p>First, specifier! It’s the keyword <code>_Atomic</code> with a type in parens after<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹¹</a>—suitable for use with <code>typedef</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">typedef</span> <span class="k">_Atomic</span><span class="p">(</span><span class="kt">double</span><span class="p">)</span> <span class="n">atomic_double</span><span class="p">;</span>
+
+<span class="n">atomic_double</span> <span class="n">f</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Restrictions on the specifier: the type you’re making atomic can’t be of type array or function, nor can it be atomic or otherwise qualified.</p>
+
+<p>Next, qualifier! It’s the keyword <code>_Atomic</code> <em>without</em> a type in parens.</p>
+
+<p>So these do similar things<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹²</a>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">_Atomic</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">i</span><span class="p">;</span>   <span class="c1">// type specifier</span>
+<span class="k">_Atomic</span> <span class="kt">int</span>  <span class="n">j</span><span class="p">;</span>   <span class="c1">// type qualifier</span>
+</code></pre></div>
+
+<p>The thing is, you can include other type qualifiers with the latter:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">_Atomic</span> <span class="k">volatile</span> <span class="kt">int</span> <span class="n">k</span><span class="p">;</span>   <span class="c1">// qualified atomic variable</span>
+</code></pre></div>
+
+<p>Restrictions on the qualifier: the type you’re making atomic can’t be of type array or function.</p>
+
+<h2>40.9 Lock-Free Atomic Variables</h2>
+
+<p>Hardware architectures are limited in the amount of data they can atomically read and write. It depends on how it’s wired together. And it varies.</p>
+
+<p>If you use an atomic type, you can be assured that accesses to that type will be atomic… but there’s a catch: if the hardware can’t do it, it’s done with a lock, instead.</p>
+
+<p>So the atomic access becomes lock-access-unlock, which is rather slower and has some implications for signal handlers.</p>
+
+<p><a href="chapter-atomics.html#atomic-flags" rel="nofollow">Atomic flags</a>, below, is the only atomic type that is guaranteed to be lock-free in all conforming implementations. In typical desktop/laptop computer world, other larger types are likely lock-free.</p>
+
+<p>Luckily, we have a couple ways to determine if a particular type is a lock-free atomic or not.</p>
+
+<p>First of all, some macros—you can use these at compile time with <code>#if</code>. They apply to both signed and unsigned types.</p>
+
+<table><thead>
+<tr>
+<th>Atomic Type</th>
+<th>Lock Free Macro</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>atomic_bool</code></td>
+<td><code>ATOMIC_BOOL_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_char</code></td>
+<td><code>ATOMIC_CHAR_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_char16_t</code></td>
+<td><code>ATOMIC_CHAR16_T_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_char32_t</code></td>
+<td><code>ATOMIC_CHAR32_T_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_wchar_t</code></td>
+<td><code>ATOMIC_WCHAR_T_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_short</code></td>
+<td><code>ATOMIC_SHORT_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_int</code></td>
+<td><code>ATOMIC_INT_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_long</code></td>
+<td><code>ATOMIC_LONG_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_llong</code></td>
+<td><code>ATOMIC_LLONG_LOCK_FREE</code></td>
+</tr>
+<tr>
+<td><code>atomic_intptr_t</code></td>
+<td><code>ATOMIC_POINTER_LOCK_FREE</code></td>
+</tr>
+</tbody></table>
+
+<p>These macros can interestingly have <em>three</em> different values:</p>
+
+<table><thead>
+<tr>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>0</code></td>
+<td>Never lock-free.</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><em>Sometimes</em> lock-free.</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>Always lock-free.</td>
+</tr>
+</tbody></table>
+
+<p>Wait—how can something be <em>sometimes</em> lock-free? This just means the answer isn’t known at compile-time, but could later be known at runtime. Maybe the answer varies depending on whether or not you’re running this code on Genuine Intel or AMD, or something like that<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹³</a>.</p>
+
+<p>But you can always test at runtime with the <code>atomic_is_lock_free()</code> function. This function returns true or false if the particular type is atomic right now.</p>
+
+<p>So why do we care?</p>
+
+<p>Lock-free is faster, so maybe there’s a speed concern that you’d code around another way. Or maybe you need to use an atomic variable in a signal handler.</p>
+
+<h3>40.9.1 Signal Handlers and Lock-Free Atomics</h3>
+
+<p>If you read or write a shared variable (static storage duration or <code>_Thread_Local</code>) in a signal handler, it’s undefined behavior [gasp!]… Unless you do one of the following:</p>
+
+<ol>
+<li><p>Write to a variable of type <code>volatile sig_atomic_t</code>.</p></li>
+<li><p>Read or write a lock-free atomic variable.</p></li>
+</ol>
+
+<p>As far as I can tell, lock-free atomic variables are one of the few ways you get portably get information out of a signal handler.</p>
+
+<p>The spec is a bit vague, in my read, about the memory order when it comes to acquiring or releasing atomic variables in the signal handler. C++ says, and it makes sense, that such accesses are unsequenced with respect to the rest of the program<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁴</a>. The signal can be raised, after all, at any time. So I’m assuming C’s behavior is similar.</p>
+
+<h2>40.10 Atomic Flags</h2>
+
+<p>There’s only one type the standard guarantees will be a lock-free atomic: <code>atomic_flag</code>. This is an opaque type for <a href="https://en.wikipedia.org/wiki/Test-and-set" rel="nofollow">test-and-set</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁵</a> operations.</p>
+
+<p>It can be either <em>set</em> or <em>clear</em>. You can initialize it to clear with:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">atomic_flag</span> <span class="n">f</span> <span class="o">=</span> <span class="n">ATOMIC_FLAG_INIT</span><span class="p">;</span>
+</code></pre></div>
+
+<p>You can set the flag atomically with <code>atomic_flag_test_and_set()</code>, which will set the flag and return its previous status as a <code>_Bool</code> (true for set).</p>
+
+<p>You can clear the flag atomically with <code>atomic_flag_clear()</code>.</p>
+
+<p>Here’s an example where we init the flag to clear, set it twice, then clear it again.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdbool.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="n">atomic_flag</span> <span class="n">f</span> <span class="o">=</span> <span class="n">ATOMIC_FLAG_INIT</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">bool</span> <span class="n">r</span> <span class="o">=</span> <span class="n">atomic_flag_test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Value was: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>           <span class="c1">// 0</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">atomic_flag_test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Value was: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>           <span class="c1">// 1</span>
+
+    <span class="n">atomic_flag_clear</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="p">);</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">atomic_flag_test_and_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">f</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Value was: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>           <span class="c1">// 0</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>40.11 Atomic <code>struct</code>s and <code>union</code>s</h2>
+
+<p>Using the <code>_Atomic</code> qualifier or specifier, you can make atomic <code>struct</code>s or <code>union</code>s! Pretty astounding.</p>
+
+<p>If there’s not a lot of data in there (i.e. a handful of bytes), the resulting atomic type might be lock-free. Test it with <code>atomic_is_lock_free()</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">point</span> <span class="p">{</span>
+        <span class="kt">float</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="k">_Atomic</span><span class="p">(</span><span class="k">struct</span> <span class="n">point</span><span class="p">)</span> <span class="n">p</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Is lock free: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">atomic_is_lock_free</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Here’s the catch: you can’t access fields of an atomic <code>struct</code> or <code>union</code>… so what’s the point? Well, you can atomically <em>copy</em> the entire <code>struct</code> into a non-atomic variable and then use it. You can atomically copy the other way, too.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdatomic.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">point</span> <span class="p">{</span>
+        <span class="kt">float</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="k">_Atomic</span><span class="p">(</span><span class="k">struct</span> <span class="n">point</span><span class="p">)</span> <span class="n">p</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">point</span> <span class="n">t</span><span class="p">;</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">point</span><span class="p">){</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">};</span>  <span class="c1">// Atomic copy</span>
+
+    <span class="c1">//printf("%f\n", p.x);  // Error</span>
+
+    <span class="n">t</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>   <span class="c1">// Atomic copy</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">t</span><span class="p">.</span><span class="n">x</span><span class="p">);</span>  <span class="c1">// OK!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>You can also declare a <code>struct</code> where individual fields are atomic. It is implementation defined if atomic types are allowed on bitfields.</p>
+
+<h2>40.12 Atomic Pointers</h2>
+
+<p>Just a note here about placement of <code>_Atomic</code> when it comes to pointers.</p>
+
+<p>First, pointers to atomics (i.e. the pointer value is not atomic, but the thing it points to is):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">_Atomic</span> <span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
+<span class="k">_Atomic</span> <span class="kt">int</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>  <span class="c1">// p is a pointer to an atomic int</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>  <span class="c1">// OK!</span>
+</code></pre></div>
+
+<p>Second, atomic pointers to non-atomic values (i.e. the pointer value itself is atomic, but the thing it points to is not):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
+<span class="kt">int</span> <span class="o">*</span> <span class="k">_Atomic</span> <span class="n">p</span><span class="p">;</span>  <span class="c1">// p is an atomic pointer to an int</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>  <span class="c1">// OK!</span>
+</code></pre></div>
+
+<p>Lastly, atomic pointers to atomic values (i.e. the pointer and the thing it points to are both atomic):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">_Atomic</span> <span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
+<span class="k">_Atomic</span> <span class="kt">int</span> <span class="o">*</span> <span class="k">_Atomic</span> <span class="n">p</span><span class="p">;</span>  <span class="c1">// p is an atomic pointer to an atomic int</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>  <span class="c1">// OK!</span>
+</code></pre></div>
+
+<h2>40.13 Memory Order</h2>
+
+<p>We’ve already talked about sequential consistency, which is the sensible one of the bunch. But there are a number of other ones:</p>
+
+<table><thead>
+<tr>
+<th><code>memory_order</code></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>memory_order_seq_cst</code></td>
+<td>Sequential Consistency</td>
+</tr>
+<tr>
+<td><code>memory_order_acq_rel</code></td>
+<td>Acquire/Release</td>
+</tr>
+<tr>
+<td><code>memory_order_release</code></td>
+<td>Release</td>
+</tr>
+<tr>
+<td><code>memory_order_acquire</code></td>
+<td>Acquire</td>
+</tr>
+<tr>
+<td><code>memory_order_consume</code></td>
+<td>Consume</td>
+</tr>
+<tr>
+<td><code>memory_order_relaxed</code></td>
+<td>Relaxed</td>
+</tr>
+</tbody></table>
+
+<p>You can specify other ones with certain library functions. For example, you can add a value to an atomic variable like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">atomic_int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="n">x</span> <span class="o">+=</span> <span class="mi">5</span><span class="p">;</span>  <span class="c1">// Sequential consistency, the default</span>
+</code></pre></div>
+
+<p>Or you can do the same with this library function:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">atomic_int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="n">atomic_fetch_add</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>  <span class="c1">// Sequential consistency, the default</span>
+</code></pre></div>
+
+<p>Or you can do the same thing with an explicit memory ordering:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">atomic_int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="n">atomic_fetch_add_explicit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">memory_order_seq_cst</span><span class="p">);</span>
+</code></pre></div>
+
+<p>But what if we didn’t want sequential consistency? And you wanted acquire/release instead for whatever reason? Just name it:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">atomic_int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="n">atomic_fetch_add_explicit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">memory_order_acq_rel</span><span class="p">);</span>
+</code></pre></div>
+
+<p>We’ll do a breakdown of the different memory orders, below. Don’t mess with anything other than sequential consistency unless you know what you’re doing. It’s really easy to make mistakes that will cause rare, hard-to-repro failures.</p>
+
+<h3>40.13.1 Sequential Consistency</h3>
+
+<ul>
+<li>  Load operations acquire (see below).</li>
+<li>  Store operations release (see below).</li>
+<li>  Read-modify-write operations acquire then release.</li>
+</ul>
+
+<p>Also, in order to maintain the total order of acquires and releases, no acquires or releases will be reordered with respect to each other. (The acquire/release rules do not forbid reordering a release followed by an acquire. But the sequentially consistent rules do.)</p>
+
+<h3>40.13.2 Acquire</h3>
+
+<p>This is what happens on a load/read operation on an atomic variable.</p>
+
+<ul>
+<li><p>If another thread released this atomic variable, all the writes that thread did are now visible in this thread.</p></li>
+<li><p>Memory accesses in this thread that happen after this load can’t be reordered before it.</p></li>
+</ul>
+
+<h3>40.13.3 Release</h3>
+
+<p>This is what happens on a store/write of an atomic variable.</p>
+
+<ul>
+<li><p>If another thread later acquires this atomic variable, all memory writes in this thread before its atomic write become visible to that other thread.</p></li>
+<li><p>Memory accesses in this thread that happen before the release can’t be reordered after it.</p></li>
+</ul>
+
+<h3>40.13.4 Consume</h3>
+
+<p>This is an odd one, similar to a less-strict version of acquire. It affects memory accesses that are <em>data dependent</em> on the atomic variable.</p>
+
+<p>Being “data dependent” vaguely means that the atomic variable is used in a calculation.</p>
+
+<p>That is, if a thread consumes an atomic variable then all the operations in that thread that go on to use that atomic variable will be able to see the memory writes in the releasing thread.</p>
+
+<p>Compare to acquire where memory writes in the releasing thread will be visible to <em>all</em> operations in the current thread, not just the data-dependent ones.</p>
+
+<p>Also like acquire, there is a restriction on which operations can be reordered <em>before</em> the consume. With acquire, you couldn’t reorder anything before it. With consume, you can’t reorder anything that depends on the loaded atomic value before it.</p>
+
+<h3>40.13.5 Acquire/Release</h3>
+
+<p>This only applies to read-modify-write operations. It’s an acquire and release bundled into one.</p>
+
+<ul>
+<li>  An acquire happens for the read.</li>
+<li>  A release happens for the write.</li>
+</ul>
+
+<h3>40.13.6 Relaxed</h3>
+
+<p>No rules; it’s anarchy! Everyone can reorder everything everywhere! Dogs and cats living together—mass hysteria!</p>
+
+<p>Actually, there is a rule. Atomic reads and writes are still all-or-nothing. But the operations can be reordered whimsically and there is zero synchronization between threads.</p>
+
+<p>There are a few use cases for this memory order, which you can find with a tiny bit of searching, e.g. simple counters.</p>
+
+<p>And you can use a fence to force synchronization after a bunch of relaxed writes.</p>
+
+<h2>40.14 Fences</h2>
+
+<p>You know how the releases and acquires of atomic variables occur as you read and write them?</p>
+
+<p>Well, it’s possible to do a release or acquire <em>without</em> an atomic variable, as well.</p>
+
+<p>This is called a <em>fence</em>. So if you want all the writes in a thread to be visible elsewhere, you can put up a release fence in one thread and an acquire fence in another, just like with how atomic variables work.</p>
+
+<p>Since a consume operation doesn’t really make sense on a fence<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁶</a>, <code>memory_order_consume</code> is treated as an acquire.</p>
+
+<p>You can put up a fence with any specified order:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">atomic_thread_fence</span><span class="p">(</span><span class="n">memory_order_release</span><span class="p">);</span>
+</code></pre></div>
+
+<p>There’s also a light version of a fence for use with signal handlers, called <code>atomic_signal_fence()</code>.</p>
+
+<p>It works just the same way as <code>atomic_thread_fence()</code>, except:</p>
+
+<ul>
+<li><p>It only deals with visibility of values within the same thread; there is no synchronization with other threads.</p></li>
+<li><p>No hardware fence instructions are emitted.</p></li>
+</ul>
+
+<p>If you want to be sure the side effects of non-atomic operations (and relaxed atomic operations) are visible in the signal handler, you can use this fence.</p>
+
+<p>The idea is that the signal handler is executing in <em>this</em> thread, not another, so this is a lighter-weight way of making sure changes outside the signal handler are visible within it (i.e. they haven’t been reordered).</p>
+
+<h2>40.15 References</h2>
+
+<p>If you want to learn more about this stuff, here are some of the things that helped me plow through it:</p>
+
+<ul>
+<li><p>Herb Sutter’s <em><code>atomic&lt;&gt;</code> Weapons</em> talk:</p>
+
+<ul>
+<li>  <a href="https://www.youtube.com/watch?v=A8eCGOqgvH4" rel="nofollow">Part 1</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁷</a></li>
+<li>  <a href="https://www.youtube.com/watch?v=KeLBd2EJLOU" rel="nofollow">part 2</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁸</a></li>
+</ul></li>
+<li><p><a href="https://preshing.com/archives/" rel="nofollow">Jeff Preshing’s materials</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²¹⁹</a>, in particular:</p>
+
+<ul>
+<li>  <a href="https://preshing.com/20120612/an-introduction-to-lock-free-programming/" rel="nofollow">An Introduction to Lock-Free Programming</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁰</a></li>
+<li>  <a href="https://preshing.com/20120913/acquire-and-release-semantics/" rel="nofollow">Acquire and Release Semantics</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²¹</a></li>
+<li>  <a href="https://preshing.com/20130702/the-happens-before-relation/" rel="nofollow">The <em>Happens-Before</em> Relation</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²²</a></li>
+<li>  <a href="https://preshing.com/20130823/the-synchronizes-with-relation/" rel="nofollow">The <em>Synchronizes-With</em> Relation</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²³</a></li>
+<li>  <a href="https://preshing.com/20140709/the-purpose-of-memory_order_consume-in-cpp11/" rel="nofollow">The Purpose of <code>memory_order_consume</code> in C++11</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁴</a></li>
+<li>  <a href="https://preshing.com/20150402/you-can-do-any-kind-of-atomic-read-modify-write-operation/" rel="nofollow">You Can Do Any Kind of Atomic Read-Modify-Write Operation</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁵</a></li>
+</ul></li>
+<li><p>CPPReference:</p>
+
+<ul>
+<li>  <a href="https://en.cppreference.com/w/c/atomic/memory_order" rel="nofollow">Memory Order</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁶</a></li>
+<li>  <a href="https://en.cppreference.com/w/c/language/atomic" rel="nofollow">Atomic Types</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁷</a></li>
+</ul></li>
+<li><p>Bruce Dawson’s <a href="https://docs.microsoft.com/en-us/windows/win32/dxtecharts/lockless-programming" rel="nofollow">Lockless Programming Considerations</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁸</a></p></li>
+<li><p>The helpful and knowledgeable folks on <a href="https://www.reddit.com/r/C_Programming/" rel="nofollow">r/C_Programming</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²²⁹</a></p></li>
+</ul>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

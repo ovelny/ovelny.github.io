@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/12-locale</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/12-locale"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>12 <code>&lt;locale.h&gt;</code> locale handling</h1>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="locale.html#man-setlocale" rel="nofollow"><code>setlocale()</code></a></td>
+<td>Set the locale</td>
+</tr>
+<tr>
+<td><a href="locale.html#man-localeconv" rel="nofollow"><code>localeconv()</code></a></td>
+<td>Get information about the current locale</td>
+</tr>
+</tbody></table>
+
+<p>The “locale” is the details of how the program should run given its physical location on the planet.</p>
+
+<p>For example, in one locale, a unit of money might be printed as <code>$123</code>, and in another <code>€123</code>.</p>
+
+<p>Or one locale might use ASCII encoding and another UTF-8 encoding.</p>
+
+<p>By default, the program runs in the “C” locale. It has a basic set of characters with a single-byte encoding. If you try to print UTF-8 characters in the C locale, nothing will print. You have to switch to a proper locale.</p>
+
+<p><hr></p>
+
+<h2>12.1 <code>setlocale()</code></h2>
+
+<p>Set the locale</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">setlocale</span><span class="p">(</span><span class="kt">int</span> <span class="n">category</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">locale</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Sets the <code>locale</code> for the given <code>category</code>.</p>
+
+<p>Category is one of the following:</p>
+
+<table><thead>
+<tr>
+<th>Category</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>LC_ALL</code></td>
+<td>All of the following categories</td>
+</tr>
+<tr>
+<td><code>LC_COLLATE</code></td>
+<td>Affects the <a href="stringref.html#man-strcoll" rel="nofollow"><code>strcoll()</code></a> and <a href="stringref.html#man-strxfrm" rel="nofollow"><code>strxfrm()</code></a> functions</td>
+</tr>
+<tr>
+<td><code>LC_CTYPE</code></td>
+<td>Affects the functions in <a href="ctype.html#ctype" rel="nofollow"><code>&lt;ctype.h&gt;</code></a></td>
+</tr>
+<tr>
+<td><code>LC_MONETARY</code></td>
+<td>Affects the monetary information returned from <a href="locale.html#man-localeconv" rel="nofollow"><code>localeconv()</code></a></td>
+</tr>
+<tr>
+<td><code>LC_NUMERIC</code></td>
+<td>Affects the decimal point for formatted I/O and formatted string functions, and the monetary information returned from <a href="locale.html#man-localeconv" rel="nofollow"><code>localeconv()</code></a></td>
+</tr>
+<tr>
+<td><code>LC_TIME</code></td>
+<td>Affects the <a href="time.html#man-strftime" rel="nofollow"><code>strftime()</code></a> and <a href="wchar.html#man-wcsftime" rel="nofollow"><code>wcsftime()</code></a> functions</td>
+</tr>
+</tbody></table>
+
+<p>And there are three portable things you can pass in for <code>locale</code>; any other string passed in is implementation-defined and non-portable.</p>
+
+<table><thead>
+<tr>
+<th>Locale</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>&quot;C&quot;</code></td>
+<td>Set the program to the C locale</td>
+</tr>
+<tr>
+<td><code>&quot;&quot;</code></td>
+<td>(Empty string) Set the program to the native locale of this system</td>
+</tr>
+<tr>
+<td><code>NULL</code></td>
+<td>Change nothing; just return the current locale</td>
+</tr>
+<tr>
+<td>Other</td>
+<td>Set the program to an implementation-defined locale</td>
+</tr>
+</tbody></table>
+
+<p>The most common call, I’d wager, is this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// Set all locale settings to the local, native locale</span>
+
+<span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Handily, <code>setlocale()</code> returns the locale that was just set, so you could see what the actual locale is on your system.</p>
+
+<h3>Return Value</h3>
+
+<p>On success, returns a pointer to the string representing the current locale. You may not modify this string, and it might be changed by subsequent calls to <code>setlocale()</code>.</p>
+
+<p>On failure, returns <code>NULL</code>.</p>
+
+<h3>Example</h3>
+
+<p>Here we get the current locale. Then we set it to the native locale, and print out what that is.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">loc</span><span class="p">;</span>
+
+    <span class="c1">// Get the current locale</span>
+    <span class="n">loc</span> <span class="o">=</span> <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Starting locale: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">loc</span><span class="p">);</span>
+
+    <span class="c1">// Set (and get) the locale to native locale</span>
+    <span class="n">loc</span> <span class="o">=</span> <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Native locale: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">loc</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Starting</span> <span class="n">locale</span><span class="o">:</span> <span class="n">C</span>
+<span class="n">Native</span> <span class="n">locale</span><span class="o">:</span> <span class="n">en_US</span><span class="p">.</span><span class="n">UTF</span><span class="o">-</span><span class="mi">8</span>
+</code></pre></div>
+
+<p>Note that my native locale (on a Linux box) might be different from what you see.</p>
+
+<p>Nevertheless, I can explicitly set it on my system without a problem, or to any other locale I have installed:</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="n">loc</span> <span class="o">=</span> <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">"en_US.UTF-8"</span><span class="p">);</span>   <span class="c1">// Non-portable</span>
+</code></pre></div>
+
+<p>But again, your system might have different locales defined.</p>
+
+<h3>See Also</h3>
+
+<p><a href="locale.html#man-localeconv" rel="nofollow"><code>localeconv()</code></a>, <a href="stringref.html#man-strcoll" rel="nofollow"><code>strcoll()</code></a>, <a href="stringref.html#man-strxfrm" rel="nofollow"><code>strxfrm()</code></a>, <a href="time.html#man-strftime" rel="nofollow"><code>strftime()</code></a>, <a href="wchar.html#man-wcsftime" rel="nofollow"><code>wcsftime()</code></a>, <a href="stdio.html#man-printf" rel="nofollow"><code>printf()</code></a>, <a href="stdio.html#man-scanf" rel="nofollow"><code>scanf()</code></a>, <a href="ctype.html#ctype" rel="nofollow"><code>&lt;ctype.h&gt;</code></a></p>
+
+<p><hr></p>
+
+<h2>12.2 <code>localeconv()</code></h2>
+
+<p>Get information about the current locale</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="cp">
+</span>
+<span class="k">struct</span> <span class="n">lconv</span> <span class="o">*</span><span class="nf">localeconv</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This function just returns a pointer to a <code>struct lconv</code>, but is still a bit of a powerhouse.</p>
+
+<p>The returned structure contains <em>tons</em> of information about the locale. Here are the fields of <code>struct lconv</code> and their meanings.</p>
+
+<p>First, some conventions. In the field names, below, a <code>_p_</code> means “positive”, and <code>_n_</code> means “negative”, and <code>int_</code> means “international”. Though a lot of these are type <code>char</code> or <code>char*</code>, most (or the strings they point to) are actually treated as integers<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²¹</a>.</p>
+
+<p>Before we go further, know that <code>CHAR_MAX</code> (from <code>&lt;limits.h&gt;</code>) is the maximum value that can be held in a <code>char</code>. And that many of the following <code>char</code> values use that to indicate the value isn’t available in the given locale.</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>char *mon_decimal_point</code></td>
+<td>Decimal pointer character for money, e.g. <code>&quot;.&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>char *mon_thousands_sep</code></td>
+<td>Thousands separator character for money, e.g. <code>&quot;,&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>char *mon_grouping</code></td>
+<td>Grouping description for money (see below).</td>
+</tr>
+<tr>
+<td><code>char *positive_sign</code></td>
+<td>Positive sign for money, e.g. <code>&quot;+&quot;</code> or <code>&quot;&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>char *negative_sign</code></td>
+<td>Negative sign for money, e.g. <code>&quot;-&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>char *currency_symbol</code></td>
+<td>Currency symbol, e.g. <code>&quot;$&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>char frac_digits</code></td>
+<td>When printing monetary amounts, how many digits to print past the decimal point, e.g. <code>2</code>.</td>
+</tr>
+<tr>
+<td><code>char p_cs_precedes</code></td>
+<td><code>1</code> if the <code>currency_symbol</code> comes before the value for a non-negative monetary amount, <code>0</code> if after.</td>
+</tr>
+<tr>
+<td><code>char n_cs_precedes</code></td>
+<td><code>1</code> if the <code>currency_symbol</code> comes before the value for a negative monetary amount, <code>0</code> if after.</td>
+</tr>
+<tr>
+<td><code>char p_sep_by_space</code></td>
+<td>Determines the separation of the <code>currency symbol</code> from the value for non-negative amounts (see below).</td>
+</tr>
+<tr>
+<td><code>char n_sep_by_space</code></td>
+<td>Determines the separation of the <code>currency symbol</code> from the value for negative amounts (see below).</td>
+</tr>
+<tr>
+<td><code>char p_sign_posn</code></td>
+<td>Determines the <code>positive_sign</code> position for non-negative values.</td>
+</tr>
+<tr>
+<td><code>char p_sign_posn</code></td>
+<td>Determines the <code>positive_sign</code> position for negative values.</td>
+</tr>
+<tr>
+<td><code>char *int_curr_symbol</code></td>
+<td>International currency symbol, e.g. <code>&quot;USD &quot;</code>.</td>
+</tr>
+<tr>
+<td><code>char int_frac_digits</code></td>
+<td>International value for <code>frac_digits</code>.</td>
+</tr>
+<tr>
+<td><code>char int_p_cs_precedes</code></td>
+<td>International value for <code>p_cs_precedes</code>.</td>
+</tr>
+<tr>
+<td><code>char int_n_cs_precedes</code></td>
+<td>International value for <code>n_cs_precedes</code>.</td>
+</tr>
+<tr>
+<td><code>char int_p_sep_by_space</code></td>
+<td>International value for <code>p_sep_by_space</code>.</td>
+</tr>
+<tr>
+<td><code>char int_n_sep_by_space</code></td>
+<td>International value for <code>n_sep_by_space</code>.</td>
+</tr>
+<tr>
+<td><code>char int_p_sign_posn</code></td>
+<td>International value for <code>p_sign_posn</code>.</td>
+</tr>
+<tr>
+<td><code>char int_n_sign_posn</code></td>
+<td>International value for <code>n_sign_posn</code>.</td>
+</tr>
+</tbody></table>
+
+<p>Even though many of these have <code>char</code> type, the value stored within is meant to be accessed as an integer.</p>
+
+<p>All the <code>sep_by_space</code> variants deal with spacing around the currency sign. Valid values are:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>0</code></td>
+<td>No space between currency symbol and value.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>1</code></td>
+<td>Separate the currency symbol (and sign, if any) from the value with a space.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>2</code></td>
+<td>Separate the sign symbol from the currency symbol (if adjacent) with a space, otherwise separate the sign symbol from the value with a space.</td>
+</tr>
+</tbody></table>
+
+<p>The <code>sign_posn</code> variants are determined by the following values:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>0</code></td>
+<td>Put parens around the value and the currency symbol.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>1</code></td>
+<td>Put the sign string in front of the currency symbol and value.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>2</code></td>
+<td>Put the sign string after the currency symbol and value.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>3</code></td>
+<td>Put the sign string directly in front of the currency symbol.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>4</code></td>
+<td>Put the sign string directly behind the currency symbol.</td>
+</tr>
+</tbody></table>
+
+<h3>Return Value</h3>
+
+<p>Returns a pointer to the structure containing the locale information.</p>
+
+<p>The program may not modify this structure.</p>
+
+<p>Subsequent calls to <code>localeconv()</code> may overwrite this structure, as might calls to <code>setlocale()</code> with <code>LC_ALL</code>, <code>LC_MONETARY</code>, or <code>LC_NUMERIC</code>.</p>
+
+<h3>Example</h3>
+
+<p>Here’s a program to print the locale information for the native locale.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;limits.h&gt;</span><span class="c1">  // for CHAR_MAX</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">print_grouping</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">mg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">done</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">done</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">mg</span> <span class="o">==</span> <span class="n">CHAR_MAX</span><span class="p">)</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"CHAR_MAX "</span><span class="p">);</span>
+        <span class="k">else</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"%c "</span><span class="p">,</span> <span class="o">*</span><span class="n">mg</span> <span class="o">+</span> <span class="sc">'0'</span><span class="p">);</span>
+        <span class="n">done</span> <span class="o">=</span> <span class="o">*</span><span class="n">mg</span> <span class="o">==</span> <span class="n">CHAR_MAX</span> <span class="o">||</span> <span class="o">*</span><span class="n">mg</span> <span class="o">==</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="n">mg</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="k">struct</span> <span class="n">lconv</span> <span class="o">*</span><span class="n">lc</span> <span class="o">=</span> <span class="n">localeconv</span><span class="p">();</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"mon_decimal_point : %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">mon_decimal_point</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"mon_thousands_sep : %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">mon_thousands_sep</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"mon_grouping      : "</span><span class="p">);</span>
+    <span class="n">print_grouping</span><span class="p">(</span><span class="n">lc</span><span class="o">-&gt;</span><span class="n">mon_grouping</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"positive_sign     : %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">positive_sign</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"negative_sign     : %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">negative_sign</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"currency_symbol   : %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">currency_symbol</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"frac_digits       : %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">frac_digits</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"p_cs_precedes     : %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">p_cs_precedes</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"n_cs_precedes     : %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">n_cs_precedes</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"p_sep_by_space    : %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">p_sep_by_space</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"n_sep_by_space    : %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">n_sep_by_space</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"p_sign_posn       : %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">p_sign_posn</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"p_sign_posn       : %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">p_sign_posn</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"int_curr_symbol   : %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">int_curr_symbol</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"int_frac_digits   : %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">int_frac_digits</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"int_p_cs_precedes : %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">int_p_cs_precedes</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"int_n_cs_precedes : %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">int_n_cs_precedes</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"int_p_sep_by_space: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">int_p_sep_by_space</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"int_n_sep_by_space: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">int_n_sep_by_space</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"int_p_sign_posn   : %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">int_p_sign_posn</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"int_n_sign_posn   : %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">int_n_sign_posn</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">mon_decimal_point</span> <span class="o">:</span> <span class="p">.</span>
+<span class="n">mon_thousands_sep</span> <span class="o">:</span> <span class="p">,</span>
+<span class="n">mon_grouping</span>      <span class="o">:</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">0</span> 
+<span class="n">positive_sign</span>     <span class="o">:</span> 
+<span class="n">negative_sign</span>     <span class="o">:</span> <span class="o">-</span>
+<span class="n">currency_symbol</span>   <span class="o">:</span> <span class="err">$</span>
+<span class="n">frac_digits</span>       <span class="o">:</span> <span class="mi">2</span>
+<span class="n">p_cs_precedes</span>     <span class="o">:</span> <span class="mi">1</span>
+<span class="n">n_cs_precedes</span>     <span class="o">:</span> <span class="mi">1</span>
+<span class="n">p_sep_by_space</span>    <span class="o">:</span> <span class="mi">0</span>
+<span class="n">n_sep_by_space</span>    <span class="o">:</span> <span class="mi">0</span>
+<span class="n">p_sign_posn</span>       <span class="o">:</span> <span class="mi">1</span>
+<span class="n">p_sign_posn</span>       <span class="o">:</span> <span class="mi">1</span>
+<span class="n">int_curr_symbol</span>   <span class="o">:</span> <span class="n">USD</span> 
+<span class="n">int_frac_digits</span>   <span class="o">:</span> <span class="mi">2</span>
+<span class="n">int_p_cs_precedes</span> <span class="o">:</span> <span class="mi">1</span>
+<span class="n">int_n_cs_precedes</span> <span class="o">:</span> <span class="mi">1</span>
+<span class="n">int_p_sep_by_space</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">int_n_sep_by_space</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">int_p_sign_posn</span>   <span class="o">:</span> <span class="mi">1</span>
+<span class="n">int_n_sign_posn</span>   <span class="o">:</span> <span class="mi">1</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="locale.html#man-setlocale" rel="nofollow"><code>setlocale()</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

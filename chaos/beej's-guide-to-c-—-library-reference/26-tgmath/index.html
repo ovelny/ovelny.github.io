@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/26-tgmath</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/26-tgmath"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>26 <code>&lt;tgmath.h&gt;</code> Type-Generic Math Functions</h1>
+
+<p>These are type-generic macros that are wrappers around the math functions in <a href="math.html#math" rel="nofollow"><code>&lt;math.h&gt;</code></a> and <a href="complex.html#complex" rel="nofollow"><code>&lt;complex.h&gt;</code></a>. This header includes both of those.</p>
+
+<p>But on the surface, you can think of them as being able to use, say, the <code>sqrt()</code> function with any type without needed to think about if it’s <code>double</code> or <code>long double</code> or even <code>complex</code>.</p>
+
+<p>These are the defined macros—some of them don’t have a counterpart in the real or complex space. Type suffixes are omitted in the table on the Real and Complex columns. None of the generic macros have type suffixes.</p>
+
+<table><thead>
+<tr>
+<th>Real Function</th>
+<th>Complex Function</th>
+<th>Generic Macro</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>acos</code></td>
+<td><code>cacos</code></td>
+<td><code>acos</code></td>
+</tr>
+<tr>
+<td><code>asin</code></td>
+<td><code>casin</code></td>
+<td><code>asin</code></td>
+</tr>
+<tr>
+<td><code>atan</code></td>
+<td><code>catan</code></td>
+<td><code>atan</code></td>
+</tr>
+<tr>
+<td><code>acosh</code></td>
+<td><code>cacosh</code></td>
+<td><code>acosh</code></td>
+</tr>
+<tr>
+<td><code>asinh</code></td>
+<td><code>casinh</code></td>
+<td><code>asinh</code></td>
+</tr>
+<tr>
+<td><code>atanh</code></td>
+<td><code>catanh</code></td>
+<td><code>atanh</code></td>
+</tr>
+<tr>
+<td><code>cos</code></td>
+<td><code>ccos</code></td>
+<td><code>cos</code></td>
+</tr>
+<tr>
+<td><code>sin</code></td>
+<td><code>csin</code></td>
+<td><code>sin</code></td>
+</tr>
+<tr>
+<td><code>tan</code></td>
+<td><code>ctan</code></td>
+<td><code>tan</code></td>
+</tr>
+<tr>
+<td><code>cosh</code></td>
+<td><code>ccosh</code></td>
+<td><code>cosh</code></td>
+</tr>
+<tr>
+<td><code>sinh</code></td>
+<td><code>csinh</code></td>
+<td><code>sinh</code></td>
+</tr>
+<tr>
+<td><code>tanh</code></td>
+<td><code>ctanh</code></td>
+<td><code>tanh</code></td>
+</tr>
+<tr>
+<td><code>exp</code></td>
+<td><code>cexp</code></td>
+<td><code>exp</code></td>
+</tr>
+<tr>
+<td><code>log</code></td>
+<td><code>clog</code></td>
+<td><code>log</code></td>
+</tr>
+<tr>
+<td><code>pow</code></td>
+<td><code>cpow</code></td>
+<td><code>pow</code></td>
+</tr>
+<tr>
+<td><code>sqrt</code></td>
+<td><code>csqrt</code></td>
+<td><code>sqrt</code></td>
+</tr>
+<tr>
+<td><code>fabs</code></td>
+<td><code>cabs</code></td>
+<td><code>fabs</code></td>
+</tr>
+<tr>
+<td><code>atan2</code></td>
+<td>—</td>
+<td><code>atan2</code></td>
+</tr>
+<tr>
+<td><code>fdim</code></td>
+<td>—</td>
+<td><code>fdim</code></td>
+</tr>
+<tr>
+<td><code>cbrt</code></td>
+<td>—</td>
+<td><code>cbrt</code></td>
+</tr>
+<tr>
+<td><code>floor</code></td>
+<td>—</td>
+<td><code>floor</code></td>
+</tr>
+<tr>
+<td><code>ceil</code></td>
+<td>—</td>
+<td><code>ceil</code></td>
+</tr>
+<tr>
+<td><code>fma</code></td>
+<td>—</td>
+<td><code>fma</code></td>
+</tr>
+<tr>
+<td><code>copysign</code></td>
+<td>—</td>
+<td><code>copysign</code></td>
+</tr>
+<tr>
+<td><code>fmax</code></td>
+<td>—</td>
+<td><code>fmax</code></td>
+</tr>
+<tr>
+<td><code>erf</code></td>
+<td>—</td>
+<td><code>erf</code></td>
+</tr>
+<tr>
+<td><code>fmin</code></td>
+<td>—</td>
+<td><code>fmin</code></td>
+</tr>
+<tr>
+<td><code>erfc</code></td>
+<td>—</td>
+<td><code>erfc</code></td>
+</tr>
+<tr>
+<td><code>fmod</code></td>
+<td>—</td>
+<td><code>fmod</code></td>
+</tr>
+<tr>
+<td><code>exp2</code></td>
+<td>—</td>
+<td><code>exp2</code></td>
+</tr>
+<tr>
+<td><code>frexp</code></td>
+<td>—</td>
+<td><code>frexp</code></td>
+</tr>
+<tr>
+<td><code>expm1</code></td>
+<td>—</td>
+<td><code>expm1</code></td>
+</tr>
+<tr>
+<td><code>hypot</code></td>
+<td>—</td>
+<td><code>hypot</code></td>
+</tr>
+<tr>
+<td><code>ilogb</code></td>
+<td>—</td>
+<td><code>ilogb</code></td>
+</tr>
+<tr>
+<td><code>ldexp</code></td>
+<td>—</td>
+<td><code>ldexp</code></td>
+</tr>
+<tr>
+<td><code>lgamma</code></td>
+<td>—</td>
+<td><code>lgamma</code></td>
+</tr>
+<tr>
+<td><code>llrint</code></td>
+<td>—</td>
+<td><code>llrint</code></td>
+</tr>
+<tr>
+<td><code>llround</code></td>
+<td>—</td>
+<td><code>llround</code></td>
+</tr>
+<tr>
+<td><code>log10</code></td>
+<td>—</td>
+<td><code>log10</code></td>
+</tr>
+<tr>
+<td><code>log1p</code></td>
+<td>—</td>
+<td><code>log1p</code></td>
+</tr>
+<tr>
+<td><code>log2</code></td>
+<td>—</td>
+<td><code>log2</code></td>
+</tr>
+<tr>
+<td><code>logb</code></td>
+<td>—</td>
+<td><code>logb</code></td>
+</tr>
+<tr>
+<td><code>lrint</code></td>
+<td>—</td>
+<td><code>lrint</code></td>
+</tr>
+<tr>
+<td><code>lround</code></td>
+<td>—</td>
+<td><code>lround</code></td>
+</tr>
+<tr>
+<td><code>nearbyint</code></td>
+<td>—</td>
+<td><code>nearbyint</code></td>
+</tr>
+<tr>
+<td><code>nextafter</code></td>
+<td>—</td>
+<td><code>nextafter</code></td>
+</tr>
+<tr>
+<td><code>nexttoward</code></td>
+<td>—</td>
+<td><code>nexttoward</code></td>
+</tr>
+<tr>
+<td><code>remainder</code></td>
+<td>—</td>
+<td><code>remainder</code></td>
+</tr>
+<tr>
+<td><code>remquo</code></td>
+<td>—</td>
+<td><code>remquo</code></td>
+</tr>
+<tr>
+<td><code>rint</code></td>
+<td>—</td>
+<td><code>rint</code></td>
+</tr>
+<tr>
+<td><code>round</code></td>
+<td>—</td>
+<td><code>round</code></td>
+</tr>
+<tr>
+<td><code>scalbn</code></td>
+<td>—</td>
+<td><code>scalbn</code></td>
+</tr>
+<tr>
+<td><code>scalbln</code></td>
+<td>—</td>
+<td><code>scalbln</code></td>
+</tr>
+<tr>
+<td><code>tgamma</code></td>
+<td>—</td>
+<td><code>tgamma</code></td>
+</tr>
+<tr>
+<td><code>trunc</code></td>
+<td>—</td>
+<td><code>trunc</code></td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>carg</code></td>
+<td><code>carg</code></td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>cimag</code></td>
+<td><code>cimag</code></td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>conj</code></td>
+<td><code>conj</code></td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>cproj</code></td>
+<td><code>cproj</code></td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>creal</code></td>
+<td><code>creal</code></td>
+</tr>
+</tbody></table>
+
+<h2>26.1 Example</h2>
+
+<p>Here’s an example where we call the type-generic <code>sqrt()</code> function on a variety of types.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;tgmath.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">12</span><span class="p">.</span><span class="mi">8</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">double</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">34</span><span class="p">.</span><span class="mi">9</span><span class="p">;</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">x_result</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">double</span> <span class="n">y_result</span><span class="p">;</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">z_result</span><span class="p">;</span>
+
+    <span class="c1">// We call the same sqrt() function--it's type-generic!</span>
+    <span class="n">x_result</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+    <span class="n">y_result</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+    <span class="n">z_result</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">z</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"x_result: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x_result</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"y_result: %Lf</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">y_result</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"z_result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">z_result</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">z_result</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">x_result:</span> <span class="mi">3</span><span class="p">.</span><span class="mi">577709</span>
+<span class="n">y_result</span><span class="o">:</span> <span class="mi">5</span><span class="p">.</span><span class="mi">907622</span>
+<span class="n">z_result</span><span class="o">:</span> <span class="mi">1</span><span class="p">.</span><span class="mi">272020</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">786151</span><span class="n">i</span>
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

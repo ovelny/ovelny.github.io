@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/23-stdlib</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/23-stdlib"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>23 <code>&lt;stdlib.h&gt;</code> Standard Library Functions</h1>
+
+<p>Some of the following functions have variants that handle different types: <code>atoi()</code>, <code>strtod()</code>, <code>strtol()</code>, <code>abs()</code>, and <code>div()</code>. Only a single one is listed here for brevity.</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="stdlib.html#man-exit" rel="nofollow"><code>_Exit()</code></a></td>
+<td>Exit the currently-running program and don’t look back</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-abort" rel="nofollow"><code>abort()</code></a></td>
+<td>Abruptly end program execution</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-abs" rel="nofollow"><code>abs()</code></a></td>
+<td>Compute the absolute value of an integer</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-aligned_alloc" rel="nofollow"><code>aligned_alloc()</code></a></td>
+<td>Allocate specifically-aligned memory</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-atexit" rel="nofollow"><code>at_quick_exit()</code></a></td>
+<td>Set up handlers to run when the program quickly exits</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-atexit" rel="nofollow"><code>atexit()</code></a></td>
+<td>Set up handlers to run when the program exits</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-atof" rel="nofollow"><code>atof()</code></a></td>
+<td>Convert a string to a floating point value</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-atoi" rel="nofollow"><code>atoi()</code></a></td>
+<td>Convert an integer in a string into a integer type</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-bsearch" rel="nofollow"><code>bsearch()</code></a></td>
+<td>Binary Search (maybe) an array of objects</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-malloc" rel="nofollow"><code>calloc()</code></a></td>
+<td>Allocate and clear memory for arbitrary use</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-div" rel="nofollow"><code>div()</code></a></td>
+<td>Compute the quotient and remainder of two numbers</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-exit" rel="nofollow"><code>exit()</code></a></td>
+<td>Exit the currently-running program</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-free" rel="nofollow"><code>free()</code></a></td>
+<td>Free a memory region</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-getenv" rel="nofollow"><code>getenv()</code></a></td>
+<td>Get the value of an environment variable</td>
+</tr>
+<tr>
+<td><a href="man-malloc" rel="nofollow"><code>malloc()</code></a></td>
+<td>Allocate memory for arbitrary use</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-mblen" rel="nofollow"><code>mblen()</code></a></td>
+<td>Return the number of bytes in a multibyte character</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-mbstowcs" rel="nofollow"><code>mbstowcs()</code></a></td>
+<td>Convert a multibyte string to a wide character string</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-mbtowc" rel="nofollow"><code>mbtowc()</code></a></td>
+<td>Convert a multibyte character to a wide character</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-qsort" rel="nofollow"><code>qsort()</code></a></td>
+<td>Quicksort (maybe) some data</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-exit" rel="nofollow"><code>quick_exit()</code></a></td>
+<td>Exit the currently-running program quickly</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-rand" rel="nofollow"><code>rand()</code></a></td>
+<td>Return a pseudorandom number</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-realloc" rel="nofollow"><code>realloc()</code></a></td>
+<td>Resize a previously allocated stretch of memory</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-srand" rel="nofollow"><code>srand()</code></a></td>
+<td>Seed the built-in pseudorandom number generator</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-strtod" rel="nofollow"><code>strtod()</code></a></td>
+<td>Convert a string to a floating point number</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-strtol" rel="nofollow"><code>strtol()</code></a></td>
+<td>Convert a string to an integer</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-system" rel="nofollow"><code>system()</code></a></td>
+<td>Run an external program</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-wcstombs" rel="nofollow"><code>wcstombs()</code></a></td>
+<td>Convert a wide character string to a multibyte string</td>
+</tr>
+<tr>
+<td><a href="stdlib.html#man-wctomb" rel="nofollow"><code>wctomb()</code></a></td>
+<td>Convert a wide character to a multibyte character</td>
+</tr>
+</tbody></table>
+
+<p>The <code>&lt;stdlib.h&gt;</code> header has all kinds of—dare I say—miscellaneous functions bundled into it. This functionality includes:</p>
+
+<ul>
+<li>  Conversions from numbers to strings</li>
+<li>  Conversions from strings to numbers</li>
+<li>  Pseudorandom number generation</li>
+<li>  Dynamic memory allocation</li>
+<li>  Various ways to exit the program</li>
+<li>  Ability to run external programs</li>
+<li>  Binary search (or some fast search)</li>
+<li>  Quicksort (or some fast sort)</li>
+<li>  Integer arithmetic functions</li>
+<li>  Multibyte and wide character and string conversions</li>
+</ul>
+
+<p>So, you know… a little of everything.</p>
+
+<h2>23.1 <code>&lt;stdlib.h&gt;</code> Types and Macros</h2>
+
+<p>A couple new types and macros are introduced, though some of these might also be defined elsewhere:</p>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>size_t</code></td>
+<td>Returned from <code>sizeof</code> and used elsewhere</td>
+</tr>
+<tr>
+<td><code>wchar_t</code></td>
+<td>For wide character operations</td>
+</tr>
+<tr>
+<td><code>div_t</code></td>
+<td>For the <code>div()</code> function</td>
+</tr>
+<tr>
+<td><code>ldiv_t</code></td>
+<td>For the <code>ldiv()</code> function</td>
+</tr>
+<tr>
+<td><code>lldiv_t</code></td>
+<td>for the <code>lldiv()</code> function</td>
+</tr>
+</tbody></table>
+
+<p>And some macros:</p>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>NULL</code></td>
+<td>Our good pointer friend</td>
+</tr>
+<tr>
+<td><code>EXIT_SUCCESS</code></td>
+<td>Good exit status when things go well</td>
+</tr>
+<tr>
+<td><code>EXIT_FAILURE</code></td>
+<td>Good exit status when things go poorly</td>
+</tr>
+<tr>
+<td><code>RAND_MAX</code></td>
+<td>The maximum value that can be returned by the <code>rand()</code> function</td>
+</tr>
+<tr>
+<td><code>MB_CUR_MAX</code></td>
+<td>Maximum number of bytes in a multibyte character in the current locale</td>
+</tr>
+</tbody></table>
+
+<p>And there you have it. Just a lot of fun, useful functions in here. Let’s check ’em out!</p>
+
+<p><hr></p>
+
+<h2>23.2 <code>atof()</code></h2>
+
+<p>Convert a string to a floating point value</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="nf">atof</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">nptr</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This stood for <a href="http://man.cat-v.org/unix-1st/3/atof" rel="nofollow">“ASCII-To-Floating” back in the day</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁰</a>, but no one would dare to use such coarse language now.</p>
+
+<p>But the gist is the same: we’re going to convert a string with numbers and (optionally) a decimal point into a floating point value. Leading whitespace is ignored, and translation stops at the first invalid character.</p>
+
+<p>If the result doesn’t fit in a <code>double</code>, behavior is undefined.</p>
+
+<p>It generally works as if you’d called <a href="stdlib.html#man-strtod" rel="nofollow"><code>strtod()</code></a>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">strtod</span><span class="p">(</span><span class="n">nptr</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">)</span>
+</code></pre></div>
+
+<p>So check out <a href="stdlib.html#man-strtod" rel="nofollow">that reference page</a> for more info.</p>
+
+<p>In fact, <code>strtod()</code> is just better and you should probably use that.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the string converted to a <code>double</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">x</span> <span class="o">=</span> <span class="n">atof</span><span class="p">(</span><span class="s">"3.141593"</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="c1">// 3.141593</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-atoi" rel="nofollow"><code>atoi()</code></a>, <a href="stdlib.html#man-strtod" rel="nofollow"><code>strtod()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.3 <code>atoi()</code>, <code>atol()</code>, <code>atoll()</code></h2>
+
+<p>Convert an integer in a string into a integer type</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">atoi</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">nptr</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">int</span> <span class="nf">atol</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">nptr</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="nf">atoll</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">nptr</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Back in the day, <code>atoi()</code> stood for <a href="http://man.cat-v.org/unix-1st/3/atoi" rel="nofollow">“ASCII-To_Integer”</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵¹</a> but now the spec makes no mention of that.</p>
+
+<p>These functions take a string with a number in them and convert it to an integer of the specified return type. Leading whitespace is ignored. Translation stops at the first invalid character.</p>
+
+<p>If the result doesn’t fit in the return type, behavior is undefined.</p>
+
+<p>It generally works as if you’d called <a href="stdlib.html#man-strtol" rel="nofollow"><code>strtol()</code></a> family of functions:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">atoi</span><span class="p">(</span><span class="n">nptr</span><span class="p">)</span>                 <span class="c1">// is basically the same as...</span>
+<span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">strtol</span><span class="p">(</span><span class="n">nptr</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="n">atol</span><span class="p">(</span><span class="n">nptr</span><span class="p">)</span>                 <span class="c1">// is basically the same as...</span>
+<span class="n">strtol</span><span class="p">(</span><span class="n">nptr</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="n">atoll</span><span class="p">(</span><span class="n">nptr</span><span class="p">)</span>                <span class="c1">// is basically the same as...</span>
+<span class="n">strtoll</span><span class="p">(</span><span class="n">nptr</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Again, the <a href="stdlib.html#man-strtol" rel="nofollow"><code>strtol()</code></a> functions are generally better, so I recommend them instead of these.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns an integer result corresponding to the return type.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="s">"3490"</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="c1">// 3490</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-atof" rel="nofollow"><code>atof()</code></a>, <a href="stdlib.html#man-strtol" rel="nofollow"><code>strtol()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.4 <code>strtod()</code>, <code>strtof()</code>, <code>strtold()</code></h2>
+
+<p>Convert a string to a floating point number</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="nf">strtod</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="nf">strtof</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="nf">strtold</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are some neat functions that convert strings to floating point numbers (or even NaN or Infinity) and provide some error checking, besides.</p>
+
+<p>Firstly, leading whitespace is skipped.</p>
+
+<p>Then the functions attempt to convert characters into the floating point result. Finally, when an invalid character (or NUL character) is reached, they set <code>endptr</code> to point to the invalid character.</p>
+
+<p>Set <code>endptr</code> to <code>NULL</code> if you don’t care about where the first invalid character is.</p>
+
+<p>If you didn’t set <code>endptr</code> to <code>NULL</code>, it will point to a NUL character if the translation didn’t find any bad characters. That is:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">endptr</span> <span class="o">==</span> <span class="sc">'\0'</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"What a perfectly-formed number!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"I found badness in your number: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">endptr</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>But guess what! You can also translate strings into special values, like NaN and Infinity!</p>
+
+<p>If <code>nptr</code> points to a string containing <code>INF</code> or <code>INFINITY</code> (upper or lowercase), the value for Infinity will be returned.</p>
+
+<p>If <code>nptr</code> points to a string containing <code>NAN</code>, then (a quiet, non-signalling) NaN will be returned. You can tag the <code>NAN</code> with a sequence of characters from the set <code>0</code>-<code>9</code>, <code>a</code>-<code>z</code>, <code>A</code>-<code>Z</code>, and <code>_</code> by enclosing them in parens:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">NAN</span><span class="p">(</span><span class="n">foobar_3490</span><span class="p">)</span>
+</code></pre></div>
+
+<p>What your compiler does with this is implementation-defined, but it can be used to specify different kinds of NaN.</p>
+
+<p>You can also specify a number in hexadecimal with a power-of-two exponent (\(2<sup>x\))</sup> if you lead with <code>0x</code> (or <code>0X</code>). For the exponent, use a <code>p</code> followed by a base 10 exponent. (You can’t use <code>e</code> because that’s a valid hex digit!)</p>
+
+<p>Example:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mh">0xabc</span><span class="p">.</span><span class="mi">123</span><span class="n">p15</span>
+</code></pre></div>
+
+<p>Which computes to \(0xabc.123\times2<sup>{15}\).</sup></p>
+
+<p>You can put in <code>FLT_DECIMAL_DIG</code>, <code>DBL_DECIMAL_DIG</code>, or <code>LDBL_DECIMAL_DIG</code> digits and get a correctly-rounded result for the type.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the converted number. If there was no number, returns <code>0</code>. <code>endptr</code> is set to point to the first invalid character, or the NUL terminator if all characters were consumed.</p>
+
+<p>If there’s an overflow, <code>HUGE_VAL</code>, <code>HUGE_VALF</code>, or <code>HUGE_VALL</code> is returned, signed like the input, and <code>errno</code> is set to <code>ERANGE</code>.</p>
+
+<p>If there’s an underflow, it returns the smallest number closest to zero with the input sign. <code>errno</code> may be set to <code>ERANGE</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">inp</span> <span class="o">=</span> <span class="s">"   123.4567beej"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">badchar</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">val</span> <span class="o">=</span> <span class="n">strtod</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">badchar</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Converted string to %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Encountered bad characters: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">badchar</span><span class="p">);</span>
+
+    <span class="n">val</span> <span class="o">=</span> <span class="n">strtod</span><span class="p">(</span><span class="s">"987.654321beej"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Ignoring bad chars for result: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+
+    <span class="n">val</span> <span class="o">=</span> <span class="n">strtod</span><span class="p">(</span><span class="s">"11.2233"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">badchar</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">badchar</span> <span class="o">==</span> <span class="sc">'\0'</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"No bad chars: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Found bad chars: %f, %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">badchar</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Converted</span> <span class="n">string</span> <span class="n">to</span> <span class="mi">123</span><span class="p">.</span><span class="mi">456700</span>
+<span class="n">Encountered</span> <span class="n">bad</span> <span class="n">characters</span><span class="o">:</span> <span class="n">beej</span>
+<span class="n">Ignoring</span> <span class="n">bad</span> <span class="n">chars</span><span class="o">:</span> <span class="mi">987</span><span class="p">.</span><span class="mi">654321</span>
+<span class="n">No</span> <span class="n">bad</span> <span class="n">chars</span><span class="o">:</span> <span class="mi">11</span><span class="p">.</span><span class="mi">223300</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-atof" rel="nofollow"><code>atof()</code></a>, <a href="stdlib.html#man-strtol" rel="nofollow"><code>strtol()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.5 <code>strtol()</code>, <code>strtoll()</code>, <code>strtoul()</code>, <code>strtoull()</code></h2>
+
+<p>Convert a string to an integer</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">long</span> <span class="kt">int</span> <span class="nf">strtol</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span>
+                <span class="kt">char</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="nf">strtoll</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span>
+                      <span class="kt">char</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
+
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span> <span class="nf">strtoul</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span>
+                          <span class="kt">char</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
+
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="nf">strtoull</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span>
+                                <span class="kt">char</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These convert a string to an integer like <code>atoi()</code>, but they have a few more bells and whistles.</p>
+
+<p>Most notable, they can tell you where conversion started going wrong, i.e. where invalid characters, if any, appear. Leading spaces are ignored. A <code>+</code> or <code>-</code> sign may precede the number.</p>
+
+<p>The basic idea is that if things go well, these functions will return the integer values contained in the strings. And if you pass in the <code>char**</code> typed <code>endptr</code>, it’ll set it to point at the NUL at the end of the string.</p>
+
+<p>If things don’t go well, they’ll set <code>endptr</code> to point at the first character where things have gone awry. That is, if you’re converting a value <code>103z2!</code> in base 10, they’ll send <code>endptr</code> to point at the <code>z</code> because that’s the first non-numeric character.</p>
+
+<p>You can pass in <code>NULL</code> for <code>endptr</code> if you don’t care to do any of that kind of error checking.</p>
+
+<p>Wait—did I just say we could set the number base for the conversion? Yes! Yes, I did. Now <a href="https://en.wikipedia.org/wiki/Radix" rel="nofollow">number bases</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵²</a> are out of scope for this document, but certainly some of the more well-known are binary (base 2), octal (base 8), decimal (base 10), and hexadecimal (base 16).</p>
+
+<p>You can specify the number base for the conversion as the third parameter. Bases from 2 to 36 are supported, with case-insensitive digits running from <code>0</code> to <code>Z</code>.</p>
+
+<p>If you specify a base of <code>0</code>, the function will make an effort to determine it. It’ll default to base 10 except for a couple cases:</p>
+
+<ul>
+<li>  If the number has a leading <code>0</code>, it will be octal (base 8)</li>
+<li>  If the number has a leading <code>0x</code> or <code>0X</code>, it will be hex (base 16)</li>
+</ul>
+
+<p>The locale might affect the behavior of these functions.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the converted value.</p>
+
+<p><code>endptr</code>, if not <code>NULL</code> is set to the first invalid character, or to the beginning of the string if no conversion was performed, or to the string terminal NUL if all characters were valid.</p>
+
+<p>If there’s overflow, one of these values will be returned: <code>LONG_MIN</code>, <code>LONG_MAX</code>, <code>LLONG_MIN</code>, <code>LLONG_MAX</code>, <code>ULONG_MAX</code>, <code>ULLONG_MAX</code>. And <code>errno</code> is set to <code>ERANGE</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// All output in decimal (base 10)</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">strtol</span><span class="p">(</span><span class="s">"123"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>      <span class="c1">// 123</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">strtol</span><span class="p">(</span><span class="s">"123"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">10</span><span class="p">));</span>     <span class="c1">// 123</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">strtol</span><span class="p">(</span><span class="s">"101010"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">2</span><span class="p">));</span>   <span class="c1">// binary, 42</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">strtol</span><span class="p">(</span><span class="s">"123"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">8</span><span class="p">));</span>      <span class="c1">// octal, 83</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">strtol</span><span class="p">(</span><span class="s">"123"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">16</span><span class="p">));</span>     <span class="c1">// hex, 291</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">strtol</span><span class="p">(</span><span class="s">"0123"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>     <span class="c1">// octal, 83</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">strtol</span><span class="p">(</span><span class="s">"0x123"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>    <span class="c1">// hex, 291</span>
+
+    <span class="kt">char</span> <span class="o">*</span><span class="n">badchar</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">strtol</span><span class="p">(</span><span class="s">"   1234beej"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">badchar</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Value is %ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>               <span class="c1">// Value is 1234</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Bad chars at </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">badchar</span><span class="p">);</span>  <span class="c1">// Bad chars at "beej"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">123</span>
+<span class="mi">123</span>
+<span class="mi">42</span>
+<span class="mi">83</span>
+<span class="mi">291</span>
+<span class="mi">83</span>
+<span class="mi">291</span>
+<span class="n">Value</span> <span class="n">is</span> <span class="mi">1234</span>
+<span class="n">Bad</span> <span class="n">chars</span> <span class="n">at</span> <span class="s">"beej"</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-atoi" rel="nofollow"><code>atoi()</code></a>, <a href="stdlib.html#man-strtod" rel="nofollow"><code>strtod()</code></a>, <a href="locale.html#man-setlocale" rel="nofollow"><code>setlocale()</code></a>, <a href="inttypes.html#man-strtoimax" rel="nofollow"><code>strtoimax()</code></a>, <a href="inttypes.html#man-strtoimax" rel="nofollow"><code>strtoumax()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.6 <code>rand()</code></h2>
+
+<p>Return a pseudorandom number</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">rand</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This gives us back a pseudorandom number in the range <code>0</code> to <code>RAND_MAX</code>, inclusive. (<code>RAND_MAX</code> will be at least \(32767\).)</p>
+
+<p>If you want to force this to a certain range, the classic way to do this is to force it with the modulo operator <code>%</code>, although <a href="https://stackoverflow.com/questions/10984974/why-do-people-say-there-is-modulo-bias-when-using-a-random-number-generator" rel="nofollow">this introduces biases</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵³</a> if <code>RAND_MAX+1</code> is not a multiple of the number you’re modding by. Dealing with this is out of scope for this guide.</p>
+
+<p>If you want to to make a floating point number between <code>0</code> and <code>1</code> inclusive, you can divide the result by <code>RAND_MAX</code>. Or <code>RAND_MAX+1</code> if you don’t want to include <code>1</code>. But of course, there are out-of-scope <a href="https://mumble.net/%7Ecampbell/2014/04/28/uniform-random-float" rel="nofollow">problems with this, as well</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁴</a>.</p>
+
+<p>In short, <code>rand()</code> is a great way to get potentially poor random numbers with ease. Probably good enough for the game you’re writing.</p>
+
+<p>The spec elaborates:</p>
+
+<blockquote>
+<p>There are no guarantees as to the quality of the random sequence produced and some implementations are known to produce sequences with distressingly non-random low-order bits. Applications with particular requirements should use a generator that is known to be sufficient for their needs.</p>
+</blockquote>
+
+<p>Your system probably has a good random number generator on it if you need a stronger source. Linux users have <code>getrandom()</code>, for example, and Windows has <code>CryptGenRandom()</code>.</p>
+
+<p>For other more demanding random number work, you might find a library like the <a href="https://www.gnu.org/software/gsl/doc/html/rng.html" rel="nofollow">GNU Scientific Library</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁵</a> of use.</p>
+
+<p>With most implementations, the numbers produced by <code>rand()</code> will be the same from run to run. To get around this, you need to start it off in a different place by passing a <em>seed</em> into the random number generator. You can do this with <a href="stdlib.html#man-srand" rel="nofollow"><code>srand()</code></a>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns a random number in the range <code>0</code> to <code>RAND_MAX</code>, inclusive.</p>
+
+<h3>Example</h3>
+
+<p>Note that all of these examples don’t produce perfectly uniform distributions. But good enough for the untrained eye, and really common in general use when mediocre random number quality is acceptable.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"RAND_MAX = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">RAND_MAX</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"0 to 9: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rand</span><span class="p">()</span> <span class="o">%</span> <span class="mi">10</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"10 to 44: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rand</span><span class="p">()</span> <span class="o">%</span> <span class="mi">35</span> <span class="o">+</span> <span class="mi">10</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"0 to 0.99999: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rand</span><span class="p">()</span> <span class="o">/</span> <span class="p">((</span><span class="kt">float</span><span class="p">)</span><span class="n">RAND_MAX</span> <span class="o">+</span> <span class="mi">1</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"10.5 to 15.7: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mi">10</span><span class="p">.</span><span class="mi">5</span> <span class="o">+</span> <span class="mi">5</span><span class="p">.</span><span class="mi">2</span> <span class="o">*</span> <span class="n">rand</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">RAND_MAX</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">RAND_MAX</span> <span class="o">=</span> <span class="mi">2147483647</span>
+<span class="mi">0</span> <span class="n">to</span> <span class="mi">9</span><span class="o">:</span> <span class="mi">3</span>
+<span class="mi">10</span> <span class="n">to</span> <span class="mi">44</span><span class="o">:</span> <span class="mi">21</span>
+<span class="mi">0</span> <span class="n">to</span> <span class="mi">0</span><span class="p">.</span><span class="mi">99999</span><span class="o">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">783099</span>
+<span class="mi">10</span><span class="p">.</span><span class="mi">5</span> <span class="n">to</span> <span class="mi">15</span><span class="p">.</span><span class="mi">7</span><span class="o">:</span> <span class="mi">14</span><span class="p">.</span><span class="mi">651888</span>
+</code></pre></div>
+
+<p>Example of seeding the RNG with the time:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// time(NULL) very likely returns the number of seconds since</span>
+    <span class="c1">// January 1, 1970:</span>
+
+    <span class="n">srand</span><span class="p">(</span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">));</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rand</span><span class="p">());</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-srand" rel="nofollow"><code>srand()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.7 <code>srand()</code></h2>
+
+<p>Seed the built-in pseudorandom number generator</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">srand</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">seed</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>The dirty little secret of pseudorandom number generation is that they’re completely deterministic. There’s nothing random about them. They just look random.</p>
+
+<p>If you use <code>rand()</code> and run your program several times, you might notice something <em>fishy</em>: they produce the same random numbers over and over again.</p>
+
+<p>To mix it up, we need to give the pseudorandom number generator a new “starting point”, if you will. We call that the <em>seed</em>. It’s just a number, but it is used as the basic for subsequent number generation. Give a different seed, and you’ll get a different sequence of random numbers. Give the same seed, and you’ll get the same sequence of random numbers corresponding to it<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁶</a>.</p>
+
+<p>So if you call <code>srand(3490)</code> before you start generating numbers with <code>rand()</code>, you’ll get the same sequence every time. <code>srand(37)</code> would also give you the same sequence every time, but it would be a different sequence than the one you got with <code>srand(3490)</code>.</p>
+
+<p>But if you can’t hardcode the seed (because that would give you the same sequence every time), how are you supposed to do this?</p>
+
+<p>It’s really common to use the number of seconds since January 1, 1970 (this date is known as the <a href="https://en.wikipedia.org/wiki/Unix_time" rel="nofollow"><em>Unix epoch</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁷</a>) to seed the generator. This sounds pretty arbitrary except for the fact that it’s exactly the value most implementations return from the library call <code>time(NULL)</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁸</a>.</p>
+
+<p>We’ll do that in the example.</p>
+
+<p>If you don’t call <code>srand()</code>, it’s as if you called <code>srand(1)</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns nothing!</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="c1">    // for the time() call</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">srand</span><span class="p">(</span><span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">));</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rand</span><span class="p">()</span> <span class="o">%</span> <span class="mi">32</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">4</span>
+<span class="mi">20</span>
+<span class="mi">22</span>
+<span class="mi">14</span>
+<span class="mi">9</span>
+</code></pre></div>
+
+<p>Output from a subsequent run:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">19</span>
+<span class="mi">0</span>
+<span class="mi">31</span>
+<span class="mi">31</span>
+<span class="mi">24</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-rand" rel="nofollow"><code>rand()</code></a>, <a href="time.html#man-time" rel="nofollow"><code>time()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.8 <code>aligned_alloc()</code></h2>
+
+<p>Allocate specifically-aligned memory</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">aligned_alloc</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">alignment</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">size</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Maybe you wanted <a href="stdlib.html#man-malloc" rel="nofollow"><code>malloc()</code></a> or <a href="stdlib.html#man-malloc" rel="nofollow"><code>calloc()</code></a> instead of this. But if you’re sure you don’t, read on!</p>
+
+<p>Normally you don’t have to think about this, since <code>malloc()</code> and <code>realloc()</code> both provide memory regions that are suitably <a href="https://en.wikipedia.org/wiki/Data_structure_alignment" rel="nofollow">aligned</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁵⁹</a> for use with any data type.</p>
+
+<p>But if you need a more specific alignment, you can specify it with this function.</p>
+
+<p>When you’re done using the memory region, be sure to free it with a call to <a href="stdlib.html#man-free" rel="nofollow"><code>free()</code></a>.</p>
+
+<p>Don’t pass in <code>0</code> for the size. It probably won’t do anything you want.</p>
+
+<p>In case you’re wondering, all dynamically-allocated memory is automatically freed by the system when the program ends. That said, it’s considered to be <em>Good Form</em> to explicitly <code>free()</code> everything you allocate. This way other programmers don’t think you were being sloppy.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns a pointer to the newly-allocated memory, aligned as specified. Returns <code>NULL</code> if something goes wrong.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdint.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">aligned_alloc</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+
+    <span class="c1">// Just for fun, let's convert to intptr_t and mod with 256</span>
+    <span class="c1">// to make sure we're actually aligned on a 256-byte boundary.</span>
+    <span class="c1">//</span>
+    <span class="c1">// This is probably some kind of implementation-defined</span>
+    <span class="c1">// behavior, but I'll bet it works.</span>
+
+    <span class="kt">intptr_t</span> <span class="n">ip</span> <span class="o">=</span> <span class="p">(</span><span class="kt">intptr_t</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ip</span> <span class="o">%</span> <span class="mi">256</span><span class="p">);</span>   <span class="c1">// 0!</span>
+
+    <span class="c1">// Free it up</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-malloc" rel="nofollow"><code>malloc()</code></a>, <a href="stdlib.html#man-malloc" rel="nofollow"><code>calloc()</code></a>, <a href="stdlib.html#man-free" rel="nofollow"><code>free()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.9 <code>calloc()</code>, <code>malloc()</code></h2>
+
+<p>Allocate memory for arbitrary use</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">calloc</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">nmemb</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">size</span><span class="p">);</span>
+
+<span class="kt">void</span> <span class="o">*</span><span class="nf">malloc</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">size</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Both of these functions allocate memory for general-purpose use. It will be aligned such that it’s useable for storing any data type.</p>
+
+<p><code>malloc()</code> allocates exactly the specified number of bytes of memory in a contiguous block. The memory might be full of garbage data. (You can clear it with <a href="stringref.html#man-memset" rel="nofollow"><code>memset()</code></a>, if you wish.)</p>
+
+<p><code>calloc()</code> is different in that it allocates space for <code>nmemb</code> objects of <code>size</code> bytes each. (You can do the same with <code>malloc()</code>, but you have to do the multiplication yourself.)</p>
+
+<p><code>calloc()</code> has an additional feature: it clears all the memory to <code>0</code>.</p>
+
+<p>So if you’re planning to zero the memory anyway, <code>calloc()</code> is probably the way to go. If you’re not, you can avoid that overhead by calling <code>malloc()</code>.</p>
+
+<p>When you’re done using the memory region, free it with a call to <code>free()</code>.</p>
+
+<p>Don’t pass in <code>0</code> for the size. It probably won’t do anything you want.</p>
+
+<p>In case you’re wondering, all dynamically-allocated memory is automatically freed by the system when the program ends. That said, it’s considered to be <em>Good Form</em> to explicitly <code>free()</code> everything you allocate. This way other programmers don’t think you were being sloppy.</p>
+
+<h3>Return Value</h3>
+
+<p>Both functions return a pointer to the shiny, newly-allocated memory. Or <code>NULL</code> if something’s gone awry.</p>
+
+<h3>Example</h3>
+
+<p>Comparison of <code>malloc()</code> and <code>calloc()</code> for allocating 5 <code>int</code>s:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Allocate space for 5 ints</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+
+    <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+    <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+
+    <span class="c1">// Allocate space for 5 ints</span>
+    <span class="c1">// (Also clear that memory to 0)</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">q</span> <span class="o">=</span> <span class="n">calloc</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+
+    <span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+    <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+
+    <span class="c1">// All done</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">q</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-aligned_alloc" rel="nofollow"><code>aligned_alloc()</code></a>, <a href="stdlib.html#man-free" rel="nofollow"><code>free()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.10 <code>free()</code></h2>
+
+<p>Free a memory region</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">free</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>You know that pointer you got back from <code>malloc()</code>, <code>calloc()</code>, or <code>aligned_alloc()</code>? You pass that pointer to <code>free()</code> to free the memory associated with it.</p>
+
+<p>If you don’t do this, the memory will stay allocated FOREVER AND EVER! (Well, until your program exits, anyway.)</p>
+
+<p>Fun fact: <code>free(NULL)</code> does nothing. You can safely call that. Sometimes it’s convenient.</p>
+
+<p>Don’t <code>free()</code> a pointer that’s already been <code>free()</code>d. Don’t <code>free()</code> a pointer that you didn’t get back from one of the allocation functions. It would be <em>Bad</em><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁰</a>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns nothing!</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Allocate space for 5 ints</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+
+    <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+    <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+
+    <span class="c1">// Free that space</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-malloc" rel="nofollow"><code>malloc()</code></a>, <a href="stdlib.html#man-malloc" rel="nofollow"><code>calloc()</code></a>, <a href="stdlib.html#man-aligned_alloc" rel="nofollow"><code>aligned_alloc()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.11 <code>realloc()</code></h2>
+
+<p>Resize a previously allocated stretch of memory</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">realloc</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">size</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This takes a pointer to some memory previously allocated with <code>malloc()</code> or <code>calloc()</code> and resizes it to the new size.</p>
+
+<p>If the new size is smaller than the old size, any data larger than the new size is discarded.</p>
+
+<p>If the new size is larger than the old size, the new larger part is uninitialized. (You can clear it with <a href="stringref.html#man-memset" rel="nofollow"><code>memset()</code></a>.)</p>
+
+<p>Important note: the memory might move! If you resize, the system might need to relocate the memory to a larger continguous chunk. If this happens, <code>realloc()</code> will copy the old data to the new location for you.</p>
+
+<p>Because of this, it’s important to save the returned value to your pointer to update it to the new location if things move. (Also, be sure to error-check so that you don’t overwrite your old pointer with <code>NULL</code>, leaking the memory.)</p>
+
+<p>You can also <code>relloc()</code> memory allocated with <code>aligned_alloc()</code>, but it will potentially lose its alignment if the block is moved.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns a pointer to the resized memory region. This might be equivalent to the <code>ptr</code> passed in, or it might be some other location.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Allocate space for 5 ints</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+
+    <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+    <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+
+    <span class="c1">// Reallocate for 10 bytes</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">new_p</span> <span class="o">=</span> <span class="n">realloc</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">new_p</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Error reallocing</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">new_p</span><span class="p">;</span>  <span class="c1">// It's good; let's keep it</span>
+        <span class="n">p</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="mi">99</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// All done</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-malloc" rel="nofollow"><code>malloc()</code></a>, <a href="stdlib.html#man-malloc" rel="nofollow"><code>calloc()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.12 <code>abort()</code></h2>
+
+<p>Abruptly end program execution</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="k">_Noreturn</span> <span class="kt">void</span> <span class="nf">abort</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This ends program execution <em>abnormally</em> and immediately. Use this in rare, unexpected circumstances.</p>
+
+<p>Open streams might not be flushed. Temporary files created might not be removed. Exit handlers are not called.</p>
+
+<p>A non-zero exit status is returned to the environment.</p>
+
+<p>On some systems, <code>abort()</code> might <a href="https://en.wikipedia.org/wiki/Core_dump" rel="nofollow">dump core</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶¹</a>, but this is outside the scope of the spec.</p>
+
+<p>You can cause the equivalent of an <code>abort()</code> by calling <code>raise(SIGABRT)</code>, but I don’t know why you’d do that.</p>
+
+<p>The only portable way to stop an <code>abort()</code> call midway is to use <code>signal()</code> to catch <code>SIGABRT</code> and then <code>exit()</code> in the signal handler.</p>
+
+<h3>Return Value</h3>
+
+<p>This function never returns.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">bad_thing</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">bad_thing</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"This should never have happened!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>  <span class="c1">// Make sure the message goes out</span>
+        <span class="n">abort</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>On my system, this outputs:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">This</span> <span class="n">should</span> <span class="n">never</span> <span class="n">have</span> <span class="n">happened</span><span class="o">!</span>
+<span class="n">zsh</span><span class="o">:</span> <span class="n">abort</span> <span class="p">(</span><span class="n">core</span> <span class="n">dumped</span><span class="p">)</span>  <span class="p">.</span><span class="o">/</span><span class="n">foo</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="signal.html#man-signal" rel="nofollow"><code>signal()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.13 <code>atexit()</code>, <code>at_quick_exit()</code></h2>
+
+<p>Set up handlers to run when the program exits</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">atexit</span><span class="p">(</span><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">void</span><span class="p">));</span>
+
+<span class="kt">int</span> <span class="nf">at_quick_exit</span><span class="p">(</span><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">void</span><span class="p">));</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>When the program does a normal exit with <code>exit()</code> or returns from <code>main()</code>, it looks for previously-registered handlers to call on the way out. These handlers are registered with the <code>atexit()</code> call.</p>
+
+<p>Think of it like, “Hey, when you’re about to exit, do these extra things.”</p>
+
+<p>For the <code>quick_exit()</code> call, you can use the <code>at_quick_exit()</code> function to register handlers for that<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶²</a>. There’s no crossover in handlers from <code>exit()</code> to <code>quick_exit()</code>, i.e. for a call to one, none of the other’s handlers will fire.</p>
+
+<p>You can register multiple handlers to fire—at least 32 handlers are supported by both <code>exit()</code> and <code>quick_exit()</code>.</p>
+
+<p>The argument <code>func</code> to the functions looks a little weird—it’s a pointer to a function to call. Basically just put the function name to call in there (without parentheses after). See the example, below.</p>
+
+<p>If you call <code>atexit()</code> from inside your <code>atexit()</code> handler (or equivalent in your <code>at_quick_exit()</code> handler), it’s unspecified if it will get called. So get them all registered before you exit.</p>
+
+<p>When exiting, the functions will be called in the reverse order they were registered.</p>
+
+<h3>Return Value</h3>
+
+<p>These functions return <code>0</code> on success, or nonzero on failure.</p>
+
+<h3>Example</h3>
+
+<p><code>atexit()</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">exit_handler_1</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Exit handler 1 called!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">exit_handler_2</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Exit handler 2 called!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">atexit</span><span class="p">(</span><span class="n">exit_handler_1</span><span class="p">);</span>
+    <span class="n">atexit</span><span class="p">(</span><span class="n">exit_handler_2</span><span class="p">);</span>
+
+    <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>For the output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Exit</span> <span class="n">handler</span> <span class="mi">2</span> <span class="n">called</span><span class="o">!</span>
+<span class="n">Exit</span> <span class="n">handler</span> <span class="mi">1</span> <span class="n">called</span><span class="o">!</span>
+</code></pre></div>
+
+<p>And a similar example with <code>quick_exit()</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">exit_handler_1</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Exit handler 1 called!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">exit_handler_2</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Exit handler 2 called!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">at_quick_exit</span><span class="p">(</span><span class="n">exit_handler_1</span><span class="p">);</span>
+    <span class="n">at_quick_exit</span><span class="p">(</span><span class="n">exit_handler_2</span><span class="p">);</span>
+
+    <span class="n">quick_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-exit" rel="nofollow"><code>exit()</code></a>, <a href="stdlib.html#man-exit" rel="nofollow"><code>quick_exit()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.14 <code>exit()</code>, <code>quick_exit()</code>, <code>_Exit()</code></h2>
+
+<p>Exit the currently-running program</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="k">_Noreturn</span> <span class="kt">void</span> <span class="nf">exit</span><span class="p">(</span><span class="kt">int</span> <span class="n">status</span><span class="p">);</span>
+
+<span class="k">_Noreturn</span> <span class="kt">void</span> <span class="nf">quick_exit</span><span class="p">(</span><span class="kt">int</span> <span class="n">status</span><span class="p">);</span>
+
+<span class="k">_Noreturn</span> <span class="kt">void</span> <span class="nf">_Exit</span><span class="p">(</span><span class="kt">int</span> <span class="n">status</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>All these functions cause the program to exit, with various levels of cleanup performed.</p>
+
+<p><code>exit()</code> does the most cleanup and is the most normal exit.</p>
+
+<p><code>quick_exit()</code> is the second most.</p>
+
+<p><code>_Exit()</code> unceremoniously drops everything and ragequits on the spot.</p>
+
+<p>Calling either of <code>exit()</code> or <code>quick_exit()</code> causes their respective <code>atexit()</code> or <code>at_quick_exit()</code> handlers to be called in the reverse order in which they were registered.</p>
+
+<p><code>exit()</code> will flush all streams and delete all temporary files.</p>
+
+<p><code>quick_exit()</code> or <code>_Exit()</code> might not perform that nicety.</p>
+
+<p><code>_Exit()</code> doesn’t call any of the at-exit handlers, either.</p>
+
+<p>For all functions, the exit <code>status</code> is returned to the environment.</p>
+
+<p>Defined exit statuses are:</p>
+
+<table><thead>
+<tr>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>EXIT_SUCCESS</code></td>
+<td>Typically returned when good things happen</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td>Same as <code>EXIT_SUCCESS</code></td>
+</tr>
+<tr>
+<td><code>EXIT_FAILURE</code></td>
+<td>Oh noes! Definitely failure!</td>
+</tr>
+<tr>
+<td>Any positive value</td>
+<td>Generally indicates another failure of some kind</td>
+</tr>
+</tbody></table>
+
+<p>OS X note: <code>quick_exit()</code> is not supported.</p>
+
+<h3>Return Value</h3>
+
+<p>None of these functions ever return.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">contrived_exit_type</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="k">switch</span><span class="p">(</span><span class="n">contrived_exit_type</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+
+        <span class="k">case</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1">// Not supported in OS X</span>
+            <span class="n">quick_exit</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+
+        <span class="k">case</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">_Exit</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-atexit" rel="nofollow"><code>atexit()</code></a>, <a href="stdlib.html#man-atexit" rel="nofollow"><code>at_quick_exit()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.15 <code>getenv()</code></h2>
+
+<p>Get the value of an environment variable</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">getenv</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>The environment often provides variables that are set before the program run that you can access at runtime.</p>
+
+<p>Of course the exact details are system dependent, but these variables are key/value pairs, and you can get the value by passing the key to <code>getenv()</code> as the <code>name</code> parameter.</p>
+
+<p>You’re not allowed to overwrite the string that’s returned.</p>
+
+<p>This is pretty limited in the standard, but your OS often provides better functionality.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns a pointer to the environment variable value, or <code>NULL</code> if the variable doesn’t exist.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"PATH is %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">getenv</span><span class="p">(</span><span class="s">"PATH"</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output (truncated in my case):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">PATH</span> <span class="n">is</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">bin</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">bin</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">sbin</span><span class="o">:/</span><span class="n">home</span><span class="o">/</span><span class="n">beej</span><span class="o">/</span><span class="p">.</span><span class="n">cargo</span><span class="o">/</span><span class="n">bin</span> <span class="p">[...]</span>
+</code></pre></div>
+
+<p><hr></p>
+
+<h2>23.16 <code>system()</code></h2>
+
+<p>Run an external program</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">system</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">string</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This will run an external program and then return to the caller.</p>
+
+<p>The manner in which it runs the program is system-defined, but typically you can pass something to it just like you’d run on the command line, searching the <code>PATH</code>, etc.</p>
+
+<p>Not all systems have this capability, but you can test for it by passing <code>NULL</code> to <code>system()</code> and seeing if it returns 0 (no command processor is available) or non-zero (a command processor is available! Yay!)</p>
+
+<p>If you’re getting user input and passing it to the <code>system()</code> call, be extremely careful to escape all special shell characters (everything that’s not alphanumeric) with a backslash to keep a villain from running something you don’t want them to.</p>
+
+<h3>Return Value</h3>
+
+<p>If <code>NULL</code> is passed, returns nonzero if a command processor is available (i.e. <code>system()</code> will work at all).</p>
+
+<p>Otherwise returns an implementation-defined value.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Here's a directory listing:</span><span class="se">\n\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="n">system</span><span class="p">(</span><span class="s">"ls -l"</span><span class="p">);</span>   <span class="c1">// Run this command and return</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">All done!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Here</span><span class="err">'</span><span class="n">s</span> <span class="n">a</span> <span class="n">directory</span> <span class="n">listing</span><span class="o">:</span>
+
+<span class="n">total</span> <span class="mi">92</span>
+<span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span> <span class="mi">3</span> <span class="n">beej</span> <span class="n">beej</span>  <span class="mi">4096</span> <span class="n">Oct</span> <span class="mi">14</span> <span class="mi">21</span><span class="o">:</span><span class="mi">38</span> <span class="n">bin</span>
+<span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span> <span class="mi">2</span> <span class="n">beej</span> <span class="n">beej</span>  <span class="mi">4096</span> <span class="n">Dec</span> <span class="mi">20</span> <span class="mi">20</span><span class="o">:</span><span class="mo">07</span> <span class="n">examples</span>
+<span class="o">-</span><span class="n">rwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span> <span class="mi">1</span> <span class="n">beej</span> <span class="n">beej</span> <span class="mi">16656</span> <span class="n">Feb</span> <span class="mi">23</span> <span class="mi">21</span><span class="o">:</span><span class="mi">49</span> <span class="n">foo</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">rw</span><span class="o">-</span> <span class="mi">1</span> <span class="n">beej</span> <span class="n">beej</span>   <span class="mi">155</span> <span class="n">Feb</span> <span class="mi">23</span> <span class="mi">21</span><span class="o">:</span><span class="mi">49</span> <span class="n">foo</span><span class="p">.</span><span class="n">c</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">beej</span> <span class="n">beej</span>  <span class="mi">1350</span> <span class="n">Jan</span> <span class="mi">27</span> <span class="mi">22</span><span class="o">:</span><span class="mi">11</span> <span class="n">Makefile</span>
+<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">beej</span> <span class="n">beej</span>  <span class="mi">4644</span> <span class="n">Jan</span> <span class="mi">18</span> <span class="mi">09</span><span class="o">:</span><span class="mi">12</span> <span class="n">README</span><span class="p">.</span><span class="n">md</span>
+<span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span> <span class="mi">3</span> <span class="n">beej</span> <span class="n">beej</span>  <span class="mi">4096</span> <span class="n">Feb</span> <span class="mi">23</span> <span class="mi">20</span><span class="o">:</span><span class="mi">21</span> <span class="n">src</span>
+<span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span> <span class="mi">6</span> <span class="n">beej</span> <span class="n">beej</span>  <span class="mi">4096</span> <span class="n">Feb</span> <span class="mi">21</span> <span class="mi">20</span><span class="o">:</span><span class="mi">24</span> <span class="n">stage</span>
+<span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span> <span class="mi">2</span> <span class="n">beej</span> <span class="n">beej</span>  <span class="mi">4096</span> <span class="n">Sep</span> <span class="mi">27</span> <span class="mi">20</span><span class="o">:</span><span class="mi">54</span> <span class="n">translations</span>
+<span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span> <span class="mi">2</span> <span class="n">beej</span> <span class="n">beej</span>  <span class="mi">4096</span> <span class="n">Sep</span> <span class="mi">27</span> <span class="mi">20</span><span class="o">:</span><span class="mi">54</span> <span class="n">website</span>
+
+<span class="n">All</span> <span class="n">done</span><span class="o">!</span>
+</code></pre></div>
+
+<p><hr></p>
+
+<h2>23.17 <code>bsearch()</code></h2>
+
+<p>Binary Search (maybe) an array of objects</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">bsearch</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">key</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">base</span><span class="p">,</span>
+              <span class="kt">size_t</span> <span class="n">nmemb</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span>
+              <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">compar</span><span class="p">)(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="p">));</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This crazy-looking function searches an array for a value.</p>
+
+<p>It probably is a binary search or some fast, efficient search. But the spec doesn’t really say.</p>
+
+<p>However, the array must be sorted! So binary search seems likely.</p>
+
+<ul>
+<li>  <code>key</code> is a pointer to the value to find.</li>
+<li>  <code>base</code> is a pointer to the start of the array—the array must be sorted!</li>
+<li>  <code>nmemb</code> is the number of elements in the array.</li>
+<li>  <code>size</code> is the <code>sizeof</code> each element in the array.</li>
+<li>  <code>compar</code> is a pointer to a function that will compare the key against other values.</li>
+</ul>
+
+<p>The comparison function takes the key as the first argument and the value to compare against as the second. It should return a negative number if the key is less than the value, <code>0</code> if the key equals the value, and a positive number if the key is greater than the value.</p>
+
+<p>This is commonly computed by taking the difference between the key and the value to be compared. If subtraction is supported.</p>
+
+<p>The return value from the <a href="stringref.html#man-strcmp" rel="nofollow"><code>strcmp()</code></a> function can be used for comparing strings.</p>
+
+<p>Again, the array must be sorted according to the order of the comparison function before running <code>bsearch()</code>. Luckily for you, you can just call <a href="stdlib.html#man-qsort" rel="nofollow"><code>qsort()</code></a> with the same comparison function to get this done.</p>
+
+<p>It’s a general-purpose function—it’ll search any type of array for anything. The catch is you have to write the comparison function.</p>
+
+<p>And that’s not as scary as it looks. Jump down to the example</p>
+
+<h3>Return Value</h3>
+
+<p>The function returns a pointer to the found value, or <code>NULL</code> if it can’t be found.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">compar</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">key</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">value</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="o">*</span><span class="n">k</span> <span class="o">=</span> <span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">v</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>  <span class="c1">// Need ints, not voids</span>
+
+    <span class="k">return</span> <span class="o">*</span><span class="n">k</span> <span class="o">-</span> <span class="o">*</span><span class="n">v</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">47</span><span class="p">};</span>
+
+    <span class="kt">int</span> <span class="o">*</span><span class="n">r</span><span class="p">,</span> <span class="n">key</span><span class="p">;</span>
+
+    <span class="n">key</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>  <span class="c1">// 12 is in there</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">bsearch</span><span class="p">(</span><span class="o">&amp;</span><span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="n">compar</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Found %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">r</span><span class="p">);</span>
+
+    <span class="n">key</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>  <span class="c1">// Won't find a 30</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">bsearch</span><span class="p">(</span><span class="o">&amp;</span><span class="n">key</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="n">compar</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Didn't find 30</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="c1">// Searching with an unnamed key, pointer to 32</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">bsearch</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="kt">int</span><span class="p">){</span><span class="mi">32</span><span class="p">},</span> <span class="n">a</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="n">compar</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Found %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">r</span><span class="p">);</span>  <span class="c1">// Found it</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Found</span> <span class="mi">12</span>
+<span class="n">Didn</span><span class="err">'</span><span class="n">t</span> <span class="n">find</span> <span class="mi">30</span>
+<span class="n">Found</span> <span class="mi">32</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strcmp" rel="nofollow"><code>strcmp()</code></a>, <a href="stdlib.html#man-qsort" rel="nofollow"><code>qsort()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.18 <code>qsort()</code></h2>
+
+<p>Quicksort (maybe) some data</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">qsort</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">base</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">nmemb</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span>
+           <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">compar</span><span class="p">)(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="p">));</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This function will quicksort (or some other sort, probably speedy) an array of data in-place<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶³</a>.</p>
+
+<p>Like <code>bsearch()</code>, it’s data-agnostic. Any data for which you can define a relative ordering can be sorted, whether <code>int</code>s, <code>struct</code>s, or anything else.</p>
+
+<p>Also like <code>bsearch()</code>, you have to give a comparison function to do the actual compare.</p>
+
+<ul>
+<li>  <code>base</code> is a pointer to the start of the array to be sorted.</li>
+<li>  <code>nmemb</code> is the number of elements in the array.</li>
+<li>  <code>size</code> is the <code>sizeof</code> each element.</li>
+<li>  <code>compar</code> is a pointer to the comparison function.</li>
+</ul>
+
+<p>The comparison function takes pointers to two elements of the array as arguments and compares them. It should return a negative number if the first argument is less than the second, <code>0</code> if they are equal, and a positive number if the first argument is greater than the second.</p>
+
+<p>This is commonly computed by taking the difference between the first argument and the second. If subtraction is supported.</p>
+
+<p>The return value from the <a href="stringref.html#man-strcmp" rel="nofollow"><code>strcmp()</code></a> function can provide sort order for strings.</p>
+
+<p>If you have to sort a <code>struct</code>, just subtract the specific field you want to sort by.</p>
+
+<p>This comparison function can be used by <a href="stdlib.html#man-bsearch" rel="nofollow"><code>bsearch()</code></a> to do searches after the list is sorted.</p>
+
+<p>To reverse the sort, subtract the second argument from the first, i.e. negate the return value from <code>compar()</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns nothing!</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">compar</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">elem0</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">elem1</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="o">*</span><span class="n">x</span> <span class="o">=</span> <span class="n">elem0</span><span class="p">,</span> <span class="o">*</span><span class="n">y</span> <span class="o">=</span> <span class="n">elem1</span><span class="p">;</span>  <span class="c1">// Need ints, not voids</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">x</span> <span class="o">&gt;</span> <span class="o">*</span><span class="n">y</span><span class="p">)</span> <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">x</span> <span class="o">&lt;</span> <span class="o">*</span><span class="n">y</span><span class="p">)</span> <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">14</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">};</span>
+
+    <span class="c1">// Sort the list</span>
+
+    <span class="n">qsort</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="n">compar</span><span class="p">);</span>
+
+    <span class="c1">// Print sorted list</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">9</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d "</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+
+    <span class="n">putchar</span><span class="p">(</span><span class="sc">'\n'</span><span class="p">);</span>
+
+    <span class="c1">// Use the same compar() function to binary search</span>
+    <span class="c1">// for 17 (passed in as an unnamed object)</span>
+
+    <span class="kt">int</span> <span class="o">*</span><span class="n">r</span> <span class="o">=</span> <span class="n">bsearch</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="kt">int</span><span class="p">){</span><span class="mi">17</span><span class="p">},</span> <span class="n">a</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="n">compar</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Found %d!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">r</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">6</span> <span class="mi">8</span> <span class="mi">10</span> <span class="mi">13</span> <span class="mi">14</span> <span class="mi">17</span>
+<span class="n">Found</span> <span class="mi">17</span><span class="o">!</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strcmp" rel="nofollow"><code>strcmp()</code></a>, <a href="stdlib.html#man-bsearch" rel="nofollow"><code>bsearch()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.19 <code>abs()</code>, <code>labs()</code>, <code>llabs()</code></h2>
+
+<p>Compute the absolute value of an integer</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">abs</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">int</span> <span class="nf">labs</span><span class="p">(</span><span class="kt">long</span> <span class="kt">int</span> <span class="n">j</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="nf">llabs</span><span class="p">(</span><span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">j</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Compute the absolute value of <code>j</code>. If you don’t remember, that’s how far from zero <code>j</code> is.</p>
+
+<p>In other words, if <code>j</code> is negative, return it as a positive. If it’s positive, return it as a positive. Always be positive. Enjoy life.</p>
+
+<p>If the result cannot be represented, the behavior is undefined. Be especially aware of the upper half of unsigned numbers.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the absolute value of <code>j</code>, \(|j|\).</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"|-2| = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">abs</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"|4|  = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">abs</span><span class="p">(</span><span class="mi">4</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">|-</span><span class="mi">2</span><span class="o">|</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="o">|</span><span class="mi">4</span><span class="o">|</span>  <span class="o">=</span> <span class="mi">4</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="math.html#man-fabs" rel="nofollow"><code>fabs()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.20 <code>div()</code>, <code>ldiv()</code>, <code>lldiv()</code></h2>
+
+<p>Compute the quotient and remainder of two numbers</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">div_t</span> <span class="nf">div</span><span class="p">(</span><span class="kt">int</span> <span class="n">numer</span><span class="p">,</span> <span class="kt">int</span> <span class="n">denom</span><span class="p">);</span>
+
+<span class="kt">ldiv_t</span> <span class="nf">ldiv</span><span class="p">(</span><span class="kt">long</span> <span class="kt">int</span> <span class="n">numer</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">denom</span><span class="p">);</span>
+
+<span class="n">lldiv_t</span> <span class="nf">lldiv</span><span class="p">(</span><span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">numer</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">denom</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These functions get you the quotient and remainder of a pair of numbers in one go.</p>
+
+<p>They return a structure that has two fields, <code>quot</code>, and <code>rem</code>, the types of which match types of <code>numer</code> and <code>denom</code>. Note how each function returns a different variant of <code>div_t</code>.</p>
+
+<p>These <code>div_t</code> variants are equivalent to the following:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">quot</span><span class="p">,</span> <span class="n">rem</span><span class="p">;</span>
+<span class="p">}</span> <span class="kt">div_t</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">long</span> <span class="kt">int</span> <span class="n">quot</span><span class="p">,</span> <span class="n">rem</span><span class="p">;</span>
+<span class="p">}</span> <span class="kt">ldiv_t</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">quot</span><span class="p">,</span> <span class="n">rem</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">lldiv_t</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Why use these instead of the division operator?</p>
+
+<p>The C99 Rationale says:</p>
+
+<blockquote>
+<p>Because C89 had implementation-defined semantics for division of signed integers when negative operands were involved, <code>div</code> and <code>ldiv</code>, and <code>lldiv</code> in C99, were invented to provide well-specified semantics for signed integer division and remainder operations. The semantics were adopted to be the same as in Fortran. Since these functions return both the quotient and the remainder, they also serve as a convenient way of efficiently modeling underlying hardware that computes both results as part of the same operation. Table 7.2 summarizes the semantics of these functions.</p>
+</blockquote>
+
+<p>Indeed, K&amp;R2 (C89) says:</p>
+
+<blockquote>
+<p>The direction of truncation for <code>/</code> and the sign of the result for <code>%</code> are machine-dependent for negative operands […]</p>
+</blockquote>
+
+<p>The Rationale then goes on to spell out what the signs of the quotient and remainder will be given the signs of a numerator and denominator when using the <code>div()</code> functions:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center"><code>numer</code></th>
+<th style="text-align: center"><code>denom</code></th>
+<th style="text-align: center"><code>quot</code></th>
+<th style="text-align: center"><code>rem</code></th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center">\(+\)</td>
+<td style="text-align: center">\(+\)</td>
+<td style="text-align: center">\(+\)</td>
+<td style="text-align: center">\(+\)</td>
+</tr>
+<tr>
+<td style="text-align: center">\(-\)</td>
+<td style="text-align: center">\(+\)</td>
+<td style="text-align: center">\(-\)</td>
+<td style="text-align: center">\(-\)</td>
+</tr>
+<tr>
+<td style="text-align: center">\(+\)</td>
+<td style="text-align: center">\(-\)</td>
+<td style="text-align: center">\(-\)</td>
+<td style="text-align: center">\(+\)</td>
+</tr>
+<tr>
+<td style="text-align: center">\(-\)</td>
+<td style="text-align: center">\(-\)</td>
+<td style="text-align: center">\(+\)</td>
+<td style="text-align: center">\(-\)</td>
+</tr>
+</tbody></table>
+
+<h3>Return Value</h3>
+
+<p>A <code>div_t</code>, <code>ldiv_t</code>, or <code>lldiv_t</code> structure with the <code>quot</code> and <code>rem</code> fields loaded with the quotient and remainder of the operation of <code>numer/denom</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">div_t</span> <span class="n">d</span> <span class="o">=</span> <span class="n">div</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="o">-</span><span class="mi">7</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"64 / -7 = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">d</span><span class="p">.</span><span class="n">quot</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"64 %% -7 = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">d</span><span class="p">.</span><span class="n">rem</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">64</span> <span class="o">/</span> <span class="o">-</span><span class="mi">7</span> <span class="o">=</span> <span class="o">-</span><span class="mi">9</span>
+<span class="mi">64</span> <span class="o">%</span> <span class="o">-</span><span class="mi">7</span> <span class="o">=</span> <span class="mi">1</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="math.html#man-fmod" rel="nofollow"><code>fmod()</code></a>, <a href="math.html#man-remainder" rel="nofollow"><code>remainder()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.21 <code>mblen()</code></h2>
+
+<p>Return the number of bytes in a multibyte character</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">mblen</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If you have a multibyte character in a string, this will tell you how many bytes long it is.</p>
+
+<p><code>n</code> is the maximum number of bytes <code>mblen()</code> will scan before giving up.</p>
+
+<p>If <code>s</code> is a <code>NULL</code> pointer, tests if this encoding has state dependency, as noted in the return value, below. It also resets the state, if there is one.</p>
+
+<p>The behavior of this function is influenced by the locale.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of bytes used to encode this character, or <code>-1</code> if there is no valid multibyte character in the next <code>n</code> bytes.</p>
+
+<p>Or, if <code>s</code> is NULL, returns true if this encoding has state dependency.</p>
+
+<h3>Example</h3>
+
+<p>For the example, I used my extended character set to put Unicode characters in the source. If this doesn’t work for you, use the <code>\uXXXX</code> escape.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"State dependency: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mblen</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Bytes for €: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mblen</span><span class="p">(</span><span class="s">"€"</span><span class="p">,</span> <span class="mi">5</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Bytes for \u00e9: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mblen</span><span class="p">(</span><span class="s">"\u00e9"</span><span class="p">,</span> <span class="mi">5</span><span class="p">));</span>  <span class="c1">// \u00e9 == é</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Bytes for &amp;: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mblen</span><span class="p">(</span><span class="s">"&amp;"</span><span class="p">,</span> <span class="mi">5</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output (in my case, the encoding is UTF-8, but your mileage may vary):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">State</span> <span class="n">dependency</span><span class="o">:</span> <span class="mi">0</span>
+<span class="n">Bytes</span> <span class="k">for</span> <span class="err">€</span><span class="o">:</span> <span class="mi">3</span>
+<span class="n">Bytes</span> <span class="k">for</span> <span class="err">é</span><span class="o">:</span> <span class="mi">2</span>
+<span class="n">Bytes</span> <span class="k">for</span> <span class="o">&amp;:</span> <span class="mi">1</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-mbtowc" rel="nofollow"><code>mbtowc()</code></a>, <a href="stdlib.html#man-mbstowcs" rel="nofollow"><code>mbstowcs())</code></a>, <a href="locale.html#man-setlocale" rel="nofollow"><code>setlocale()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.22 <code>mbtowc()</code></h2>
+
+<p>Convert a multibyte character to a wide character</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">mbtowc</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">pwc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If you have a multibyte character, this function will convert it to a wide character and stored at the address pointed to by <code>pwc</code>. Up to <code>n</code> bytes of the multibyte character will be analyzed.</p>
+
+<p>If <code>pwc</code> is <code>NULL</code>, the resulting character will not be stored. (Useful for just getting the return value.)</p>
+
+<p>If <code>s</code> is a <code>NULL</code> pointer, tests if this encoding has state dependency, as noted in the return value, below. It also resets the state, if there is one.</p>
+
+<p>The behavior of this function is influenced by the locale.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of bytes used in the encoded wide character, or <code>-1</code> if there is no valid multibyte character in the next <code>n</code> bytes.</p>
+
+<p>Returns <code>0</code> if <code>s</code> points to the NUL character.</p>
+
+<p>Or, if <code>s</code> is NULL, returns true if this encoding has state dependency.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"State dependency: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mbtowc</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+
+    <span class="kt">wchar_t</span> <span class="n">wc</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">bytes</span><span class="p">;</span>
+
+    <span class="n">bytes</span> <span class="o">=</span> <span class="n">mbtowc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wc</span><span class="p">,</span> <span class="s">"€"</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"L'%lc' takes %d bytes as multibyte char '€'</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wc</span><span class="p">,</span> <span class="n">bytes</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">State</span> <span class="n">dependency</span><span class="o">:</span> <span class="mi">0</span>
+<span class="sc">L'€'</span> <span class="n">takes</span> <span class="mi">3</span> <span class="n">bytes</span> <span class="n">as</span> <span class="n">multibyte</span> <span class="kt">char</span> <span class="sc">'€'</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-mblen" rel="nofollow"><code>mblen()</code></a>, <a href="stdlib.html#man-mbstowcs" rel="nofollow"><code>mbstowcs()</code></a>, <a href="stdlib.html#man-wcstombs" rel="nofollow"><code>wcstombs()</code></a>, <a href="locale.html#man-setlocale" rel="nofollow"><code>setlocale()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.23 <code>wctomb()</code></h2>
+
+<p>Convert a wide character to a multibyte character</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">wctomb</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">wchar_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If you have your hands on a wide character, you can use this to make it multibyte.</p>
+
+<p>The wide character <code>wc</code> is stored as a multibyte character in the string pointed to by <code>s</code>. The buffer <code>s</code> points to should be at least <code>MB_CUR_MAX</code> characters long. Note that <code>MB_CUR_MAX</code> changes with locale.</p>
+
+<p>If <code>wc</code> is a NUL wide character, a NUL is stored in <code>s</code> after the bytes needed to reset the shift state (if any).</p>
+
+<p>If <code>s</code> is a <code>NULL</code> pointer, tests if this encoding has state dependency, as noted in the return value, below. It also resets the state, if there is one.</p>
+
+<p>The behavior of this function is influenced by the locale.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of bytes used in the encoded multibyte character, or <code>-1</code> if <code>wc</code> does not correspond to any valid multibyte character.</p>
+
+<p>Or, if <code>s</code> is NULL, returns true if this encoding has state dependency.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"State dependency: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mbtowc</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+
+    <span class="kt">int</span> <span class="n">bytes</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">mb</span><span class="p">[</span><span class="n">MB_CUR_MAX</span> <span class="o">+</span> <span class="mi">1</span><span class="p">];</span>
+
+    <span class="n">bytes</span> <span class="o">=</span> <span class="n">wctomb</span><span class="p">(</span><span class="n">mb</span><span class="p">,</span> <span class="sc">L'€'</span><span class="p">);</span>
+    <span class="n">mb</span><span class="p">[</span><span class="n">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"L'€' takes %d bytes as multibyte char '%s'</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">mb</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">State</span> <span class="n">dependency</span><span class="o">:</span> <span class="mi">0</span>
+<span class="sc">L'€'</span> <span class="n">takes</span> <span class="mi">3</span> <span class="n">bytes</span> <span class="n">as</span> <span class="n">multibyte</span> <span class="kt">char</span> <span class="sc">'€'</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-mbtowc" rel="nofollow"><code>mbtowc()</code></a>, <a href="stdlib.html#man-mbstowcs" rel="nofollow"><code>mbstowcs()</code></a>, <a href="stdlib.html#man-wcstombs" rel="nofollow"><code>wcstombs()</code></a>, <a href="locale.html#man-setlocale" rel="nofollow"><code>setlocale()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.24 <code>mbstowcs()</code></h2>
+
+<p>Convert a multibyte string to a wide character string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">mbstowcs</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">pwcs</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If you have a multibyte string (AKA a regular string), you can convert it wto a wide character string with this function.</p>
+
+<p>At most <code>n</code> wide characters are written to the destination <code>pwcs</code> from the source <code>s</code>.</p>
+
+<p>A NUL character is stored as a wide NUL character.</p>
+
+<p>Non-portable POSIX extension: if you’re using a POSIX-complaint library, this function allows <code>pwcs</code> to be <code>NULL</code> if you’re only interested in the return value. Most notably, this will give you the number of characters in a multibyte string (as opposed to <a href="stringref.html#man-strlen" rel="nofollow"><code>strlen()</code></a> which counts the bytes.)</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of wide characters written to the destination <code>pwcs</code>.</p>
+
+<p>If an invalid multibyte character was found, returns <code>(size_t)(-1)</code>.</p>
+
+<p>If the return value is <code>n</code>, it means the result was <em>not</em> NUL-terminated.</p>
+
+<h3>Example</h3>
+
+<p>This source uses an extended character set. If your compiler doesn’t support it, you’ll have to replace them with <code>\u</code> escapes.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="kt">wchar_t</span> <span class="n">wcs</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"€200 for this spoon?"</span><span class="p">;</span>  <span class="c1">// 20 characters</span>
+
+    <span class="kt">size_t</span> <span class="n">char_count</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">;</span>
+
+    <span class="n">char_count</span> <span class="o">=</span> <span class="n">mbstowcs</span><span class="p">(</span><span class="n">wcs</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">128</span><span class="p">);</span>
+    <span class="n">byte_count</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Wide string: L</span><span class="se">\"</span><span class="s">%ls</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcs</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Char count : %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">char_count</span><span class="p">);</span>    <span class="c1">// 20</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Byte count : %zu</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">);</span>  <span class="c1">// 22 on my system</span>
+
+    <span class="c1">// POSIX Extension that allows you to pass NULL for</span>
+    <span class="c1">// the destination so you can just use the return</span>
+    <span class="c1">// value (which is the character count of the string, </span>
+    <span class="c1">// if no errors have occurred)</span>
+
+    <span class="n">s</span> <span class="o">=</span> <span class="s">"§¶°±π€•"</span><span class="p">;</span>  <span class="c1">// 7 characters</span>
+
+    <span class="n">char_count</span> <span class="o">=</span> <span class="n">mbstowcs</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>  <span class="c1">// POSIX-only, nonportable</span>
+    <span class="n">byte_count</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Multibyte str: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Char count   : %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">char_count</span><span class="p">);</span>  <span class="c1">// 7</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Byte count   : %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">);</span>  <span class="c1">// 16 on my system</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system (byte count will depend on your encoding):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Wide</span> <span class="n">string</span><span class="o">:</span> <span class="s">L"€200 for this spoon?"</span>
+<span class="n">Char</span> <span class="n">count</span> <span class="o">:</span> <span class="mi">20</span>
+<span class="n">Byte</span> <span class="n">count</span> <span class="o">:</span> <span class="mi">22</span>
+
+<span class="n">Multibyte</span> <span class="n">str</span><span class="o">:</span> <span class="s">"§¶°±π€•"</span>
+<span class="n">Char</span> <span class="n">count</span>   <span class="o">:</span> <span class="mi">7</span>
+<span class="n">Byte</span> <span class="n">count</span>   <span class="o">:</span> <span class="mi">16</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-mblen" rel="nofollow"><code>mblen()</code></a>, <a href="stdlib.html#man-mbtowc" rel="nofollow"><code>mbtowc()</code></a>, <a href="stdlib.html#man-wcstombs" rel="nofollow"><code>wcstombs()</code></a>, <a href="locale.html#man-setlocale" rel="nofollow"><code>setlocale()</code></a></p>
+
+<p><hr></p>
+
+<h2>23.25 <code>wcstombs()</code></h2>
+
+<p>Convert a wide character string to a multibyte string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">wcstombs</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">pwcs</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If you have a wide character string and you want it as multibyte string, this is the function for you!</p>
+
+<p>It’ll take the wide characters pointed to by <code>pwcs</code> and convert them to multibyte characters stored in <code>s</code>. No more than <code>n</code> bytes will be written to <code>s</code>.</p>
+
+<p>Non-portable POSIX extension: if you’re using a POSIX-complaint library, this function allows <code>s</code> to be <code>NULL</code> if you’re only interested in the return value. Most notably, this will give you the number of bytes needed to encode the wide characters in a multibyte string.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of bytes written to <code>s</code>, or <code>(size_t)(-1)</code> if one of the characters can’t be encoded into a multibyte string.</p>
+
+<p>If the return value is <code>n</code>, it means the result was <em>not</em> NUL-terminated.</p>
+
+<h3>Example</h3>
+
+<p>This source uses an extended character set. If your compiler doesn’t support it, you’ll have to replace them with <code>\u</code> escapes.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="kt">char</span> <span class="n">mbs</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">wcs</span> <span class="o">=</span> <span class="s">L"€200 for this spoon?"</span><span class="p">;</span>  <span class="c1">// 20 characters</span>
+
+    <span class="kt">size_t</span> <span class="n">byte_count</span><span class="p">;</span>
+
+    <span class="n">byte_count</span> <span class="o">=</span> <span class="n">wcstombs</span><span class="p">(</span><span class="n">mbs</span><span class="p">,</span> <span class="n">wcs</span><span class="p">,</span> <span class="mi">128</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Wide string: L</span><span class="se">\"</span><span class="s">%ls</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcs</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Multibyte  : </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mbs</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Byte count : %zu</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">);</span>  <span class="c1">// 22 on my system</span>
+
+    <span class="c1">// POSIX Extension that allows you to pass NULL for</span>
+    <span class="c1">// the destination so you can just use the return</span>
+    <span class="c1">// value (which is the character count of the string, </span>
+    <span class="c1">// if no errors have occurred)</span>
+
+    <span class="n">wcs</span> <span class="o">=</span> <span class="s">L"§¶°±π€•"</span><span class="p">;</span>  <span class="c1">// 7 characters</span>
+
+    <span class="n">byte_count</span> <span class="o">=</span> <span class="n">wcstombs</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">wcs</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>  <span class="c1">// POSIX-only, nonportable</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Wide string: L</span><span class="se">\"</span><span class="s">%ls</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcs</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Byte count : %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">byte_count</span><span class="p">);</span>  <span class="c1">// 16 on my system</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system (byte count will depend on your encoding):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Wide</span> <span class="n">string</span><span class="o">:</span> <span class="s">L"€200 for this spoon?"</span>
+<span class="n">Multibyte</span>  <span class="o">:</span> <span class="s">"€200 for this spoon?"</span>
+<span class="n">Byte</span> <span class="n">count</span> <span class="o">:</span> <span class="mi">22</span>
+
+<span class="n">Wide</span> <span class="n">string</span><span class="o">:</span> <span class="s">L"§¶°±π€•"</span>
+<span class="n">Byte</span> <span class="n">count</span> <span class="o">:</span> <span class="mi">16</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-mblen" rel="nofollow"><code>mblen()</code></a>, <a href="stdlib.html#man-wctomb" rel="nofollow"><code>wctomb()</code></a>, <a href="stdlib.html#man-mbstowcs" rel="nofollow"><code>mbstowcs()</code></a>, <a href="locale.html#man-setlocale" rel="nofollow"><code>setlocale()</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

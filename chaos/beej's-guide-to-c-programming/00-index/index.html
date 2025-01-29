@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/00-index</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/00-index"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Beej&#39;s Guide to C Programming</h1>
+
+<p>Brian “Beej Jorgensen” Hall</p>
+
+<p>v0.9.13, Copyright © March 29, 2023</p>
+
+<ul>
+<li>  1 Foreword
+
+<ul>
+<li>  1.1 Audience</li>
+<li>  1.2 How to Read This Book</li>
+<li>  1.3 Platform and Compiler</li>
+<li>  1.4 Official Homepage</li>
+<li>  1.5 Email Policy</li>
+<li>  1.6 Mirroring</li>
+<li>  1.7 Note for Translators</li>
+<li>  1.8 Copyright and Distribution</li>
+<li>  1.9 Dedication</li>
+</ul></li>
+<li>  2 Hello, World!
+
+<ul>
+<li>  2.1 What to Expect from C</li>
+<li>  2.2 Hello, World!</li>
+<li>  2.3 Compilation Details</li>
+<li>  2.4 Building with <code>gcc</code></li>
+<li>  2.5 Building with <code>clang</code></li>
+<li>  2.6 Building from IDEs</li>
+<li>  2.7 C Versions</li>
+</ul></li>
+<li>  3 Variables and Statements
+
+<ul>
+<li>  3.1 Variables
+
+<ul>
+<li>  3.1.1 Variable Names</li>
+<li>  3.1.2 Variable Types</li>
+<li>  3.1.3 Boolean Types</li>
+</ul></li>
+<li>  3.2 Operators and Expressions
+
+<ul>
+<li>  3.2.1 Arithmetic</li>
+<li>  3.2.2 Ternary Operator</li>
+<li>  3.2.3 Pre-and-Post Increment-and-Decrement</li>
+<li>  3.2.4 The Comma Operator</li>
+<li>  3.2.5 Conditional Operators</li>
+<li>  3.2.6 Boolean Operators</li>
+<li>  3.2.7 The <code>sizeof</code> Operator</li>
+</ul></li>
+<li>  3.3 Flow Control
+
+<ul>
+<li>  3.3.1 The <code>if</code>-<code>else</code> statement</li>
+<li>  3.3.2 The <code>while</code> statement</li>
+<li>  3.3.3 The <code>do-while</code> statement</li>
+<li>  3.3.4 The <code>for</code> statement</li>
+<li>  3.3.5 The <code>switch</code> Statement</li>
+</ul></li>
+</ul></li>
+<li>  4 Functions
+
+<ul>
+<li>  4.1 Passing by Value</li>
+<li>  4.2 Function Prototypes</li>
+<li>  4.3 Empty Parameter Lists</li>
+</ul></li>
+<li>  5 Pointers—Cower In Fear!
+
+<ul>
+<li>  5.1 Memory and Variables</li>
+<li>  5.2 Pointer Types</li>
+<li>  5.3 Dereferencing</li>
+<li>  5.4 Passing Pointers as Arguments</li>
+<li>  5.5 The <code>NULL</code> Pointer</li>
+<li>  5.6 A Note on Declaring Pointers</li>
+<li>  5.7 <code>sizeof</code> and Pointers</li>
+</ul></li>
+<li>  6 Arrays
+
+<ul>
+<li>  6.1 Easy Example</li>
+<li>  6.2 Getting the Length of an Array</li>
+<li>  6.3 Array Initializers</li>
+<li>  6.4 Out of Bounds!</li>
+<li>  6.5 Multidimensional Arrays</li>
+<li>  6.6 Arrays and Pointers
+
+<ul>
+<li>  6.6.1 Getting a Pointer to an Array</li>
+<li>  6.6.2 Passing Single Dimensional Arrays to Functions</li>
+<li>  6.6.3 Changing Arrays in Functions</li>
+<li>  6.6.4 Passing Multidimensional Arrays to Functions</li>
+</ul></li>
+</ul></li>
+<li>  7 Strings
+
+<ul>
+<li>  7.1 String Literals</li>
+<li>  7.2 String Variables</li>
+<li>  7.3 String Variables as Arrays</li>
+<li>  7.4 String Initializers</li>
+<li>  7.5 Getting String Length</li>
+<li>  7.6 String Termination</li>
+<li>  7.7 Copying a String</li>
+</ul></li>
+<li>  8 Structs
+
+<ul>
+<li>  8.1 Declaring a Struct</li>
+<li>  8.2 Struct Initializers</li>
+<li>  8.3 Passing Structs to Functions</li>
+<li>  8.4 The Arrow Operator</li>
+<li>  8.5 Copying and Returning <code>struct</code>s</li>
+<li>  8.6 Comparing <code>struct</code>s</li>
+</ul></li>
+<li>  9 File Input/Output
+
+<ul>
+<li>  9.1 The <code>FILE*</code> Data Type</li>
+<li>  9.2 Reading Text Files</li>
+<li>  9.3 End of File: <code>EOF</code>
+
+<ul>
+<li>  9.3.1 Reading a Line at a Time</li>
+</ul></li>
+<li>  9.4 Formatted Input</li>
+<li>  9.5 Writing Text Files</li>
+<li>  9.6 Binary File I/O
+
+<ul>
+<li>  9.6.1 <code>struct</code> and Number Caveats</li>
+</ul></li>
+</ul></li>
+<li>  10 <code>typedef</code>: Making New Types
+
+<ul>
+<li>  10.1 <code>typedef</code> in Theory
+
+<ul>
+<li>  10.1.1 Scoping</li>
+</ul></li>
+<li>  10.2 <code>typedef</code> in Practice
+
+<ul>
+<li>  10.2.1 <code>typedef</code> and <code>struct</code>s</li>
+<li>  10.2.2 <code>typedef</code> and Other Types</li>
+<li>  10.2.3 <code>typedef</code> and Pointers</li>
+<li>  10.2.4 <code>typedef</code> and Capitalization</li>
+</ul></li>
+<li>  10.3 Arrays and <code>typedef</code></li>
+</ul></li>
+<li>  11 Pointers II: Arithmetic
+
+<ul>
+<li>  11.1 Pointer Arithmetic
+
+<ul>
+<li>  11.1.1 Adding to Pointers</li>
+<li>  11.1.2 Changing Pointers</li>
+<li>  11.1.3 Subtracting Pointers</li>
+</ul></li>
+<li>  11.2 Array/Pointer Equivalence
+
+<ul>
+<li>  11.2.1 Array/Pointer Equivalence in Function Calls</li>
+</ul></li>
+<li>  11.3 <code>void</code> Pointers</li>
+</ul></li>
+<li>  12 Manual Memory Allocation
+
+<ul>
+<li>  12.1 Allocating and Deallocating, <code>malloc()</code> and <code>free()</code></li>
+<li>  12.2 Error Checking</li>
+<li>  12.3 Allocating Space for an Array</li>
+<li>  12.4 An Alternative: <code>calloc()</code></li>
+<li>  12.5 Changing Allocated Size with <code>realloc()</code>
+
+<ul>
+<li>  12.5.1 Reading in Lines of Arbitrary Length</li>
+<li>  12.5.2 <code>realloc()</code> with <code>NULL</code></li>
+</ul></li>
+<li>  12.6 Aligned Allocations</li>
+</ul></li>
+<li>  13 Scope
+
+<ul>
+<li>  13.1 Block Scope
+
+<ul>
+<li>  13.1.1 Where To Define Variables</li>
+<li>  13.1.2 Variable Hiding</li>
+</ul></li>
+<li>  13.2 File Scope</li>
+<li>  13.3 <code>for</code>-loop Scope</li>
+<li>  13.4 A Note on Function Scope</li>
+</ul></li>
+<li>  14 Types II: Way More Types!
+
+<ul>
+<li>  14.1 Signed and Unsigned Integers</li>
+<li>  14.2 Character Types</li>
+<li>  14.3 More Integer Types: <code>short</code>, <code>long</code>, <code>long long</code></li>
+<li>  14.4 More Float: <code>double</code> and <code>long double</code>
+
+<ul>
+<li>  14.4.1 How Many Decimal Digits?</li>
+<li>  14.4.2 Converting to Decimal and Back</li>
+</ul></li>
+<li>  14.5 Constant Numeric Types
+
+<ul>
+<li>  14.5.1 Hexadecimal and Octal</li>
+<li>  14.5.2 Integer Constants</li>
+<li>  14.5.3 Floating Point Constants</li>
+</ul></li>
+</ul></li>
+<li>  15 Types III: Conversions
+
+<ul>
+<li>  15.1 String Conversions
+
+<ul>
+<li>  15.1.1 Numeric Value to String</li>
+<li>  15.1.2 String to Numeric Value</li>
+</ul></li>
+<li>  15.2 <code>char</code> Conversions</li>
+<li>  15.3 Numeric Conversions
+
+<ul>
+<li>  15.3.1 Boolean</li>
+<li>  15.3.2 Integer to Integer Conversions</li>
+<li>  15.3.3 Integer and Floating Point Conversions</li>
+</ul></li>
+<li>  15.4 Implicit Conversions
+
+<ul>
+<li>  15.4.1 The Integer Promotions</li>
+<li>  15.4.2 The Usual Arithmetic Conversions</li>
+<li>  15.4.3 <code>void*</code></li>
+</ul></li>
+<li>  15.5 Explicit Conversions
+
+<ul>
+<li>  15.5.1 Casting</li>
+</ul></li>
+</ul></li>
+<li>  16 Types IV: Qualifiers and Specifiers
+
+<ul>
+<li>  16.1 Type Qualifiers
+
+<ul>
+<li>  16.1.1 <code>const</code></li>
+<li>  16.1.2 <code>restrict</code></li>
+<li>  16.1.3 <code>volatile</code></li>
+<li>  16.1.4 <code>_Atomic</code></li>
+</ul></li>
+<li>  16.2 Storage-Class Specifiers
+
+<ul>
+<li>  16.2.1 <code>auto</code></li>
+<li>  16.2.2 <code>static</code></li>
+<li>  16.2.3 <code>extern</code></li>
+<li>  16.2.4 <code>register</code></li>
+<li>  16.2.5 <code>_Thread_local</code></li>
+</ul></li>
+</ul></li>
+<li>  17 Multifile Projects
+
+<ul>
+<li>  17.1 Includes and Function Prototypes</li>
+<li>  17.2 Dealing with Repeated Includes</li>
+<li>  17.3 <code>static</code> and <code>extern</code></li>
+<li>  17.4 Compiling with Object Files</li>
+</ul></li>
+<li>  18 The Outside Environment
+
+<ul>
+<li>  18.1 Command Line Arguments
+
+<ul>
+<li>  18.1.1 The Last <code>argv</code> is <code>NULL</code></li>
+<li>  18.1.2 The Alternate: <code>char **argv</code></li>
+<li>  18.1.3 Fun Facts</li>
+</ul></li>
+<li>  18.2 Exit Status
+
+<ul>
+<li>  18.2.1 Other Exit Status Values</li>
+</ul></li>
+<li>  18.3 Environment Variables
+
+<ul>
+<li>  18.3.1 Setting Environment Variables</li>
+<li>  18.3.2 Unix-like Alternative Environment Variables</li>
+</ul></li>
+</ul></li>
+<li>  19 The C Preprocessor
+
+<ul>
+<li>  19.1 <code>#include</code></li>
+<li>  19.2 Simple Macros</li>
+<li>  19.3 Conditional Compilation
+
+<ul>
+<li>  19.3.1 If Defined, <code>#ifdef</code> and <code>#endif</code></li>
+<li>  19.3.2 If Not Defined, <code>#ifndef</code></li>
+<li>  19.3.3 <code>#else</code></li>
+<li>  19.3.4 General Conditional: <code>#if</code>, <code>#elif</code></li>
+<li>  19.3.5 Losing a Macro: <code>#undef</code></li>
+</ul></li>
+<li>  19.4 Built-in Macros
+
+<ul>
+<li>  19.4.1 Mandatory Macros</li>
+<li>  19.4.2 Optional Macros</li>
+</ul></li>
+<li>  19.5 Macros with Arguments
+
+<ul>
+<li>  19.5.1 Macros with One Argument</li>
+<li>  19.5.2 Macros with More than One Argument</li>
+<li>  19.5.3 Macros with Variable Arguments</li>
+<li>  19.5.4 Stringification</li>
+<li>  19.5.5 Concatenation</li>
+</ul></li>
+<li>  19.6 Multiline Macros</li>
+<li>  19.7 Example: An Assert Macro</li>
+<li>  19.8 The <code>#error</code> Directive</li>
+<li>  19.9 The <code>#pragma</code> Directive
+
+<ul>
+<li>  19.9.1 Non-Standard Pragmas</li>
+<li>  19.9.2 Standard Pragmas</li>
+<li>  19.9.3 <code>_Pragma</code> Operator</li>
+</ul></li>
+<li>  19.10 The <code>#line</code> Directive</li>
+<li>  19.11 The Null Directive</li>
+</ul></li>
+<li>  20 <code>struct</code>s II: More Fun with <code>struct</code>s
+
+<ul>
+<li>  20.1 Initializers of Nested <code>struct</code>s and Arrays</li>
+<li>  20.2 Anonymous <code>struct</code>s</li>
+<li>  20.3 Self-Referential <code>struct</code>s</li>
+<li>  20.4 Flexible Array Members</li>
+<li>  20.5 Padding Bytes</li>
+<li>  20.6 <code>offsetof</code></li>
+<li>  20.7 Fake OOP</li>
+<li>  20.8 Bit-Fields
+
+<ul>
+<li>  20.8.1 Non-Adjacent Bit-Fields</li>
+<li>  20.8.2 Signed or Unsigned <code>int</code>s</li>
+<li>  20.8.3 Unnamed Bit-Fields</li>
+<li>  20.8.4 Zero-Width Unnamed Bit-Fields</li>
+</ul></li>
+<li>  20.9 Unions
+
+<ul>
+<li>  20.9.1 Unions and Type Punning</li>
+<li>  20.9.2 Pointers to <code>union</code>s</li>
+<li>  20.9.3 Common Initial Sequences in Unions</li>
+</ul></li>
+<li>  20.10 Unions and Unnamed Structs</li>
+<li>  20.11 Passing and Returning <code>struct</code>s and <code>union</code>s</li>
+</ul></li>
+<li>  21 Characters and Strings II
+
+<ul>
+<li>  21.1 Escape Sequences
+
+<ul>
+<li>  21.1.1 Frequently-used Escapes</li>
+<li>  21.1.2 Rarely-used Escapes</li>
+<li>  21.1.3 Numeric Escapes</li>
+</ul></li>
+</ul></li>
+<li>  22 Enumerated Types: <code>enum</code>
+
+<ul>
+<li>  22.1 Behavior of <code>enum</code>
+
+<ul>
+<li>  22.1.1 Numbering</li>
+<li>  22.1.2 Trailing Commas</li>
+<li>  22.1.3 Scope</li>
+<li>  22.1.4 Style</li>
+</ul></li>
+<li>  22.2 Your <code>enum</code> is a Type</li>
+</ul></li>
+<li>  23 Pointers III: Pointers to Pointers and More
+
+<ul>
+<li>  23.1 Pointers to Pointers
+
+<ul>
+<li>  23.1.1 Pointer Pointers and <code>const</code></li>
+</ul></li>
+<li>  23.2 Multibyte Values</li>
+<li>  23.3 The <code>NULL</code> Pointer and Zero</li>
+<li>  23.4 Pointers as Integers</li>
+<li>  23.5 Casting Pointers to other Pointers</li>
+<li>  23.6 Pointer Differences</li>
+<li>  23.7 Pointers to Functions</li>
+</ul></li>
+<li>  24 Bitwise Operations
+
+<ul>
+<li>  24.1 Bitwise AND, OR, XOR, and NOT</li>
+<li>  24.2 Bitwise Shift</li>
+</ul></li>
+<li>  25 Variadic Functions
+
+<ul>
+<li>  25.1 Ellipses in Function Signatures</li>
+<li>  25.2 Getting the Extra Arguments</li>
+<li>  25.3 <code>va_list</code> Functionality</li>
+<li>  25.4 Library Functions That Use <code>va_list</code>s</li>
+</ul></li>
+<li>  26 Locale and Internationalization
+
+<ul>
+<li>  26.1 Setting the Localization, Quick and Dirty</li>
+<li>  26.2 Getting the Monetary Locale Settings
+
+<ul>
+<li>  26.2.1 Monetary Digit Grouping</li>
+<li>  26.2.2 Separators and Sign Position</li>
+<li>  26.2.3 Example Values</li>
+</ul></li>
+<li>  26.3 Localization Specifics</li>
+</ul></li>
+<li>  27 Unicode, Wide Characters, and All That
+
+<ul>
+<li>  27.1 What is Unicode?</li>
+<li>  27.2 Code Points</li>
+<li>  27.3 Encoding</li>
+<li>  27.4 Source and Execution Character Sets</li>
+<li>  27.5 Unicode in C</li>
+<li>  27.6 A Quick Note on UTF-8 Before We Swerve into the Weeds</li>
+<li>  27.7 Different Character Types
+
+<ul>
+<li>  27.7.1 Multibyte Characters</li>
+<li>  27.7.2 Wide Characters</li>
+</ul></li>
+<li>  27.8 Using Wide Characters and <code>wchar_t</code>
+
+<ul>
+<li>  27.8.1 Multibyte to <code>wchar_t</code> Conversions</li>
+</ul></li>
+<li>  27.9 Wide Character Functionality
+
+<ul>
+<li>  27.9.1 <code>wint_t</code></li>
+<li>  27.9.2 I/O Stream Orientation</li>
+<li>  27.9.3 I/O Functions</li>
+<li>  27.9.4 Type Conversion Functions</li>
+<li>  27.9.5 String and Memory Copying Functions</li>
+<li>  27.9.6 String and Memory Comparing Functions</li>
+<li>  27.9.7 String Searching Functions</li>
+<li>  27.9.8 Length/Miscellaneous Functions</li>
+<li>  27.9.9 Character Classification Functions</li>
+</ul></li>
+<li>  27.10 Parse State, Restartable Functions</li>
+<li>  27.11 Unicode Encodings and C
+
+<ul>
+<li>  27.11.1 UTF-8</li>
+<li>  27.11.2 UTF-16, UTF-32, <code>char16_t</code>, and <code>char32_t</code></li>
+<li>  27.11.3 Multibyte Conversions</li>
+<li>  27.11.4 Third-Party Libraries</li>
+</ul></li>
+</ul></li>
+<li>  28 Exiting a Program
+
+<ul>
+<li>  28.1 Normal Exits
+
+<ul>
+<li>  28.1.1 Returning From <code>main()</code></li>
+<li>  28.1.2 <code>exit()</code></li>
+<li>  28.1.3 Setting Up Exit Handlers with <code>atexit()</code></li>
+</ul></li>
+<li>  28.2 Quicker Exits with <code>quick_exit()</code></li>
+<li>  28.3 Nuke it from Orbit: <code>_Exit()</code></li>
+<li>  28.4 Exiting Sometimes: <code>assert()</code></li>
+<li>  28.5 Abnormal Exit: <code>abort()</code></li>
+</ul></li>
+<li>  29 Signal Handling
+
+<ul>
+<li>  29.1 What Are Signals?</li>
+<li>  29.2 Handling Signals with <code>signal()</code></li>
+<li>  29.3 Writing Signal Handlers</li>
+<li>  29.4 What Can We Actually Do?</li>
+<li>  29.5 Friends Don’t Let Friends <code>signal()</code></li>
+</ul></li>
+<li>  30 Variable-Length Arrays (VLAs)
+
+<ul>
+<li>  30.1 The Basics</li>
+<li>  30.2 <code>sizeof</code> and VLAs</li>
+<li>  30.3 Multidimensional VLAs</li>
+<li>  30.4 Passing One-Dimensional VLAs to Functions</li>
+<li>  30.5 Passing Multi-Dimensional VLAs to Functions
+
+<ul>
+<li>  30.5.1 Partial Multidimensional VLAs</li>
+</ul></li>
+<li>  30.6 Compatibility with Regular Arrays</li>
+<li>  30.7 <code>typedef</code> and VLAs</li>
+<li>  30.8 Jumping Pitfalls</li>
+<li>  30.9 General Issues</li>
+</ul></li>
+<li>  31 <code>goto</code>
+
+<ul>
+<li>  31.1 A Simple Example</li>
+<li>  31.2 Labeled <code>continue</code></li>
+<li>  31.3 Bailing Out</li>
+<li>  31.4 Labeled <code>break</code></li>
+<li>  31.5 Multi-level Cleanup</li>
+<li>  31.6 Tail Call Optimization</li>
+<li>  31.7 Restarting Interrupted System Calls</li>
+<li>  31.8 <code>goto</code> and Thread Preemption</li>
+<li>  31.9 <code>goto</code> and Variable Scope</li>
+<li>  31.10 <code>goto</code> and Variable-Length Arrays</li>
+</ul></li>
+<li>  32 Types Part V: Compound Literals and Generic Selections
+
+<ul>
+<li>  32.1 Compound Literals
+
+<ul>
+<li>  32.1.1 Passing Unnamed Objects to Functions</li>
+<li>  32.1.2 Unnamed <code>struct</code>s</li>
+<li>  32.1.3 Pointers to Unnamed Objects</li>
+<li>  32.1.4 Unnamed Objects and Scope</li>
+<li>  32.1.5 Silly Unnamed Object Example</li>
+</ul></li>
+<li>  32.2 Generic Selections</li>
+</ul></li>
+<li>  33 Arrays Part II
+
+<ul>
+<li>  33.1 Type Qualifiers for Arrays in Parameter Lists</li>
+<li>  33.2 <code>static</code> for Arrays in Parameter Lists</li>
+<li>  33.3 Equivalent Initializers</li>
+</ul></li>
+<li>  34 Long Jumps with <code>setjmp</code>, <code>longjmp</code>
+
+<ul>
+<li>  34.1 Using <code>setjmp</code> and <code>longjmp</code></li>
+<li>  34.2 Pitfalls
+
+<ul>
+<li>  34.2.1 The Values of Local Variables</li>
+<li>  34.2.2 How Much State is Saved?</li>
+<li>  34.2.3 You Can’t Name Anything <code>setjmp</code></li>
+<li>  34.2.4 You Can’t <code>setjmp()</code> in a Larger Expression</li>
+<li>  34.2.5 When Can’t You <code>longjmp()</code>?</li>
+<li>  34.2.6 You Can’t Pass <code>0</code> to <code>longjmp()</code></li>
+<li>  34.2.7 <code>longjmp()</code> and Variable Length Arrays</li>
+</ul></li>
+</ul></li>
+<li>  35 Incomplete Types
+
+<ul>
+<li>  35.1 Use Case: Self-Referential Structures</li>
+<li>  35.2 Incomplete Type Error Messages</li>
+<li>  35.3 Other Incomplete Types</li>
+<li>  35.4 Use Case: Arrays in Header Files</li>
+<li>  35.5 Completing Incomplete Types</li>
+</ul></li>
+<li>  36 Complex Numbers
+
+<ul>
+<li>  36.1 Complex Types</li>
+<li>  36.2 Assigning Complex Numbers</li>
+<li>  36.3 Constructing, Deconstructing, and Printing</li>
+<li>  36.4 Complex Arithmetic and Comparisons</li>
+<li>  36.5 Complex Math
+
+<ul>
+<li>  36.5.1 Trigonometry Functions</li>
+<li>  36.5.2 Exponential and Logarithmic Functions</li>
+<li>  36.5.3 Power and Absolute Value Functions</li>
+<li>  36.5.4 Manipulation Functions</li>
+</ul></li>
+</ul></li>
+<li>  37 Fixed Width Integer Types
+
+<ul>
+<li>  37.1 The Bit-Sized Types</li>
+<li>  37.2 Maximum Integer Size Type</li>
+<li>  37.3 Using Fixed Size Constants</li>
+<li>  37.4 Limits of Fixed Size Integers</li>
+<li>  37.5 Format Specifiers</li>
+</ul></li>
+<li>  38 Date and Time Functionality
+
+<ul>
+<li>  38.1 Quick Terminology and Information</li>
+<li>  38.2 Date Types</li>
+<li>  38.3 Initialization and Conversion Between Types
+
+<ul>
+<li>  38.3.1 Converting <code>time_t</code> to <code>struct tm</code></li>
+<li>  38.3.2 Converting <code>struct tm</code> to <code>time_t</code></li>
+</ul></li>
+<li>  38.4 Formatted Date Output</li>
+<li>  38.5 More Resolution with <code>timespec_get()</code></li>
+<li>  38.6 Differences Between Times</li>
+</ul></li>
+<li>  39 Multithreading
+
+<ul>
+<li>  39.1 Background</li>
+<li>  39.2 Things You Can Do</li>
+<li>  39.3 Data Races and the Standard Library</li>
+<li>  39.4 Creating and Waiting for Threads</li>
+<li>  39.5 Detaching Threads</li>
+<li>  39.6 Thread Local Data
+
+<ul>
+<li>  39.6.1 <code>_Thread_local</code> Storage-Class</li>
+<li>  39.6.2 Another Option: Thread-Specific Storage</li>
+</ul></li>
+<li>  39.7 Mutexes
+
+<ul>
+<li>  39.7.1 Different Mutex Types</li>
+</ul></li>
+<li>  39.8 Condition Variables
+
+<ul>
+<li>  39.8.1 Timed Condition Wait</li>
+<li>  39.8.2 Broadcast: Wake Up All Waiting Threads</li>
+</ul></li>
+<li>  39.9 Running a Function One Time</li>
+</ul></li>
+<li>  40 Atomics
+
+<ul>
+<li>  40.1 Testing for Atomic Support</li>
+<li>  40.2 Atomic Variables</li>
+<li>  40.3 Synchronization</li>
+<li>  40.4 Acquire and Release</li>
+<li>  40.5 Sequential Consistency</li>
+<li>  40.6 Atomic Assignments and Operators</li>
+<li>  40.7 Library Functions that Automatically Synchronize</li>
+<li>  40.8 Atomic Type Specifier, Qualifier</li>
+<li>  40.9 Lock-Free Atomic Variables
+
+<ul>
+<li>  40.9.1 Signal Handlers and Lock-Free Atomics</li>
+</ul></li>
+<li>  40.10 Atomic Flags</li>
+<li>  40.11 Atomic <code>struct</code>s and <code>union</code>s</li>
+<li>  40.12 Atomic Pointers</li>
+<li>  40.13 Memory Order
+
+<ul>
+<li>  40.13.1 Sequential Consistency</li>
+<li>  40.13.2 Acquire</li>
+<li>  40.13.3 Release</li>
+<li>  40.13.4 Consume</li>
+<li>  40.13.5 Acquire/Release</li>
+<li>  40.13.6 Relaxed</li>
+</ul></li>
+<li>  40.14 Fences</li>
+<li>  40.15 References</li>
+</ul></li>
+<li>  41 Function Specifiers, Alignment Specifiers/Operators
+
+<ul>
+<li>  41.1 Function Specifiers
+
+<ul>
+<li>  41.1.1 <code>inline</code> for Speed—Maybe</li>
+<li>  41.1.2 <code>noreturn</code> and <code>_Noreturn</code></li>
+</ul></li>
+<li>  41.2 Alignment Specifiers and Operators
+
+<ul>
+<li>  41.2.1 <code>alignas</code> and <code>_Alignas</code></li>
+<li>  41.2.2 <code>alignof</code> and <code>_Alignof</code></li>
+</ul></li>
+</ul></li>
+</ul>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

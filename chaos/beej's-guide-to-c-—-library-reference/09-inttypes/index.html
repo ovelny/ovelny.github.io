@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/09-inttypes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/09-inttypes"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>9 <code>&lt;inttypes.h&gt;</code> More Integer Conversions</h1>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="inttypes.html#man-imaxabs" rel="nofollow"><code>imaxabs()</code></a></td>
+<td>Compute the absolute value of an <code>intmax_t</code></td>
+</tr>
+<tr>
+<td><a href="inttypes.html#man-imaxdiv" rel="nofollow"><code>imaxdiv()</code></a></td>
+<td>Compute the quotient and remainder of <code>intmax_t</code>s</td>
+</tr>
+<tr>
+<td><a href="inttypes.html#man-strtoimax" rel="nofollow"><code>strtoimax()</code></a></td>
+<td>Convert strings to type <code>intmax_t</code></td>
+</tr>
+<tr>
+<td><a href="inttypes.html#man-strtoimax" rel="nofollow"><code>strtoumax()</code></a></td>
+<td>Convert strings to type <code>uintmax_t</code></td>
+</tr>
+<tr>
+<td><a href="inttypes.html#man-wcstoimax" rel="nofollow"><code>wcstoimax()</code></a></td>
+<td>Convert wide strings to type <code>intmax_t</code></td>
+</tr>
+<tr>
+<td><a href="inttypes.html#man-wcstoimax" rel="nofollow"><code>wcstoumax()</code></a></td>
+<td>Convert wide strings to type <code>uintmax_t</code></td>
+</tr>
+</tbody></table>
+
+<p>This header does conversions to maximum sized integers, division with maximum sized integers, and also provides format specifiers for <a href="stdio.html#man-printf" rel="nofollow"><code>printf()</code></a> and <a href="stdio.html#man-scanf" rel="nofollow"><code>scanf()</code></a> for a variety of types defined in <a href="stdint.html#stdint" rel="nofollow"><code>&lt;stdint.h&gt;</code></a>.</p>
+
+<p>The header <a href="stdint.html#stdint" rel="nofollow"><code>&lt;stdint.h&gt;</code></a> is included by this one.</p>
+
+<h2>9.1 Macros</h2>
+
+<p>These are to help with <a href="stdio.html#man-printf" rel="nofollow"><code>printf()</code></a> and <a href="stdio.html#man-scanf" rel="nofollow"><code>scanf()</code></a> when you use a type such as <code>int_least16_t</code>… what format specifiers do you use?</p>
+
+<p>Let’s start with <code>printf()</code>—all these macros start with <code>PRI</code> and then are followed by the format specifier you’d typically use for that type. Lastly, the number of bits is added on.</p>
+
+<p>For example, the format specifier for a 64-bit integer is <code>PRId64</code>—the <code>d</code> is because you usually print integers with <code>&quot;%d&quot;</code>.</p>
+
+<p>An unsigned 16-bit integer could be printed with <code>PRIu16</code>.</p>
+
+<p>These macros expand to string literals. We can take advantage of the fact that C automatically concatenates neighboring string literals and use these specifiers like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">     // for printf()</span><span class="cp">
+#include</span> <span class="cpf">&lt;inttypes.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int16_t</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">32</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"The value is %"</span> <span class="n">PRId16</span> <span class="s">"!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>There’s nothing magical happening on line 8, above. Indeed, if I print out the value of the macro:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">PRId16</span><span class="p">);</span>
+</code></pre></div>
+
+<p>we get this on my system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">hd</span>
+</code></pre></div>
+
+<p>which is a <code>printf()</code> format specifier meaning “short signed integer” .</p>
+
+<p>So back to line 8, after string literal concatenation, it’s just as if I’d typed:</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="n">printf</span><span class="p">(</span><span class="s">"The value is %hd!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Here’s a table of all the macros you can use for <code>printf()</code> format specifiers… substitute the number of bits for <em>N</em>, usually 8, 16, 32, or 64.</p>
+
+<table><thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>PRId</code><em>N</em></td>
+<td><code>PRIdLEAST</code><em>N</em></td>
+<td><code>PRIdFAST</code><em>N</em></td>
+<td><code>PRIdMAX</code></td>
+<td><code>PRIdPTR</code></td>
+</tr>
+<tr>
+<td><code>PRIi</code><em>N</em></td>
+<td><code>PRIiLEAST</code><em>N</em></td>
+<td><code>PRIiFAST</code><em>N</em></td>
+<td><code>PRIiMAX</code></td>
+<td><code>PRIiPTR</code></td>
+</tr>
+<tr>
+<td><code>PRIo</code><em>N</em></td>
+<td><code>PRIoLEAST</code><em>N</em></td>
+<td><code>PRIoFAST</code><em>N</em></td>
+<td><code>PRIoMAX</code></td>
+<td><code>PRIoPTR</code></td>
+</tr>
+<tr>
+<td><code>PRIu</code><em>N</em></td>
+<td><code>PRIuLEAST</code><em>N</em></td>
+<td><code>PRIuFAST</code><em>N</em></td>
+<td><code>PRIuMAX</code></td>
+<td><code>PRIuPTR</code></td>
+</tr>
+<tr>
+<td><code>PRIx</code><em>N</em></td>
+<td><code>PRIxLEAST</code><em>N</em></td>
+<td><code>PRIxFAST</code><em>N</em></td>
+<td><code>PRIxMAX</code></td>
+<td><code>PRIxPTR</code></td>
+</tr>
+<tr>
+<td><code>PRIX</code><em>N</em></td>
+<td><code>PRIXLEAST</code><em>N</em></td>
+<td><code>PRIXFAST</code><em>N</em></td>
+<td><code>PRIXMAX</code></td>
+<td><code>PRIXPTR</code></td>
+</tr>
+</tbody></table>
+
+<p>Note again how the lowercase center letter represents the usual format specifiers you’d pass to <code>printf()</code>: <code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, and <code>X</code>.</p>
+
+<p>And we have a similar set of macros for <code>scanf()</code> for reading in these various types:</p>
+
+<table><thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>SCNd</code><em>N</em></td>
+<td><code>SCNdLEAST</code><em>N</em></td>
+<td><code>SCNdFAST</code><em>N</em></td>
+<td><code>SCNdMAX</code></td>
+<td><code>SCNdPTR</code></td>
+</tr>
+<tr>
+<td><code>SCNi</code><em>N</em></td>
+<td><code>SCNiLEAST</code><em>N</em></td>
+<td><code>SCNiFAST</code><em>N</em></td>
+<td><code>SCNiMAX</code></td>
+<td><code>SCNiPTR</code></td>
+</tr>
+<tr>
+<td><code>SCNo</code><em>N</em></td>
+<td><code>SCNoLEAST</code><em>N</em></td>
+<td><code>SCNoFAST</code><em>N</em></td>
+<td><code>SCNoMAX</code></td>
+<td><code>SCNoPTR</code></td>
+</tr>
+<tr>
+<td><code>SCNu</code><em>N</em></td>
+<td><code>SCNuLEAST</code><em>N</em></td>
+<td><code>SCNuFAST</code><em>N</em></td>
+<td><code>SCNuMAX</code></td>
+<td><code>SCNuPTR</code></td>
+</tr>
+<tr>
+<td><code>SCNx</code><em>N</em></td>
+<td><code>SCNxLEAST</code><em>N</em></td>
+<td><code>SCNxFAST</code><em>N</em></td>
+<td><code>SCNxMAX</code></td>
+<td><code>SCNxPTR</code></td>
+</tr>
+</tbody></table>
+
+<p>The rule is that for each type defined in <code>&lt;stdint.h&gt;</code> there will be corresponding <code>printf()</code> and <code>scanf()</code> macros defined here.</p>
+
+<p><hr></p>
+
+<h2>9.2 <code>imaxabs()</code></h2>
+
+<p>Compute the absolute value of an <code>intmax_t</code></p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;inttypes.h&gt;</span><span class="cp">
+</span>
+<span class="kt">intmax_t</span> <span class="nf">imaxabs</span><span class="p">(</span><span class="kt">intmax_t</span> <span class="n">j</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>When you need the absolute value of the biggest integer type on the system, this is the function for you.</p>
+
+<p>The spec notes that if the absolute value of the number cannot be represented, the behavior is undefined. This would happen if you tried to take the absolute value of the smallest possible negative number in a two’s-complement system.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the absolute value of the input, \(|j|\).</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;inttypes.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">intmax_t</span> <span class="n">j</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3490</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%jd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">imaxabs</span><span class="p">(</span><span class="n">j</span><span class="p">));</span>    <span class="c1">// 3490</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="math.html#man-fabs" rel="nofollow"><code>fabs()</code></a></p>
+
+<p><hr></p>
+
+<h2>9.3 <code>imaxdiv()</code></h2>
+
+<p>Compute the quotient and remainder of <code>intmax_t</code>s</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;inttypes.h&gt;</span><span class="cp">
+</span>
+<span class="n">imaxdiv_t</span> <span class="nf">imaxdiv</span><span class="p">(</span><span class="kt">intmax_t</span> <span class="n">numer</span><span class="p">,</span> <span class="kt">intmax_t</span> <span class="n">denom</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>When you want to do integer division and remainder in a single operation, this function will do it for you.</p>
+
+<p>It computes <code>numer/denom</code> and <code>numer%denom</code> and returns the result in a structure of type <code>imaxdiv_t</code>.</p>
+
+<p>This structure has two <code>imaxdiv_t</code> fields, <code>quot</code> and <code>rem</code>, that you use to retrieve the sought-after values.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns an <code>imaxdiv_t</code> containing the quotient and remainder of the operation.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;inttypes.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">intmax_t</span> <span class="n">numer</span> <span class="o">=</span> <span class="n">INTMAX_C</span><span class="p">(</span><span class="mi">3490</span><span class="p">);</span>
+    <span class="kt">intmax_t</span> <span class="n">denom</span> <span class="o">=</span> <span class="n">INTMAX_C</span><span class="p">(</span><span class="mi">17</span><span class="p">);</span>
+
+    <span class="n">imaxdiv_t</span> <span class="n">r</span> <span class="o">=</span> <span class="n">imaxdiv</span><span class="p">(</span><span class="n">numer</span><span class="p">,</span> <span class="n">denom</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Quotient: %jd, remainder: %jd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">.</span><span class="n">quot</span><span class="p">,</span> <span class="n">r</span><span class="p">.</span><span class="n">rem</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Quotient:</span> <span class="mi">205</span><span class="p">,</span> <span class="n">remainder</span><span class="o">:</span> <span class="mi">5</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="math.html#man-remquo" rel="nofollow"><code>remquo()</code></a></p>
+
+<p><hr></p>
+
+<h2>9.4 <code>strtoimax()</code> <code>strtoumax()</code></h2>
+
+<p>Convert strings to types <code>intmax_t</code> and <code>uintmax_t</code></p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;inttypes.h&gt;</span><span class="cp">
+</span>
+<span class="kt">intmax_t</span> <span class="nf">strtoimax</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">,</span>
+                   <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
+
+<span class="kt">uintmax_t</span> <span class="nf">strtoumax</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">,</span>
+                   <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These work just like the <a href="stdlib.html#man-strtol" rel="nofollow"><code>strtol()</code></a> family of functions, except they return an <code>intmax_t</code> or <code>uintmax_t</code>.</p>
+
+<p>See the <a href="stdlib.html#man-strtol" rel="nofollow"><code>strtol()</code></a> reference page for details.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the converted string as an <code>intmax_t</code> or <code>uintmax_t</code>.</p>
+
+<p>If the result is out of range, the returned value will be <code>INTMAX_MAX</code>, <code>INTMAX_MIN</code>, or <code>UINTMAX_MAX</code>, as appropriate. And the <code>errno</code> variable will be set to <code>ERANGE</code>.</p>
+
+<h3>Example</h3>
+
+<p>The following example converts a base-10 number to an <code>intmax_t</code>. Then it attempts to convert an invalid base-2 number, catching the error.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;inttypes.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">intmax_t</span> <span class="n">r</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">endptr</span><span class="p">;</span>
+
+    <span class="c1">// Valid base-10 number</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">strtoimax</span><span class="p">(</span><span class="s">"123456789012345"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">endptr</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">endptr</span> <span class="o">!=</span> <span class="sc">'\0'</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Invalid digit: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">endptr</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Value is %jd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+
+    <span class="c1">// The following binary number contains an invalid digit</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">strtoimax</span><span class="p">(</span><span class="s">"0100102010101101"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">endptr</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">endptr</span> <span class="o">!=</span> <span class="sc">'\0'</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Invalid digit: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">endptr</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Value is %jd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Value</span> <span class="n">is</span> <span class="mi">123456789012345</span>
+<span class="n">Invalid</span> <span class="n">digit</span><span class="o">:</span> <span class="mi">2</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-strtol" rel="nofollow"><code>strtol()</code></a>, <a href="errno.html#errno" rel="nofollow"><code>errno</code></a></p>
+
+<p><hr></p>
+
+<h2>9.5 <code>wcstoimax()</code> <code>wcstoumax()</code></h2>
+
+<p>Convert wide strings to types <code>intmax_t</code> and <code>uintmax_t</code></p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stddef.h&gt;</span><span class="c1"> // for wchar_t</span><span class="cp">
+#include</span> <span class="cpf">&lt;inttypes.h&gt;</span><span class="cp">
+</span>
+<span class="kt">intmax_t</span> <span class="nf">wcstoimax</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span>
+                   <span class="kt">wchar_t</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
+
+<span class="kt">uintmax_t</span> <span class="nf">wcstoumax</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span>
+                    <span class="kt">wchar_t</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These work just like the <a href="wchar.html#man-wcstol" rel="nofollow"><code>wcstol()</code></a> family of functions, except they return an <code>intmax_t</code> or <code>uintmax_t</code>.</p>
+
+<p>See the <a href="wchar.html#man-wcstol" rel="nofollow"><code>wcstol()</code></a> reference page for details.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the converted wide string as an <code>intmax_t</code> or <code>uintmax_t</code>.</p>
+
+<p>If the result is out of range, the returned value will be <code>INTMAX_MAX</code>, <code>INTMAX_MIN</code>, or <code>UINTMAX_MAX</code>, as appropriate. And the <code>errno</code> variable will be set to <code>ERANGE</code>.</p>
+
+<h3>Example</h3>
+
+<p>The following example converts a base-10 number to an <code>intmax_t</code>. Then it attempts to convert an invalid base-2 number, catching the error.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;inttypes.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">intmax_t</span> <span class="n">r</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">endptr</span><span class="p">;</span>
+
+    <span class="c1">// Valid base-10 number</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">wcstoimax</span><span class="p">(</span><span class="s">L"123456789012345"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">endptr</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">endptr</span> <span class="o">!=</span> <span class="sc">'\0'</span><span class="p">)</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Invalid digit: %lc</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">endptr</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Value is %jd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+
+    <span class="c1">// The following binary number contains an invalid digit</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">wcstoimax</span><span class="p">(</span><span class="s">L"0100102010101101"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">endptr</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">endptr</span> <span class="o">!=</span> <span class="sc">'\0'</span><span class="p">)</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Invalid digit: %lc</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">endptr</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Value is %jd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre class="highlight c"><code><span class="n">Value</span> <span class="n">is</span> <span class="mi">123456789012345</span>
+<span class="n">Invalid</span> <span class="n">digit</span><span class="o">:</span> <span class="mi">2</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-wcstol" rel="nofollow"><code>wcstol()</code></a>, <a href="errno.html#errno" rel="nofollow"><code>errno</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

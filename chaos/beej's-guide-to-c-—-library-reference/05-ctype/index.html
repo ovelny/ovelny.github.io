@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/05-ctype</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/05-ctype"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>5 <code>&lt;ctype.h&gt;</code> Character Classification and Conversion</h1>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="ctype.html#man-isalnum" rel="nofollow"><code>isalnum()</code></a></td>
+<td>Tests if a character is alphabetic or is a digit</td>
+</tr>
+<tr>
+<td><a href="ctype.html#man-isalpha" rel="nofollow"><code>isalpha()</code></a></td>
+<td>Returns true if a character is alphabetic</td>
+</tr>
+<tr>
+<td><a href="ctype.html#man-isblank" rel="nofollow"><code>isblank()</code></a></td>
+<td>Tests if a character is word-separating whitespace</td>
+</tr>
+<tr>
+<td><a href="ctype.html#man-iscntrl" rel="nofollow"><code>iscntrl()</code></a></td>
+<td>Test if a character is a control character</td>
+</tr>
+<tr>
+<td><a href="ctype.html#man-isdigit" rel="nofollow"><code>isdigit()</code></a></td>
+<td>Tests if a character is a digit</td>
+</tr>
+<tr>
+<td><a href="ctype.html#man-isgraph" rel="nofollow"><code>isgraph()</code></a></td>
+<td>Tests if the character is printable and not a space</td>
+</tr>
+<tr>
+<td><a href="ctype.html#man-islower" rel="nofollow"><code>islower()</code></a></td>
+<td>Tests if a character is lowercase</td>
+</tr>
+<tr>
+<td><a href="ctype.html#man-isprint" rel="nofollow"><code>isprint()</code></a></td>
+<td>Tests if a character is printable</td>
+</tr>
+<tr>
+<td><a href="ctype.html#man-ispunct" rel="nofollow"><code>ispunct()</code></a></td>
+<td>Test if a character is punctuation</td>
+</tr>
+<tr>
+<td><a href="ctype.html#man-isspace" rel="nofollow"><code>isspace()</code></a></td>
+<td>Test if a character is whitespace</td>
+</tr>
+<tr>
+<td><a href="ctype.html#man-isupper" rel="nofollow"><code>isupper()</code></a></td>
+<td>Tests if a character is uppercase</td>
+</tr>
+<tr>
+<td><a href="ctype.html#man-isxdigit" rel="nofollow"><code>isxdigit()</code></a></td>
+<td>Tests if a character is a hexadecimal digit</td>
+</tr>
+<tr>
+<td><a href="ctype.html#man-tolower" rel="nofollow"><code>tolower()</code></a></td>
+<td>Convert a letter to lowercase</td>
+</tr>
+<tr>
+<td><a href="ctype.html#man-toupper" rel="nofollow"><code>toupper()</code></a></td>
+<td>Convert a letter to uppercase</td>
+</tr>
+</tbody></table>
+
+<p>This collection of macros is good for testing characters to see if they’re of a certain class, such as alphabetic, numeric, control characters, etc.</p>
+
+<p>Surprisingly, they take <code>int</code> arguments instead of some kind of <code>char</code>. This is so you can feed <code>EOF</code> in for convenience if you have an integer representation of that. If not <code>EOF</code>, the value passed in has to be representable in an <code>unsigned char</code>. Otherwise it’s (dun dun DUUNNNN) undefined behavior. So you can forget about passing in your UTF-8 multibyte characters.</p>
+
+<p>You can portably avoid this undefined behavior by casting the arguments to these functions to <code>(unsigned char)</code>. This is irksome and ugly, admittedly. The values in the basic character set are all safe to use since they’re positive values that fit into an <code>unsigned char</code>.</p>
+
+<p>Also, the behavior of these functions varies based on locale.</p>
+
+<p>In many of the pages in this section, I give some examples. These are from the “C” locale, and might vary if you’ve set a different locale.</p>
+
+<p>Note that wide characters have their own set of classification functions, so don’t try to use these on <code>wchar_t</code>s. Or <em>else</em>!</p>
+
+<p><hr></p>
+
+<h2>5.1 <code>isalnum()</code></h2>
+
+<p>Tests if a character is alphabetic or is a digit</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">isalnum</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if a character is alphabetic (<code>A</code>-<code>Z</code> or <code>a</code>-<code>z</code>) or a digit (<code>0</code>-<code>9</code>).</p>
+
+<p>Is equivalent to:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">isalpha</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">||</span> <span class="n">isdigit</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>Returns true if a character is alphabetic (<code>A</code>-<code>Z</code> or <code>a</code>-<code>z</code>) or a digit (<code>0</code>-<code>9</code>).</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             testing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isalnum</span><span class="p">(</span><span class="sc">'a'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isalnum</span><span class="p">(</span><span class="sc">'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isalnum</span><span class="p">(</span><span class="sc">'5'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isalnum</span><span class="p">(</span><span class="sc">'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isalpha" rel="nofollow"><code>isalpha()</code></a>, <a href="ctype.html#man-isdigit" rel="nofollow"><code>isdigit()</code></a></p>
+
+<p><hr></p>
+
+<h2>5.2 <code>isalpha()</code></h2>
+
+<p>Returns true if a character is alphabetic</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">isalpha</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Returns true for alphabetic characters (<code>A</code>-<code>Z</code> or <code>a</code>-<code>z</code>).</p>
+
+<p>Technically (and in the “C” locale) equivalent to:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">isupper</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">||</span> <span class="n">islower</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Extra super technically, because I know you’re dying for this to be extra unnecessarily complex, it can also include some locale-specific characters for which this is true:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">!</span><span class="n">iscntrl</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isdigit</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">ispunct</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isspace</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</code></pre></div>
+
+<p>and this is true:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">isupper</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">||</span> <span class="n">islower</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>Returns true for alphabetic characters (<code>A</code>-<code>Z</code> or <code>a</code>-<code>z</code>).</p>
+
+<p>Or for any of the other crazy stuff in the description, above.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             testing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isalpha</span><span class="p">(</span><span class="sc">'a'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isalpha</span><span class="p">(</span><span class="sc">'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isalpha</span><span class="p">(</span><span class="sc">'5'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isalpha</span><span class="p">(</span><span class="sc">'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isalnum" rel="nofollow"><code>isalnum()</code></a></p>
+
+<p><hr></p>
+
+<h2>5.3 <code>isblank()</code></h2>
+
+<p>Tests if a character is word-separating whitespace</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">isblank</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>True if the character is a whitespace character used to separate words in a single line.</p>
+
+<p>For example, space (<code>&#39; &#39;</code>) or horizontal tab (<code>&#39;\t&#39;</code>). Other locales might define other blank characters.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns true if the character is a whitespace character used to separate words in a single line.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             testing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isblank</span><span class="p">(</span><span class="sc">' '</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isblank</span><span class="p">(</span><span class="sc">'\t'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isblank</span><span class="p">(</span><span class="sc">'\n'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isblank</span><span class="p">(</span><span class="sc">'a'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isblank</span><span class="p">(</span><span class="sc">'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isspace" rel="nofollow"><code>isspace()</code></a></p>
+
+<p><hr></p>
+
+<h2>5.4 <code>iscntrl()</code></h2>
+
+<p>Test if a character is a control character</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iscntrl</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>A <em>control character</em> is a locale-specific non-printing character.</p>
+
+<p>For the “C” locale, this means control characters are in the range 0x00 to 0x1F (the character right before SPACE) and 0x7F (the DEL character).</p>
+
+<p>Basically if it’s not an ASCII (or Unicode less than 128) printable character, it’s a control character in the “C” locale.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns true if <code>c</code> is a control character.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             testing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iscntrl</span><span class="p">(</span><span class="sc">'\t'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// yes (tab)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iscntrl</span><span class="p">(</span><span class="sc">'\n'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// yes (newline)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iscntrl</span><span class="p">(</span><span class="sc">'\r'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// yes (return)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iscntrl</span><span class="p">(</span><span class="sc">'\a'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// yes (bell)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iscntrl</span><span class="p">(</span><span class="sc">' '</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iscntrl</span><span class="p">(</span><span class="sc">'a'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iscntrl</span><span class="p">(</span><span class="sc">'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isgraph" rel="nofollow"><code>isgraph()</code></a>, <a href="ctype.html#man-isprint" rel="nofollow"><code>isprint()</code></a></p>
+
+<p><hr></p>
+
+<h2>5.5 <code>isdigit()</code></h2>
+
+<p>Tests if a character is a digit</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">isdigit</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if <code>c</code> is a digit in the range <code>0</code>-<code>9</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns true if the character is a digit, unsurprisingly.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             testing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isdigit</span><span class="p">(</span><span class="sc">'0'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isdigit</span><span class="p">(</span><span class="sc">'5'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isdigit</span><span class="p">(</span><span class="sc">'a'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isdigit</span><span class="p">(</span><span class="sc">'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isdigit</span><span class="p">(</span><span class="sc">'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isalnum" rel="nofollow"><code>isalnum()</code></a>, <a href="ctype.html#man-isxdigit" rel="nofollow"><code>isxdigit()</code></a></p>
+
+<p><hr></p>
+
+<h2>5.6 <code>isgraph()</code></h2>
+
+<p>Tests if the character is printable and not a space</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">isgraph</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if <code>c</code> is any printable character that isn’t a space (<code>&#39; &#39;</code>).</p>
+
+<h3>Return Value</h3>
+
+<p>Returns true if <code>c</code> is any printable character that isn’t a space (<code>&#39; &#39;</code>).</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             testing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isgraph</span><span class="p">(</span><span class="sc">'0'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isgraph</span><span class="p">(</span><span class="sc">'a'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isgraph</span><span class="p">(</span><span class="sc">'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isgraph</span><span class="p">(</span><span class="sc">'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isgraph</span><span class="p">(</span><span class="sc">' '</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isgraph</span><span class="p">(</span><span class="sc">'\n'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-iscntrl" rel="nofollow"><code>iscntrl()</code></a>, <a href="ctype.html#man-isprint" rel="nofollow"><code>isprint()</code></a></p>
+
+<p><hr></p>
+
+<h2>5.7 <code>islower()</code></h2>
+
+<p>Tests if a character is lowercase</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">islower</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if a character is lowercase, in the range <code>a</code>-<code>z</code>.</p>
+
+<p>In other locales, there could be other lowercase characters. In all cases, to be lowercase, the following must be true:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">!</span><span class="n">iscntrl</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isdigit</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">ispunct</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isspace</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>Returns true if the character is lowercase.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             testing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">islower</span><span class="p">(</span><span class="sc">'c'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">islower</span><span class="p">(</span><span class="sc">'0'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">islower</span><span class="p">(</span><span class="sc">'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">islower</span><span class="p">(</span><span class="sc">'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">islower</span><span class="p">(</span><span class="sc">' '</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isupper" rel="nofollow"><code>isupper()</code></a>, <a href="ctype.html#man-isalpha" rel="nofollow"><code>isalpha()</code></a>, <a href="ctype.html#man-toupper" rel="nofollow"><code>toupper()</code></a>, <a href="ctype.html#man-tolower" rel="nofollow"><code>tolower()</code></a></p>
+
+<p><hr></p>
+
+<h2>5.8 <code>isprint()</code></h2>
+
+<p>Tests if a character is printable</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">isprint</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if a character is printable, including space (<code>&#39; &#39;</code>). So like <code>isgraph()</code>, except space isn’t left out in the cold.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns true if the character is printable, including space (<code>&#39; &#39;</code>).</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             testing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isprint</span><span class="p">(</span><span class="sc">'c'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isprint</span><span class="p">(</span><span class="sc">'0'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isprint</span><span class="p">(</span><span class="sc">' '</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isprint</span><span class="p">(</span><span class="sc">'\r'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isgraph" rel="nofollow"><code>isgraph()</code></a>, <a href="ctype.html#man-iscntrl" rel="nofollow"><code>iscntrl()</code></a></p>
+
+<p><hr></p>
+
+<h2>5.9 <code>ispunct()</code></h2>
+
+<p>Test if a character is punctuation</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">ispunct</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if a character is punctuation.</p>
+
+<p>In the “C” locale, this means:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">!</span><span class="n">isspace</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isalnum</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</code></pre></div>
+
+<p>In other locales, there could be other punctuation characters (but they also can’t be space or alphanumeric).</p>
+
+<h3>Return Value</h3>
+
+<p>True if the character is punctuation.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             testing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ispunct</span><span class="p">(</span><span class="sc">','</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ispunct</span><span class="p">(</span><span class="sc">'!'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ispunct</span><span class="p">(</span><span class="sc">'c'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ispunct</span><span class="p">(</span><span class="sc">'0'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ispunct</span><span class="p">(</span><span class="sc">' '</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ispunct</span><span class="p">(</span><span class="sc">'\n'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isspace" rel="nofollow"><code>isspace()</code></a>, <a href="ctype.html#man-isalnum" rel="nofollow"><code>isalnum()</code></a></p>
+
+<p><hr></p>
+
+<h2>5.10 <code>isspace()</code></h2>
+
+<p>Test if a character is whitespace</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">isspace</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if <code>c</code> is a whitespace character. These are:</p>
+
+<ul>
+<li>  Space (<code>&#39; &#39;</code>)</li>
+<li>  Formfeed (<code>&#39;\f&#39;</code>)</li>
+<li>  Newline (<code>&#39;\n&#39;</code>)</li>
+<li>  Carriage Return (<code>&#39;\r&#39;</code>)</li>
+<li>  Horizontal Tab (<code>&#39;\t&#39;</code>)</li>
+<li>  Vertical Tab (<code>&#39;\v&#39;</code>)</li>
+</ul>
+
+<p>Other locales might specify other whitespace characters. <code>isalnum()</code> is false for all whitespace characters.</p>
+
+<h3>Return Value</h3>
+
+<p>True if the character is whitespace.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             testing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isspace</span><span class="p">(</span><span class="sc">' '</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isspace</span><span class="p">(</span><span class="sc">'\n'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isspace</span><span class="p">(</span><span class="sc">'\t'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isspace</span><span class="p">(</span><span class="sc">','</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isspace</span><span class="p">(</span><span class="sc">'!'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isspace</span><span class="p">(</span><span class="sc">'c'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isblank" rel="nofollow"><code>isblank()</code></a></p>
+
+<p><hr></p>
+
+<h2>5.11 <code>isupper()</code></h2>
+
+<p>Tests if a character is uppercase</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">isupper</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if a character is uppercase, in the range <code>A</code>-<code>Z</code>.</p>
+
+<p>In other locales, there could be other uppercase characters. In all cases, to be uppercase, the following must be true:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">!</span><span class="n">iscntrl</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isdigit</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">ispunct</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isspace</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>Returns true if the character is uppercase.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             testing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isupper</span><span class="p">(</span><span class="sc">'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isupper</span><span class="p">(</span><span class="sc">'c'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isupper</span><span class="p">(</span><span class="sc">'0'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isupper</span><span class="p">(</span><span class="sc">'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isupper</span><span class="p">(</span><span class="sc">' '</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-islower" rel="nofollow"><code>islower()</code></a>, <a href="ctype.html#man-isalpha" rel="nofollow"><code>isalpha()</code></a>, <a href="ctype.html#man-toupper" rel="nofollow"><code>toupper()</code></a>, <a href="ctype.html#man-tolower" rel="nofollow"><code>tolower()</code></a></p>
+
+<p><hr></p>
+
+<h2>5.12 <code>isxdigit()</code></h2>
+
+<p>Tests if a character is a hexadecimal digit</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">isxdigit</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Returns true if the character is a hexadecimal digit. Namely if it’s <code>0</code>-<code>9</code>, <code>a</code>-<code>f</code>, or <code>A</code>-<code>F</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>True if the character is a hexadecimal digit.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             testing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isxdigit</span><span class="p">(</span><span class="sc">'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isxdigit</span><span class="p">(</span><span class="sc">'c'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isxdigit</span><span class="p">(</span><span class="sc">'2'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isxdigit</span><span class="p">(</span><span class="sc">'G'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">isxdigit</span><span class="p">(</span><span class="sc">'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">"yes"</span><span class="o">:</span> <span class="s">"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isdigit" rel="nofollow"><code>isdigit()</code></a></p>
+
+<p><hr></p>
+
+<h2>5.13 <code>tolower()</code></h2>
+
+<p>Convert a letter to lowercase</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">tolower</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If the character is uppercase (i.e. <code>isupper(c)</code> is true), this function returns the corresponding lowercase letter.</p>
+
+<p>Different locales might have different upper- and lowercase letters.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the lowercase value for an uppercase letter. If the letter isn’t uppercase, returns it unchanged.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             changing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">tolower</span><span class="p">(</span><span class="sc">'B'</span><span class="p">));</span>  <span class="c1">// b (made lowercase!)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">tolower</span><span class="p">(</span><span class="sc">'e'</span><span class="p">));</span>  <span class="c1">// e (unchanged)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">tolower</span><span class="p">(</span><span class="sc">'!'</span><span class="p">));</span>  <span class="c1">// ! (unchanged)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-toupper" rel="nofollow"><code>toupper()</code></a>, <a href="ctype.html#man-islower" rel="nofollow"><code>islower()</code></a>, <a href="ctype.html#man-isupper" rel="nofollow"><code>isupper()</code></a></p>
+
+<p><hr></p>
+
+<h2>5.14 <code>toupper()</code></h2>
+
+<p>Convert a letter to uppercase</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">toupper</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If the character is lower (i.e. <code>islower(c)</code> is true), this function returns the corresponding uppercase letter.</p>
+
+<p>Different locales might have different upper- and lowercase letters.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the uppercase value for a lowercase letter. If the letter isn’t lowercase, returns it unchanged.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//             changing this char</span>
+    <span class="c1">//                      v</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">toupper</span><span class="p">(</span><span class="sc">'B'</span><span class="p">));</span>  <span class="c1">// B (unchanged)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">toupper</span><span class="p">(</span><span class="sc">'e'</span><span class="p">));</span>  <span class="c1">// E (made uppercase!)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">toupper</span><span class="p">(</span><span class="sc">'!'</span><span class="p">));</span>  <span class="c1">// ! (unchanged)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-tolower" rel="nofollow"><code>tolower()</code></a>, <a href="ctype.html#man-islower" rel="nofollow"><code>islower()</code></a>, <a href="ctype.html#man-isupper" rel="nofollow"><code>isupper()</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

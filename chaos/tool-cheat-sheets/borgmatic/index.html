@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/tool-cheat-sheets/borgmatic</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/tool-cheat-sheets/borgmatic"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Borgmatic</h1>
+
+<p>Easier backups with borg. Install it with <code>pipx install borgmatic</code> and install borgbackup preferably through <code>apt</code>.</p>
+
+<h2>Commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Check if config file is valid:</span>
+borgmatic config validate
+
+<span class="c"># Init encrypted repo according to your config.</span>
+<span class="c"># Blake 2 is usually a bit faster:</span>
+borgmatic init <span class="nt">--encryption</span> repokey-blake2
+
+<span class="c"># List backups:</span>
+borgmatic list
+
+<span class="c"># Export encryption key, don't lose it:</span>
+borgmatic key <span class="nb">export</span>
+
+<span class="c"># Perform pruning, compaction, create backups</span>
+<span class="c"># according to your config file, and check backups</span>
+<span class="c"># for consistency:</span>
+borgmatic <span class="nt">--verbosity</span> 1 <span class="nt">--list</span> <span class="nt">--stats</span>
+
+<span class="c"># Chaining specific commands can skip default others.</span>
+<span class="c"># For instance, this does as the default borgmatic command</span>
+<span class="c"># but omit checks for consistency:</span>
+borgmatic prune compact create <span class="nt">--verbosity</span> 1 <span class="nt">--list</span> <span class="nt">--stats</span>
+
+<span class="c"># Check archives for consistency.</span>
+<span class="c"># This is usually slow, brace yourself:</span>
+borgmatic check <span class="nt">--progress</span> <span class="nt">--repository</span> &lt;repository label <span class="k">in </span>config&gt;
+
+<span class="c"># Do a dry run extract with the latest archive.</span>
+<span class="c"># This will restore the full absolute path, if you</span>
+<span class="c"># want to avoid that, use --strip-components &lt;num&gt;</span>
+<span class="c"># where &lt;num&gt; removes a set number of the leading path:</span>
+<span class="c"># "--strip-components 2" for "home/user/Documents" will</span>
+<span class="c"># remove "home/user" from the path. Never use leading</span>
+<span class="c"># slashes for --path (e.g. "home/user" and not "/home/user"):</span>
+borgmatic <span class="nt">--dry-run</span> <span class="nt">-v</span> 2 extract <span class="nt">--archive</span> latest <span class="nt">--path</span> &lt;path to restore&gt;
+
+<span class="c"># Perform a real extract if everything is correct on dry run:</span>
+borgmatic extract <span class="nt">--verbosity</span> 1 <span class="nt">--list</span> <span class="nt">--stats</span> <span class="nt">--archive</span> latest <span class="nt">--path</span> &lt;path to restore&gt;
+
+<span class="c"># Do a dry run to delete an archive:</span>
+borgmatic <span class="nt">--dry-run</span> <span class="nt">-v</span> 2 delete <span class="nt">--repository</span> &lt;repository label <span class="k">in </span>config&gt; <span class="nt">--archive</span> &lt;latest or archive name as shown <span class="k">in </span>borgmatic list output&gt;
+
+<span class="c"># Perform real archive deletion if everything is correct on dry run.</span>
+<span class="c"># We chain delete and compact to actually free up space afterwards:</span>
+borgmatic delete compact <span class="nt">--verbosity</span> 2 <span class="nt">--list</span> <span class="nt">--stats</span> <span class="nt">--repository</span> &lt;repository label <span class="k">in </span>config&gt; <span class="nt">--archive</span> &lt;latest or archive name as shown <span class="k">in </span>borgmatic list output&gt;
+
+<span class="c"># Remove a directory or a file in all archives. All "borg recreate"</span>
+<span class="c"># commands can be dangerous, so be careful. Compact must be run</span>
+<span class="c"># afterwards to reclaim saved space:</span>
+borgmatic <span class="nt">--verbosity</span> 2 borg <span class="nt">--repository</span> &lt;repository label <span class="k">in </span>config&gt; recreate <span class="nt">--exclude</span> home/&lt;user&gt;/&lt;directory&gt; <span class="o">&amp;&amp;</span> borgmatic compact <span class="nt">--verbosity</span> 2
+</code></pre></div>
+
+<h2>Configuration template</h2>
+
+<p>A simple but sufficient configuration template in <code>~/.config/borgmatic/config.yaml</code> can look like this:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>encryption_passcommand: &lt;shell command to get encryption passphrase&gt;
+
+archive_name_format: '{hostname}-{now:%d-%m-%Y-%H:%M:%S}'
+compression: zstd
+retries: 5
+retry_wait: 30
+
+keep_daily: 7
+keep_weekly: 4
+keep_monthly: 6
+keep_yearly: 1
+
+repositories:
+  - path: /mnt/backups/&lt;repository name&gt;
+    label: local
+
+source_directories:
+  - /home/&lt;user&gt;
+  - /mnt/&lt;other_drive&gt;
+  - /mnt/&lt;another_drive&gt;
+
+exclude_patterns:
+  - /home/*/.cache
+  - /home/*/.zsh_history
+  - /home/*/.bash_history
+  - /mnt/*/lost+found
+
+exclude_if_present:
+  - .nobackup
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

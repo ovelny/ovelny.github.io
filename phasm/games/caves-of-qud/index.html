@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - phasm/games/caves-of-qud</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - phasm/games/caves-of-qud"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Caves of Qud</h1>
+
+<p>A science fantasy RPG &amp; roguelike epic. Caves of Qud is one of my favorite games and its intricate world never cease to amaze me.</p>
+
+<h2>Settings</h2>
+
+<p>The game is often updated, and there is a myriad of settings available. It&#39;s best to change them as little as possible and stick to defaults.</p>
+
+<h3>General settings</h3>
+
+<ul>
+<li>Enable fullscreen.</li>
+<li>Disable allow mouse input.</li>
+<li>Disable display mouse-clickable zone transition border arrows...</li>
+<li>... And only THEN, disable modern UI elements. Awful setting.</li>
+<li>Set maximum auto-move squares/sec and auto-attack squares/sec to 60.</li>
+<li>Enable mods.</li>
+<li>Disable scripting mods.</li>
+<li>Disable send anonymous gameplay statistics.</li>
+</ul>
+
+<h3>Key mapping</h3>
+
+<p>Press F1 to load default keys, and select <code>HJKL</code> mode when prompted. Change the few following keys and be done with it:</p>
+
+<table><thead>
+<tr>
+<th>Setting</th>
+<th>Key mapping</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Adventure -&gt; Auto-explore</td>
+<td>Shift + =</td>
+</tr>
+<tr>
+<td>Adventure -&gt; Look</td>
+<td>M (, on AZERTY)</td>
+</tr>
+<tr>
+<td>Adventure -&gt; Ability Picker</td>
+<td>Q (A on AZERTY)</td>
+</tr>
+<tr>
+<td>Status -&gt; Open Quests</td>
+<td>A (Q on AZERTY)</td>
+</tr>
+<tr>
+<td>Display -&gt; Toggle sidebar</td>
+<td>Shift + \ (* on AZERTY)</td>
+</tr>
+</tbody></table>
+
+<h2>Favorite builds</h2>
+
+<p>Making builds is the fun part. Here are a few I really like.</p>
+
+<h3>Pew pew pilgrim</h3>
+
+<p>My favorite. Flaming ray + light manipulation mutations, combined with phasing, give this character a lot of range and dodgeability. Build code is:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>H4sIAAAAAAAAA81WwY7aMBC971dYUY9ZFBCHqhIHyralLVQU0LbSag9OMnKsOnZkj7dCiH+vbViUBKl00VIlEsHMe35+GY+HbG8IiRgt4Qm04UpG70g06CW9QTLo9ZNhFHs8tVzkNULfEZI9VKrcCjAu+uB+ErIN9yOw3lTgZ/xcznqTgmqaIej3Xs70vtvcfz6BVOho8zAhJmNjoEzF5naychOqmNzvFx7VbMVkYgVaDSMJFjUVMVnYVPDsK2zW6hfIkbRCBIfBTE6ROhvP5lzkDb7U2Z3TOHF3XMJJPtO96twiRcjJ1JZU1kknWTxAu/C9iy9M4sqm3cxhw9jZFB7YXnPBBdO8/A+5C3vldE33steydjZ/ZeUEk1rAgIAsKBxP6P7a1sbkUK+H3H4UtOSSkSXd1LQDbaKsRMfpt+L3VHMakKSFPO2Rb67DeO0plbmJapRd/G+mpsBZgSD9mQKnKdmre7vE1qKgpite1kryjIyFAM1ef+cucTTze0bmVPLKin20C7bmIJEKMudaK31dR8fx4/X72BhR89QidLCRtb2d7WQLxSWahdWZO2GQN1b0fxSoQTIs2tsRjRkXHDcn8bWyrJBgfB9820A+SwQhOAOZwQn4gwtRqd+gfUUMG9AHpjz9GKpVX0SrVQWhWG6Hw0Z8CSXl0reMZqNO3VOOffdu8K9UKZNCKQMrpBqdk5nKwtHoXtX8zef5d4nWNL/WF1VV9AWvFO7+eLP7A138LYYkCwAA
+</code></pre></div>
+
+<ul>
+<li><p>Character:</p>
+
+<ul>
+<li>Pilgrim.</li>
+<li>Mutated Human.</li>
+<li>Humanoid.</li>
+</ul></li>
+<li><p>Attributes:</p>
+
+<ul>
+<li>Strength: 10.</li>
+<li>Agility: 10.</li>
+<li>Toughness: 18.</li>
+<li>Intelligence: 18.</li>
+<li>Willpower: 26.</li>
+<li>Ego: 18.</li>
+</ul></li>
+<li><p>Mutations:</p>
+
+<ul>
+<li>Flaming Ray (Hands).</li>
+<li>Heightened Hearing.</li>
+<li>Phasing.</li>
+<li>Tonic Allergy.</li>
+<li>Light Manipulation.</li>
+<li>Mental Mirror.</li>
+</ul></li>
+</ul>
+
+<h3>Precognition pilgrim</h3>
+
+<p>An alternative to the pew pew pilgrim, exactly the same as above but with <code>Precognition</code> mutation instead of <code>Phasing</code> to avoid dangerous situations. Build code is:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>H4sIAAAAAAAAA81WXYvaQBR9318xhD5mJYoPpeCDddvaVotV2RaWfZgkl8nQyZ0wH1tE/O+dGV1JItSurCWCMd5z5szx5Oaa7Q0hEaMlPIHSXGL0jkSDXtIbJINePxlGscdTy0VeI/QdIdlDpcytAO2qD+4rIdtwPALrTQV+xc/lrDcpqKKZAfXey+ned5v79ydAaRxtHhbEZKw1lKnY3E5WbkEVk/v9xqOarZhMrDBWwQjBGkVFTBY2FTz7Cpu1/AU4QitEcBjM5NRQZ+PZnKu8MS91duc0Ttwdt3CSz3SvOreGGsjJ1JYU66STFA/QLnzu4gtDXNm0mxk2jJ2N8MD2mgsumOLlf8guXCunq7uXXsva2fzKygkmtYIGAVlQON6h+9e2dk4O/XrI9qOgJUdGlnRT0w60ibRoHKffqt9TxWlAkhbytEe+uQnjtacUcx3VKLv430xNgbPCAPp7Cpwmslf3domttUSekbEQoNjrp3WJo5nPicwp8sqKfbULtuaAhgoy50pJ1QlHCwWZZMivH9Hx/PH6w2xsjOKpNdDBadb2dnacLSRHoxdWZQXVkDd29P8WRgEyU7QvRzRmXHCzOamvpWUFgvbD8G0D+YwGhOAMMIMT8AcXopK/QfmOGDagD0x6+rFUa76IVqsKQrPcDoeN+hJKytHPsOa0Tt2vHPsR3uBfqVMmhZQaVoYq45zMZBbujO51zd98nn+gaC3ze32RVUVf8Fzhjo83uz96hSTkKQsAAA==
+</code></pre></div>
+
+<h3>Kim</h3>
+
+<p>I don&#39;t remember why I named this build Kim. This is an esper build, be ready for some weird encounters. Build code is:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>H4sIAAAAAAAAA81W32vbMBB+718hzB7d4HZdYYU8ZF7Zr6RkTdYNRh9k+7DFZMlIpwwT8r/v5KSZ7cCyDjIcsC3fd/ruy+l08vqMsSDnJazAWKFVcMOCy1E0uoxejl5dB6GHEydk1sIvCI+2UKkzJ8GS9Tu9MrZu7ntgWVfgZ3y7n47ighueIpg3ns6OPrvMX+9AaSS3WTMhZBNroUxkfR4vaEIVsodt4PFvVSGLnURnYKzAoeEyZHOXSJF+gnqpf4AaKydlI7DRknHkpOJJG1le4HOFvSWOA3H7EET55O5ZZw45Qsbeu5KrttNBEnfQpnluwn/M4cIlg0xhR9fRDO68PeedLnn2HxLXLBTx2sGlrqfsaPLKigijlsGChLRh2G/O7W/dGrNdre5Se2srMC3WxiHWTiGhFz37AzeCN0jUQ1Zb5I66imcNWugm/DslX5RFnkhgflsRzRA0xZILs9I1V+kwBE1FXiCbcSUqJ7fWIciagUIu2UwYo4dRTXNbpwWVEZp6IHpoIFJKUW64UHR+nlTVfvx4+o46QTQicQjDa6l9aUd76lwLhXbuTFpwC1knoj+v0IDKseivRjDJhRRYk/26Y19qlxe02vYA+aAQpBQ5+NZyw153wK9Cykr/pM5MBdGNdJtr7743tQow4NWigqZWzq+uOvZ7KKnqhMp7R0ZC/3Liz5GO/4kKJS60trBAbpCUTHXa7I7BFc2fZB7/oulN87E+6qriz/i0ofvj2eYXPw973qcLAAA=
+</code></pre></div>
+
+<ul>
+<li><p>Character:</p>
+
+<ul>
+<li>Nomad.</li>
+<li>Mutated Human.</li>
+<li>Humanoid.</li>
+</ul></li>
+<li><p>Attributes:</p>
+
+<ul>
+<li>Strength: 10.</li>
+<li>Agility: 16.</li>
+<li>Toughness: 18.</li>
+<li>Intelligence: 19.</li>
+<li>Willpower: 20.</li>
+<li>Ego: 19.</li>
+</ul></li>
+<li><p>Mutations:</p>
+
+<ul>
+<li>Esper.</li>
+<li>Unstable Genome.</li>
+<li>Clairvoyance.</li>
+<li>Light Manipulation.</li>
+<li>Mental Mirror.</li>
+<li>Psychometry.</li>
+<li>Psionic Migraines.</li>
+</ul></li>
+</ul>
+
+<h3>Esper nomad</h3>
+
+<p>An esper build I&#39;m currently testing out. Build code is:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>H4sIAAAAAAAAA81WbWvbMBD+3l8hwj66ISmB0UE+ZG7ZWzOyOnSD0Q+yfdhismSkU4cJ+e87KWlqJ2xZ92Ji8Ns9p3senc4nr84YGxS8ggcwVmg1eMUGF8PR8GL0cnh5OYg8nDoh8xY+Jny0gSqdOwmWrF/plbFVuO6AZVODH/Hl9mYYl9zwDMG89uHs8JPL/fkGlEZym4cBEZtZC1Uqm/M4oQF1xO42xNMnVRGLnURnYKrAoeEyYguXSpF9gGapv4GaKidlEBi05Bw5qXjURpYX+FxhVxTjQNyOgkI+uvuoc4ccIWdvXcVV2+kgiVtoHe7r6A9zmLj0JFPY0XU0g1tvH/OjrnjeQ+LCQlFce3Kp21N2NHlVTQFHLYMFCVmIsPs4N8eq9cy2tbpN7bWtwbSiBoc7bgRXSLif1x4Yaxegccu8jn6PLZZcmAfdcJVBb6RXuhJq89YX5RwUcsnmwhjdX3YTUBbYwjZZKbL+WJ3KwdBcVd4b55IqveZYNr0xLnxLEBlNszBcKNr//pp593z/s643/mddb4ZoROoQTq/t7Us72vcWWii0C2eyklvIO4x+T0EDqsCy2xwJmBVCCmwO7EvtipJW1B4g7xSClKIA365o9broZyFlrb9T+yRo0oGuCx38d7ZWmQ14ndQQyuF8MunYb6Gi2hKq2GvsKc1z5rt9x/8/bZBxqbWFBLlBUnKjs/ANnFzZ/Erm8f+OvWGe672ua/6MHxC63p+tfwAdYxOGTQsAAA==
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

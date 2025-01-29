@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/20-stddef</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/20-stddef"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>20 <code>&lt;stddef.h&gt;</code> A Few Standard Definitions</h1>
+
+<p>Despite its name, I’ve haven’t seen this frequently included.</p>
+
+<p>It includes several types and macros.</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="stddef.html#man-ptrdiff_t" rel="nofollow"><code>ptrdiff_t</code></a></td>
+<td>Signed integer difference between two pointers</td>
+</tr>
+<tr>
+<td><a href="stddef.html#man-size_t" rel="nofollow"><code>size_t</code></a></td>
+<td>Unsigned integer type returned by <code>sizeof</code></td>
+</tr>
+<tr>
+<td><a href="stddef.html#man-max_align_t" rel="nofollow"><code>max_align_t</code></a></td>
+<td>Declare a type with the biggest possible alignment</td>
+</tr>
+<tr>
+<td><a href="stddef.html#man-wchar_t" rel="nofollow"><code>wchar_t</code></a></td>
+<td>Wide character type</td>
+</tr>
+<tr>
+<td><code>NULL</code></td>
+<td><code>NULL</code> pointer, as defined a number of places</td>
+</tr>
+<tr>
+<td><a href="stddef.html#man-offsetof" rel="nofollow"><code>offsetof</code></a></td>
+<td>Get the byte offsets of <code>struct</code> or <code>union</code> fields</td>
+</tr>
+</tbody></table>
+
+<h2>20.1 <code>ptrdiff_t</code></h2>
+
+<p>This holds the different between two pointers. You could store this in another type, but the result of a pointer subtraction is an implementation-defined type; you can be maximally portable by using <code>ptrdiff_t</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stddef.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">cats</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+
+    <span class="kt">int</span> <span class="o">*</span><span class="n">f</span> <span class="o">=</span> <span class="n">cats</span> <span class="o">+</span> <span class="mi">20</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">g</span> <span class="o">=</span> <span class="n">cats</span> <span class="o">+</span> <span class="mi">60</span><span class="p">;</span>
+
+    <span class="kt">ptrdiff_t</span> <span class="n">d</span> <span class="o">=</span> <span class="n">g</span> <span class="o">-</span> <span class="n">f</span><span class="p">;</span>  <span class="c1">// difference is 40</span>
+</code></pre></div>
+
+<p>And you can print it by prefixing the integer format specifier with <code>t</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="n">printf</span><span class="p">(</span><span class="s">"%td</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">d</span><span class="p">);</span>  <span class="c1">// Print decimal: 40</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%tX</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">d</span><span class="p">);</span>  <span class="c1">// Print hex:     28</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h2>20.2 <code>size_t</code></h2>
+
+<p>This is the type returned by <code>sizeof</code> and used in a few other places. It’s an unsigned integer.</p>
+
+<p>You can print it using the <code>z</code> prefix in <code>printf()</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;uchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stddef.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">size_t</span> <span class="n">x</span><span class="p">;</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Some functions return negative numbers cast to <code>size_t</code> as error values (such as <a href="uchar.html#man-mbrtoc16" rel="nofollow"><code>mbrtoc16()</code></a>). If you want to print these as negative values, you can do it with <code>%zd</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="kt">char16_t</span> <span class="n">a</span><span class="p">;</span>
+    <span class="kt">mbstate_t</span> <span class="n">mbs</span><span class="p">;</span>
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mbs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">mbs</span><span class="p">);</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">mbrtoc16</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="s">"b"</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbs</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%zd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h2>20.3 <code>max_align_t</code></h2>
+
+<p>As far as I can tell, this exists to allow the runtime computation of the maximum fundamental <a href="https://en.wikipedia.org/wiki/Data_structure_alignment" rel="nofollow">alignment</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴⁵</a> on the current platform. Someone please mail me if there’s another use.</p>
+
+<p>Maybe you need this if you’re writing your own memory allocator or somesuch.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stddef.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">      // For printf()</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdalign.h&gt;</span><span class="c1">   // For alignof</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">max</span> <span class="o">=</span> <span class="n">alignof</span><span class="p">(</span><span class="n">max_align_t</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Maximum fundamental alignment: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">max</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>On my system, this prints:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Maximum</span> <span class="n">fundamental</span> <span class="n">alignment</span><span class="o">:</span> <span class="mi">16</span>
+</code></pre></div>
+
+<p>See also <a href="stdalign.html#man-alignas" rel="nofollow"><code>alignas</code></a>, <a href="stdalign.html#man-alignof" rel="nofollow"><code>alignof</code></a>.</p>
+
+<h2>20.4 <code>wchar_t</code></h2>
+
+<p>This is analogous to <code>char</code>, except it’s for wide characters.</p>
+
+<p>It’s an integer type that has enough range to hold unique values for all characters in all supported locales.</p>
+
+<p>The value <code>0</code> is the wide <code>NUL</code> character.</p>
+
+<p>Finally, the values of character constants from the basic character set will be the same as their corresponding <code>wchar_t</code> values… unless <code>__STDC_MB_MIGHT_NEQ_WC__</code> is defined.</p>
+
+<h2>20.5 <code>offsetof</code></h2>
+
+<p>If you have a <code>struct</code> or <code>union</code>, you can use this to get the byte offset of fields within that type.</p>
+
+<p>Usage is:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">offsetof</span><span class="p">(</span><span class="n">type</span><span class="p">,</span> <span class="n">fieldname</span><span class="p">);</span>
+</code></pre></div>
+
+<p>The resulting value has type <code>size_t</code>.</p>
+
+<p>Here’s an example that prints the field offsets of a <code>struct</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stddef.h&gt;</span><span class="cp">
+</span>
+<span class="k">struct</span> <span class="n">foo</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">b</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">c</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">d</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"a: %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">foo</span><span class="p">,</span> <span class="n">a</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"b: %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">foo</span><span class="p">,</span> <span class="n">b</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"c: %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">foo</span><span class="p">,</span> <span class="n">c</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"d: %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">offsetof</span><span class="p">(</span><span class="k">struct</span> <span class="n">foo</span><span class="p">,</span> <span class="n">d</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>On my system, this outputs:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">a:</span> <span class="mi">0</span>
+<span class="n">b</span><span class="o">:</span> <span class="mi">4</span>
+<span class="n">c</span><span class="o">:</span> <span class="mi">5</span>
+<span class="n">d</span><span class="o">:</span> <span class="mi">8</span>
+</code></pre></div>
+
+<p>And you can’t use <code>offsetof</code> on a bitfield, so don’t get your hopes up.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/16-stdalign</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/16-stdalign"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>16 <code>&lt;stdalign.h&gt;</code> Macros for Alignment</h1>
+
+<p>If you’re coding up something low-level like a memory allocator that interfaces with your OS, you might need this header file. But most C devs go their careers without using it.</p>
+
+<p><a href="https://en.wikipedia.org/wiki/Data_structure_alignment" rel="nofollow"><em>Alignment</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">³⁷</a> is all about multiples of addresses on which objects can be stored. Can you store this at any address? Or must it be a starting address that’s divisible by 2? Or 8? Or 16?</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="stdalign.html#man-alignas" rel="nofollow"><code>alignas()</code></a></td>
+<td>Specify alignment, expands to <code>_Alignas</code></td>
+</tr>
+<tr>
+<td><a href="stdalign.html#man-alignof" rel="nofollow"><code>alignof()</code></a></td>
+<td>Get alignment, expands to <code>_Alignof</code></td>
+</tr>
+</tbody></table>
+
+<p>These two additional macros are defined to be <code>1</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">__alignas_is_defined</span>
+<span class="n">__alignof_is_defined</span>
+</code></pre></div>
+
+<p>Quick note: alignments greater than that of <code>max_align_t</code> are known as <em>overalignments</em> and are implementation-defined.</p>
+
+<h2>16.1 <code>alignas()</code> <code>_Alignas()</code></h2>
+
+<p>Force a variable to have a certain alignment</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdalign.h&gt;</span><span class="cp">
+</span>
+<span class="n">alignas</span><span class="p">(</span><span class="n">type</span><span class="o">-</span><span class="n">name</span><span class="p">)</span>
+<span class="n">alignas</span><span class="p">(</span><span class="n">constant</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span>
+</code></pre></div><div class="highlight"><pre class="highlight c"><code><span class="k">_Alignas</span><span class="p">(</span><span class="n">type</span><span class="o">-</span><span class="n">name</span><span class="p">)</span>
+<span class="k">_Alignas</span><span class="p">(</span><span class="n">constant</span><span class="o">-</span><span class="n">expression</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Use this <em>alignment specifier</em> to force the alignment of particular variables. For instance, we can declare <code>c</code> to be <code>char</code>, but aligned as if it were an <code>int</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">alignas</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">c</span><span class="p">;</span>
+</code></pre></div>
+
+<p>You can put a constant integer expression in there, as well. The compiler will probably impose limits on what these values can be. Small powers of 2 (1, 2, 4, 8, and 16) are generally safe bets.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">alignas</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="n">c</span><span class="p">;</span>   <span class="c1">// align on 8-byte boundaries</span>
+</code></pre></div>
+
+<p>For convenience, you can also specify <code>0</code> if you want the default alignment (as if you hadn’t said <code>alignas()</code> at all):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">alignas</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="n">c</span><span class="p">;</span>   <span class="c1">// use default alignment for this type</span>
+</code></pre></div>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdalign.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">     // for printf()</span><span class="cp">
+#include</span> <span class="cpf">&lt;stddef.h&gt;</span><span class="c1">    // for max_align_t</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">alignas</span><span class="p">(</span><span class="n">max_align_t</span><span class="p">)</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">alignas</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">e</span><span class="p">,</span> <span class="n">f</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"i: %p</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">i</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"j: %p</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">j</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"a: %p</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">a</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"b: %p</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">b</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"c: %p</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">c</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"d: %p</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"e: %p</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">e</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"f: %p</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">f</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system follows. Notice the difference between the pairs of values.</p>
+
+<ul>
+<li>  <code>i</code> and <code>j</code>, both <code>int</code>s, are aligned on 4-byte boundaries.</li>
+<li>  <code>a</code> and <code>b</code> have been forced to the boundary of the type <code>max_align_t</code>, which is every 16 bytes on my system.</li>
+<li>  <code>c</code> and <code>d</code> have been forced to the same alignment as <code>int</code>, which is 4 bytes, just like with <code>i</code> and <code>j</code>.</li>
+<li>  <code>e</code> and <code>f</code> do not have an alignment specified, so they were stored with their default alignment of 1 byte.</li>
+</ul>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">i:</span> <span class="mh">0x7ffee7dfb4cc</span>    <span class="o">&lt;--</span> <span class="n">difference</span> <span class="n">of</span> <span class="mi">4</span> <span class="n">bytes</span>
+<span class="n">j</span><span class="o">:</span> <span class="mh">0x7ffee7dfb4c8</span>
+
+<span class="n">a</span><span class="o">:</span> <span class="mh">0x7ffee7dfb4c0</span>    <span class="o">&lt;--</span> <span class="n">difference</span> <span class="n">of</span> <span class="mi">16</span> <span class="n">bytes</span>
+<span class="n">b</span><span class="o">:</span> <span class="mh">0x7ffee7dfb4b0</span>
+
+<span class="n">c</span><span class="o">:</span> <span class="mh">0x7ffee7dfb4ac</span>    <span class="o">&lt;--</span> <span class="n">difference</span> <span class="n">of</span> <span class="mi">4</span> <span class="n">bytes</span>
+<span class="n">d</span><span class="o">:</span> <span class="mh">0x7ffee7dfb4a8</span>
+
+<span class="n">e</span><span class="o">:</span> <span class="mh">0x7ffee7dfb4a7</span>    <span class="o">&lt;--</span> <span class="n">difference</span> <span class="n">of</span> <span class="mi">1</span> <span class="n">byte</span>
+<span class="n">f</span><span class="o">:</span> <span class="mh">0x7ffee7dfb4a6</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdalign.html#man-alignof" rel="nofollow"><code>alignof</code></a>, <a href="stddef.html#man-max_align_t" rel="nofollow"><code>max_align_t</code></a></p>
+
+<p><hr></p>
+
+<h2>16.2 <code>alignof()</code> <code>_Alignof()</code></h2>
+
+<p>Get the alignment of a type</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdalign.h&gt;</span><span class="cp">
+</span>
+<span class="n">alignof</span><span class="p">(</span><span class="n">type</span><span class="o">-</span><span class="n">name</span><span class="p">)</span>
+</code></pre></div><div class="highlight"><pre class="highlight c"><code><span class="k">_Alignof</span><span class="p">(</span><span class="n">type</span><span class="o">-</span><span class="n">name</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This evaluates to a value of type <code>size_t</code> that gives the alignment of a particular type on your system.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the alignment value, i.e. the address of the beginning of the given type of object must begin on an address boundary divisible by this number.</p>
+
+<h3>Example</h3>
+
+<p>Print out the alignments of a variety of different types.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdalign.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">     // for printf()</span><span class="cp">
+#include</span> <span class="cpf">&lt;stddef.h&gt;</span><span class="c1">    // for max_align_t</span><span class="cp">
+</span>
+<span class="k">struct</span> <span class="n">t</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">b</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">c</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"char       : %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">alignof</span><span class="p">(</span><span class="kt">char</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"short      : %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">alignof</span><span class="p">(</span><span class="kt">short</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"int        : %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">alignof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"long       : %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">alignof</span><span class="p">(</span><span class="kt">long</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"long long  : %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">alignof</span><span class="p">(</span><span class="kt">long</span> <span class="kt">long</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"double     : %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">alignof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"long double: %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">alignof</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"struct t   : %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">alignof</span><span class="p">(</span><span class="k">struct</span> <span class="n">t</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"max_align_t: %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">alignof</span><span class="p">(</span><span class="n">max_align_t</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span>       <span class="o">:</span> <span class="mi">1</span>
+<span class="kt">short</span>      <span class="o">:</span> <span class="mi">2</span>
+<span class="kt">int</span>        <span class="o">:</span> <span class="mi">4</span>
+<span class="kt">long</span>       <span class="o">:</span> <span class="mi">8</span>
+<span class="kt">long</span> <span class="kt">long</span>  <span class="o">:</span> <span class="mi">8</span>
+<span class="kt">double</span>     <span class="o">:</span> <span class="mi">8</span>
+<span class="kt">long</span> <span class="kt">double</span><span class="o">:</span> <span class="mi">16</span>
+<span class="k">struct</span> <span class="n">t</span>   <span class="o">:</span> <span class="mi">16</span>
+<span class="n">max_align_t</span><span class="o">:</span> <span class="mi">16</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdalign.html#man-alignas" rel="nofollow"><code>alignas</code></a>, <a href="stddef.html#man-max_align_t" rel="nofollow"><code>max_align_t</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

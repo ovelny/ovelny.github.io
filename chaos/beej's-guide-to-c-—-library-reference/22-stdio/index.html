@@ -1,0 +1,2897 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/22-stdio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/22-stdio"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>22 <code>&lt;stdio.h&gt;</code> Standard I/O Library</h1>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="stdio.html#man-feof" rel="nofollow"><code>clearerr()</code></a></td>
+<td>Clear the <code>feof</code> and <code>ferror</code> status flags</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-fclose" rel="nofollow"><code>fclose()</code></a></td>
+<td>Close an open file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-feof" rel="nofollow"><code>feof()</code></a></td>
+<td>Return the file end-of-file status</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-feof" rel="nofollow"><code>ferror()</code></a></td>
+<td>Return the file error status</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-fflush" rel="nofollow"><code>fflush()</code></a></td>
+<td>Flush all buffered output to a file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-getc" rel="nofollow"><code>fgetc()</code></a></td>
+<td>Read a character in a file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-fgetpos" rel="nofollow"><code>fgetpos()</code></a></td>
+<td>Get the file I/O position</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-gets" rel="nofollow"><code>fgets()</code></a></td>
+<td>Read a line from a file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-fopen" rel="nofollow"><code>fopen()</code></a></td>
+<td>Open a file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-printf" rel="nofollow"><code>fprintf()</code></a></td>
+<td>Print formatted output to a file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-putc" rel="nofollow"><code>fputc()</code></a></td>
+<td>Print a character to a file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-puts" rel="nofollow"><code>fputs()</code></a></td>
+<td>Print a string to a file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-fread" rel="nofollow"><code>fread()</code></a></td>
+<td>Read binary data from a file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-freopen" rel="nofollow"><code>freopen()</code></a></td>
+<td>Change file associated with a stream</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-scanf" rel="nofollow"><code>fscanf()</code></a></td>
+<td>Read formatted input from a file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-fseek" rel="nofollow"><code>fseek()</code></a></td>
+<td>Set the file I/O position</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-fgetpos" rel="nofollow"><code>fsetpos()</code></a></td>
+<td>Set the file I/O position</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-ftell" rel="nofollow"><code>ftell()</code></a></td>
+<td>Get the file I/O position</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-fwrite" rel="nofollow"><code>fwrite()</code></a></td>
+<td>Write binary data to a file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-getc" rel="nofollow"><code>getc()</code></a></td>
+<td>Get a character from <code>stdin</code></td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-getc" rel="nofollow"><code>getchar()</code></a></td>
+<td>Get a character from <code>stdin</code></td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-gets" rel="nofollow"><code>gets()</code></a></td>
+<td>Get a string from <code>stdin</code> (removed in C11)</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-perror" rel="nofollow"><code>perror()</code></a></td>
+<td>Print a human-formatted error message</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-printf" rel="nofollow"><code>printf()</code></a></td>
+<td>Print formatted output to <code>stdout</code></td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-putc" rel="nofollow"><code>putc()</code></a></td>
+<td>Print a character to <code>stdout</code></td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-putc" rel="nofollow"><code>putchar()</code></a></td>
+<td>Print a character to <code>stdout</code></td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-puts" rel="nofollow"><code>puts()</code></a></td>
+<td>Print a string to <code>stdout</code></td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-remove" rel="nofollow"><code>remove()</code></a></td>
+<td>Delete a file from disk</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-rename" rel="nofollow"><code>rename()</code></a></td>
+<td>Rename or move a file on disk</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-fseek" rel="nofollow"><code>rewind()</code></a></td>
+<td>Set the I/O position to the beginning of a file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-scanf" rel="nofollow"><code>scanf()</code></a></td>
+<td>Read formatted input from <code>stdin</code></td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-setbuf" rel="nofollow"><code>setbuf()</code></a></td>
+<td>Configure buffering for I/O operations</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-setbuf" rel="nofollow"><code>setvbuf()</code></a></td>
+<td>Configure buffering for I/O operations</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-printf" rel="nofollow"><code>snprintf()</code></a></td>
+<td>Print length-limited formatted output to a string</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-printf" rel="nofollow"><code>sprintf()</code></a></td>
+<td>Print formatted output to a string</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-scanf" rel="nofollow"><code>sscanf()</code></a></td>
+<td>Read formatted input from a string</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-tmpfile" rel="nofollow"><code>tmpfile()</code></a></td>
+<td>Create a temporary file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-tmpnam" rel="nofollow"><code>tmpnam()</code></a></td>
+<td>Generate a unique name for a temporary file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-ungetc" rel="nofollow"><code>ungetc()</code></a></td>
+<td>Push a character back on the input stream</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-vprintf" rel="nofollow"><code>vfprintf()</code></a></td>
+<td>Variadic print formatted output to a file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-vscanf" rel="nofollow"><code>vfscanf()</code></a></td>
+<td>Variadic read formatted input from a file</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-vprintf" rel="nofollow"><code>vprintf()</code></a></td>
+<td>Variadic print formatted output to <code>stdout</code></td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-vscanf" rel="nofollow"><code>vscanf()</code></a></td>
+<td>Variadic read formatted input from <code>stdin</code></td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-vprintf" rel="nofollow"><code>vsnprintf()</code></a></td>
+<td>Variadic length-limited print formatted output to a string</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-vprintf" rel="nofollow"><code>vsprintf()</code></a></td>
+<td>Variadic print formatted output to a string</td>
+</tr>
+<tr>
+<td><a href="stdio.html#man-vscanf" rel="nofollow"><code>vsscanf()</code></a></td>
+<td>Variadic read formatted input to a string</td>
+</tr>
+</tbody></table>
+
+<p>The most basic of all libraries in the whole of the standard C library is the standard I/O library. It’s used for reading from and writing to files. I can see you’re very excited about this.</p>
+
+<p>So I’ll continue. It’s also used for reading and writing to the console, as we’ve already often seen with the <code>printf()</code> function.</p>
+
+<p>(A little secret here—many many things in various operating systems are secretly files deep down, and the console is no exception. “<em>Everything in Unix is a file!</em>” <code>:-)</code>)</p>
+
+<p>You’ll probably want some prototypes of the functions you can use, right? To get your grubby little mittens on those, you’ll want to include <code>stdio.h</code>.</p>
+
+<p>Anyway, so we can do all kinds of cool stuff in terms of file I/O. LIE DETECTED. Ok, ok. We can do all kinds of stuff in terms of file I/O. Basically, the strategy is this:</p>
+
+<ol>
+<li><p>Use <code>fopen()</code> to get a pointer to a file structure of type <code>FILE*</code>. This pointer is what you’ll be passing to many of the other file I/O calls.</p></li>
+<li><p>Use some of the other file calls, like <code>fscanf()</code>, <code>fgets()</code>, <code>fprintf()</code>, or etc. using the <code>FILE*</code> returned from <code>fopen()</code>.</p></li>
+<li><p>When done, call <code>fclose()</code> with the <code>FILE*</code>. This let’s the operating system know that you’re truly done with the file, no take-backs.</p></li>
+</ol>
+
+<p>What’s in the <code>FILE*</code>? Well, as you might guess, it points to a <code>struct</code> that contains all kinds of information about the current read and write position in the file, how the file was opened, and other stuff like that. But, honestly, who cares. No one, that’s who. The <code>FILE</code> structure is <em>opaque</em> to you as a programmer; that is, you don’t need to know what’s in it, and you don’t even <em>want</em> to know what’s in it. You just pass it to the other standard I/O functions and they know what to do.</p>
+
+<p>This is actually pretty important: try to not muck around in the <code>FILE</code> structure. It’s not even the same from system to system, and you’ll end up writing some really non-portable code.</p>
+
+<p>One more thing to mention about the standard I/O library: a lot of the functions that operate on files use an “f” prefix on the function name. The same function that is operating on the console will leave the “f” off. For instance, if you want to print to the console, you use <code>printf()</code>, but if you want to print to a file, use <code>fprintf()</code>, see?</p>
+
+<p>Wait a moment! If writing to the console is, deep down, just like writing to a file, since everything in Unix is a file, why are there two functions? Answer: it’s more convenient. But, more importantly, is there a <code>FILE*</code> associated with the console that you can use? Answer: YES!</p>
+
+<p>There are, in fact, <em>three</em> (count ’em!) special <code>FILE*</code>s you have at your disposal merely for just including <code>stdio.h</code>. There is one for input, and two for output.</p>
+
+<p>That hardly seems fair—why does output get two files, and input only get one?</p>
+
+<p>That’s jumping the gun a bit—let’s just look at them:</p>
+
+<table><thead>
+<tr>
+<th>Stream</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>stdin</code></td>
+<td>Input from the console.</td>
+</tr>
+<tr>
+<td><code>stdout</code></td>
+<td>Output to the console.</td>
+</tr>
+<tr>
+<td><code>stderr</code></td>
+<td>Output to the console on the error file stream.</td>
+</tr>
+</tbody></table>
+
+<p>So standard input (<code>stdin</code>) is by default just what you type at the keyboard. You can use that in <code>fscanf()</code> if you want, just like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cm">/* this line: */</span>
+<span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">);</span>
+
+<span class="cm">/* is just like this line: */</span>
+<span class="n">fscanf</span><span class="p">(</span><span class="n">stdin</span><span class="p">,</span> <span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">);</span>
+</code></pre></div>
+
+<p>And <code>stdout</code> works the same way:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"Hello, world!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="n">fprintf</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="s">"Hello, world!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span> <span class="cm">/* same as previous line! */</span>
+</code></pre></div>
+
+<p>So what is this <code>stderr</code> thing? What happens when you output to that? Well, generally it goes to the console just like <code>stdout</code>, but people use it for error messages, specifically. Why? On many systems you can redirect the output from the program into a file from the command line…and sometimes you’re interested in getting just the error output. So if the program is good and writes all its errors to <code>stderr</code>, a user can redirect just <code>stderr</code> into a file, and just see that. It’s just a nice thing you, as a programmer, can do.</p>
+
+<p>Finally, a lot of these functions return <code>int</code> where you might expect <code>char</code>. This is because the function can return a character <em>or</em> end-of-file (<code>EOF</code>), and <code>EOF</code> is potentially an integer. If you don’t get <code>EOF</code> as a return value, you can safely store the result in a <code>char</code>.</p>
+
+<p><hr></p>
+
+<h2>22.1 <code>remove()</code></h2>
+
+<p>Delete a file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">remove</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">filename</span><span class="p">);</span> 
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Removes the specified file from the filesystem. It just deletes it. Nothing magical. Simply call this function and sacrifice a small chicken and the requested file will be deleted.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns zero on success, and <code>-1</code> on error, setting <code>errno</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">filename</span> <span class="o">=</span> <span class="s">"evidence.txt"</span><span class="p">;</span>
+
+    <span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-rename" rel="nofollow"><code>rename()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.2 <code>rename()</code></h2>
+
+<p>Renames a file and optionally moves it to a new location</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">rename</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">old</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">new</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Renames the file <code>old</code> to name <code>new</code>. Use this function if you’re tired of the old name of the file, and you are ready for a change. Sometimes simply renaming your files makes them feel new again, and could save you money over just getting all new files!</p>
+
+<p>One other cool thing you can do with this function is actually move a file from one directory to another by specifying a different path for the new name.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns zero on success, and <code>-1</code> on error, setting <code>errno</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Rename a file</span>
+    <span class="n">rename</span><span class="p">(</span><span class="s">"foo"</span><span class="p">,</span> <span class="s">"bar"</span><span class="p">);</span>
+
+    <span class="c1">// Rename and move to another directory:</span>
+    <span class="n">rename</span><span class="p">(</span><span class="s">"/home/beej/evidence.txt"</span><span class="p">,</span> <span class="s">"/tmp/nothing.txt"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-remove" rel="nofollow"><code>remove()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.3 <code>tmpfile()</code></h2>
+
+<p>Create a temporary file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">FILE</span> <span class="o">*</span><span class="nf">tmpfile</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is a nifty little function that will create and open a temporary file for you, and will return a <code>FILE*</code> to it that you can use. The file is opened with mode “<code>r+b</code>”, so it’s suitable for reading, writing, and binary data.</p>
+
+<p>By using a little magic, the temp file is automatically deleted when it is <code>close()</code>’d or when your program exits. (Specifically, in Unix terms, <code>tmpfile()</code> <a href="https://man.archlinux.org/man/unlinkat.2.en#DESCRIPTION" rel="nofollow"><em>unlinks</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴⁶</a> the file right after it opens it. This means that it’s primed to be deleted from disk, but still exists because your process still has it open. As soon as your process exits, all open files are closed, and the temp file vanishes into the ether.)</p>
+
+<h3>Return Value</h3>
+
+<p>This function returns an open <code>FILE*</code> on success, or <code>NULL</code> on failure.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">temp</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">tmpfile</span><span class="p">();</span>
+
+    <span class="n">fprintf</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="s">"What is the frequency, Alexander?</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="n">rewind</span><span class="p">(</span><span class="n">temp</span><span class="p">);</span> <span class="c1">// back to the beginning</span>
+
+    <span class="n">fscanf</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="s">"%s"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="c1">// read it back out</span>
+
+    <span class="n">fclose</span><span class="p">(</span><span class="n">temp</span><span class="p">);</span> <span class="c1">// close (and magically delete)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-fopen" rel="nofollow"><code>fopen()</code></a>, <a href="stdio.html#man-fclose" rel="nofollow"><code>fclose()</code></a>, <a href="stdio.html#man-tmpnam" rel="nofollow"><code>tmpnam()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.4 <code>tmpnam()</code></h2>
+
+<p>Generate a unique name for a temporary file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">tmpnam</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This function takes a good hard look at the existing files on your system, and comes up with a unique name for a new file that is suitable for temporary file usage.</p>
+
+<p>Let’s say you have a program that needs to store off some data for a short time so you create a temporary file for the data, to be deleted when the program is done running. Now imagine that you called this file <code>foo.txt</code>. This is all well and good, except what if a user already has a file called <code>foo.txt</code> in the directory that you ran your program from? You’d overwrite their file, and they’d be unhappy and stalk you forever. And you wouldn’t want that, now would you?</p>
+
+<p>Ok, so you get wise, and you decide to put the file in <code>/tmp</code> so that it won’t overwrite any important content. But wait! What if some other user is running your program at the same time and they both want to use that filename? Or what if some other program has already created that file?</p>
+
+<p>See, all of these scary problems can be completely avoided if you just use <code>tmpnam()</code> to get a safe-ready-to-use filename.</p>
+
+<p>So how do you use it? There are two amazing ways. One, you can declare an array (or <code>malloc()</code> it—whatever) that is big enough to hold the temporary file name. How big is that? Fortunately there has been a macro defined for you, <code>L_tmpnam</code>, which is how big the array must be.</p>
+
+<p>And the second way: just pass <code>NULL</code> for the filename. <code>tmpnam()</code> will store the temporary name in a static array and return a pointer to that. Subsequent calls with a <code>NULL</code> argument will overwrite the static array, so be sure you’re done using it before you call <code>tmpnam()</code> again.</p>
+
+<p>Again, this function just makes a file name for you. It’s up to you to later <code>fopen()</code> the file and use it.</p>
+
+<p>One more note: some compilers warn against using <code>tmpnam()</code> since some systems have better functions (like the Unix function <code>mkstemp()</code>.) You might want to check your local documentation to see if there’s a better option. Linux documentation goes so far as to say, “Never use this function. Use <code>mkstemp()</code> instead.”</p>
+
+<p>I, however, am going to be a jerk and not talk about <a href="https://man.archlinux.org/man/mkstemp.3.en" rel="nofollow"><code>mkstemp()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴⁷</a> because it’s not in the standard I’m writing about. Nyaah.</p>
+
+<p>The macro <code>TMP_MAX</code> holds the number of unique filenames that can be generated by <code>tmpnam()</code>. Ironically, it is the <em>minimum</em> number of such filenames.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns a pointer to the temporary file name. This is either a pointer to the string you passed in, or a pointer to internal static storage if you passed in <code>NULL</code>. On error (like it can’t find any temporary name that is unique), <code>tmpnam()</code> returns <code>NULL</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">filename</span><span class="p">[</span><span class="n">L_tmpnam</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">another_filename</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">tmpnam</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"We got a temp file name: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">filename</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Something went wrong, and we got nothing!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="n">another_filename</span> <span class="o">=</span> <span class="n">tmpnam</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"We got another temp file name: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">another_filename</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"And we didn't error check it because we're too lazy!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>On my Linux system, this generates the following output:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>We got a temp file name: "/tmp/filew9PMuZ"
+We got another temp file name: "/tmp/fileOwrgPO"
+And we didn't error check it because we're too lazy!
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-fopen" rel="nofollow"><code>fopen()</code></a>, <a href="stdio.html#man-tmpfile" rel="nofollow"><code>tmpfile()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.5 <code>fclose()</code></h2>
+
+<p>The opposite of <code>fopen()</code>—closes a file when you’re done with it so that it frees system resources</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">fclose</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>When you open a file, the system sets aside some resources to maintain information about that open file. Usually it can only open so many files at once. In any case, the Right Thing to do is to close your files when you’re done using them so that the system resources are freed.</p>
+
+<p>Also, you might not find that all the information that you’ve written to the file has actually been written to disk until the file is closed. (You can force this with a call to <code>fflush()</code>.)</p>
+
+<p>When your program exits normally, it closes all open files for you. Lots of times, though, you’ll have a long-running program, and it’d be better to close the files before then. In any case, not closing a file you’ve opened makes you look bad. So, remember to <code>fclose()</code> your file when you’re done with it!</p>
+
+<h3>Return Value</h3>
+
+<p>On success, <code>0</code> is returned. Typically no one checks for this. On error <code>EOF</code> is returned. Typically no one checks for this, either.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"spoon.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">fp</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Error opening file</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Opened file just fine!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>  <span class="c1">// All done!</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-fopen" rel="nofollow"><code>fopen()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.6 <code>fflush()</code></h2>
+
+<p>Process all buffered I/O for a stream right now</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">fflush</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>When you do standard I/O, as mentioned in the section on the <a href="stdio.html#man-setbuf" rel="nofollow"><code>setvbuf()</code></a> function, it is usually stored in a buffer until a line has been entered or the buffer is full or the file is closed. Sometimes, though, you really want the output to happen <em>right this second</em>, and not wait around in the buffer. You can force this to happen by calling <code>fflush()</code>.</p>
+
+<p>The advantage to buffering is that the OS doesn’t need to hit the disk every time you call <code>fprintf()</code>. The disadvantage is that if you look at the file on the disk after the <code>fprintf()</code> call, it might not have actually been written to yet. (“I called <code>fputs()</code>, but the file is still zero bytes long! Why?!”) In virtually all circumstances, the advantages of buffering outweigh the disadvantages; for those other circumstances, however, use <code>fflush()</code>.</p>
+
+<p>Note that <code>fflush()</code> is only designed to work on output streams according to the spec. What will happen if you try it on an input stream? Use your spooky voice: <em>who knooooows!</em></p>
+
+<h3>Return Value</h3>
+
+<p>On success, <code>fflush()</code> returns zero. If there’s an error, it returns <code>EOF</code> and sets the error condition for the stream (see <a href="stdio.html#man-feof" rel="nofollow"><code>ferror()</code></a>.)</p>
+
+<h3>Example</h3>
+
+<p>In this example, we’re going to use the carriage return, which is <code>&#39;\r&#39;</code>. This is like newline (<code>&#39;\n&#39;</code>), except that it doesn’t move to the next line. It just returns to the front of the current line.</p>
+
+<p>What we’re going to do is a little text-based status bar like so many command line programs implement. It’ll do a countdown from 10 to 0 printing over itself on the same line.</p>
+
+<p>What is the catch and what does this have to do with <code>fflush()</code>? The catch is that the terminal is most likely “line buffered” (see the section on <a href="stdio.html#man-setbuf" rel="nofollow"><code>setvbuf()</code></a> for more info), meaning that it won’t actually display anything until it prints a newline. But we’re not printing newlines; we’re just printing carriage returns, so we need a way to force the output to occur even though we’re on the same line. Yes, it’s <code>fflush()!</code></p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">sleep_seconds</span><span class="p">(</span><span class="kt">int</span> <span class="n">s</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_sleep</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="k">struct</span> <span class="n">timespec</span><span class="p">){.</span><span class="n">tv_sec</span><span class="o">=</span><span class="n">s</span><span class="p">},</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">count</span><span class="p">;</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="n">count</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">count</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\r</span><span class="s">Seconds until launch: "</span><span class="p">);</span>  <span class="c1">// lead with a CR</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"%2d"</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>
+        <span class="k">else</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"blastoff!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+        <span class="c1">// force output now!!</span>
+        <span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+
+        <span class="n">sleep_seconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-setbuf" rel="nofollow"><code>setbuf()</code></a>, <a href="stdio.html#man-setbuf" rel="nofollow"><code>setvbuf()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.7 <code>fopen()</code></h2>
+
+<p>Opens a file for reading or writing</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">FILE</span> <span class="o">*</span><span class="nf">fopen</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">path</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">mode</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>The <code>fopen()</code> opens a file for reading or writing.</p>
+
+<p>Parameter <code>path</code> can be a relative or fully-qualified path and file name to the file in question.</p>
+
+<p>Parameter <code>mode</code> tells <code>fopen()</code> how to open the file (reading, writing, or both), and whether or not it’s a binary file. Possible modes are:</p>
+
+<table><thead>
+<tr>
+<th>Mode</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>r</code></td>
+<td>Open the file for reading (read-only).</td>
+</tr>
+<tr>
+<td><code>w</code></td>
+<td>Open the file for writing (write-only). The file is created if it doesn’t exist.</td>
+</tr>
+<tr>
+<td><code>r+</code></td>
+<td>Open the file for reading and writing. The file has to already exist.</td>
+</tr>
+<tr>
+<td><code>w+</code></td>
+<td>Open the file for writing and reading. The file is created if it doesn’t already exist.</td>
+</tr>
+<tr>
+<td><code>a</code></td>
+<td>Open the file for append. This is just like opening a file for writing, but it positions the file pointer at the end of the file, so the next write appends to the end. The file is created if it doesn’t exist.</td>
+</tr>
+<tr>
+<td><code>a+</code></td>
+<td>Open the file for reading and appending. The file is created if it doesn’t exist.</td>
+</tr>
+</tbody></table>
+
+<p>Any of the modes can have the letter “<code>b</code>” appended to the end, as is “<code>wb</code>” (“write binary”), to signify that the file in question is a <em>binary</em> file. (“Binary” in this case generally means that the file contains non-alphanumeric characters that look like garbage to human eyes.) Many systems (like Unix) don’t differentiate between binary and non-binary files, so the “<code>b</code>” is extraneous. But if your data is binary, it doesn’t hurt to throw the “<code>b</code>” in there, and it might help someone who is trying to port your code to another system.</p>
+
+<p>The macro <code>FOPEN_MAX</code> tells you how many streams (at least) you can have open at once.</p>
+
+<p>The macro <code>FILENAME_MAX</code> tells you what the longest valid filename can be. Don’t go crazy, now.</p>
+
+<h3>Return Value</h3>
+
+<p><code>fopen()</code> returns a <code>FILE*</code> that can be used in subsequent file-related calls.</p>
+
+<p>If something goes wrong (e.g. you tried to open a file for read that didn’t exist), <code>fopen()</code> will return <code>NULL</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"spoon.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">fp</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Error opening file</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Opened file just fine!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>  <span class="c1">// All done!</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-fclose" rel="nofollow"><code>fclose()</code></a>, <a href="stdio.html#man-freopen" rel="nofollow"><code>freopen()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.8 <code>freopen()</code></h2>
+
+<p>Reopen an existing <code>FILE*</code>, associating it with a new path</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">FILE</span> <span class="o">*</span><span class="nf">freopen</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">filename</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">mode</span><span class="p">,</span> <span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Let’s say you have an existing <code>FILE*</code> stream that’s already open, but you want it to suddenly use a different file than the one it’s using. You can use <code>freopen()</code> to “re-open” the stream with a new file.</p>
+
+<p>Why on Earth would you ever want to do that? Well, the most common reason would be if you had a program that normally would read from <code>stdin</code>, but instead you wanted it to read from a file. Instead of changing all your <code>scanf()</code>s to <code>fscanf()</code>s, you could simply reopen <code>stdin</code> on the file you wanted to read from.</p>
+
+<p>Another usage that is allowed on some systems is that you can pass <code>NULL</code> for <code>filename</code>, and specify a new <code>mode</code> for <code>stream</code>. So you could change a file from “<code>r+</code>” (read and write) to just “<code>r</code>” (read), for instance. It’s implementation dependent which modes can be changed.</p>
+
+<p>When you call <code>freopen()</code>, the old <code>stream</code> is closed. Otherwise, the function behaves just like the standard <code>fopen()</code>.</p>
+
+<h3>Return Value</h3>
+
+<p><code>freopen()</code> returns <code>stream</code> if all goes well.</p>
+
+<p>If something goes wrong (e.g. you tried to open a file for read that didn’t exist), <code>freopen()</code> will return <code>NULL</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">i2</span><span class="p">;</span>
+
+    <span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">i</span><span class="p">);</span> <span class="c1">// read i from stdin</span>
+
+    <span class="c1">// now change stdin to refer to a file instead of the keyboard</span>
+    <span class="n">freopen</span><span class="p">(</span><span class="s">"someints.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span>
+
+    <span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">i2</span><span class="p">);</span> <span class="c1">// now this reads from the file "someints.txt"</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Hello, world!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span> <span class="c1">// print to the screen</span>
+
+    <span class="c1">// change stdout to go to a file instead of the terminal:</span>
+    <span class="n">freopen</span><span class="p">(</span><span class="s">"output.txt"</span><span class="p">,</span> <span class="s">"w"</span><span class="p">,</span> <span class="n">stdout</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"This goes to the file </span><span class="se">\"</span><span class="s">output.txt</span><span class="se">\"\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="c1">// this is allowed on some systems--you can change the mode of a file:</span>
+    <span class="n">freopen</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">"wb"</span><span class="p">,</span> <span class="n">stdout</span><span class="p">);</span> <span class="c1">// change to "wb" instead of "w"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-fclose" rel="nofollow"><code>fclose()</code></a>, <a href="stdio.html#man-fopen" rel="nofollow"><code>fopen()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.9 <code>setbuf()</code>, <code>setvbuf()</code></h2>
+
+<p>Configure buffering for standard I/O operations</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">setbuf</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">setvbuf</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">int</span> <span class="n">mode</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">size</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Now brace yourself because this might come as a bit of a surprise to you: when you <code>printf()</code> or <code>fprintf()</code> or use any I/O functions like that, <em>it does not normally work immediately</em>. For the sake of efficiency, and to irritate you, the I/O on a <code>FILE*</code> stream is buffered away safely until certain conditions are met, and only then is the actual I/O performed. The functions <code>setbuf()</code> and <code>setvbuf()</code> allow you to change those conditions and the buffering behavior.</p>
+
+<p>So what are the different buffering behaviors? The biggest is called “full buffering”, wherein all I/O is stored in a big buffer until it is full, and then it is dumped out to disk (or whatever the file is). The next biggest is called “line buffering”; with line buffering, I/O is stored up a line at a time (until a newline (<code>&#39;\n&#39;</code>) character is encountered) and then that line is processed. Finally, we have “unbuffered”, which means I/O is processed immediately with every standard I/O call.</p>
+
+<p>You might have seen and wondered why you could call <code>putchar()</code> time and time again and not see any output until you called <code>putchar(&#39;\n&#39;)</code>; that’s right—<code>stdout</code> is line-buffered!</p>
+
+<p>Since <code>setbuf()</code> is just a simplified version of <code>setvbuf()</code>, we’ll talk about <code>setvbuf()</code> first.</p>
+
+<p>The <code>stream</code> is the <code>FILE*</code> you wish to modify. The standard says you <em>must</em> make your call to <code>setvbuf()</code> <em>before</em> any I/O operation is performed on the stream, or else by then it might be too late.</p>
+
+<p>The next argument, <code>buf</code> allows you to make your own buffer space (using <a href="stdlib.html#man-malloc" rel="nofollow"><code>malloc()</code></a> or just a <code>char</code> array) to use for buffering. If you don’t care to do this, just set <code>buf</code> to <code>NULL</code>.</p>
+
+<p>Now we get to the real meat of the function: <code>mode</code> allows you to choose what kind of buffering you want to use on this <code>stream</code>. Set it to one of the following:</p>
+
+<table><thead>
+<tr>
+<th>Mode</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>_IOFBF</code></td>
+<td><code>stream</code> will be fully buffered.</td>
+</tr>
+<tr>
+<td><code>_IOLBF</code></td>
+<td><code>stream</code> will be line buffered.</td>
+</tr>
+<tr>
+<td><code>_IONBF</code></td>
+<td><code>stream</code> will be unbuffered.</td>
+</tr>
+</tbody></table>
+
+<p>Finally, the <code>size</code> argument is the size of the array you passed in for <code>buf</code>…unless you passed <code>NULL</code> for <code>buf</code>, in which case it will resize the existing buffer to the size you specify.</p>
+
+<p>Now what about this lesser function <code>setbuf()</code>? It’s just like calling <code>setvbuf()</code> with some specific parameters, except <code>setbuf()</code> doesn’t return a value. The following example shows the equivalency:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// these are the same:</span>
+<span class="n">setbuf</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+<span class="n">setvbuf</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">_IOFBF</span><span class="p">,</span> <span class="n">BUFSIZ</span><span class="p">);</span> <span class="c1">// fully buffered</span>
+
+<span class="c1">// and these are the same:</span>
+<span class="n">setbuf</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="n">setvbuf</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">_IONBF</span><span class="p">,</span> <span class="n">BUFSIZ</span><span class="p">);</span> <span class="c1">// unbuffered</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p><code>setvbuf()</code> returns zero on success, and nonzero on failure. <code>setbuf()</code> has no return value.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">lineBuf</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"somefile.txt"</span><span class="p">,</span> <span class="s">"w"</span><span class="p">);</span>
+    <span class="n">setvbuf</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">lineBuf</span><span class="p">,</span> <span class="n">_IOLBF</span><span class="p">,</span> <span class="mi">1024</span><span class="p">);</span>  <span class="c1">// set to line buffering</span>
+    <span class="n">fprintf</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="s">"You won't see this in the file yet. "</span><span class="p">);</span>
+    <span class="n">fprintf</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="s">"But now you will because of this newline.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"anotherfile.txt"</span><span class="p">,</span> <span class="s">"w"</span><span class="p">);</span>
+    <span class="n">setbuf</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span> <span class="c1">// set to unbuffered</span>
+    <span class="n">fprintf</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="s">"You will see this in the file now."</span><span class="p">);</span>
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-fflush" rel="nofollow"><code>fflush()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.10 <code>printf()</code>, <code>fprintf()</code>, <code>sprintf()</code>, <code>snprintf()</code></h2>
+
+<p>Print a formatted string to the console or to a file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">printf</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
+
+<span class="kt">int</span> <span class="nf">fprintf</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
+
+<span class="kt">int</span> <span class="nf">sprintf</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
+
+<span class="kt">int</span> <span class="nf">snprintf</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These functions print formatted output to a variety of destinations.</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Output Destination</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>printf()</code></td>
+<td>Print to console (screen by default, typically).</td>
+</tr>
+<tr>
+<td><code>fprintf()</code></td>
+<td>Print to a file.</td>
+</tr>
+<tr>
+<td><code>sprintf()</code></td>
+<td>Print to a string.</td>
+</tr>
+<tr>
+<td><code>snprintf()</code></td>
+<td>Print to a string (safely).</td>
+</tr>
+</tbody></table>
+
+<p>The only differences between these is are the leading parameters that you pass to them before the <code>format</code> string.</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>What you pass before <code>format</code></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>printf()</code></td>
+<td>Nothing comes before <code>format</code>.</td>
+</tr>
+<tr>
+<td><code>fprintf()</code></td>
+<td>Pass a <code>FILE*</code>.</td>
+</tr>
+<tr>
+<td><code>sprintf()</code></td>
+<td>Pass a <code>char*</code> to a buffer to print into.</td>
+</tr>
+<tr>
+<td><code>snprintf()</code></td>
+<td>Pass a <code>char*</code> to the buffer and a maximum buffer length.</td>
+</tr>
+</tbody></table>
+
+<p>The <code>printf()</code> function is legendary as being one of the most flexible outputting systems ever devised. It can also get a bit freaky here or there, most notably in the <code>format</code> string. We’ll take it a step at a time here.</p>
+
+<p>The easiest way to look at the format string is that it will print everything in the string as-is, <em>unless</em> a character has a percent sign (<code>%</code>) in front of it. That’s when the magic happens: the next argument in the <code>printf()</code> argument list is printed in the way described by the percent code. These percent codes are called <em>format specifiers</em>.</p>
+
+<p>Here are the most common format specifiers.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Specifier</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>%d</code></td>
+<td>Print the next argument as a signed decimal number, like <code>3490</code>. The argument printed this way should be an <code>int</code>, or something that gets promoted to <code>int</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>%f</code></td>
+<td>Print the next argument as a signed floating point number, like <code>3.14159</code>. The argument printed this way should be a <code>double</code>, or something that gets promoted to a <code>double</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>%c</code></td>
+<td>Print the next argument as a character, like <code>&#39;B&#39;</code>. The argument printed this way should be a <code>char</code> variant.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>%s</code></td>
+<td>Print the next argument as a string, like <code>&quot;Did you remember your mittens?&quot;</code>. The argument printed this way should be a <code>char*</code> or <code>char[]</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>%%</code></td>
+<td>No arguments are converted, and a plain old run-of-the-mill percent sign is printed. This is how you print a ‘%’ using <code>printf()</code>.</td>
+</tr>
+</tbody></table>
+
+<p>So those are the basics. I’ll give you some more of the format specifiers in a bit, but let’s get some more breadth before then. There’s actually a lot more that you can specify in there after the percent sign.</p>
+
+<p>For one thing, you can put a field width in there—this is a number that tells <code>printf()</code> how many spaces to put on one side or the other of the value you’re printing. That helps you line things up in nice columns. If the number is negative, the result becomes left-justified instead of right-justified. Example:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"%10d"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="cm">/* prints X on the right side of the 10-space field */</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%-10d"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span> <span class="cm">/* prints X on the left side of the 10-space field */</span>
+</code></pre></div>
+
+<p>If you don’t know the field width in advance, you can use a little kung-foo to get it from the argument list just before the argument itself. Do this by placing your seat and tray tables in the fully upright position. The seatbelt is fastened by placing the—<strong>cough</strong>. I seem to have been doing way too much flying lately. Ignoring that useless fact completely, you can specify a dynamic field width by putting a <code>*</code> in for the width. If you are not willing or able to perform this task, please notify a flight attendant and we will reseat you.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%*d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+</code></pre></div>
+
+<p>You can also put a “0” in front of the number if you want it to be padded with zeros:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">17</span><span class="p">;</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%05d"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="cm">/* "00017" */</span>
+</code></pre></div>
+
+<p>When it comes to floating point, you can also specify how many decimal places to print by making a field width of the form “<code>x.y</code>” where <code>x</code> is the field width (you can leave this off if you want it to be just wide enough) and <code>y</code> is the number of digits past the decimal point to print:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">float</span> <span class="n">f</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">1415926535</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%.2f"</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span>  <span class="cm">/* "3.14" */</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%7.3f"</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span> <span class="cm">/* "  3.141" &lt;-- 7 spaces across */</span>
+</code></pre></div>
+
+<p>Ok, those above are definitely the most common uses of <code>printf()</code>, but let’s get <em>total coverage</em>.</p>
+
+<h4>22.10.0.1 Format Specifier Layout</h4>
+
+<p>Technically, the layout of the format specifier is these things in this order:</p>
+
+<ol>
+<li> <code>%</code>, followed by…</li>
+<li> Optional: zero or more flags, left justify, leading zeros, etc.</li>
+<li> Optional: Field width, how wide the output field should be.</li>
+<li> Optional: Precision, or how many decimal places to print.</li>
+<li> Optional: Length modifier, for printing things bigger than <code>int</code> or <code>double</code>.</li>
+<li> Conversion specifier, like <code>d</code>, <code>f</code>, etc.</li>
+</ol>
+
+<p>In short, the whole format specifier is laid out like this:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>%[flags][fieldwidth][.precision][lengthmodifier]conversionspecifier
+</code></pre></div>
+
+<p>What could be easier?</p>
+
+<h4>22.10.0.2 Conversion Specifiers</h4>
+
+<p>Let’s talk conversion specifiers first. Each of the following specifies what type it can print, but it can also print anything that gets promoted to that type. For example, <code>%d</code> can print <code>int</code>, <code>short</code>, and <code>char</code>.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Conversion Specifier</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>d</code></td>
+<td>Print an <code>int</code> argument as a decimal number.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>i</code></td>
+<td>Identical to <code>d</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>o</code></td>
+<td>Print an <code>unsigned int</code> in octal (base 8).</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>u</code></td>
+<td>Print an <code>unsigned int</code> in decimal.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>x</code></td>
+<td>Print an <code>unsigned int</code> in hexadecimal with lowercase letters.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>X</code></td>
+<td>Print an <code>unsigned int</code> in hexadecimal with uppercase letters.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>f</code></td>
+<td>Print a <code>double</code> in decimal notation. Infinity is printed as <code>infinity</code> or <code>inf</code>, and NaN is printed as <code>nan</code>, any of which could have a leading minus sign.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>F</code></td>
+<td>Same as <code>f</code>, except it prints out <code>INFINITY</code>, <code>INF</code>, or <code>NAN</code> in all caps.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>e</code></td>
+<td>Print a number in scientific notation, e.g. <code>1.234e56</code>. Does infinity and NaN like <code>f</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>E</code></td>
+<td>Just like <code>e</code>, except prints the exponent <code>E</code> (and infinity and NaN) in uppercase.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>g</code></td>
+<td>Print small numbers like <code>f</code> and large numbers like <code>e</code>. See note below.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>G</code></td>
+<td>Print small numbers like <code>F</code> and large numbers like <code>E</code>. See note below.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>a</code></td>
+<td>Print a <code>double</code> in hexadecimal form <code>0xh.hhhhpd</code> where <code>h</code> is a lowercase hex digit and <code>d</code> is a decimal exponent of 2. Infinity and NaN in the form of <code>f</code>. More below.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>A</code></td>
+<td>Like <code>a</code> except everything’s uppercase.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>c</code></td>
+<td>Convert <code>int</code> argument to <code>unsigned char</code> and print as a character.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>s</code></td>
+<td>Print a string starting at the given <code>char*</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>p</code></td>
+<td>Print a <code>void*</code> out as a number, probably the numeric address, possibly in hex.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>n</code></td>
+<td>Store the number of characters written so far in the given <code>int*</code>. Doesn’t print anything. See below.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>%</code></td>
+<td>Print a literal percent sign.</td>
+</tr>
+</tbody></table>
+
+<h5>22.10.0.2.1 Note on <code>%a</code> and <code>%A</code></h5>
+
+<p>When printing floating point numbers in hex form, there is one number before the decimal point, and the rest of are out to the precision.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">double</span> <span class="n">pi</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14159265358979</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%.3a</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">pi</span><span class="p">);</span>  <span class="c1">// 0x1.922p+1</span>
+</code></pre></div>
+
+<p>C can choose the leading number in such a way to ensure subsequent digits align to 4-bit boundaries.</p>
+
+<p>If the precision is left out and the macro <code>FLT_RADIX</code> is a power of 2, enough precision is used to represent the number exactly. If <code>FLT_RADIX</code> is not a power of two, enough precision is used to be able to tell any two floating values apart.</p>
+
+<p>If the precision is <code>0</code> and the <code>#</code> flag isn’t specified, the decimal point is omitted.</p>
+
+<h5>22.10.0.2.2 Note on <code>%g</code> and <code>%G</code></h5>
+
+<p>The gist of this is to use scientific notation when the number gets too “extreme”, and regular decimal notation otherwise.</p>
+
+<p>The exact behavior for whether these print as <code>%f</code> or <code>%e</code> depends on a number of factors:</p>
+
+<p>If the number’s exponent is greater than or equal to -4 <strong>and</strong> the precision is greater than the exponent, we use <code>%f</code>. In this case, the precision is converted according to \(p=p-(x+1)\), where \(p\) is the specified precision and \(x\) is the exponent.</p>
+
+<p>Otherwise we use <code>%e</code>, and the precision becomes \(p-1\).</p>
+
+<p>Trailing zeros in the decimal portion are removed. And if there are none left, the decimal point is removed, too. All this unless the <code>#</code> flag is specified.</p>
+
+<h5>22.10.0.2.3 Note on <code>%n</code></h5>
+
+<p>This specifier is cool and different, and rarely needed. It doesn’t actually print anything, but stores the number of characters printed so far in the next pointer argument in the list.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">numChars</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14159</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%f %d%n</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">numChars</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"The above line contains %d characters.</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">numChars</span><span class="p">);</span>
+</code></pre></div>
+
+<p>The above example will print out the values of <code>a</code> and <code>b</code>, and then store the number of characters printed so far into the variable <code>numChars</code>. The next call to <code>printf()</code> prints out that result.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">3</span><span class="p">.</span><span class="mi">141590</span> <span class="mi">3490</span>
+<span class="n">The</span> <span class="n">above</span> <span class="n">line</span> <span class="n">contains</span> <span class="mi">13</span> <span class="n">characters</span>
+</code></pre></div>
+
+<h4>22.10.0.3 Length Modifiers</h4>
+
+<p>You can stick a <em>length</em> modifier in front of each of the conversion specifiers, if you want. most of those format specifiers work on <code>int</code> or <code>double</code> types, but what if you want larger or smaller types? That’s what these are good for.</p>
+
+<p>For example, you could print out a long long int with the <code>ll</code> modifier:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%lld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="c1">// 3490</span>
+</code></pre></div>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Length Modifier</th>
+<th style="text-align: center">Conversion Specifier</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>hh</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Convert argument to <code>char</code> (signed or unsigned as appropriate) before printing.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>h</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Convert argument to <code>short int</code> (signed or unsigned as appropriate) before printing.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>l</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Argument is a <code>long int</code> (signed or unsigned as appropriate).</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>ll</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Argument is a <code>long long int</code> (signed or unsigned as appropriate).</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>j</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Argument is a <code>intmax_t</code> or <code>uintmax_t</code> (as appropriate).</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>z</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Argument is a <code>size_t</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>t</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Argument is a <code>ptrdiff_t</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>L</code></td>
+<td style="text-align: center"><code>a</code>, <code>A</code>, <code>e</code>, <code>E</code>, <code>f</code>, <code>F</code>, <code>g</code>, <code>G</code></td>
+<td>Argument is a <code>long double</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>l</code></td>
+<td style="text-align: center"><code>c</code></td>
+<td>Argument is in a <code>wint_t</code>, a wide character.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>l</code></td>
+<td style="text-align: center"><code>s</code></td>
+<td>Argument is in a <code>wchar_t*</code>, a wide character string.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>hh</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>signed char*</code> argument.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>h</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>short int*</code> argument.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>l</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>long int*</code> argument.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>ll</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>long long int*</code> argument.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>j</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>intmax_t*</code> argument.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>z</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>size_t*</code> argument.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>t</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>ptrdiff_t*</code> argument.</td>
+</tr>
+</tbody></table>
+
+<h4>22.10.0.4 Precision</h4>
+
+<p>In front of the length modifier, you can put a precision, which generally means how many decimal places you want on your floating point numbers.</p>
+
+<p>To do this, you put a decimal point (<code>.</code>) and the decimal places afterward.</p>
+
+<p>For example, we could print π rounded to two decimal places like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">double</span> <span class="n">pi</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14159265358979</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%.2f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">pi</span><span class="p">);</span>  <span class="c1">// 3.14</span>
+</code></pre></div>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Conversion Specifier</th>
+<th>Precision Value Meaning</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>For integer types, minimum number of digits (will pad with leading zeros)</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>a</code>, <code>e</code>, <code>f</code>, <code>A</code>, <code>E</code>, <code>F</code></td>
+<td>For floating types, the precision is the number of digits past the decimal.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>g</code>, <code>G</code></td>
+<td>For floating types, the precision is the number of significant digits printed.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>s</code></td>
+<td>The maximum number of bytes (not multibyte characters!) to be written.</td>
+</tr>
+</tbody></table>
+
+<p>If no number is specified in the precision after the decimal point, the precision is zero.</p>
+
+<p>If an <code>*</code> is specified after the decimal, something amazing happens! It means the <code>int</code> argument to <code>printf()</code> before the number to be printed holds the precision. You can use this if you don’t know the precision at compile time.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">precision</span><span class="p">;</span>
+<span class="kt">double</span> <span class="n">pi</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14159265358979</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"Enter precision: "</span><span class="p">);</span> <span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+<span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">precision</span><span class="p">);</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%.*f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">pi</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Which gives:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Enter</span> <span class="n">precision</span><span class="o">:</span> <span class="mi">4</span>
+<span class="mi">3</span><span class="p">.</span><span class="mi">1416</span>
+</code></pre></div>
+
+<h4>22.10.0.5 Field Width</h4>
+
+<p>In front of the optional precision, you can indicate a field width. This is a decimal number that indicates how wide the region should be in which the argument is printed. The region is padding with leading (or trailing) spaces to make sure it’s wide enough.</p>
+
+<p>If the field width specified is too small to hold the output, it is ignored.</p>
+
+<p>As a preview, you can give a negative field width to justify the item the other direction.</p>
+
+<p>So let’s print a number in a field of width 10. We’ll put some angle brackets around it so we can see the padding spaces in the output.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"&lt;&lt;%10d&gt;&gt;</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mi">3490</span><span class="p">);</span>   <span class="c1">// right justified</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"&lt;&lt;%-10d&gt;&gt;</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mi">3490</span><span class="p">);</span>  <span class="c1">// left justified</span>
+</code></pre></div><div class="highlight"><pre class="highlight c"><code><span class="o">&lt;&lt;</span>      <span class="mi">3490</span><span class="o">&gt;&gt;</span>
+<span class="o">&lt;&lt;</span><span class="mi">3490</span>      <span class="o">&gt;&gt;</span>
+</code></pre></div>
+
+<p>Like with the precision, you can use an asterisk (<code>*</code>) as the field width</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">field_width</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">val</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"Enter field_width: "</span><span class="p">);</span> <span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+<span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">field_width</span><span class="p">);</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"&lt;&lt;%*d&gt;&gt;</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">field_width</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+</code></pre></div>
+
+<h4>22.10.0.6 Flags</h4>
+
+<p>Before the field width, you can put some optional flags that further control the output of the subsequent fields. We just saw that the <code>-</code> flag can be used to left- or right-justify fields. But there are plenty more!</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Flag</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>-</code></td>
+<td>For a field width, left justify in the field (right is default).</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>+</code></td>
+<td>If the number is signed, always prefix a <code>+</code> or <code>-</code> on the front.</td>
+</tr>
+<tr>
+<td style="text-align: center">[SPACE]</td>
+<td>If the number is signed, prefix a space for positive, or a <code>-</code> for negative.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>0</code></td>
+<td>Pad the right-justified field with leading zeros instead of leading spaces.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>#</code></td>
+<td>Print using an alternate form. See below.</td>
+</tr>
+</tbody></table>
+
+<p>For example, we could pad a hexadecimal number with leading zeros to a field width of 8 with:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"%08x</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mh">0x1234</span><span class="p">);</span>  <span class="c1">// 00001234</span>
+</code></pre></div>
+
+<p>The <code>#</code> “alternate form” result depends on the conversion specifier.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Conversion Specifier</th>
+<th>Alternate Form (<code>#</code>) Meaning</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>o</code></td>
+<td>Increase precision of a non-zero number just enough to get one leading <code>0</code> on the octal number.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>x</code></td>
+<td>Prefix a non-zero number with <code>0x</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>X</code></td>
+<td>Same as <code>x</code>, except capital <code>0X</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>a</code>, <code>e</code>, <code>f</code></td>
+<td>Always print a decimal point, even if nothing follows it.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>A</code>, <code>E</code>, <code>F</code></td>
+<td>Identical to <code>a</code>, <code>e</code>, <code>f</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>g</code>, <code>G</code></td>
+<td>Always print a decimal point, even if nothing follows it, and keep trailing zeros.</td>
+</tr>
+</tbody></table>
+
+<h4>22.10.0.7 <code>sprintf()</code> and <code>snprintf()</code> Details</h4>
+
+<p>Both <code>sprintf()</code> and <code>snprintf()</code> have the quality that if you pass in <code>NULL</code> as the buffer, nothing is written—but you can still check the return value to see how many characters <em>would</em> have been written.</p>
+
+<p><code>snprintf()</code> <strong>always</strong> terminates the string with a <code>NUL</code> character. So if you try to write out more than the maximum specified characters, the universe ends.</p>
+
+<p>Just kidding. If you do, <code>snprintf()</code> will write \(n-1\) characters so that it has enough room to write the terminator at the end.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of characters outputted, or a negative number on error.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">2</span><span class="p">.</span><span class="mi">717</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">c</span> <span class="o">=</span> <span class="s">"beej!"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">d</span> <span class="o">=</span> <span class="sc">'X'</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="cm">/* "100"      */</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span> <span class="cm">/* "2.717000" */</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span> <span class="cm">/* "beej!"    */</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">d</span><span class="p">);</span> <span class="cm">/* "X"        */</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"110%%</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span> <span class="cm">/* "110%"     */</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%10d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>   <span class="cm">/* "       100" */</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%-10d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>  <span class="cm">/* "100       " */</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%*d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span> <span class="cm">/* "  100"      */</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%.2f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>   <span class="cm">/* "2.72"       */</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%hhd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">d</span><span class="p">);</span> <span class="cm">/* "88" &lt;-- ASCII code for 'X' */</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%5d %5.2f %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">d</span><span class="p">);</span> <span class="cm">/* "  100  2.72 X" */</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-printf" rel="nofollow"><code>sprintf()</code></a>, <a href="stdio.html#man-vprintf" rel="nofollow"><code>vprintf()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.11 <code>scanf()</code>, <code>fscanf()</code>, <code>sscanf()</code></h2>
+
+<p>Read formatted string, character, or numeric data from the console or from a file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">scanf</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
+
+<span class="kt">int</span> <span class="nf">fscanf</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
+
+<span class="kt">int</span> <span class="nf">sscanf</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These functions read formatted output from a variety of sources.</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Input Source</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>scanf()</code></td>
+<td>Read from the console (keyboard by default, typically).</td>
+</tr>
+<tr>
+<td><code>fscanf()</code></td>
+<td>Read from a file.</td>
+</tr>
+<tr>
+<td><code>sscanf()</code></td>
+<td>Read from a string.</td>
+</tr>
+</tbody></table>
+
+<p>The only differences between these is are the leading parameters that you pass to them before the <code>format</code> string.</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>What you pass before <code>format</code></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>scanf()</code></td>
+<td>Nothing comes before <code>format</code>.</td>
+</tr>
+<tr>
+<td><code>fscanf()</code></td>
+<td>Pass a <code>FILE*</code>.</td>
+</tr>
+<tr>
+<td><code>sscanf()</code></td>
+<td>Pass a <code>char*</code> to a buffer to read from.</td>
+</tr>
+</tbody></table>
+
+<p>The <code>scanf()</code> family of functions reads data from the console or from a <code>FILE</code> stream, parses it, and stores the results away in variables you provide in the argument list.</p>
+
+<p>The format string is very similar to that in <code>printf()</code> in that you can tell it to read a <code>&quot;%d&quot;</code>, for instance for an <code>int</code>. But it also has additional capabilities, most notably that it can eat up other characters in the input that you specify in the format string.</p>
+
+<p>But let’s start simple, and look at the most basic usage first before plunging into the depths of the function. We’ll start by reading an <code>int</code> from the keyboard:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+
+<span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">);</span>
+</code></pre></div>
+
+<p><code>scanf()</code> obviously needs a pointer to the variable if it is going to change the variable itself, so we use the address-of operator to get the pointer.</p>
+
+<p>In this case, <code>scanf()</code> walks down the format string, finds a “<code>%d</code>”, and then knows it needs to read an integer and store it in the next variable in the argument list, <code>a</code>.</p>
+
+<p>Here are some of the other format specifiers you can put in the format string:</p>
+
+<table><thead>
+<tr>
+<th>Format Specifier</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>%d</code></td>
+<td>Reads an integer to be stored in an <code>int</code>. This integer can be signed.</td>
+</tr>
+<tr>
+<td><code>%u</code></td>
+<td>Reads an integer to be stored in an <code>unsigned int</code>.</td>
+</tr>
+<tr>
+<td><code>%f</code></td>
+<td>Reads a floating point number, to be stored in a <code>float</code>.</td>
+</tr>
+<tr>
+<td><code>%s</code></td>
+<td>Reads a string up to the first whitespace character.</td>
+</tr>
+<tr>
+<td><code>%c</code></td>
+<td>Reads a <code>char</code>.</td>
+</tr>
+</tbody></table>
+
+<p>And that’s the end of the story!</p>
+
+<p>Ha! Just kidding. If you’ve just arrived from the <code>printf()</code> page, you know there’s a near-infinite amount of additional material.</p>
+
+<h4>22.11.0.1 Consuming Other Characters</h4>
+
+<p><code>scanf()</code> will move along the format string matching any characters you include.</p>
+
+<p>For example, you could read a hyphenated date like so:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">scanf</span><span class="p">(</span><span class="s">"%u-%u-%u"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">yyyy</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mm</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">dd</span><span class="p">);</span>
+</code></pre></div>
+
+<p>In that case, <code>scanf()</code> will attempt to consume an unsigned decimal number, then a hyphen, then another unsigned number, then another hypen, then another unsigned number.</p>
+
+<p>If it fails to match at any point (e.g. the user entered “foo”), <code>scanf()</code> will bail without consuming the offending characters.</p>
+
+<p>And it will return the number of variables successfully converted. In the example above, if the user entered a valid string, <code>scanf()</code> would return <code>3</code>, one for each variable successfully read.</p>
+
+<h4>22.11.0.2 Problems with <code>scanf()</code></h4>
+
+<p>I (and the C FAQ and a lot of people) recommend <em>against</em> using <code>scanf()</code> to read directly from the keyboard. It’s too easy for it to stop consuming characters when the user enters some bad data.</p>
+
+<p>If you have data in a file and you’re confident it’s in good shape, <code>fscanf()</code> can be really useful.</p>
+
+<p>But in the case of the keyboard or file, you can always use <code>fgets()</code> to read a complete line into a buffer, and then use <code>sscanf()</code> to scan things out of the buffer. This gives you the best of both worlds.</p>
+
+<h4>22.11.0.3 Problems with <code>sscanf()</code></h4>
+
+<p>A while back, a third-party programmer rose to fame for figuring out <a href="https://nee.lv/2021/02/28/How-I-cut-GTA-Online-loading-times-by-70/" rel="nofollow">how to cut <em>GTA Online</em> load times by 70%</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴⁸</a>.</p>
+
+<p>What they’d discovered was that the implementation of <code>sscanf()</code> first effectively calls <code>strlen()</code>… so even if you’re just using <code>sscanf()</code> to peel the first few characters off the string, it still runs all the way out to the end of the string first.</p>
+
+<p>On small strings, no big deal, but on large strings with repeated calls (which is what was happening in <em>GTA</em>) it got <em>sloooooooooowwwww</em>…</p>
+
+<p>So if you’re just converting a string to a number, consider <a href="stdlib.html#man-atoi" rel="nofollow"><code>atoi()</code></a>, <a href="stdlib.html#man-atof" rel="nofollow"><code>atof()</code></a>, or the <a href="stdlib.html#man-strtol" rel="nofollow"><code>strtol()</code></a> and <a href="stdlib.html#man-strtod" rel="nofollow"><code>strtod()</code></a> families of functions, instead.</p>
+
+<p>(The programmer <a href="https://www.polygon.com/2021/3/16/22334214/gta-online-loading-times-t0st-update-bug-bounty" rel="nofollow">collected a $10,000 bug bounty</a> for the effort.)</p>
+
+<h4>22.11.0.4 The Deep Details</h4>
+
+<p>Let’s check out what a <code>scanf()</code></p>
+
+<p>And here are some more codes, except these don’t tend to be used as often. You, of course, may use them as often as you wish!</p>
+
+<p>First, the format string. Like we mentioned, it can hold ordinary characters as well as <code>%</code> format specifiers. And whitespace characters.</p>
+
+<p>Whitespace characters have a special role: a whitespace character will cause <code>scanf()</code> to consume as many whitespace characters as it can up to the next non-whitespace character. You can use this to ignore all leading or trailing whitespace.</p>
+
+<p>Also, all format specifiers except for <code>s</code>, <code>c</code>, and <code>[</code> automatically consume leading whitespace.</p>
+
+<p>But I know what you’re thinking: the meat of this function is in the format specifiers. What do those look like?</p>
+
+<p>These consist of the following, in sequence:</p>
+
+<ol>
+<li> A <code>%</code> sign</li>
+<li> Optional: an <code>*</code> to suppress assignment—more later</li>
+<li> Optional: a field width—max characters to read</li>
+<li> Optional: length modifier, for specifying longer or shorter types</li>
+<li> A conversion specifier, like <code>d</code> or <code>f</code> indicating the type to read</li>
+</ol>
+
+<h4>22.11.0.5 The Conversion Specifier</h4>
+
+<p>Let’s start with the best and last: the <em>conversion specifier</em>.</p>
+
+<p>This is the part of the format specifier that tells us what type of variable <code>scanf()</code> should be reading into, like <code>%d</code> or <code>%f</code>.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Conversion Specifier</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>d</code></td>
+<td>Matches a decimal <code>int</code>. Can have a leading sign.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>i</code></td>
+<td>Like <code>d</code>, except will handle it if you put a leading <code>0x</code> (hex) or <code>0</code> (octal) on the number.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>o</code></td>
+<td>Matches an octal (base 8) <code>unsigned int</code>. Leading zeros are ignored.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>u</code></td>
+<td>Matches a decimal <code>unsigned int</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>x</code></td>
+<td>Matches a hex (base 16) <code>unsigned int</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>f</code></td>
+<td>Match a floating point number (or scientific notation, or anything <code>strtod()</code> can handle).</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>c</code></td>
+<td>Match a <code>char</code>, or mutiple <code>char</code>s if a field width is given.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>s</code></td>
+<td>Match a sequence of non-whitespace <code>char</code>s.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>[</code></td>
+<td>Match a sequence of characters from a set. The set ends with <code>]</code>. More below.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>p</code></td>
+<td>Match a pointer, the opposite of <code>%p</code> for <code>printf()</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>n</code></td>
+<td>Store the number of characters written so far in the given <code>int*</code>. Doesn’t consume anything.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>%</code></td>
+<td>Match a literal percent sign.</td>
+</tr>
+</tbody></table>
+
+<p>All of the following are equivalent to the <code>f</code> specifier: <code>a</code>, <code>e</code>, <code>g</code>, <code>A</code>, <code>E</code>, <code>F</code>, <code>G</code>.</p>
+
+<p>And capital <code>X</code> is equivalent to lowercase <code>x</code>.</p>
+
+<h5>22.11.0.5.1 The Scanset <code>%[]</code> Conversion Specifier</h5>
+
+<p>This is about the weirdest format specifier there is. It allows you to specify a set of characters (the <em>scanset</em>) to be stored away (likely in an array of <code>char</code>s). Conversion stops when a character that is not in the set is matched.</p>
+
+<p>For example, <code>%[0-9]</code> means “match all numbers zero through nine.” And <code>%[AD-G34]</code> means “match A, D through G, 3, or 4”.</p>
+
+<p>Now, to convolute matters, you can tell <code>scanf()</code> to match characters that are <em>not</em> in the set by putting a caret (<code>^</code>) directly after the <code>%[</code> and following it with the set, like this: <code>%[^A-C]</code>, which means “match all characters that are <em>not</em> A through C.”</p>
+
+<p>To match a close square bracket, make it the first character in the set, like this: <code>%[]A-C]</code> or <code>%[^]A-C]</code>. (I added the “<code>A-C</code>” just so it was clear that the “<code>]</code>” was first in the set.)</p>
+
+<p>To match a hyphen, make it the last character in the set, e.g. to match A-through-C or hyphen: <code>%[A-C-]</code>.</p>
+
+<p>So if we wanted to match all letters <em>except</em> “%”, “<sup>”,</sup> “]”, “B”, “C”, “D”, “E”, and “-”, we could use this format string: <code>%[^]%^B-E-]</code>.</p>
+
+<p>Got it? Now we can go onto the next func—no wait! There’s more! Yes, still more to know about <code>scanf()</code>. Does it never end? Try to imagine how I feel writing about it!</p>
+
+<h4>22.11.0.6 The Length Modifier</h4>
+
+<p>So you know that “<code>%d</code>” stores into an <code>int</code>. But how do you store into a <code>long</code>, <code>short</code>, or <code>double</code>?</p>
+
+<p>Well, like in <code>printf()</code>, you can add a modifier before the type specifier to tell <code>scanf()</code> that you have a longer or shorter type. The following is a table of the possible modifiers:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Length Modifier</th>
+<th style="text-align: center">Conversion Specifier</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>hh</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Convert input to <code>char</code> (signed or unsigned as appropriate) before printing.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>h</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Convert input to <code>short int</code> (signed or unsigned as appropriate) before printing.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>l</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Convert input to <code>long int</code> (signed or unsigned as appropriate).</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>ll</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Convert input to <code>long long int</code> (signed or unsigned as appropriate).</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>j</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Convert input to <code>intmax_t</code> or <code>uintmax_t</code> (as appropriate).</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>z</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Convert input to <code>size_t</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>t</code></td>
+<td style="text-align: center"><code>d</code>, <code>i</code>, <code>o</code>, <code>u</code>, <code>x</code>, <code>X</code></td>
+<td>Convert input to <code>ptrdiff_t</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>L</code></td>
+<td style="text-align: center"><code>a</code>, <code>A</code>, <code>e</code>, <code>E</code>, <code>f</code>, <code>F</code>, <code>g</code>, <code>G</code></td>
+<td>Convert input to <code>long double</code>.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>l</code></td>
+<td style="text-align: center"><code>c</code>,<code>s</code>,<code>[</code></td>
+<td>Convert input to <code>wchar_t</code>, a wide character.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>l</code></td>
+<td style="text-align: center"><code>s</code></td>
+<td>Argument is in a <code>wchar_t*</code>, a wide character string.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>hh</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>signed char*</code> argument.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>h</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>short int*</code> argument.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>l</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>long int*</code> argument.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>ll</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>long long int*</code> argument.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>j</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>intmax_t*</code> argument.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>z</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>size_t*</code> argument.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>t</code></td>
+<td style="text-align: center"><code>n</code></td>
+<td>Store result in <code>ptrdiff_t*</code> argument.</td>
+</tr>
+</tbody></table>
+
+<h4>22.11.0.7 Field Widths</h4>
+
+<p>The field width generally allows you to specify a maximum number of characters to consume. If the thing you’re trying to match is shorter than the field width, that input will stop being processed before the field width is reached.</p>
+
+<p>So a string will stop being consumed when whitespace is found, even if fewer than the field width characters are matched.</p>
+
+<p>And a float will stop being consumed at the end of the number, even if fewer characters than the field width are matched.</p>
+
+<p>But <code>%c</code> is an interesting one—it doesn’t stop consuming characters on anything. So it’ll go exactly to the field width. (Or 1 character if no field width is given.)</p>
+
+<h4>22.11.0.8 Skip Input with <code>*</code></h4>
+
+<p>If you put an <code>*</code> in the format specifier, it tells <code>scanf()</code> do to the conversion specified, but not store it anywhere. It simply discards the data as it reads it. This is what you use if you want <code>scanf()</code> to eat some data but you don’t want to store it anywhere; you don’t give <code>scanf()</code> an argument for this conversion.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// Read 3 ints, but discard the middle one</span>
+<span class="n">scanf</span><span class="p">(</span><span class="s">"%d %*d %d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">int1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">int3</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p><code>scanf()</code> returns the number of items assigned into variables. Since assignment into variables stops when given invalid input for a certain format specifier, this can tell you if you’ve input all your data correctly.</p>
+
+<p>Also, <code>scanf()</code> returns <code>EOF</code> on end-of-file.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">int</span> <span class="n">b</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">c</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">d</span><span class="p">;</span>
+    <span class="kt">double</span> <span class="n">e</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">double</span> <span class="n">f</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+
+    <span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">);</span>  <span class="c1">// store an int</span>
+    <span class="n">scanf</span><span class="p">(</span><span class="s">" %d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">);</span> <span class="c1">// eat any whitespace, then store an int</span>
+    <span class="n">scanf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="c1">// store a string</span>
+    <span class="n">scanf</span><span class="p">(</span><span class="s">"%Lf"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">f</span><span class="p">);</span> <span class="c1">// store a long double</span>
+
+    <span class="c1">// store an unsigned, read all whitespace, then store a long int:</span>
+    <span class="n">scanf</span><span class="p">(</span><span class="s">"%u %ld"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">c</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">);</span>
+
+    <span class="c1">// store an int, read whitespace, read "blendo", read whitespace,</span>
+    <span class="c1">// and store a float:</span>
+    <span class="n">scanf</span><span class="p">(</span><span class="s">"%d blendo %f"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">d</span><span class="p">);</span>
+
+    <span class="c1">// read all whitespace, then store all characters up to a newline</span>
+    <span class="n">scanf</span><span class="p">(</span><span class="s">" %[^</span><span class="se">\n</span><span class="s">]"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+
+    <span class="c1">// store a float, read (and ignore) an int, then store a double:</span>
+    <span class="n">scanf</span><span class="p">(</span><span class="s">"%f %*d %lf"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">d</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">e</span><span class="p">);</span>
+
+    <span class="c1">// store 10 characters:</span>
+    <span class="n">scanf</span><span class="p">(</span><span class="s">"%10c"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-scanf" rel="nofollow"><code>sscanf()</code></a>, <a href="stdio.html#man-vscanf" rel="nofollow"><code>vscanf()</code></a>, <a href="stdio.html#man-vscanf" rel="nofollow"><code>vsscanf()</code></a>, <a href="stdio.html#man-vscanf" rel="nofollow"><code>vfscanf()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.12 <code>vprintf()</code>, <code>vfprintf()</code>, <code>vsprintf()</code>, <code>vsnprintf()</code></h2>
+
+<p><code>printf()</code> variants using variable argument lists (<code>va_list</code>)</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">vprintf</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="kt">va_list</span> <span class="n">arg</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">vfprintf</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">stream</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span>
+             <span class="kt">va_list</span> <span class="n">arg</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">vsprintf</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="kt">va_list</span> <span class="n">arg</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">vsnprintf</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span>
+              <span class="kt">va_list</span> <span class="n">arg</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are just like the <code>printf()</code> variants except instead of taking an actual variable number of arguments, they take a fixed number—the last of which is a <code>va_list</code> that refers to the variable arguments.</p>
+
+<p>Like with <code>printf()</code>, the different variants send output different places.</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Output Destination</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>vprintf()</code></td>
+<td>Print to console (screen by default, typically).</td>
+</tr>
+<tr>
+<td><code>vfprintf()</code></td>
+<td>Print to a file.</td>
+</tr>
+<tr>
+<td><code>vsprintf()</code></td>
+<td>Print to a string.</td>
+</tr>
+<tr>
+<td><code>vsnprintf()</code></td>
+<td>Print to a string (safely).</td>
+</tr>
+</tbody></table>
+
+<p>Both <code>vsprintf()</code> and <code>vsnprintf()</code> have the quality that if you pass in <code>NULL</code> as the buffer, nothing is written—but you can still check the return value to see how many characters <em>would</em> have been written.</p>
+
+<p>If you try to write out more than the maximum number of characters, <code>vsnprintf()</code> will graciously write only \(n-1\) characters so that it has enough room to write the terminator at the end.</p>
+
+<p>As for why in the heck would you ever want to do this, the most common reason is to create your own specialized versions of <code>printf()</code>-type functions, piggybacking on all that <code>printf()</code> functionality goodness.</p>
+
+<p>See the example for an example, predictably.</p>
+
+<h3>Return Value</h3>
+
+<p><code>vprintf()</code> and <code>vfprintf()</code> return the number of characters printed, or a negative value on error.</p>
+
+<p><code>vsprintf()</code> returns the number of characters printed to the buffer, not counting the NUL terminator, or a negative value if an error occurred.</p>
+
+<p><code>vnsprintf()</code> returns the number of characters printed to the buffer. Or the number that <em>would</em> have been printed if the buffer had been large enough.</p>
+
+<h3>Example</h3>
+
+<p>In this example, we make our own version of <code>printf()</code> called <code>logger()</code> that timestamps output. Notice how the calls to <code>logger()</code> have all the bells and whistles of <code>printf()</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">logger</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="kt">va_list</span> <span class="n">va</span><span class="p">;</span>
+    <span class="kt">time_t</span> <span class="n">now_secs</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+    <span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="n">now</span> <span class="o">=</span> <span class="n">gmtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now_secs</span><span class="p">);</span>
+
+    <span class="c1">// Output timestamp in format "YYYY-MM-DD hh:mm:ss : "</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%04d-%02d-%02d %02d:%02d:%02d : "</span><span class="p">,</span>
+        <span class="n">now</span><span class="o">-&gt;</span><span class="n">tm_year</span> <span class="o">+</span> <span class="mi">1900</span><span class="p">,</span> <span class="n">now</span><span class="o">-&gt;</span><span class="n">tm_mon</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">now</span><span class="o">-&gt;</span><span class="n">tm_mday</span><span class="p">,</span>
+        <span class="n">now</span><span class="o">-&gt;</span><span class="n">tm_hour</span><span class="p">,</span> <span class="n">now</span><span class="o">-&gt;</span><span class="n">tm_min</span><span class="p">,</span> <span class="n">now</span><span class="o">-&gt;</span><span class="n">tm_sec</span><span class="p">);</span>
+
+    <span class="n">va_start</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">format</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">vprintf</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">va</span><span class="p">);</span>
+    <span class="n">va_end</span><span class="p">(</span><span class="n">va</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">2</span><span class="p">;</span>
+
+    <span class="n">logger</span><span class="p">(</span><span class="s">"Hello!"</span><span class="p">);</span>
+    <span class="n">logger</span><span class="p">(</span><span class="s">"x = %d and y = %.2f"</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">2021</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">30</span> <span class="mo">04</span><span class="o">:</span><span class="mi">25</span><span class="o">:</span><span class="mi">49</span> <span class="o">:</span> <span class="n">Hello</span><span class="o">!</span>
+<span class="mi">2021</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">30</span> <span class="mo">04</span><span class="o">:</span><span class="mi">25</span><span class="o">:</span><span class="mi">49</span> <span class="o">:</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">12</span> <span class="n">and</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">20</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-printf" rel="nofollow"><code>printf()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.13 <code>vscanf()</code>, <code>vfscanf()</code>, <code>vsscanf()</code></h2>
+
+<p><code>scanf()</code> variants using variable argument lists (<code>va_list</code>)</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">vscanf</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="kt">va_list</span> <span class="n">arg</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">vfscanf</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">stream</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span>
+            <span class="kt">va_list</span> <span class="n">arg</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">vsscanf</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span>
+            <span class="kt">va_list</span> <span class="n">arg</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are just like the <code>scanf()</code> variants except instead of taking an actual variable number of arguments, they take a fixed number—the last of which is a <code>va_list</code> that refers to the variable arguments.</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Input Source</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>vscanf()</code></td>
+<td>Read from the console (keyboard by default, typically).</td>
+</tr>
+<tr>
+<td><code>vfscanf()</code></td>
+<td>Read from a file.</td>
+</tr>
+<tr>
+<td><code>vsscanf()</code></td>
+<td>Read from a string.</td>
+</tr>
+</tbody></table>
+
+<p>Like with the <code>vprintf()</code> functions, this would be a good way to add additional functionality that took advantage of the power <code>scanf()</code> has to offer.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of items successfully scanned, or <code>EOF</code> on end-of-file or error.</p>
+
+<h3>Example</h3>
+
+<p>I have to admit I was wracking my brain to think of when you’d ever want to use this. The best example I could find was <a href="https://stackoverflow.com/questions/17017331/c99-vscanf-for-dummies/17018046#17018046" rel="nofollow">one on Stack Overflow</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁴⁹</a> that error-checks the return value from <code>scanf()</code> against the expected. A variant of that is shown below.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">error_check_scanf</span><span class="p">(</span><span class="kt">int</span> <span class="n">expected_count</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="kt">va_list</span> <span class="n">va</span><span class="p">;</span>
+
+    <span class="n">va_start</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">format</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="n">vscanf</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">va</span><span class="p">);</span>
+    <span class="n">va_end</span><span class="p">(</span><span class="n">va</span><span class="p">);</span>
+
+    <span class="c1">// This line will crash the program if the condition is false:</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="n">expected_count</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">count</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="n">error_check_scanf</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">"%d, %d/%f"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">c</span><span class="p">);</span>
+    <span class="n">error_check_scanf</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-scanf" rel="nofollow"><code>scanf()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.14 <code>getc()</code>, <code>fgetc()</code>, <code>getchar()</code></h2>
+
+<p>Get a single character from the console or from a file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">getc</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">fgetc</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">getchar</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>All of these functions in one way or another, read a single character from the console or from a <code>FILE</code>. The differences are fairly minor, and here are the descriptions:</p>
+
+<p><code>getc()</code> returns a character from the specified <code>FILE</code>. From a usage standpoint, it’s equivalent to the same <code>fgetc()</code> call, and <code>fgetc()</code> is a little more common to see. Only the implementation of the two functions differs.</p>
+
+<p><code>fgetc()</code> returns a character from the specified <code>FILE</code>. From a usage standpoint, it’s equivalent to the same <code>getc()</code> call, except that <code>fgetc()</code> is a little more common to see. Only the implementation of the two functions differs.</p>
+
+<p>Yes, I cheated and used cut-n-paste to do that last paragraph.</p>
+
+<p><code>getchar()</code> returns a character from <code>stdin</code>. In fact, it’s the same as calling <code>getc(stdin)</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>All three functions return the <code>unsigned char</code> that they read, except it’s cast to an <code>int</code>.</p>
+
+<p>If end-of-file or an error is encountered, all three functions return <code>EOF</code>.</p>
+
+<h3>Example</h3>
+
+<p>This example reads all the characters from a file, outputting only the letter ’b’s it finds..</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"spoon.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span> <span class="c1">// error check this!</span>
+
+    <span class="c1">// this while-statement assigns into c, and then checks against EOF:</span>
+
+    <span class="k">while</span><span class="p">((</span><span class="n">c</span> <span class="o">=</span> <span class="n">fgetc</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span> <span class="o">!=</span> <span class="n">EOF</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">c</span> <span class="o">==</span> <span class="sc">'b'</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">putchar</span><span class="p">(</span><span class="n">c</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">putchar</span><span class="p">(</span><span class="sc">'\n'</span><span class="p">);</span>
+
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><hr></p>
+
+<h2>22.15 <code>gets()</code>, <code>fgets()</code></h2>
+
+<p>Read a string from console or file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">fgets</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">int</span> <span class="n">size</span><span class="p">,</span> <span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">gets</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are functions that will retrieve a newline-terminated string from the console or a file. In other normal words, it reads a line of text. The behavior is slightly different, and, as such, so is the usage. For instance, here is the usage of <code>gets()</code>:</p>
+
+<p>Don’t use <code>gets()</code>. In fact, as of C11, it ceases to exist! This is one of the rare cases of a function being <em>removed</em> from the standard.</p>
+
+<p>Admittedly, rationale would be useful, yes? For one thing, <code>gets()</code> doesn’t allow you to specify the length of the buffer to store the string in. This would allow people to keep entering data past the end of your buffer, and believe me, this would be Bad News.</p>
+
+<p>And that’s what the <code>size</code> parameter in <code>fgets()</code> is for. <code>fgets()</code> will read at most <code>size-1</code> characters and then stick a <code>NUL</code> terminator on after that.</p>
+
+<p>I was going to add another reason, but that’s basically the primary and only reason not to use <code>gets()</code>. As you might suspect, <code>fgets()</code> allows you to specify a maximum string length.</p>
+
+<p>One difference here between the two functions: <code>gets()</code> will devour and throw away the newline at the end of the line, while <code>fgets()</code> will store it at the end of your string (space permitting).</p>
+
+<p>Here’s an example of using <code>fgets()</code> from the console, making it behave more like <code>gets()</code> (with the exception of the newline inclusion):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+<span class="n">gets</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>  <span class="c1">// don't use this--read a line (from stdin)</span>
+<span class="n">fgets</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">stdin</span><span class="p">);</span> <span class="c1">// read a line from stdin</span>
+</code></pre></div>
+
+<p>In this case, the <code>sizeof()</code> operator gives us the total size of the array in bytes, and since a <code>char</code> is a byte, it conveniently gives us the total size of the array.</p>
+
+<p>Of course, like I keep saying, the string returned from <code>fgets()</code> probably has a newline at the end that you might not want. You can write a short function to chop the newline off—in fact, let’s just roll that into our own version of <code>gets()</code></p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">ngets</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">int</span> <span class="n">size</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">rv</span> <span class="o">=</span> <span class="n">fgets</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">rv</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+
+    <span class="kt">char</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">strchr</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="sc">'\n'</span><span class="p">);</span>  <span class="c1">// Find a newline</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span>  <span class="c1">// if there's a newline</span>
+        <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span>  <span class="c1">// truncate the string there</span>
+
+    <span class="k">return</span> <span class="n">s</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>So, in summary, use <code>fgets()</code> to read a line of text from the keyboard or a file, and don’t use <code>gets()</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Both <code>gets()</code> and <code>fgets()</code> return a pointer to the string passed.</p>
+
+<p>On error or end-of-file, the functions return <code>NULL</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+
+    <span class="n">gets</span><span class="p">(</span><span class="n">s</span><span class="p">);</span> <span class="c1">// read from standard input (don't use this--use fgets()!)</span>
+
+    <span class="n">fgets</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">s</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span> <span class="c1">// read 100 bytes from standard input</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"spoon.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span> <span class="c1">// (you should error-check this)</span>
+    <span class="n">fgets</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">fp</span><span class="p">);</span> <span class="c1">// read 100 bytes from the file datafile.dat</span>
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+    <span class="n">fgets</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span> <span class="c1">// read a maximum of 20 bytes from stdin</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-getc" rel="nofollow"><code>getc()</code></a>, <a href="stdio.html#man-getc" rel="nofollow"><code>fgetc()</code></a>, <a href="stdio.html#man-getc" rel="nofollow"><code>getchar()</code></a>, <a href="stdio.html#man-puts" rel="nofollow"><code>puts()</code></a>, <a href="stdio.html#man-puts" rel="nofollow"><code>fputs()</code></a>, <a href="stdio.html#man-ungetc" rel="nofollow"><code>ungetc()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.16 <code>putc()</code>, <code>fputc()</code>, <code>putchar()</code></h2>
+
+<p>Write a single character to the console or to a file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">putc</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">,</span> <span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">fputc</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">,</span> <span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">putchar</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>All three functions output a single character, either to the console or to a <code>FILE</code>.</p>
+
+<p><code>putc()</code> takes a character argument, and outputs it to the specified <code>FILE</code>. <code>fputc()</code> does exactly the same thing, and differs from <code>putc()</code> in implementation only. Most people use <code>fputc()</code>.</p>
+
+<p><code>putchar()</code> writes the character to the console, and is the same as calling <code>putc(c, stdout)</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>All three functions return the character written on success, or <code>EOF</code> on error.</p>
+
+<h3>Example</h3>
+
+<p>Print the alphabet:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">i</span><span class="p">;</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="sc">'A'</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="sc">'Z'</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">putchar</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+
+    <span class="n">putchar</span><span class="p">(</span><span class="sc">'\n'</span><span class="p">);</span> <span class="c1">// put a newline at the end to make it pretty</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><hr></p>
+
+<h2>22.17 <code>puts()</code>, <code>fputs()</code></h2>
+
+<p>Write a string to the console or to a file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">puts</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">fputs</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Both these functions output a NUL-terminated string. <code>puts()</code> outputs to the console, while <code>fputs()</code> allows you to specify the file for output.</p>
+
+<h3>Return Value</h3>
+
+<p>Both functions return non-negative on success, or <code>EOF</code> on error.</p>
+
+<h3>Example</h3>
+
+<p>Read strings from the console and save them in a file:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"somefile.txt"</span><span class="p">,</span> <span class="s">"w"</span><span class="p">);</span> <span class="c1">// error check this!</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">fgets</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">stdin</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// read a string</span>
+        <span class="n">fputs</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">fp</span><span class="p">);</span>  <span class="c1">// write it to the file we opened</span>
+    <span class="p">}</span>
+
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><hr></p>
+
+<h2>22.18 <code>ungetc()</code></h2>
+
+<p>Pushes a character back into the input stream</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">ungetc</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">,</span> <span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>You know how <code>getc()</code> reads the next character from a file stream? Well, this is the opposite of that—it pushes a character back into the file stream so that it will show up again on the very next read from the stream, as if you’d never gotten it from <code>getc()</code> in the first place.</p>
+
+<p>Why, in the name of all that is holy would you want to do that? Perhaps you have a stream of data that you’re reading a character at a time, and you won’t know to stop reading until you get a certain character, but you want to be able to read that character again later. You can read the character, see that it’s what you’re supposed to stop on, and then <code>ungetc()</code> it so it’ll show up on the next read.</p>
+
+<p>Yeah, that doesn’t happen very often, but there we are.</p>
+
+<p>Here’s the catch: the standard only guarantees that you’ll be able to push back <em>one character</em>. Some implementations might allow you to push back more, but there’s really no way to tell and still be portable.</p>
+
+<h3>Return Value</h3>
+
+<p>On success, <code>ungetc()</code> returns the character you passed to it. On failure, it returns <code>EOF</code>.</p>
+
+<h3>Example</h3>
+
+<p>This example reads a piece of punctuation, then everything after it up to the next piece of punctuation. It returns the leading punctuation, and stores the rest in a string.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">read_punctstring</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">origpunct</span><span class="p">,</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="n">origpunct</span> <span class="o">=</span> <span class="n">fgetc</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">origpunct</span> <span class="o">==</span> <span class="n">EOF</span><span class="p">)</span>  <span class="c1">// return EOF on end-of-file</span>
+        <span class="k">return</span> <span class="n">EOF</span><span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">c</span> <span class="o">=</span> <span class="n">fgetc</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span> <span class="o">!</span><span class="n">ispunct</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">c</span> <span class="o">!=</span> <span class="n">EOF</span><span class="p">)</span>
+        <span class="o">*</span><span class="n">s</span><span class="o">++</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span>  <span class="c1">// save it in the string</span>
+
+    <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span> <span class="c1">// nul-terminate the string</span>
+
+    <span class="c1">// if we read punctuation last, ungetc it so we can fgetc it next</span>
+    <span class="c1">// time:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">ispunct</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+        <span class="n">ungetc</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">fp</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">origpunct</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+    <span class="kt">char</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="k">while</span><span class="p">((</span><span class="n">c</span> <span class="o">=</span> <span class="n">read_punctstring</span><span class="p">(</span><span class="n">stdin</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span> <span class="o">!=</span> <span class="n">EOF</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%c: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Sample Input:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">!</span><span class="n">foo</span><span class="err">#</span><span class="n">bar</span><span class="o">*</span><span class="n">baz</span>
+</code></pre></div>
+
+<p>Sample output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">!:</span> <span class="n">foo</span>
+<span class="cp">#: bar
+</span><span class="o">*:</span> <span class="n">baz</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-getc" rel="nofollow"><code>fgetc()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.19 <code>fread()</code></h2>
+
+<p>Read binary data from a file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">fread</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">nmemb</span><span class="p">,</span> <span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>You might remember that you can call <a href="stdio.html#man-fopen" rel="nofollow"><code>fopen()</code></a> with the “<code>b</code>” flag in the open mode string to open the file in “binary” mode. Files open in not-binary (ASCII or text mode) can be read using standard character-oriented calls like <a href="stdio.html#man-getc" rel="nofollow"><code>fgetc()</code></a> or <a href="stdio.html#man-gets" rel="nofollow"><code>fgets()</code></a>. Files open in binary mode are typically read using the <code>fread()</code> function.</p>
+
+<p>All this function does is says, “Hey, read this many things where each thing is a certain number of bytes, and store the whole mess of them in memory starting at this pointer.”</p>
+
+<p>This can be very useful, believe me, when you want to do something like store 20 <code>int</code>s in a file.</p>
+
+<p>But wait—can’t you use <a href="stdio.html#man-printf" rel="nofollow"><code>fprintf()</code></a> with the “<code>%d</code>” format specifier to save the <code>int</code>s to a text file and store them that way? Yes, sure. That has the advantage that a human can open the file and read the numbers. It has the disadvantage that it’s slower to convert the numbers from <code>int</code>s to text and that the numbers are likely to take more space in the file. (Remember, an <code>int</code> is likely 4 bytes, but the string “12345678” is 8 bytes.)</p>
+
+<p>So storing the binary data can certainly be more compact and faster to read.</p>
+
+<h3>Return Value</h3>
+
+<p>This function returns the number of items successfully read. If all requested items are read, the return value will be equal to that of the parameter <code>nmemb</code>. If EOF occurs, the return value will be zero.</p>
+
+<p>To make you confused, it will also return zero if there’s an error. You can use the functions <a href="stdio.html#man-feof" rel="nofollow"><code>feof()</code></a> or <a href="stdio.html#man-feof" rel="nofollow"><code>ferror()</code></a> to tell which one really happened.</p>
+
+<h3>Example</h3>
+
+<p>Read 10 numbers from a file and store them in an array:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"numbers.dat"</span><span class="p">,</span> <span class="s">"rb"</span><span class="p">);</span>
+    <span class="n">fread</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="mi">10</span><span class="p">,</span> <span class="n">fp</span><span class="p">);</span>  <span class="c1">// read 10 ints</span>
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+    <span class="c1">// print them out:</span>
+    <span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"n[%d] == %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-fopen" rel="nofollow"><code>fopen()</code></a>, <a href="stdio.html#man-fwrite" rel="nofollow"><code>fwrite()</code></a>, <a href="stdio.html#man-feof" rel="nofollow"><code>feof()</code></a>, <a href="stdio.html#man-feof" rel="nofollow"><code>ferror()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.20 <code>fwrite()</code></h2>
+
+<p>Write binary data to a file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">fwrite</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">size</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">nmemb</span><span class="p">,</span> <span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the counterpart to the <a href="stdio.html#man-fread" rel="nofollow"><code>fread()</code></a> function. It writes blocks of binary data to disk. For a description of what this means, see the entry for <a href="stdio.html#man-fread" rel="nofollow"><code>fread()</code></a>.</p>
+
+<h3>Return Value</h3>
+
+<p><code>fwrite()</code> returns the number of items successfully written, which should hopefully be <code>nmemb</code> that you passed in. It’ll return zero on error.</p>
+
+<h3>Example</h3>
+
+<p>Save 10 random numbers to a file:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+
+    <span class="c1">// populate the array with random numbers:</span>
+    <span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">n</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rand</span><span class="p">();</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"n[%d] = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">n</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// save the random numbers (10 ints) to the file</span>
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"numbers.dat"</span><span class="p">,</span> <span class="s">"wb"</span><span class="p">);</span>
+    <span class="n">fwrite</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="mi">10</span><span class="p">,</span> <span class="n">fp</span><span class="p">);</span> <span class="c1">// write 10 ints</span>
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-fopen" rel="nofollow"><code>fopen()</code></a>, <a href="stdio.html#man-fread" rel="nofollow"><code>fread()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.21 <code>fgetpos()</code>, <code>fsetpos()</code></h2>
+
+<p>Get the current position in a file, or set the current position in a file. Just like <code>ftell()</code> and <code>fseek()</code> for most systems</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">fgetpos</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">,</span> <span class="kt">fpos_t</span> <span class="o">*</span><span class="n">pos</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">fsetpos</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">,</span> <span class="kt">fpos_t</span> <span class="o">*</span><span class="n">pos</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These functions are just like <code>ftell()</code> and <code>fseek()</code>, except instead of counting in bytes, they use an <em>opaque</em> data structure to hold positional information about the file. (Opaque, in this case, means you’re not supposed to know what the data type is made up of.)</p>
+
+<p>On virtually every system (and certainly every system that I know of), people don’t use these functions, using <code>ftell()</code> and <code>fseek()</code> instead. These functions exist just in case your system can’t remember file positions as a simple byte offset.</p>
+
+<p>Since the <code>pos</code> variable is opaque, you have to assign to it using the <code>fgetpos()</code> call itself. Then you save the value for later and use it to reset the position using <code>fsetpos()</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Both functions return zero on success, and <code>-1</code> on error.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+    <span class="kt">fpos_t</span> <span class="n">pos</span><span class="p">;</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"spoon.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
+
+    <span class="n">fgets</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">fp</span><span class="p">);</span> <span class="c1">// read a line from the file</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+
+    <span class="n">fgetpos</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pos</span><span class="p">);</span>   <span class="c1">// save the position after the read</span>
+
+    <span class="n">fgets</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">fp</span><span class="p">);</span> <span class="c1">// read another line from the file</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+
+    <span class="n">fsetpos</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">pos</span><span class="p">);</span>   <span class="c1">// now restore the position to where we saved</span>
+
+    <span class="n">fgets</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">fp</span><span class="p">);</span> <span class="c1">// read the earlier line again</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-fseek" rel="nofollow"><code>fseek()</code></a>, <a href="stdio.html#man-ftell" rel="nofollow"><code>ftell()</code></a>, <a href="stdio.html#man-fseek" rel="nofollow"><code>rewind()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.22 <code>fseek()</code>, <code>rewind()</code></h2>
+
+<p>Position the file pointer in anticipition of the next read or write</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">fseek</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">,</span> <span class="kt">long</span> <span class="n">offset</span><span class="p">,</span> <span class="kt">int</span> <span class="n">whence</span><span class="p">);</span>
+
+<span class="kt">void</span> <span class="nf">rewind</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>When doing reads and writes to a file, the OS keeps track of where you are in the file using a counter generically known as the file pointer. You can reposition the file pointer to a different point in the file using the <code>fseek()</code> call. Think of it as a way to randomly access you file.</p>
+
+<p>The first argument is the file in question, obviously. <code>offset</code> argument is the position that you want to seek to, and <code>whence</code> is what that offset is relative to.</p>
+
+<p>Of course, you probably like to think of the offset as being from the beginning of the file. I mean, “Seek to position 3490, that should be 3490 bytes from the beginning of the file.” Well, it <em>can</em> be, but it doesn’t have to be. Imagine the power you’re wielding here. Try to command your enthusiasm.</p>
+
+<p>You can set the value of <code>whence</code> to one of three things:</p>
+
+<table><thead>
+<tr>
+<th><code>whence</code></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>SEEK_SET</code></td>
+<td><code>offset</code> is relative to the beginning of the file. This is probably what you had in mind anyway, and is the most commonly used value for <code>whence</code>.</td>
+</tr>
+<tr>
+<td><code>SEEK_CUR</code></td>
+<td><code>offset</code> is relative to the current file pointer position. So, in effect, you can say, “Move to my current position plus 30 bytes,” or, “move to my current position minus 20 bytes.”</td>
+</tr>
+<tr>
+<td><code>SEEK_END</code></td>
+<td><code>offset</code> is relative to the end of the file. Just like <code>SEEK_SET</code> except from the other end of the file. Be sure to use negative values for <code>offset</code> if you want to back up from the end of the file, instead of going past the end into oblivion.</td>
+</tr>
+</tbody></table>
+
+<p>Speaking of seeking off the end of the file, can you do it? Sure thing. In fact, you can seek way off the end and then write a character; the file will be expanded to a size big enough to hold a bunch of zeros way out to that character.</p>
+
+<p>Now that the complicated function is out of the way, what’s this <code>rewind()</code> that I briefly mentioned? It repositions the file pointer at the beginning of the file:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">SEEK_SET</span><span class="p">);</span> <span class="c1">// same as rewind()</span>
+<span class="n">rewind</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>             <span class="c1">// same as fseek(fp, 0, SEEK_SET)</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>For <code>fseek()</code>, on success zero is returned; <code>-1</code> is returned on failure.</p>
+
+<p>The call to <code>rewind()</code> never fails.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"spoon.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
+
+    <span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">SEEK_SET</span><span class="p">);</span> <span class="c1">// seek to the 100th byte of the file</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"100: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">fgetc</span><span class="p">(</span><span class="n">fp</span><span class="p">));</span>
+
+    <span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="o">-</span><span class="mi">31</span><span class="p">,</span> <span class="n">SEEK_CUR</span><span class="p">);</span> <span class="c1">// seek backward 30 bytes from the current pos</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"31 back: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">fgetc</span><span class="p">(</span><span class="n">fp</span><span class="p">));</span>
+
+    <span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="n">SEEK_END</span><span class="p">);</span> <span class="c1">// seek to the 10th byte before the end of file</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"12 from end: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">fgetc</span><span class="p">(</span><span class="n">fp</span><span class="p">));</span>
+
+    <span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">SEEK_SET</span><span class="p">);</span>   <span class="c1">// seek to the beginning of the file</span>
+    <span class="n">rewind</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>               <span class="c1">// seek to the beginning of the file, too</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Beginning: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">fgetc</span><span class="p">(</span><span class="n">fp</span><span class="p">));</span>
+
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-ftell" rel="nofollow"><code>ftell()</code></a>, <a href="stdio.html#man-fgetpos" rel="nofollow"><code>fgetpos()</code></a>, <a href="stdio.html#man-fgetpos" rel="nofollow"><code>fsetpos()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.23 <code>ftell()</code></h2>
+
+<p>Tells you where a particular file is about to read from or write to</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">long</span> <span class="nf">ftell</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This function is the opposite of <a href="stdio.html#man-fseek" rel="nofollow"><code>fseek()</code></a>. It tells you where in the file the next file operation will occur relative to the beginning of the file.</p>
+
+<p>It’s useful if you want to remember where you are in the file, <code>fseek()</code> somewhere else, and then come back later. You can take the return value from <code>ftell()</code> and feed it back into <code>fseek()</code> (with <code>whence</code> parameter set to <code>SEEK_SET</code>) when you want to return to your previous position.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the current offset in the file, or <code>-1</code> on error.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">c</span><span class="p">[</span><span class="mi">6</span><span class="p">];</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"spoon.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
+
+    <span class="kt">long</span> <span class="n">pos</span><span class="p">;</span>
+
+    <span class="c1">// seek ahead 10 bytes:</span>
+    <span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">SEEK_SET</span><span class="p">);</span>
+
+    <span class="c1">// store the current position in variable "pos":</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">ftell</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+    <span class="c1">// Read some bytes</span>
+    <span class="n">fread</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">c</span>  <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fp</span><span class="p">);</span>
+    <span class="n">c</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Read: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
+
+    <span class="c1">// and return to the starting position, stored in "pos":</span>
+    <span class="n">fseek</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">SEEK_SET</span><span class="p">);</span>
+
+    <span class="c1">// Read the same bytes again</span>
+    <span class="n">fread</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">c</span>  <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fp</span><span class="p">);</span>
+    <span class="n">c</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Read: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
+
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-fseek" rel="nofollow"><code>fseek()</code></a>, <a href="stdio.html#man-fseek" rel="nofollow"><code>rewind()</code></a>, <a href="stdio.html#man-fgetpos" rel="nofollow"><code>fgetpos()</code></a>, <a href="stdio.html#man-fgetpos" rel="nofollow"><code>fsetpos()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.24 <code>feof()</code>, <code>ferror()</code>, <code>clearerr()</code></h2>
+
+<p>Determine if a file has reached end-of-file or if an error has occurred</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">feof</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">ferror</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="kt">void</span> <span class="nf">clearerr</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Each <code>FILE*</code> that you use to read and write data from and to a file contains flags that the system sets when certain events occur. If you get an error, it sets the error flag; if you reach the end of the file during a read, it sets the EOF flag. Pretty simple really.</p>
+
+<p>The functions <code>feof()</code> and <code>ferror()</code> give you a simple way to test these flags: they’ll return non-zero (true) if they’re set.</p>
+
+<p>Once the flags are set for a particular stream, they stay that way until you call <code>clearerr()</code> to clear them.</p>
+
+<h3>Return Value</h3>
+
+<p><code>feof()</code> and <code>ferror()</code> return non-zero (true) if the file has reached EOF or there has been an error, respectively.</p>
+
+<h3>Example</h3>
+
+<p>Read binary data, checking for EOF or error:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"numbers.dat"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
+
+    <span class="c1">// read single ints at a time, stopping on EOF or error:</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">fread</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fp</span><span class="p">),</span> <span class="o">!</span><span class="n">feof</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">ferror</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Read %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">feof</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"End of file was reached.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">ferror</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"An error occurred.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-fopen" rel="nofollow"><code>fopen()</code></a>, <a href="stdio.html#man-fread" rel="nofollow"><code>fread()</code></a></p>
+
+<p><hr></p>
+
+<h2>22.25 <code>perror()</code></h2>
+
+<p>Print the last error message to <code>stderr</code></p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;errno.h&gt;</span><span class="c1">  // only if you want to directly use the "errno" var</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">perror</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Many functions, when they encounter an error condition for whatever reason, will set a global variable called <code>errno</code> (in <code>&lt;errno.h&gt;</code>) for you. <code>errno</code> is just an interger representing a unique error.</p>
+
+<p>But to you, the user, some number isn’t generally very useful. For this reason, you can call <code>perror()</code> after an error occurs to print what error has actually happened in a nice human-readable string.</p>
+
+<p>And to help you along, you can pass a parameter, <code>s</code>, that will be prepended to the error string for you.</p>
+
+<p>One more clever trick you can do is check the value of the <code>errno</code> (you have to include <code>errno.h</code> to see it) for specific errors and have your code do different things. Perhaps you want to ignore certain errors but not others, for instance.</p>
+
+<p>The standard only defines three values for <code>errno</code>, but your system undoubtedly defines more. The three that are defined are:</p>
+
+<table><thead>
+<tr>
+<th><code>errno</code></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>EDOM</code></td>
+<td>Math operation outside domain.</td>
+</tr>
+<tr>
+<td><code>EILSEQ</code></td>
+<td>Invalid sequence in multibyte to wide character encoding.</td>
+</tr>
+<tr>
+<td><code>ERANGE</code></td>
+<td>Result of operation doesn’t fit in specified type.</td>
+</tr>
+</tbody></table>
+
+<p>The catch is that different systems define different values for <code>errno</code>, so it’s not very portable beyond the above 3. The good news is that at least the values are <em>largely</em> portable between Unix-like systems, at least.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns nothing at all! Sorry!</p>
+
+<h3>Example</h3>
+
+<p><a href="stdio.html#man-fseek" rel="nofollow"><code>fseek()</code></a> returns <code>-1</code> on error, and sets <code>errno</code>, so let’s use it. Seeking on <code>stdin</code> makes no sense, so it should generate an error:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;errno.h&gt;</span><span class="c1"> // must include this to see "errno" in this example</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">fseek</span><span class="p">(</span><span class="n">stdin</span><span class="p">,</span> <span class="mi">10L</span><span class="p">,</span> <span class="n">SEEK_SET</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">perror</span><span class="p">(</span><span class="s">"fseek"</span><span class="p">);</span>
+
+    <span class="n">fclose</span><span class="p">(</span><span class="n">stdin</span><span class="p">);</span> <span class="c1">// stop using this stream</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">fseek</span><span class="p">(</span><span class="n">stdin</span><span class="p">,</span> <span class="mi">20L</span><span class="p">,</span> <span class="n">SEEK_CUR</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="c1">// specifically check errno to see what kind of</span>
+        <span class="c1">// error happened...this works on Linux, but your</span>
+        <span class="c1">// mileage may vary on other systems!</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EBADF</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">perror</span><span class="p">(</span><span class="s">"fseek again, EBADF"</span><span class="p">);</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">perror</span><span class="p">(</span><span class="s">"fseek again"</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>And the output is:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">fseek:</span> <span class="n">Illegal</span> <span class="n">seek</span>
+<span class="n">fseek</span> <span class="n">again</span><span class="p">,</span> <span class="n">EBADF</span><span class="o">:</span> <span class="n">Bad</span> <span class="n">file</span> <span class="n">descriptor</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-feof" rel="nofollow"><code>feof()</code></a>, <a href="stdio.html#man-feof" rel="nofollow"><code>ferror()</code></a>, <a href="stringref.html#man-strerror" rel="nofollow"><code>strerror()</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

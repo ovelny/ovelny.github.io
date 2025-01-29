@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/34-setjmp-longjmp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/34-setjmp-longjmp"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>34 Long Jumps with <code>setjmp</code>, <code>longjmp</code></h1>
+
+<p>We’ve already seen <code>goto</code>, which jumps in function scope. But <code>longjmp()</code> allows you to jump back to an earlier point in execution, back to a function that called this one.</p>
+
+<p>There are a lot of limitations and caveats, but this can be a useful function for bailing out from deep in the call stack back up to an earlier state.</p>
+
+<p>In my experience, this is very rarely-used functionality.</p>
+
+<h2>34.1 Using <code>setjmp</code> and <code>longjmp</code></h2>
+
+<p>The dance we’re going to do here is to basically put a bookmark in execution with <code>setjmp()</code>. Later on, we’ll call <code>longjmp()</code> and it’ll jump back to the earlier point in execution where we set the bookmark with <code>setjmp()</code>.</p>
+
+<p>And it can do this even if you’ve called subfunctions.</p>
+
+<p>Here’s a quick demo where we call into functions a couple levels deep and then bail out of it.</p>
+
+<p>We’re going to use a file scope variable <code>env</code> to keep the <em>state</em> of things when we call <code>setjmp()</code> so we can restore them when we call <code>longjmp()</code> later. This is the variable in which we remember our “place”.</p>
+
+<p>The variable <code>env</code> is of type <code>jmp_buf</code>, an opaque type declared in <code>&lt;setjmp.h&gt;</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;setjmp.h&gt;</span><span class="cp">
+</span>
+<span class="kt">jmp_buf</span> <span class="n">env</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">depth2</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Entering depth 2</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">longjmp</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="mi">3490</span><span class="p">);</span>           <span class="c1">// Bail out</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Leaving depth 2</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// This won't happen</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">depth1</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Entering depth 1</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">depth2</span><span class="p">();</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Leaving depth 1</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// This won't happen</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">))</span> <span class="p">{</span>
+      <span class="k">case</span> <span class="mi">0</span><span class="p">:</span>
+          <span class="n">printf</span><span class="p">(</span><span class="s">"Calling into functions, setjmp() returned 0</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+          <span class="n">depth1</span><span class="p">();</span>
+          <span class="n">printf</span><span class="p">(</span><span class="s">"Returned from functions</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// This won't happen</span>
+          <span class="k">break</span><span class="p">;</span>
+
+      <span class="k">case</span> <span class="mi">3490</span><span class="p">:</span>
+          <span class="n">printf</span><span class="p">(</span><span class="s">"Bailed back to main, setjmp() returned 3490</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+          <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>When run, this outputs:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Calling</span> <span class="n">into</span> <span class="n">functions</span><span class="p">,</span> <span class="n">setjmp</span><span class="p">()</span> <span class="n">returned</span> <span class="mi">0</span>
+<span class="n">Entering</span> <span class="n">depth</span> <span class="mi">1</span>
+<span class="n">Entering</span> <span class="n">depth</span> <span class="mi">2</span>
+<span class="n">Bailed</span> <span class="n">back</span> <span class="n">to</span> <span class="n">main</span><span class="p">,</span> <span class="n">setjmp</span><span class="p">()</span> <span class="n">returned</span> <span class="mi">3490</span>
+</code></pre></div>
+
+<p>If you try to take that output and match it up with the code, it’s clear there’s some really <em>funky</em> stuff going on.</p>
+
+<p>One of the most notable things is that <code>setjmp()</code> returns <em>twice</em>. What the actual frank? What is this sorcery?!</p>
+
+<p>So here’s the deal: if <code>setjmp()</code> returns <code>0</code>, it means that you’ve successfully set the “bookmark” at that point.</p>
+
+<p>If it returns non-zero, it means you’ve just returned to the “bookmark” set earlier. (And the value returned is the one you pass to <code>longjmp()</code>.)</p>
+
+<p>This way you can tell the difference between setting the bookmark and returning to it later.</p>
+
+<p>So when the code, above, calls <code>setjmp()</code> the first time, <code>setjmp()</code> <em>stores</em> the state in the <code>env</code> variable and returns <code>0</code>. Later when we call <code>longjmp()</code> with that same <code>env</code>, it restores the state and <code>setjmp()</code> returns the value <code>longjmp()</code> was passed.</p>
+
+<h2>34.2 Pitfalls</h2>
+
+<p>Under the hood, this is pretty straightforward. Typically the <em>stack pointer</em> keeps track of the locations in memory that local variables are stored, and the <em>program counter</em> keeps track of the address of the currently-executing instruction<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁹</a>.</p>
+
+<p>So if we want to jump back to an earlier function, it’s basically only a matter of restoring the stack pointer and program counter to the values kept in the <code>jmp_buf</code> variable, and making sure the return value is set correctly. And then execution will resume there.</p>
+
+<p>But a variety of factors confound this, making a significant number of undefined behavior traps.</p>
+
+<h3>34.2.1 The Values of Local Variables</h3>
+
+<p>If you want the values of automatic (non-<code>static</code> and non-<code>extern</code>) local variables to persist in the function that called <code>setjmp()</code> after a <code>longjmp()</code> happens, you must declare those variables to be <code>volatile</code>.</p>
+
+<p>Technically, they only have to be <code>volatile</code> if they change between the time <code>setjmp()</code> is called and <code>longjmp()</code> is called<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁰</a>.</p>
+
+<p>For example, if we run this code:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>and then later <code>longjmp()</code> back, the value of <code>x</code> will be indeterminate.</p>
+
+<p>If we want to fix this, <code>x</code> must be <code>volatile</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">volatile</span> <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Now the value will be the correct <code>30</code> after a <code>longjmp()</code> returns us to this point.</p>
+
+<h3>34.2.2 How Much State is Saved?</h3>
+
+<p>When you <code>longjmp()</code>, execution resumes at the point of the corresponding <code>setjmp()</code>. And that’s it.</p>
+
+<p>The spec points out that it’s just as if you’d jumped back into the function at that point with local variables set to whatever values they had when the <code>longjmp()</code> call was made.</p>
+
+<p>Things that aren’t restored include, paraphrasing the spec:</p>
+
+<ul>
+<li>  Floating point status flags</li>
+<li>  Open files</li>
+<li>  Any other component of the abstract machine</li>
+</ul>
+
+<h3>34.2.3 You Can’t Name Anything <code>setjmp</code></h3>
+
+<p>You can’t have any <code>extern</code> identifiers with the name <code>setjmp</code>. Or, if <code>setjmp</code> is a macro, you can’t undefine it.</p>
+
+<p>Both are undefined behavior.</p>
+
+<h3>34.2.4 You Can’t <code>setjmp()</code> in a Larger Expression</h3>
+
+<p>That is, you can’t do something like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="mi">12</span> <span class="o">&amp;&amp;</span> <span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+</code></pre></div>
+
+<p>That’s too complex to be allowed by the spec due to the machinations that must occur when unrolling the stack and all that. We can’t <code>longjmp()</code> back into some complex expression that’s only been partially executed.</p>
+
+<p>So there are limits on the complexity of that expression.</p>
+
+<ul>
+<li><p>It can be the entire controlling expression of the conditional.</p>
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">))</span> <span class="p">{...}</span>
+</code></pre></div><div class="highlight"><pre class="highlight c"><code><span class="k">switch</span> <span class="p">(</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">))</span> <span class="p">{...}</span>
+</code></pre></div></li>
+<li><p>It can be part of a relational or equality expression, as long as the other operand is an integer constant. And the whole thing is the controlling expression of the conditional.</p>
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{...}</span>
+</code></pre></div></li>
+<li><p>The operand to a logical NOT (<code>!</code>) operation, being the entire controlling expression.</p>
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">))</span> <span class="p">{...}</span>
+</code></pre></div></li>
+<li><p>A standalone expression, possibly cast to <code>void</code>.</p>
+<div class="highlight"><pre class="highlight c"><code><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</code></pre></div><div class="highlight"><pre class="highlight c"><code><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</code></pre></div></li>
+</ul>
+
+<h3>34.2.5 When Can’t You <code>longjmp()</code>?</h3>
+
+<p>It’s undefined behavior if:</p>
+
+<ul>
+<li>  You didn’t call <code>setjmp()</code> earlier</li>
+<li>  You called <code>setjmp()</code> from another thread</li>
+<li>  You called <code>setjmp()</code> in the scope of a variable length array (VLA), and execution left the scope of that VLA before <code>longjmp()</code> was called.</li>
+<li>  The function containing the <code>setjmp()</code> exited before <code>longjmp()</code> was called.</li>
+</ul>
+
+<p>On that last one, “exited” includes normal returns from the function, as well as the case if another <code>longjmp()</code> jumped back to “earlier” in the call stack than the function in question.</p>
+
+<h3>34.2.6 You Can’t Pass <code>0</code> to <code>longjmp()</code></h3>
+
+<p>If you try to pass the value <code>0</code> to <code>longjmp()</code>, it will silently change that value to <code>1</code>.</p>
+
+<p>Since <code>setjmp()</code> ultimately returns this value, and having <code>setjmp()</code> return <code>0</code> has special meaning, returning <code>0</code> is prohibited.</p>
+
+<h3>34.2.7 <code>longjmp()</code> and Variable Length Arrays</h3>
+
+<p>If you are in scope of a VLA and <code>longjmp()</code> out there, the memory allocated to the VLA could leak<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸¹</a>.</p>
+
+<p>Same thing happens if you <code>longjmp()</code> back over any earlier functions that had VLAs still in scope.</p>
+
+<p>This is one thing that really bugged me able VLAs—that you could write perfectly legitimate C code that squandered memory. But, hey—I’m not in charge of the spec.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

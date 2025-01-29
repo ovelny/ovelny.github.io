@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/26-locale-and-internationalization</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/26-locale-and-internationalization"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>26 Locale and Internationalization</h1>
+
+<p><em>Localization</em> is the process of making your app ready to work well in different locales (or countries).</p>
+
+<p>As you might know, not everyone uses the same character for decimal points or for thousands separators… or for currency.</p>
+
+<p>These locales have names, and you can select one to use. For example, a US locale might write a number like:</p>
+
+<p>100,000.00</p>
+
+<p>Whereas in Brazil, the same might be written with the commas and decimal points swapped:</p>
+
+<p>100.000,00</p>
+
+<p>Makes it easier to write your code so it ports to other nationalities with ease!</p>
+
+<p>Well, sort of. Turns out C only has one built-in locale, and it’s limited. The spec really leaves a lot of ambiguity here; it’s hard to be completely portable.</p>
+
+<p>But we’ll do our best!</p>
+
+<h2>26.1 Setting the Localization, Quick and Dirty</h2>
+
+<p>For these calls, include <code>&lt;locale.h&gt;</code>.</p>
+
+<p>There is basically one thing you can portably do here in terms of declaring a specific locale. This is likely what you want to do if you’re going to do locale anything:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>  <span class="c1">// Use this environment's locale for everything</span>
+</code></pre></div>
+
+<p>You’ll want to call that so that the program gets initialized with your current locale.</p>
+
+<p>Getting into more details, there is one more thing you can do and stay portable:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">"C"</span><span class="p">);</span>  <span class="c1">// Use the default C locale</span>
+</code></pre></div>
+
+<p>but that’s called by default every time your program starts, so there’s not much need to do it yourself.</p>
+
+<p>In that second string, you can specify any locale supported by your system. This is completely system-dependent, so it will vary. On my system, I can specify this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">"en_US.UTF-8"</span><span class="p">);</span>  <span class="c1">// Non-portable!</span>
+</code></pre></div>
+
+<p>And that’ll work. But it’s only portable to systems which have that exact same name for that exact same locale, and you can’t guarantee it.</p>
+
+<p>By passing in an empty string (<code>&quot;&quot;</code>) for the second argument, you’re telling C, “Hey, figure out what the current locale on this system is so I don’t have to tell you.”</p>
+
+<h2>26.2 Getting the Monetary Locale Settings</h2>
+
+<p>Because moving green pieces of paper around promises to be the key to happiness<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵⁴</a>, let’s talk about monetary locale. When you’re writing portable code, you have to know what to type for cash, right? Whether that’s “$”, “€”, “¥”, or “£”.</p>
+
+<p>How can you write that code without going insane? Luckily, once you call <code>setlocale(LC_ALL, &quot;&quot;)</code>, you can just look these up with a call to <code>localeconv()</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">lconv</span> <span class="o">*</span><span class="n">x</span> <span class="o">=</span> <span class="n">localeconv</span><span class="p">();</span>
+</code></pre></div>
+
+<p>This function returns a pointer to a statically-allocated <code>struct lconv</code> that has all that juicy information you’re looking for.</p>
+
+<p>Here are the fields of <code>struct lconv</code> and their meanings.</p>
+
+<p>First, some conventions. An <code>_p_</code> means “positive”, and <code>_n_</code> means “negative”, and <code>int_</code> means “international”. Though a lot of these are type <code>char</code> or <code>char*</code>, most (or the strings they point to) are actually treated as integers<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵⁵</a>.</p>
+
+<p>Before we go further, know that <code>CHAR_MAX</code> (from <code>&lt;limits.h&gt;</code>) is the maximum value that can be held in a <code>char</code>. And that many of the following <code>char</code> values use that to indicate the value isn’t available in the given locale.</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>char *mon_decimal_point</code></td>
+<td>Decimal pointer character for money, e.g. <code>&quot;.&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>char *mon_thousands_sep</code></td>
+<td>Thousands separator character for money, e.g. <code>&quot;,&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>char *mon_grouping</code></td>
+<td>Grouping description for money (see below).</td>
+</tr>
+<tr>
+<td><code>char *positive_sign</code></td>
+<td>Positive sign for money, e.g. <code>&quot;+&quot;</code> or <code>&quot;&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>char *negative_sign</code></td>
+<td>Negative sign for money, e.g. <code>&quot;-&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>char *currency_symbol</code></td>
+<td>Currency symbol, e.g. <code>&quot;$&quot;</code>.</td>
+</tr>
+<tr>
+<td><code>char frac_digits</code></td>
+<td>When printing monetary amounts, how many digits to print past the decimal point, e.g. <code>2</code>.</td>
+</tr>
+<tr>
+<td><code>char p_cs_precedes</code></td>
+<td><code>1</code> if the <code>currency_symbol</code> comes before the value for a non-negative monetary amount, <code>0</code> if after.</td>
+</tr>
+<tr>
+<td><code>char n_cs_precedes</code></td>
+<td><code>1</code> if the <code>currency_symbol</code> comes before the value for a negative monetary amount, <code>0</code> if after.</td>
+</tr>
+<tr>
+<td><code>char p_sep_by_space</code></td>
+<td>Determines the separation of the <code>currency symbol</code> from the value for non-negative amounts (see below).</td>
+</tr>
+<tr>
+<td><code>char n_sep_by_space</code></td>
+<td>Determines the separation of the <code>currency symbol</code> from the value for negative amounts (see below).</td>
+</tr>
+<tr>
+<td><code>char p_sign_posn</code></td>
+<td>Determines the <code>positive_sign</code> position for non-negative values.</td>
+</tr>
+<tr>
+<td><code>char p_sign_posn</code></td>
+<td>Determines the <code>positive_sign</code> position for negative values.</td>
+</tr>
+<tr>
+<td><code>char *int_curr_symbol</code></td>
+<td>International currency symbol, e.g. <code>&quot;USD &quot;</code>.</td>
+</tr>
+<tr>
+<td><code>char int_frac_digits</code></td>
+<td>International value for <code>frac_digits</code>.</td>
+</tr>
+<tr>
+<td><code>char int_p_cs_precedes</code></td>
+<td>International value for <code>p_cs_precedes</code>.</td>
+</tr>
+<tr>
+<td><code>char int_n_cs_precedes</code></td>
+<td>International value for <code>n_cs_precedes</code>.</td>
+</tr>
+<tr>
+<td><code>char int_p_sep_by_space</code></td>
+<td>International value for <code>p_sep_by_space</code>.</td>
+</tr>
+<tr>
+<td><code>char int_n_sep_by_space</code></td>
+<td>International value for <code>n_sep_by_space</code>.</td>
+</tr>
+<tr>
+<td><code>char int_p_sign_posn</code></td>
+<td>International value for <code>p_sign_posn</code>.</td>
+</tr>
+<tr>
+<td><code>char int_n_sign_posn</code></td>
+<td>International value for <code>n_sign_posn</code>.</td>
+</tr>
+</tbody></table>
+
+<h3>26.2.1 Monetary Digit Grouping</h3>
+
+<p>OK, this is a trippy one. <code>mon_grouping</code> is a <code>char*</code>, so you might be thinking it’s a string. But in this case, no, it’s really an array of <code>char</code>s. It should always end either with a <code>0</code> or <code>CHAR_MAX</code>.</p>
+
+<p>These values describe how to group sets of numbers in currency to the <em>left</em> of the decimal (the whole number part).</p>
+
+<p>For example, we might have:</p>
+
+<div class="highlight"><pre class="highlight c"><code>  <span class="mi">2</span>   <span class="mi">1</span>   <span class="mi">0</span>
+ <span class="o">---</span> <span class="o">---</span> <span class="o">---</span>
+<span class="err">$</span><span class="mi">100</span><span class="p">,</span><span class="mo">000</span><span class="p">,</span><span class="mo">000</span><span class="p">.</span><span class="mo">00</span>
+</code></pre></div>
+
+<p>These are groups of three. Group 0 (just left of the decimal) has 3 digits. Group 1 (next group to the left) has 3 digits, and the last one also has 3.</p>
+
+<p>So we could describe these groups, from the right (the decimal) to the left with a bunch of integer values representing the group sizes:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span>
+</code></pre></div>
+
+<p>And that would work for values up to $100,000,000.</p>
+
+<p>But what if we had more? We could keep adding <code>3</code>s…</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span>
+</code></pre></div>
+
+<p>but that’s crazy. Luckily, we can specify <code>0</code> to indicate that the previous group size repeats:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">3</span> <span class="mi">0</span>
+</code></pre></div>
+
+<p>Which means to repeat every 3. That would handle $100, $1,000, $10,000, $10,000,000, $100,000,000,000, and so on.</p>
+
+<p>You can go legitimately crazy with these to indicate some weird groupings.</p>
+
+<p>For example:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">4</span> <span class="mi">3</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span>
+</code></pre></div>
+
+<p>would indicate:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="err">$</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mo">00</span><span class="p">,</span><span class="mo">000</span><span class="p">,</span><span class="mo">0000</span><span class="p">.</span><span class="mo">00</span>
+</code></pre></div>
+
+<p>One more value that can occur is <code>CHAR_MAX</code>. This indicates that no more grouping should occur, and can appear anywhere in the array, including the first value.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">3</span> <span class="mi">2</span> <span class="n">CHAR_MAX</span>
+</code></pre></div>
+
+<p>would indicate:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">100000000</span><span class="p">,</span><span class="mo">00</span><span class="p">,</span><span class="mo">000</span><span class="p">.</span><span class="mo">00</span>
+</code></pre></div>
+
+<p>for example.</p>
+
+<p>And simply having <code>CHAR_MAX</code> in the first array position would tell you there was to be no grouping at all.</p>
+
+<h3>26.2.2 Separators and Sign Position</h3>
+
+<p>All the <code>sep_by_space</code> variants deal with spacing around the currency sign. Valid values are:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>0</code></td>
+<td>No space between currency symbol and value.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>1</code></td>
+<td>Separate the currency symbol (and sign, if any) from the value with a space.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>2</code></td>
+<td>Separate the sign symbol from the currency symbol (if adjacent) with a space, otherwise separate the sign symbol from the value with a space.</td>
+</tr>
+</tbody></table>
+
+<p>The <code>sign_posn</code> variants are determined by the following values:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>0</code></td>
+<td>Put parens around the value and the currency symbol.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>1</code></td>
+<td>Put the sign string in front of the currency symbol and value.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>2</code></td>
+<td>Put the sign string after the currency symbol and value.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>3</code></td>
+<td>Put the sign string directly in front of the currency symbol.</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>4</code></td>
+<td>Put the sign string directly behind the currency symbol.</td>
+</tr>
+</tbody></table>
+
+<h3>26.2.3 Example Values</h3>
+
+<p>When I get the values on my system, this is what I see (grouping string displayed as individual byte values):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">mon_decimal_point</span>  <span class="o">=</span> <span class="s">"."</span>
+<span class="n">mon_thousands_sep</span>  <span class="o">=</span> <span class="s">","</span>
+<span class="n">mon_grouping</span>       <span class="o">=</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">0</span>
+<span class="n">positive_sign</span>      <span class="o">=</span> <span class="s">""</span>
+<span class="n">negative_sign</span>      <span class="o">=</span> <span class="s">"-"</span>
+<span class="n">currency_symbol</span>    <span class="o">=</span> <span class="s">"$"</span>
+<span class="n">frac_digits</span>        <span class="o">=</span> <span class="mi">2</span>
+<span class="n">p_cs_precedes</span>      <span class="o">=</span> <span class="mi">1</span>
+<span class="n">n_cs_precedes</span>      <span class="o">=</span> <span class="mi">1</span>
+<span class="n">p_sep_by_space</span>     <span class="o">=</span> <span class="mi">0</span>
+<span class="n">n_sep_by_space</span>     <span class="o">=</span> <span class="mi">0</span>
+<span class="n">p_sign_posn</span>        <span class="o">=</span> <span class="mi">1</span>
+<span class="n">n_sign_posn</span>        <span class="o">=</span> <span class="mi">1</span>
+<span class="n">int_curr_symbol</span>    <span class="o">=</span> <span class="s">"USD "</span>
+<span class="n">int_frac_digits</span>    <span class="o">=</span> <span class="mi">2</span>
+<span class="n">int_p_cs_precedes</span>  <span class="o">=</span> <span class="mi">1</span>
+<span class="n">int_n_cs_precedes</span>  <span class="o">=</span> <span class="mi">1</span>
+<span class="n">int_p_sep_by_space</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">int_n_sep_by_space</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">int_p_sign_posn</span>    <span class="o">=</span> <span class="mi">1</span>
+<span class="n">int_n_sign_posn</span>    <span class="o">=</span> <span class="mi">1</span>
+</code></pre></div>
+
+<h2>26.3 Localization Specifics</h2>
+
+<p>Notice how we passed the macro <code>LC_ALL</code> to <code>setlocale()</code> earlier… this hints that there might be some variant that allows you to be more precise about which <em>parts</em> of the locale you’re setting.</p>
+
+<p>Let’s take a look at the values you can see for these:</p>
+
+<table><thead>
+<tr>
+<th>Macro</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>LC_ALL</code></td>
+<td>Set all of the following to the given locale.</td>
+</tr>
+<tr>
+<td><code>LC_COLLATE</code></td>
+<td>Controls the behavior of the <code>strcoll()</code> and <code>strxfrm()</code> functions.</td>
+</tr>
+<tr>
+<td><code>LC_CTYPE</code></td>
+<td>Controls the behavior of the character-handling functions<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵⁶</a>.</td>
+</tr>
+<tr>
+<td><code>LC_MONETARY</code></td>
+<td>Controls the values returned by <code>localeconv()</code>.</td>
+</tr>
+<tr>
+<td><code>LC_NUMERIC</code></td>
+<td>Controls the decimal point for the <code>printf()</code> family of functions.</td>
+</tr>
+<tr>
+<td><code>LC_TIME</code></td>
+<td>Controls time formatting of the <code>strftime()</code> and <code>wcsftime()</code> time and date printing functions.</td>
+</tr>
+</tbody></table>
+
+<p>It’s pretty common to see <code>LC_ALL</code> being set, but, hey, at least you have options.</p>
+
+<p>Also I should point out that <code>LC_CTYPE</code> is one of the biggies because it ties into wide characters, a significant can of worms that we’ll talk about later.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

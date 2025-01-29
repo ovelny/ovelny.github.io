@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/tool-cheat-sheets/xfreerdp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/tool-cheat-sheets/xfreerdp"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Xfreerdp</h1>
+
+<p>Xfreerdp works reliably but can be slow at times. Still, I&#39;d rather use this tool rather than remmina or others because I prefer a command-line interface.</p>
+
+<p>Here&#39;s an optimized command that helps alleviate latency issues and enforce an azerty keyboard on the target:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>xfreerdp /u:&lt;username&gt; /p:&lt;password&gt; /v:&lt;IP&gt; /dynamic-resolution /kbd:0x0000040C /cert-ignore /bpp:8 /network:modem /compression <span class="nt">-themes</span> <span class="nt">-wallpaper</span> /relax-order-checks /auto-reconnect <span class="nt">-grab-keyboard</span> +clipboard
+</code></pre></div>
+
+<p>It doesn&#39;t make everything run smoothly but it still helps a lot!</p>
+
+<h2>Socks proxy</h2>
+
+<p>When using proxychains, xfreerdp is usable by prepending the command like you normally would:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>proxychains xfreerdp /u:&lt;username&gt; /p:...
+</code></pre></div>
+
+<p>But if you use x11 forwarding, proxychains will fail to interpret the localhost display variable. What works is to use xfreerdp&#39;s proxy argument instead:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>xfreerdp /u:&lt;username&gt; /p:&lt;password&gt; /proxy:socks5://127.0.0.1:1080 /v:&lt;target IP address&gt; ...
+</code></pre></div>
+
+<h2>Windows Server 2008 and old systems</h2>
+
+<p>On old systems such as Windows Server 2008, you might need to add the <code>/sec:rdp</code> flag before all the other flags.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

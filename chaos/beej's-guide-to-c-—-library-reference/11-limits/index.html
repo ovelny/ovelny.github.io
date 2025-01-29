@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/11-limits</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/11-limits"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>11 <code>&lt;limits.h&gt;</code> Numeric Limits</h1>
+
+<p>Important note: the “minimum magnitude” in the table below is the minimum allowed by the spec. It’s very likely that the values on your bad-ass system exceed those, below.</p>
+
+<table><thead>
+<tr>
+<th>Macro</th>
+<th>Minimum Magnitude</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>CHAR_BIT</code></td>
+<td><code>8</code></td>
+<td>Number of bits in a byte</td>
+</tr>
+<tr>
+<td><code>SCHAR_MIN</code></td>
+<td><code>-127</code></td>
+<td>Minimum value of a <code>signed char</code></td>
+</tr>
+<tr>
+<td><code>SCHAR_MAX</code></td>
+<td><code>127</code></td>
+<td>Maximum value of a <code>signed char</code></td>
+</tr>
+<tr>
+<td><code>UCHAR_MAX</code></td>
+<td><code>255</code></td>
+<td>Maximum value of an <code>unsigned char</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">¹⁹</a></td>
+</tr>
+<tr>
+<td><code>CHAR_MIN</code></td>
+<td><code>0</code> or <code>SCHAR_MIN</code></td>
+<td>More detail below</td>
+</tr>
+<tr>
+<td><code>CHAR_MAX</code></td>
+<td><code>SCHAR_MAX</code> or <code>UCHAR_MAX</code></td>
+<td>More detail below</td>
+</tr>
+<tr>
+<td><code>MB_LEN_MAX</code></td>
+<td><code>1</code></td>
+<td>Maximum number of bytes in a multibyte character on any locale</td>
+</tr>
+<tr>
+<td><code>SHRT_MIN</code></td>
+<td><code>-32767</code></td>
+<td>Minimum value of a <code>short</code></td>
+</tr>
+<tr>
+<td><code>SHRT_MAX</code></td>
+<td><code>32767</code></td>
+<td>Maximum value of a <code>short</code></td>
+</tr>
+<tr>
+<td><code>USHRT_MAX</code></td>
+<td><code>65535</code></td>
+<td>Maximum value of an <code>unsigned short</code></td>
+</tr>
+<tr>
+<td><code>INT_MIN</code></td>
+<td><code>-32767</code></td>
+<td>Minimum vale of an <code>int</code></td>
+</tr>
+<tr>
+<td><code>INT_MAX</code></td>
+<td><code>32767</code></td>
+<td>Maximum value of an <code>int</code></td>
+</tr>
+<tr>
+<td><code>UINT_MAX</code></td>
+<td><code>65535</code></td>
+<td>Maximum value of an <code>unsigned int</code></td>
+</tr>
+<tr>
+<td><code>LONG_MIN</code></td>
+<td><code>-2147483647</code></td>
+<td>Minimum value of a <code>long</code></td>
+</tr>
+<tr>
+<td><code>LONG_MAX</code></td>
+<td><code>2147483647</code></td>
+<td>Maximum value of a <code>long</code></td>
+</tr>
+<tr>
+<td><code>ULONG_MAX</code></td>
+<td><code>4294967295</code></td>
+<td>Maximum value of an <code>unsigned long</code></td>
+</tr>
+<tr>
+<td><code>LLONG_MIN</code></td>
+<td><code>-9223372036854775807</code></td>
+<td>Minimum value of a <code>long long</code></td>
+</tr>
+<tr>
+<td><code>LLONG_MAX</code></td>
+<td><code>9223372036854775807</code></td>
+<td>Maximum value of a <code>long long</code></td>
+</tr>
+<tr>
+<td><code>ULLONG_MAX</code></td>
+<td><code>18446744073709551615</code></td>
+<td>Maximum value of an <code>unsigned long long</code></td>
+</tr>
+</tbody></table>
+
+<h2>11.1 <code>CHAR_MIN</code> and <code>CHAR_MAX</code></h2>
+
+<p>When it comes to the <code>CHAR_MIN</code> and <code>CHAR_MAX</code> macros, it all depends on if your <code>char</code> type is signed or unsigned by default. Remember that C leaves that up to the implementation? No? Well, it does.</p>
+
+<p>So if it’s signed, the values of <code>CHAR_MIN</code> and <code>CHAR_MAX</code> are the same as <code>SCHAR_MIN</code> and <code>SCHAR_MAX</code>.</p>
+
+<p>And if it’s unsigned, the values of <code>CHAR_MIN</code> and <code>CHAR_MAX</code> are the same as <code>0</code> and <code>UCHAR_MAX</code>.</p>
+
+<p>Side benefit: you can tell at runtime if the system has signed or unsigned chars by checking to see if <code>CHAR_MIN</code> is <code>0</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;limits.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"chars are %ssigned</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">CHAR_MIN</span> <span class="o">==</span> <span class="mi">0</span><span class="o">?</span> <span class="s">"un"</span><span class="o">:</span> <span class="s">""</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>On my system, <code>char</code>s are signed.</p>
+
+<h2>11.2 Choosing the Correct Type</h2>
+
+<p>If you want to be super portable, choose a type you know will be at least as big as you need by the table, above.</p>
+
+<p>That said, a lot of code, for better or (likely) worse, assumes <code>int</code>s are 32-bits, when in actuality it’s only guaranteed to be 16.</p>
+
+<p>If you need a guaranteed bit size, check out the <code>int_leastN_t</code> types in <a href="stdint.html#stdint" rel="nofollow"><code>&lt;stdint.h&gt;</code></a>.</p>
+
+<h2>11.3 Whither Two’s Complement?</h2>
+
+<p>If you were looking closely and have <em>a priori</em> knowledge of the matter, you might have thought I erred in the minimum values of the macros, above.</p>
+
+<p>“<code>short</code> goes from <code>32767</code> to <code>-32767</code>? Shouldn’t it go to <code>-32768?</code>”</p>
+
+<p>No, I have it right. The spec list the minimum magnitudes for those macros, and some old-timey systems might have used a different encoding for their signed values that could only go that far.</p>
+
+<p>Virtually every modern system uses <a href="https://en.wikipedia.org/wiki/Two%27s_complement" rel="nofollow">Two’s Complement</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">²⁰</a> for signed numbers, and those would go from <code>32767</code> to <code>-32768</code> for a <code>short</code>. Your system probably does, too.</p>
+
+<h2>11.4 Demo Program</h2>
+
+<p>Here’s a program to print out the values of the macros:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;limits.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"CHAR_BIT = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">CHAR_BIT</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"SCHAR_MIN = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">SCHAR_MIN</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"SCHAR_MAX = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">SCHAR_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"UCHAR_MAX = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">UCHAR_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"CHAR_MIN = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">CHAR_MIN</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"CHAR_MAX = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">CHAR_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"MB_LEN_MAX = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">MB_LEN_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"SHRT_MIN = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">SHRT_MIN</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"SHRT_MAX = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">SHRT_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"USHRT_MAX = %u</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">USHRT_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"INT_MIN = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">INT_MIN</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"INT_MAX = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">INT_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"UINT_MAX = %u</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">UINT_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LONG_MIN = %ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LONG_MIN</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LONG_MAX = %ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LONG_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"ULONG_MAX = %lu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ULONG_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LLONG_MIN = %lld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LLONG_MIN</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LLONG_MAX = %lld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LLONG_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"ULLONG_MAX = %llu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ULLONG_MAX</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>On my 64-bit Intel system with clang, this outputs:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">CHAR_BIT</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">SCHAR_MIN</span> <span class="o">=</span> <span class="o">-</span><span class="mi">128</span>
+<span class="n">SCHAR_MAX</span> <span class="o">=</span> <span class="mi">127</span>
+<span class="n">UCHAR_MAX</span> <span class="o">=</span> <span class="mi">255</span>
+<span class="n">CHAR_MIN</span> <span class="o">=</span> <span class="o">-</span><span class="mi">128</span>
+<span class="n">CHAR_MAX</span> <span class="o">=</span> <span class="mi">127</span>
+<span class="n">MB_LEN_MAX</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">SHRT_MIN</span> <span class="o">=</span> <span class="o">-</span><span class="mi">32768</span>
+<span class="n">SHRT_MAX</span> <span class="o">=</span> <span class="mi">32767</span>
+<span class="n">USHRT_MAX</span> <span class="o">=</span> <span class="mi">65535</span>
+<span class="n">INT_MIN</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2147483648</span>
+<span class="n">INT_MAX</span> <span class="o">=</span> <span class="mi">2147483647</span>
+<span class="n">UINT_MAX</span> <span class="o">=</span> <span class="mi">4294967295</span>
+<span class="n">LONG_MIN</span> <span class="o">=</span> <span class="o">-</span><span class="mi">9223372036854775808</span>
+<span class="n">LONG_MAX</span> <span class="o">=</span> <span class="mi">9223372036854775807</span>
+<span class="n">ULONG_MAX</span> <span class="o">=</span> <span class="mi">18446744073709551615</span>
+<span class="n">LLONG_MIN</span> <span class="o">=</span> <span class="o">-</span><span class="mi">9223372036854775808</span>
+<span class="n">LLONG_MAX</span> <span class="o">=</span> <span class="mi">9223372036854775807</span>
+<span class="n">ULLONG_MAX</span> <span class="o">=</span> <span class="mi">18446744073709551615</span>
+</code></pre></div>
+
+<p>Looks like my system probably uses two’s-complement encoding for signed numbers, my <code>char</code>s are signed, and my <code>int</code>s are 32-bit.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

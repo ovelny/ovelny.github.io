@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/15-types-iii-conversions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/15-types-iii-conversions"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>15 Types III: Conversions</h1>
+
+<p>In this chapter, we want to talk all about converting from one type to another. C has a variety of ways of doing this, and some might be a little different that you’re used to in other languages.</p>
+
+<p>Before we talk about how to make conversions happen, let’s talk about how they work when they <em>do</em> happen.</p>
+
+<h2>15.1 String Conversions</h2>
+
+<p>Unlike many languages, C doesn’t do string-to-number (and vice-versa) conversions in quite as streamlined a manner as it does numeric conversions.</p>
+
+<p>For these, we’ll have to call functions to do the dirty work.</p>
+
+<h3>15.1.1 Numeric Value to String</h3>
+
+<p>When we want to convert a number to a string, we can use either <code>sprintf()</code> (pronounced <em>SPRINT-f</em>) or <code>snprintf()</code> (<em>s-n-print-f</em>)<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁵</a></p>
+
+<p>These basically work like <code>printf()</code>, except they output to a string instead, and you can print that string later, or whatever.</p>
+
+<p>For example, turning part of the value π into a string:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+    <span class="kt">float</span> <span class="n">f</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14159</span><span class="p">;</span>
+
+    <span class="c1">// Convert "f" to string, storing in "s", writing at most 10 characters</span>
+    <span class="c1">// including the NUL terminator</span>
+
+    <span class="n">snprintf</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="s">"%f"</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"String value: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>  <span class="c1">// String value: 3.141590</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>So you can use <code>%d</code> or <code>%u</code> like you’re used to for integers.</p>
+
+<h3>15.1.2 String to Numeric Value</h3>
+
+<p>There are a couple families of functions to do this in C. We’ll call these the <code>atoi</code> (pronounced <em>a-to-i</em>) family and the <code>strtol</code> (<em>stir-to-long</em>) family.</p>
+
+<p>For basic conversion from a string to a number, try the <code>atoi</code> functions from <code>&lt;stdlib.h&gt;</code>. These have bad error-handling characteristics (including undefined behavior if you pass in a bad string), so use them carefully.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Function</th>
+<th style="text-align: left">Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>atoi</code></td>
+<td style="text-align: left">String to <code>int</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>atof</code></td>
+<td style="text-align: left">String to <code>float</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>atol</code></td>
+<td style="text-align: left">String to <code>long int</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>atoll</code></td>
+<td style="text-align: left">String to <code>long long int</code></td>
+</tr>
+</tbody></table>
+
+<p>Though the spec doesn’t cop to it, the <code>a</code> at the beginning of the function stands for <a href="https://en.wikipedia.org/wiki/ASCII" rel="nofollow">ASCII</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁶</a>, so really <code>atoi()</code> is “ASCII-to-integer”, but saying so today is a bit ASCII-centric.</p>
+
+<p>Here’s an example converting a string to a <code>float</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">pi</span> <span class="o">=</span> <span class="s">"3.14159"</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">f</span><span class="p">;</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="n">atof</span><span class="p">(</span><span class="n">pi</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>But, like I said, we get undefined behavior from weird things like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="s">"what"</span><span class="p">);</span>  <span class="c1">// "What" ain't no number I ever heard of</span>
+</code></pre></div>
+
+<p>(When I run that, I get <code>0</code> back, but you really shouldn’t count on that in any way. You could get something completely different.)</p>
+
+<p>For better error handling characteristics, let’s check out all those <code>strtol</code> functions, also in <code>&lt;stdlib.h&gt;</code>. Not only that, but they convert to more types and more bases, too!</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Function</th>
+<th style="text-align: left">Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>strtol</code></td>
+<td style="text-align: left">String to <code>long int</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>strtoll</code></td>
+<td style="text-align: left">String to <code>long long int</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>strtoul</code></td>
+<td style="text-align: left">String to <code>unsigned long int</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>strtoull</code></td>
+<td style="text-align: left">String to <code>unsigned long long int</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>strtof</code></td>
+<td style="text-align: left">String to <code>float</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>strtod</code></td>
+<td style="text-align: left">String to <code>double</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>strtold</code></td>
+<td style="text-align: left">String to <code>long double</code></td>
+</tr>
+</tbody></table>
+
+<p>These functions all follow a similar pattern of use, and are a lot of people’s first experience with pointers to pointers! But never fret—it’s easier than it looks.</p>
+
+<p>Let’s do an example where we convert a string to an <code>unsigned long</code>, discarding error information (i.e. information about bad characters in the input string):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"3490"</span><span class="p">;</span>
+
+    <span class="c1">// Convert string s, a number in base 10, to an unsigned long int.</span>
+    <span class="c1">// NULL means we don't care to learn about any error information.</span>
+
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">strtoul</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%lu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="c1">// 3490</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Notice a couple things there. Even though we didn’t deign to capture any information about error characters in the string, <code>strtoul()</code> won’t give us undefined behavior; it will just return <code>0</code>.</p>
+
+<p>Also, we specified that this was a decimal (base 10) number.</p>
+
+<p>Does this mean we can convert numbers of different bases? Sure! Let’s do binary!</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"101010"</span><span class="p">;</span>  <span class="c1">// What's the meaning of this number?</span>
+
+    <span class="c1">// Convert string s, a number in base 2, to an unsigned long int.</span>
+
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">strtoul</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%lu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="c1">// 42</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>OK, that’s all fun and games, but what’s with that <code>NULL</code> in there? What’s that for?</p>
+
+<p>That helps us figure out if an error occurred in the processing of the string. It’s a pointer to a pointer to a <code>char</code>, which sounds scary, but isn’t once you wrap your head around it.</p>
+
+<p>Let’s do an example where we feed in a deliberately bad number, and we’ll see how <code>strtol()</code> lets us know where the first invalid digit is.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"34x90"</span><span class="p">;</span>  <span class="c1">// "x" is not a valid digit in base 10!</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">badchar</span><span class="p">;</span>
+
+    <span class="c1">// Convert string s, a number in base 10, to an unsigned long int.</span>
+
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">strtoul</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">badchar</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+
+    <span class="c1">// It tries to convert as much as possible, so gets this far:</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%lu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>  <span class="c1">// 34</span>
+
+    <span class="c1">// But we can see the offending bad character because badchar</span>
+    <span class="c1">// points to it!</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Invalid character: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">badchar</span><span class="p">);</span>  <span class="c1">// "x"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>So there we have <code>strtoul()</code> modifying what <code>badchar</code> points to in order to show us where things went wrong<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁷</a>.</p>
+
+<p>But what if nothing goes wrong? In that case, <code>badchar</code> will point to the <code>NUL</code> terminator at the end of the string. So we can test for it:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"3490"</span><span class="p">;</span>  <span class="c1">// "x" is not a valid digit in base 10!</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">badchar</span><span class="p">;</span>
+
+    <span class="c1">// Convert string s, a number in base 10, to an unsigned long int.</span>
+
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">strtoul</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">badchar</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+
+    <span class="c1">// Check if things went well</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">badchar</span> <span class="o">==</span> <span class="sc">'\0'</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Success! %lu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+    <span class="p">}</span> <span class="k">else</span>  <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Partial conversion: %lu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Invalid character: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">badchar</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>So there you have it. The <code>atoi()</code>-style functions are good in a controlled pinch, but the <code>strtol()</code>-style functions give you far more control over error handling and the base of the input.</p>
+
+<h2>15.2 <code>char</code> Conversions</h2>
+
+<p>What if you have a single character with a digit in it, like <code>&#39;5&#39;</code>… Is that the same as the value <code>5</code>?</p>
+
+<p>Let’s try it and see.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"%d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="sc">'5'</span><span class="p">);</span>
+</code></pre></div>
+
+<p>On my UTF-8 system, this prints:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">5</span> <span class="mi">53</span>
+</code></pre></div>
+
+<p>So… no. And 53? What is that? That’s the UTF-8 (and ASCII) code point for the character symbol <code>&#39;5&#39;</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁸</a></p>
+
+<p>So how do we convert the character <code>&#39;5&#39;</code> (which apparently has value 53) into the value <code>5</code>?</p>
+
+<p>With one clever trick, that’s how!</p>
+
+<p>The C Standard guarantees that these character will have code points that are in sequence and in this order:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">0</span>  <span class="mi">1</span>  <span class="mi">2</span>  <span class="mi">3</span>  <span class="mi">4</span>  <span class="mi">5</span>  <span class="mi">6</span>  <span class="mi">7</span>  <span class="mi">8</span>  <span class="mi">9</span>
+</code></pre></div>
+
+<p>Ponder for a second–how can we use that? Spoilers ahead…</p>
+
+<p>Let’s take a look at the characters and their code points in UTF-8:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">0</span>  <span class="mi">1</span>  <span class="mi">2</span>  <span class="mi">3</span>  <span class="mi">4</span>  <span class="mi">5</span>  <span class="mi">6</span>  <span class="mi">7</span>  <span class="mi">8</span>  <span class="mi">9</span>
+<span class="mi">48</span> <span class="mi">49</span> <span class="mi">50</span> <span class="mi">51</span> <span class="mi">52</span> <span class="mi">53</span> <span class="mi">54</span> <span class="mi">55</span> <span class="mi">56</span> <span class="mi">57</span>
+</code></pre></div>
+
+<p>You see there that <code>&#39;5&#39;</code> is <code>53</code>, just like we were getting. And <code>&#39;0&#39;</code> is <code>48</code>.</p>
+
+<p>So we can subtract <code>&#39;0&#39;</code> from any digit character to get its numeric value:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="sc">'6'</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span>  <span class="c1">// x has value 54, the code point for '6'</span>
+
+<span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">c</span> <span class="o">-</span> <span class="sc">'0'</span><span class="p">;</span> <span class="c1">// y has value 6, just like we want</span>
+</code></pre></div>
+
+<p>And we can convert the other way, too, just by adding the value on.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">6</span><span class="p">;</span>
+
+<span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="sc">'0'</span><span class="p">;</span>  <span class="c1">// c has value 54</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>  <span class="c1">// prints 54</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>  <span class="c1">// prints 6 with %c</span>
+</code></pre></div>
+
+<p>You might think this is a weird way to do this conversion, and by today’s standards, it certainly is. But back in the olden days when computers were made literally out of wood, this was the method for doing this conversion. And it wasn’t broke, so C never fixed it.</p>
+
+<h2>15.3 Numeric Conversions</h2>
+
+<h3>15.3.1 Boolean</h3>
+
+<p>If you convert a zero to <code>bool</code>, the result is <code>0</code>. Otherwise it’s <code>1</code>.</p>
+
+<h3>15.3.2 Integer to Integer Conversions</h3>
+
+<p>If an integer type is converted to unsigned and doesn’t fit in it, the unsigned result wraps around odometer-style until it fits in the unsigned<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰⁹</a>.</p>
+
+<p>If an integer type is converted to a signed number and doesn’t fit, the result is implementation-defined! Something documented will happen, but you’ll have to look it up<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹⁰</a></p>
+
+<h3>15.3.3 Integer and Floating Point Conversions</h3>
+
+<p>If a floating point type is converted to an integer type, the fractional part is discarded with prejudice<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹¹</a>.</p>
+
+<p>But—and here’s the catch—if the number is too large to fit in the integer, you get undefined behavior. So don’t do that.</p>
+
+<p>Going From integer or floating point to floating point, C makes a best effort to find the closest floating point number to the integer that it can.</p>
+
+<p>Again, though, if the original value can’t be represented, it’s undefined behavior.</p>
+
+<h2>15.4 Implicit Conversions</h2>
+
+<p>These are conversions the compiler does automatically for you when you mix and match types.</p>
+
+<h3>15.4.1 The Integer Promotions</h3>
+
+<p>In a number of places, if an <code>int</code> can be used to represent a value from <code>char</code> or <code>short</code> (signed or unsigned), that value is <em>promoted</em> up to <code>int</code>. If it doesn’t fit in an <code>int</code>, it’s promoted to <code>unsigned int</code>.</p>
+
+<p>This is how we can do something like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
+</code></pre></div>
+
+<p>In that case, <code>x</code> and <code>y</code> get promoted to <code>int</code> by C before the math takes place.</p>
+
+<p>The integer promotions take place during The Usual Arithmetic Conversions, with variadic functions<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹²</a>, unary <code>+</code> and <code>-</code> operators, or when passing values to functions without prototypes<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹³</a>.</p>
+
+<h3>15.4.2 The Usual Arithmetic Conversions</h3>
+
+<p>These are automatic conversions that C does around numeric operations that you ask for. (That’s actually what they’re called, by the way, by C11 §6.3.1.8.) Note that for this section, we’re just talking about numeric types—strings will come later.</p>
+
+<p>These conversions answer questions about what happens when you mix types, like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">2</span><span class="p">;</span>   <span class="c1">// Mixing int and double</span>
+                   <span class="c1">// 4.2 is converted to int</span>
+                   <span class="c1">// 4 is stored in x</span>
+
+<span class="kt">float</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">12</span> <span class="o">*</span> <span class="mi">2</span><span class="p">;</span>  <span class="c1">// Mixing float and int</span>
+                   <span class="c1">// 24 is converted to float</span>
+                   <span class="c1">// 24.0 is stored in y</span>
+</code></pre></div>
+
+<p>Do they become <code>int</code>s? Do they become <code>float</code>s? How does it work?</p>
+
+<p>Here are the steps, paraphrased for easy consumption.</p>
+
+<ol>
+<li><p>If one thing in the expression is a floating type, convert the other things to that floating type.</p></li>
+<li><p>Otherwise, if both types are integer types, perform the integer promotions on each, then make the operand types as big as they need to be hold the common largest value. Sometimes this involves changing signed to unsigned.</p></li>
+</ol>
+
+<p>If you want to know the gritty details, check out C11 §6.3.1.8. But you probably don’t.</p>
+
+<p>Just generally remember that int types become float types if there’s a floating point type anywhere in there, and the compiler makes an effort to make sure mixed integer types don’t overflow.</p>
+
+<p>Finally, if you convert from one floating point type to another, the compiler will try to make an exact conversion. If it can’t, it’ll do the best approximation it can. If the number is too large to fit in the type you’re converting into, <em>boom</em>: undefined behavior!</p>
+
+<h3>15.4.3 <code>void*</code></h3>
+
+<p>The <code>void*</code> type is interesting because it can be converted from or to any pointer type.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>  <span class="c1">// &amp;x is type int*, but we store it in a void*</span>
+
+<span class="kt">int</span> <span class="o">*</span><span class="n">q</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>    <span class="c1">// p is void*, but we store it in an int*</span>
+</code></pre></div>
+
+<h2>15.5 Explicit Conversions</h2>
+
+<p>These are conversions from type to type that you have to ask for; the compiler won’t do it for you.</p>
+
+<p>You can convert from one type to another by assigning one type to another with an <code>=</code>.</p>
+
+<p>You can also convert explicitly with a <em>cast</em>.</p>
+
+<h3>15.5.1 Casting</h3>
+
+<p>You can explicitly change the type of an expression by putting a new type in parentheses in front of it. Some C devs frown on the practice unless absolutely necessary, but it’s likely you’ll come across some C code with these in it.</p>
+
+<p>Let’s do an example where we want to convert an <code>int</code> into a <code>long</code> so that we can store it in a <code>long</code>.</p>
+
+<p>Note: this example is contrived and the cast in this case is completely unnecessary because the <code>x + 12</code> expression would automatically be changed to <code>long int</code> to match the wider type of <code>y</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="kt">long</span> <span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="kt">long</span> <span class="kt">int</span><span class="p">)</span><span class="n">x</span> <span class="o">+</span> <span class="mi">12</span><span class="p">;</span>
+</code></pre></div>
+
+<p>In that example, even those <code>x</code> was type <code>int</code> before, the expression <code>(long int)x</code> has type <code>long int</code>. We say, “We cast <code>x</code> to <code>long int</code>.”</p>
+
+<p>More commonly, you might see a cast being used to convert a <code>void*</code> into a specific pointer type so it can be dereferenced.</p>
+
+<p>A callback from the built-in <code>qsort()</code> function might display this behavior since it has <code>void*</code>s passed into it:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">compar</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">elem1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">elem2</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="p">((</span><span class="k">const</span> <span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">elem2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="o">*</span><span class="p">((</span><span class="k">const</span> <span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">elem1</span><span class="p">))</span> <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="p">((</span><span class="k">const</span> <span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">elem2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="o">*</span><span class="p">((</span><span class="k">const</span> <span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">elem1</span><span class="p">))</span> <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>But you could also clearly write it with an assignment:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">compar</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">elem1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">elem2</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="o">*</span><span class="n">e1</span> <span class="o">=</span> <span class="n">elem1</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="o">*</span><span class="n">e2</span> <span class="o">=</span> <span class="n">elem2</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="o">*</span><span class="n">e2</span> <span class="o">-</span> <span class="o">*</span><span class="n">e1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>One place you’ll see casts more commonly is to avoid a warning when printing pointer values with the rarely-used <code>%p</code> which gets picky with anything other than a <code>void*</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+<span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%p</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</code></pre></div>
+
+<p>generates this warning:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">warning:</span> <span class="n">format</span> <span class="err">‘</span><span class="o">%</span><span class="n">p</span><span class="err">’</span> <span class="n">expects</span> <span class="n">argument</span> <span class="n">of</span> <span class="n">type</span> <span class="err">‘</span><span class="kt">void</span> <span class="o">*</span><span class="err">’</span><span class="p">,</span> <span class="n">but</span> <span class="n">argument</span>
+         <span class="mi">2</span> <span class="n">has</span> <span class="n">type</span> <span class="err">‘</span><span class="kt">int</span> <span class="o">*</span><span class="err">’</span>
+</code></pre></div>
+
+<p>You can fix it with a cast:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"%p</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Another place is with explicit pointer changes, if you don’t want to use an intervening <code>void*</code>, but these are also pretty uncommon:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">long</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+<span class="kt">long</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
+</code></pre></div>
+
+<p>A third place it’s often required is with the character conversion functions in <a href="https://beej.us/guide/bgclr/html/split/ctype.html" rel="nofollow"><code>&lt;ctype.h&gt;</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹⁴</a> where you should cast questionably-signed values to <code>unsigned char</code> to avoid undefined behavior.</p>
+
+<p>Again, casting is rarely <em>needed</em> in practice. If you find yourself casting, there might be another way to do the same thing, or maybe you’re casting unnecessarily.</p>
+
+<p>Or maybe it is necessary. Personally, I try to avoid it, but am not afraid to use it if I have to.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

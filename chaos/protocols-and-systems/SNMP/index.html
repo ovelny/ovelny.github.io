@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/protocols-and-systems/SNMP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/protocols-and-systems/SNMP"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>SNMP</h1>
+
+<h2>Main points</h2>
+
+<ul>
+<li>Simple Network Management Protocol.</li>
+<li>Created originally to monitor network devices.</li>
+<li>Can be used to handle configuration tasks and change settings.</li>
+<li>Settings and configuration are handled remotely of course.</li>
+<li>Supported hardware includes routers, switches, servers, IoT devices, etc.</li>
+<li>Uses port UDP 161 and port UDP 162.</li>
+<li>Port UDP 162 is used for <code>traps</code>: unrequested messages sent from the SNMP server.</li>
+<li><p>SNMP objects communicate by knowing the unique addresses of each other.</p></li>
+<li><p>The Management Information Base (MIB):</p>
+
+<ul>
+<li>Stores device information.</li>
+<li>Text file with a tree hierarchy of all SNMP objects of a device.</li>
+<li>Written in Abstract Syntax Notation One (ASN.1).</li>
+<li>No data but shows how to find any type of info, data type, etc.</li>
+</ul></li>
+<li><p>The Object Identifier (OID):</p>
+
+<ul>
+<li>Address used to differentiate between devices in the MIB hierarchy.</li>
+<li>Refers to characteristics and permits to navigate through variables on the device.</li>
+<li>Represented with a string of numbers, like <code>1.3.6.1.4.868.2.4.1.2.1.1.1.3.3562.3</code>.</li>
+</ul></li>
+<li><p>Community strings:</p>
+
+<ul>
+<li>Act as passwords to determine if the requested info can be viewed or not.</li>
+<li>Sent unencrypted with SNMPv1 and SNMPv2.</li>
+</ul></li>
+</ul>
+
+<h2>Differences between versions</h2>
+
+<ul>
+<li><p>SNMPv1:</p>
+
+<ul>
+<li>First version but still in use in small networks.</li>
+<li>No authentication needed: anyone in the network can use it.</li>
+<li>No encryption, just plain text.</li>
+</ul></li>
+<li><p>SNMPv2:</p>
+
+<ul>
+<li>Many versions, main one being <code>v2c</code>.</li>
+<li>Support for 64-bit systems.</li>
+</ul></li>
+<li><p>SNMPv3:</p>
+
+<ul>
+<li>Finally some security features added.</li>
+<li>Authentication with username and password.</li>
+<li>Encryption of transmitted data with pre-shared key.</li>
+<li>Harder to configure.</li>
+</ul></li>
+</ul>
+
+<h2>Insecure configuration</h2>
+
+<p>Settings can usually be found in <code>cat /etc/snmp/snmpd.conf</code>.</p>
+
+<ul>
+<li><code>rwuser noauth</code>: access the full OID tree without authentication.</li>
+<li><code>rwcommunity &lt;community string&gt; &lt;IPv4 address&gt;</code>: access the full OID tree no matter where the requests are from.</li>
+<li><code>rwcommunity &lt;community string&gt; &lt;IPv6 address&gt;</code>: same for IPv6.</li>
+</ul>
+
+<h2>Commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Brute force community strings:</span>
+onesixtyone <span class="nt">-c</span> /usr/share/seclists/Discovery/SNMP/snmp.txt &lt;IP address&gt;
+
+<span class="c"># Query OIDs and get their info:</span>
+snmpwalk <span class="nt">-v2c</span> <span class="nt">-c</span> &lt;community string&gt; &lt;IP address&gt;
+
+<span class="c"># Query OIDs with braa (mass scanner):</span>
+braa &lt;community string&gt;@&lt;IP address&gt;:&lt;.OID.glob.&gt;.<span class="k">*</span>
+</code></pre></div>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://www.comparitech.com/net-admin/snmp-mibs-oids-explained/#What_is_a_SNMP_OID" rel="nofollow">https://www.comparitech.com/net-admin/snmp-mibs-oids-explained/#What_is_a_SNMP_OID</a></li>
+<li><a href="https://www.parkplacetechnologies.com/blog/snmpv1-vs-v2c-vs-v3-versions-comparison/#what-is-v2" rel="nofollow">https://www.parkplacetechnologies.com/blog/snmpv1-vs-v2c-vs-v3-versions-comparison/#what-is-v2</a></li>
+</ul>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

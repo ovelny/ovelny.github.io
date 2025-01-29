@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/tool-cheat-sheets/ffuf</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/tool-cheat-sheets/ffuf"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Ffuf</h1>
+
+<h2>Matcher and filter options</h2>
+
+<div class="highlight"><pre class="highlight plaintext"><code>MATCHER OPTIONS:
+  -mc   Match HTTP status codes, or "all" for everything. (default: 200,204,301,302,307,401,403,405)
+  -ml   Match amount of lines in response
+  -mr   Match regexp
+  -ms   Match HTTP response size
+  -mw   Match amount of words in response
+
+FILTER OPTIONS:
+  -fc   Filter HTTP status codes from response. Comma separated list of codes and ranges
+  -fl   Filter by amount of lines in response. Comma separated list of line counts and ranges
+  -fr   Filter regexp
+  -fs   Filter HTTP response size. Comma separated list of sizes and ranges
+  -fw   Filter by amount of words in response. Comma separated list of word counts and ranges
+</code></pre></div>
+
+<h2>Commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Enumerate subdomains:</span>
+ffuf <span class="nt">-w</span> /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt <span class="nt">-u</span> https://&lt;IP or domain name&gt;/
+
+<span class="c"># Enumerate virtual hosts:</span>
+ffuf <span class="nt">-w</span> /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt <span class="nt">-u</span> http://&lt;domain name or IP address&gt; <span class="nt">-H</span> <span class="s2">"HOST: FUZZ.&lt;domain name&gt;.&lt;TLD&gt;"</span> <span class="nt">-fs</span> &lt;size&gt;
+
+<span class="c"># Enumerate directories.</span>
+<span class="c"># Consider using -rate to make it less intensive for the target's web server:</span>
+ffuf <span class="nt">-recursion</span> <span class="nt">-recursion-depth</span> &lt;number&gt; <span class="nt">-u</span> http://&lt;IP address or domain name&gt;/FUZZ <span class="nt">-w</span> &lt;wordlist&gt;
+
+<span class="c"># Fuzz file extensions:</span>
+ffuf <span class="nt">-w</span> /usr/share/wordlists/seclists/Discovery/Web-Content/web-extensions.txt:FUZZ <span class="nt">-u</span> http://&lt;IP address or domain name&gt;/indexFUZZ
+
+<span class="c"># Fuzz GET parameters:</span>
+ffuf <span class="nt">-w</span> /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ <span class="nt">-u</span> http://&lt;IP address or domain name&gt;/?FUZZ<span class="o">=</span>key <span class="nt">-fs</span> &lt;size&gt;
+
+<span class="c"># Fuzz POST parameters, with proper </span>
+<span class="c"># content-type header for PHP:</span>
+ffuf <span class="nt">-w</span> /usr/share/seclists/Discovery/Web-Content/burp-parameter-names.txt:FUZZ <span class="nt">-u</span> http://&lt;IP address or domain name&gt;/ <span class="nt">-X</span> POST <span class="nt">-d</span> <span class="s1">'FUZZ=key'</span> <span class="nt">-H</span> <span class="s1">'Content-Type: application/x-www-form-urlencoded'</span> <span class="nt">-fs</span> &lt;size&gt;
+
+<span class="c"># Find sensitive files,</span>
+<span class="c"># assuming here that wordlist.txt is the output of</span>
+<span class="c"># a cewl command like: cewl -m5 --lowercase -w wordlist.txt http://&lt;IP address or domain name&gt;:</span>
+ffuf <span class="nt">-w</span> ./&lt;found-directories.txt&gt;:FOLDERS,./&lt;wordlist.txt&gt;:WORDLIST,./&lt;extensions.txt&gt;:EXTENSIONS <span class="nt">-u</span> http://&lt;IP address or domain name&gt;/FOLDERS/WORDLISTEXTENSIONS
+
+<span class="c"># Recursively fuzz directories with a depth of 1,</span>
+<span class="c"># use .php file extension, skip comments in wordlist</span>
+<span class="c"># with -ic and run verbosely:</span>
+ffuf <span class="nt">-v</span> <span class="nt">-ic</span> <span class="nt">-w</span> &lt;wordlist&gt;:FUZZ <span class="nt">-u</span> https://&lt;IP or domain name&gt;/FUZZ <span class="nt">-recursion</span> <span class="nt">-recursion-depth</span> 1 <span class="nt">-e</span> .php
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/25-stringref</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/25-stringref"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>25 <code>&lt;string.h&gt;</code> String Manipulation</h1>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="stringref.html#man-strchr" rel="nofollow"><code>memchr()</code></a></td>
+<td>Find the first occurrence of a character in memory.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strcmp" rel="nofollow"><code>memcmp()</code></a></td>
+<td>Compare two regions of memory.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-memcpy" rel="nofollow"><code>memcpy()</code></a></td>
+<td>Copy a region of memory to another.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-memcpy" rel="nofollow"><code>memmove()</code></a></td>
+<td>Move a (potentially overlapping) region of memory.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-memset" rel="nofollow"><code>memset()</code></a></td>
+<td>Set a region of memory to a value.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strcat" rel="nofollow"><code>strcat()</code></a></td>
+<td>Concatenate (join) two strings together.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strchr" rel="nofollow"><code>strchr()</code></a></td>
+<td>Find the first occurrence of a character in a string.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strcmp" rel="nofollow"><code>strcmp()</code></a></td>
+<td>Compare two strings.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strcoll" rel="nofollow"><code>strcoll()</code></a></td>
+<td>Compare two strings accounting for locale.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strcpy" rel="nofollow"><code>strcpy()</code></a></td>
+<td>Copy a string.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strspn" rel="nofollow"><code>strcspn()</code></a></td>
+<td>Find length of a string not consisting of a set of characters.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strerror" rel="nofollow"><code>strerror()</code></a></td>
+<td>Return a human-readable error message for a given code.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strlen" rel="nofollow"><code>strlen()</code></a></td>
+<td>Return the length of a string.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strcat" rel="nofollow"><code>strncat()</code></a></td>
+<td>Concatenate (join) two strings, length-limited.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strcmp" rel="nofollow"><code>strncmp()</code></a></td>
+<td>Compare two strings, length-limited.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strcpy" rel="nofollow"><code>strncpy()</code></a></td>
+<td>Copy two strings, length-limited.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strpbrk" rel="nofollow"><code>strpbrk()</code></a></td>
+<td>Search a string for one of a set of character.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strchr" rel="nofollow"><code>strrchr()</code></a></td>
+<td>Find the last occurrence of a character in a string.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strspn" rel="nofollow"><code>strspn()</code></a></td>
+<td>Find length of a string consisting of a set of characters.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strstr" rel="nofollow"><code>strstr()</code></a></td>
+<td>Find a substring in a string.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strtok" rel="nofollow"><code>strtok()</code></a></td>
+<td>Tokenize a string.</td>
+</tr>
+<tr>
+<td><a href="stringref.html#man-strxfrm" rel="nofollow"><code>strxfrm()</code></a></td>
+<td>Prepare a string for comparison as if by <code>strcoll()</code>.</td>
+</tr>
+</tbody></table>
+
+<p>As has been mentioned earlier in the guide, a string in C is a sequence of bytes in memory, terminated by a NUL character (‘<code>\0</code>’). The NUL at the end is important, since it lets all these string functions (and <code>printf()</code> and <code>puts()</code> and everything else that deals with a string) know where the end of the string actually is.</p>
+
+<p>Fortunately, when you operate on a string using one of these many functions available to you, they add the NUL terminator on for you, so you actually rarely have to keep track of it yourself. (Sometimes you do, especially if you’re building a string from scratch a character at a time or something.)</p>
+
+<p>In this section you’ll find functions for pulling substrings out of strings, concatenating strings together, getting the length of a string, and so forth and so on.</p>
+
+<p><hr></p>
+
+<h2>25.1 <code>memcpy()</code>, <code>memmove()</code></h2>
+
+<p>Copy bytes of memory from one location to another</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">memcpy</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s2</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+
+<span class="kt">void</span> <span class="o">*</span><span class="nf">memmove</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">s2</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These functions copy memory—as many bytes as you want! From source to destination!</p>
+
+<p>The main difference between the two is that <code>memcpy()</code> cannot safely copy overlapping memory regions, whereas <code>memmove()</code> can.</p>
+
+<p>On the one hand, I’m not sure why you’d want to ever use <code>memcpy()</code> instead of <code>memmove()</code>, but I’ll bet it’s possibly more performant.</p>
+
+<p>The parameters are in a particular order: destination first, then source. I remember this order because it behaves like an “<code>=</code>” assignment: the destination is on the left.</p>
+
+<h3>Return Value</h3>
+
+<p>Both functions return whatever you passed in for parameter <code>s1</code> for your convenience.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">100</span><span class="p">]</span> <span class="o">=</span> <span class="s">"Goats"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">t</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+
+    <span class="n">memcpy</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">6</span><span class="p">);</span>       <span class="c1">// Copy non-overlapping memory</span>
+
+    <span class="n">memmove</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">6</span><span class="p">);</span>  <span class="c1">// Copy overlapping memory</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strcpy" rel="nofollow"><code>strcpy()</code></a>, <a href="stringref.html#man-strcpy" rel="nofollow"><code>strncpy()</code></a></p>
+
+<p><hr></p>
+
+<h2>25.2 <code>strcpy()</code>, <code>strncpy()</code></h2>
+
+<p>Copy a string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">strcpy</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">dest</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">src</span><span class="p">);</span>
+
+<span class="kt">char</span> <span class="o">*</span><span class="nf">strncpy</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">dest</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">src</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These functions copy a string from one address to another, stopping at the NUL terminator on the <code>src</code>string.</p>
+
+<p><code>strncpy()</code> is just like <code>strcpy()</code>, except only the first <code>n</code> characters are actually copied. Beware that if you hit the limit, <code>n</code> before you get a NUL terminator on the <code>src</code> string, your <code>dest</code> string won’t be NUL-terminated. Beware! BEWARE!</p>
+
+<p>(If the <code>src</code> string has fewer than <code>n</code> characters, it works just like <code>strcpy()</code>.)</p>
+
+<p>You can terminate the string yourself by sticking the <code>&#39;\0&#39;</code> in there yourself:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+<span class="kt">char</span> <span class="n">foo</span> <span class="o">=</span> <span class="s">"My hovercraft is full of eels."</span><span class="p">;</span> <span class="c1">// more than 10 chars</span>
+
+<span class="n">strncpy</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">foo</span><span class="p">,</span> <span class="mi">9</span><span class="p">);</span> <span class="c1">// only copy 9 chars into positions 0-8</span>
+<span class="n">s</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span>        <span class="c1">// position 9 gets the terminator</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>Both functions return <code>dest</code> for your convenience, at no extra charge.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">src</span> <span class="o">=</span> <span class="s">"hockey hockey hockey hockey hockey hockey hockey hockey"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">dest</span><span class="p">[</span><span class="mi">20</span><span class="p">];</span>
+
+    <span class="kt">int</span> <span class="n">len</span><span class="p">;</span>
+
+    <span class="n">strcpy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="s">"I like "</span><span class="p">);</span> <span class="c1">// dest is now "I like "</span>
+
+    <span class="n">len</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">dest</span><span class="p">);</span>
+
+    <span class="c1">// tricky, but let's use some pointer arithmetic and math to append</span>
+    <span class="c1">// as much of src as possible onto the end of dest, -1 on the length to</span>
+    <span class="c1">// leave room for the terminator:</span>
+    <span class="n">strncpy</span><span class="p">(</span><span class="n">dest</span><span class="o">+</span><span class="n">len</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span><span class="o">-</span><span class="n">len</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+
+    <span class="c1">// remember that sizeof() returns the size of the array in bytes</span>
+    <span class="c1">// and a char is a byte:</span>
+    <span class="n">dest</span><span class="p">[</span><span class="k">sizeof</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'\0'</span><span class="p">;</span> <span class="c1">// terminate</span>
+
+    <span class="c1">// dest is now:       v null terminator</span>
+    <span class="c1">// I like hockey hocke </span>
+    <span class="c1">// 01234567890123456789012345</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-memcpy" rel="nofollow"><code>memcpy()</code></a>, <a href="stringref.html#man-strcat" rel="nofollow"><code>strcat()</code></a>, <a href="stringref.html#man-strcat" rel="nofollow"><code>strncat()</code></a></p>
+
+<p><hr></p>
+
+<h2>25.3 <code>strcat()</code>, <code>strncat()</code></h2>
+
+<p>Concatenate two strings into a single string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">strcat</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">dest</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">src</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">strncat</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">dest</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">src</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>“Concatenate”, for those not in the know, means to “stick together”. These functions take two strings, and stick them together, storing the result in the first string.</p>
+
+<p>These functions don’t take the size of the first string into account when it does the concatenation. What this means in practical terms is that you can try to stick a 2 megabyte string into a 10 byte space. This will lead to unintended consequences, unless you intended to lead to unintended consequences, in which case it will lead to intended unintended consequences.</p>
+
+<p>Technical banter aside, your boss and/or professor will be irate.</p>
+
+<p>If you want to make sure you don’t overrun the first string, be sure to check the lengths of the strings first and use some highly technical subtraction to make sure things fit.</p>
+
+<p>You can actually only concatenate the first <code>n</code> characters of the second string by using <code>strncat()</code> and specifying the maximum number of characters to copy.</p>
+
+<h3>Return Value</h3>
+
+<p>Both functions return a pointer to the destination string, like most of the string-oriented functions.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">dest</span><span class="p">[</span><span class="mi">30</span><span class="p">]</span> <span class="o">=</span> <span class="s">"Hello"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">src</span> <span class="o">=</span> <span class="s">", World!"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">numbers</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"12345678"</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"dest before strcat: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">dest</span><span class="p">);</span> <span class="c1">// "Hello"</span>
+
+    <span class="n">strcat</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"dest after strcat:  </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">dest</span><span class="p">);</span> <span class="c1">// "Hello, world!"</span>
+
+    <span class="n">strncat</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">numbers</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span> <span class="c1">// strcat first 3 chars of numbers</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"dest after strncat: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">dest</span><span class="p">);</span> <span class="c1">// "Hello, world!123"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Notice I mixed and matched pointer and array notation there with <code>src</code> and <code>numbers</code>; this is just fine with string functions.</p>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strlen" rel="nofollow"><code>strlen()</code></a></p>
+
+<p><hr></p>
+
+<h2>25.4 <code>strcmp()</code>, <code>strncmp()</code>, <code>memcmp()</code></h2>
+
+<p>Compare two strings or memory regions and return a difference</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">strcmp</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s2</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">strncmp</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s2</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">memcmp</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">s2</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>All these functions compare chunks of bytes in memory.</p>
+
+<p><code>strcmp()</code> and <code>strncmp()</code> operate on NUL-terminated strings, whereas <code>memcmp()</code> will compare the number of bytes you specify, brazenly ignoring any NUL characters it finds along the way.</p>
+
+<p><code>strcmp()</code> compares the entire string down to the end, while <code>strncmp()</code> only compares the first <code>n</code> characters of the strings.</p>
+
+<p>It’s a little funky what they return. Basically it’s a difference of the strings, so if the strings are the same, it’ll return zero (since the difference is zero). It’ll return non-zero if the strings differ; basically it will find the first mismatched character and return less-than zero if that character in <code>s1</code> is less than the corresponding character in <code>s2</code>. It’ll return greater-than zero if that character in <code>s1</code> is greater than that in <code>s2</code>.</p>
+
+<p>So if they return <code>0</code>, the comparison was equal (i.e. the difference was <code>0</code>.)</p>
+
+<p>These functions can be used as comparison functions for <a href="stdlib.html#man-qsort" rel="nofollow"><code>qsort()</code></a> if you have an array of <code>char*</code>s you want to sort.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns zero if the strings or memory are the same, less-than zero if the first different character in <code>s1</code> is less than that in <code>s2</code>, or greater-than zero if the first difference character in <code>s1</code> is greater than than in <code>s2</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s1</span> <span class="o">=</span> <span class="s">"Muffin"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s2</span> <span class="o">=</span> <span class="s">"Muffin Sandwich"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s3</span> <span class="o">=</span> <span class="s">"Muffin"</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">r1</span> <span class="o">=</span> <span class="n">strcmp</span><span class="p">(</span><span class="s">"Biscuits"</span><span class="p">,</span> <span class="s">"Kittens"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r1</span><span class="p">);</span> <span class="c1">// prints &lt; 0 since 'B' &lt; 'K'</span>
+
+    <span class="kt">int</span> <span class="n">r2</span> <span class="o">=</span> <span class="n">strcmp</span><span class="p">(</span><span class="s">"Kittens"</span><span class="p">,</span> <span class="s">"Biscuits"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r2</span><span class="p">);</span> <span class="c1">// prints &gt; 0 since 'K' &gt; 'B'</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"This won't get printed because the strings differ</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">strcmp</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s3</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"This will print because s1 and s3 are the same</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="c1">// this is a little weird...but if the strings are the same, it'll</span>
+    <span class="c1">// return zero, which can also be thought of as "false". Not-false</span>
+    <span class="c1">// is "true", so (!strcmp()) will be true if the strings are the</span>
+    <span class="c1">// same. yes, it's odd, but you see this all the time in the wild</span>
+    <span class="c1">// so you might as well get used to it:</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">strcmp</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s3</span><span class="p">))</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"The strings are the same!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">strncmp</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"The first 6 characters of s1 and s2 are the same</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strcmp" rel="nofollow"><code>memcmp()</code></a>, <a href="stdlib.html#man-qsort" rel="nofollow"><code>qsort()</code></a></p>
+
+<p><hr></p>
+
+<h2>25.5 <code>strcoll()</code></h2>
+
+<p>Compare two strings accounting for locale</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">strcoll</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s2</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is basically <code>strcmp()</code>, except that it handles accented characters better depending on the locale.</p>
+
+<p>For example, my <code>strcmp()</code> reports that the character “é” (with accent) is greater than “f”. But that’s hardly useful for alphabetizing.</p>
+
+<p>By setting the <code>LC_COLLATE</code> locale value (either by name or via <code>LC_ALL</code>), you can have <code>strcoll()</code> sort in a way that’s more meaningful by the current locale. For example, by having “é” appear sanely <em>before</em> “f”.</p>
+
+<p>It’s also a lot slower than <code>strcmp()</code> so use it only if you have to. See <a href="stringref.html#man-strxfrm" rel="nofollow"><code>strxfrm()</code></a> for a potential speedup.</p>
+
+<h3>Return Value</h3>
+
+<p>Like the other string comparison functions, <code>strcoll()</code> returns a negative value if <code>s1</code> is less than <code>s2</code>, or a positive value if <code>s1</code> is greater than <code>s2</code>. Or <code>0</code> if they are equal.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="c1">// If your source character set doesn't support "é" in a string</span>
+    <span class="c1">// you can replace it with `\u00e9`, the Unicode code point</span>
+    <span class="c1">// for "é".</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">strcmp</span><span class="p">(</span><span class="s">"é"</span><span class="p">,</span> <span class="s">"f"</span><span class="p">));</span>   <span class="c1">// Reports é &gt; f, yuck.</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">strcoll</span><span class="p">(</span><span class="s">"é"</span><span class="p">,</span> <span class="s">"f"</span><span class="p">));</span>  <span class="c1">// Reports é &lt; f, yay!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strcmp" rel="nofollow"><code>strcmp()</code></a></p>
+
+<p><hr></p>
+
+<h2>25.6 <code>strxfrm()</code></h2>
+
+<p>Transform a string for comparing based on locale</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">strxfrm</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s2</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is a strange little function, so bear with me.</p>
+
+<p>Firstly, if you haven’t done so, get familiar with <a href="stringref.html#man-strcoll" rel="nofollow"><code>strcoll()</code></a> because this is closely related to that.</p>
+
+<p>OK! Now that you’re back, you can think of <code>strxfrm()</code> as the first part of the <code>strcoll()</code> internals. Basically, <code>strcoll()</code> has to transform a string into a form that can be compared with <code>strcmp()</code>. And it does this with <code>strxfrm()</code> for both strings every time you call it.</p>
+
+<p><code>strxform()</code> takes string <code>s2</code> and transforms it (readies it for <code>strcmp()</code>) storing the result in <code>s1</code>. It writes no more than <code>n</code> bytes, protecting us from terrible buffer overflows.</p>
+
+<p>But hang on—there’s another mode! If you pass <code>NULL</code> for <code>s1</code> and <code>0</code> for <code>n</code>, it will return the number of bytes that the transformed string <em>would have</em> used<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁴</a>. This is useful if you need to allocate some space to hold the transformed string before you <code>strcmp()</code> it against another.</p>
+
+<p>What I’m getting at, not to be too blunt, is that <code>strcoll()</code> is slow compared to <code>strcmp()</code>. It does a lot of extra work running <code>strxfrm()</code> on all its strings.</p>
+
+<p>In fact, we can see how it works by writing our own like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">my_strcoll</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s2</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Use n = 0 to just get the lengths of the transformed strings</span>
+    <span class="kt">int</span> <span class="n">len1</span> <span class="o">=</span> <span class="n">strxfrm</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">len2</span> <span class="o">=</span> <span class="n">strxfrm</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="c1">// Allocate enough room for each</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">d1</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">len1</span><span class="p">);</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">d2</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">len2</span><span class="p">);</span>
+
+    <span class="c1">// Transform the strings for comparison</span>
+    <span class="n">strxfrm</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">len1</span><span class="p">);</span>
+    <span class="n">strxfrm</span><span class="p">(</span><span class="n">d2</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="n">len2</span><span class="p">);</span>
+
+    <span class="c1">// Compare the transformed strings</span>
+    <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">strcmp</span><span class="p">(</span><span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">);</span>
+
+    <span class="c1">// Free up the transformed strings</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">d2</span><span class="p">);</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">d1</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>You see on lines 12, 13, and 16, above how we transform the two input strings and then call <code>strcmp()</code> on the result.</p>
+
+<p>So why do we have this function? Can’t we just call <code>strcoll()</code> and be done with it?</p>
+
+<p>The idea is that if you have one string that you’re going to be comparing against a whole lot of other ones, maybe you just want to transform that string one time, then use the faster <code>strcmp()</code> saving yourself a bunch of the work we had to do in the function, above.</p>
+
+<p>We’ll do that in the example.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of bytes in the transformed sequence. If the value is greater than <code>n</code>, the results in <code>s1</code> are meaningless.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// Transform a string for comparison, returning a malloc'd</span>
+<span class="c1">// result</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">get_xfrm_str</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="n">strxfrm</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">d</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">len</span><span class="p">);</span>
+
+    <span class="n">strxfrm</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">d</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Does half the work of a regular strcoll() because the second</span>
+<span class="c1">// string arrives already transformed.</span>
+<span class="kt">int</span> <span class="nf">half_strcoll</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s2_transformed</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s1_transformed</span> <span class="o">=</span> <span class="n">get_xfrm_str</span><span class="p">(</span><span class="n">s1</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">strcmp</span><span class="p">(</span><span class="n">s1_transformed</span><span class="p">,</span> <span class="n">s2_transformed</span><span class="p">);</span>
+
+    <span class="n">free</span><span class="p">(</span><span class="n">s1_transformed</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="c1">// Pre-transform the string to compare against</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="n">get_xfrm_str</span><span class="p">(</span><span class="s">"éfg"</span><span class="p">);</span>
+
+    <span class="c1">// Repeatedly compare against "éfg" </span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">half_strcoll</span><span class="p">(</span><span class="s">"fgh"</span><span class="p">,</span> <span class="n">s</span><span class="p">));</span>  <span class="c1">// "fgh" &gt; "éfg"</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">half_strcoll</span><span class="p">(</span><span class="s">"àbc"</span><span class="p">,</span> <span class="n">s</span><span class="p">));</span>  <span class="c1">// "àbc" &lt; "éfg"</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">half_strcoll</span><span class="p">(</span><span class="s">"ĥij"</span><span class="p">,</span> <span class="n">s</span><span class="p">));</span>  <span class="c1">// "ĥij" &gt; "éfg"</span>
+
+    <span class="n">free</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strcoll" rel="nofollow"><code>strcoll()</code></a></p>
+
+<p><hr></p>
+
+<h2>25.7 <code>strchr()</code>, <code>strrchr()</code>, <code>memchr()</code></h2>
+
+<p>Find a character in a string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">strchr</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">,</span> <span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+
+<span class="kt">char</span> <span class="o">*</span><span class="nf">strrchr</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">,</span> <span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+
+<span class="kt">void</span> <span class="o">*</span><span class="nf">memchr</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">int</span> <span class="n">c</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>The functions <code>strchr()</code> and <code>strrchr</code> find the first or last occurrence of a letter in a string, respectively. (The extra “r” in <code>strrchr()</code> stands for “reverse”–it looks starting at the end of the string and working backward.) Each function returns a pointer to the char in question, or <code>NULL</code> if the letter isn’t found in the string.</p>
+
+<p><code>memchr()</code> is similar, except that instead of stopping on the first NUL character, it continues searching for however many bytes you specify.</p>
+
+<p>Quite straightforward.</p>
+
+<p>One thing you can do if you want to find the next occurrence of the letter after finding the first, is call the function again with the previous return value plus one. (Remember pointer arithmetic?) Or minus one if you’re looking in reverse. Don’t accidentally go off the end of the string!</p>
+
+<h3>Return Value</h3>
+
+<p>Returns a pointer to the occurrence of the letter in the string, or <code>NULL</code> if the letter is not found.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// "Hello, world!"</span>
+    <span class="c1">//       ^  ^   ^</span>
+    <span class="c1">//       A  B   C</span>
+
+    <span class="kt">char</span> <span class="o">*</span><span class="n">str</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">strchr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="sc">','</span><span class="p">);</span>       <span class="c1">// p now points at position A</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">strrchr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="sc">'o'</span><span class="p">);</span>      <span class="c1">// p now points at position B</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">memchr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="sc">'!'</span><span class="p">,</span> <span class="mi">13</span><span class="p">);</span>   <span class="c1">// p now points at position C</span>
+
+    <span class="c1">// repeatedly find all occurrences of the letter 'B'</span>
+    <span class="n">str</span> <span class="o">=</span> <span class="s">"A BIG BROWN BAT BIT BEEJ"</span><span class="p">;</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="n">strchr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="sc">'B'</span><span class="p">);</span> <span class="n">p</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">strchr</span><span class="p">(</span><span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="sc">'B'</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Found a 'B' here: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Found</span> <span class="n">a</span> <span class="sc">'B'</span> <span class="n">here</span><span class="o">:</span> <span class="n">BIG</span> <span class="n">BROWN</span> <span class="n">BAT</span> <span class="n">BIT</span> <span class="n">BEEJ</span>
+<span class="n">Found</span> <span class="n">a</span> <span class="sc">'B'</span> <span class="n">here</span><span class="o">:</span> <span class="n">BROWN</span> <span class="n">BAT</span> <span class="n">BIT</span> <span class="n">BEEJ</span>
+<span class="n">Found</span> <span class="n">a</span> <span class="sc">'B'</span> <span class="n">here</span><span class="o">:</span> <span class="n">BAT</span> <span class="n">BIT</span> <span class="n">BEEJ</span>
+<span class="n">Found</span> <span class="n">a</span> <span class="sc">'B'</span> <span class="n">here</span><span class="o">:</span> <span class="n">BIT</span> <span class="n">BEEJ</span>
+<span class="n">Found</span> <span class="n">a</span> <span class="sc">'B'</span> <span class="n">here</span><span class="o">:</span> <span class="n">BEEJ</span>
+</code></pre></div>
+
+<p><hr></p>
+
+<h2>25.8 <code>strspn()</code>, <code>strcspn()</code></h2>
+
+<p>Return the length of a string consisting entirely of a set of characters, or of not a set of characters</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">strspn</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">accept</span><span class="p">);</span>
+
+<span class="kt">size_t</span> <span class="nf">strcspn</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">reject</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p><code>strspn()</code> will tell you the length of a string consisting entirely of the set of characters in <code>accept</code>. That is, it starts walking down <code>str</code> until it finds a character that is <em>not</em> in the set (that is, a character that is not to be accepted), and returns the length of the string so far.</p>
+
+<p><code>strcspn()</code> works much the same way, except that it walks down <code>str</code> until it finds a character in the <code>reject</code> set (that is, a character that is to be rejected.) It then returns the length of the string so far.</p>
+
+<h3>Return Value</h3>
+
+<p>The length of the string consisting of all characters in <code>accept</code> (for <code>strspn()</code>), or the length of the string consisting of all characters except <code>reject</code> (for <code>strcspn()</code>).</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">str1</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"a banana"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">str2</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"the bolivian navy on maenuvers in the south pacific"</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+
+    <span class="c1">// how many letters in str1 until we reach something that's not a vowel?</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">strspn</span><span class="p">(</span><span class="n">str1</span><span class="p">,</span> <span class="s">"aeiou"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>  <span class="c1">// n == 1, just "a"</span>
+
+    <span class="c1">// how many letters in str1 until we reach something that's not a, b,</span>
+    <span class="c1">// or space?</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">strspn</span><span class="p">(</span><span class="n">str1</span><span class="p">,</span> <span class="s">"ab "</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>  <span class="c1">// n == 4, "a ba"</span>
+
+    <span class="c1">// how many letters in str2 before we get a "y"?</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">strcspn</span><span class="p">(</span><span class="n">str2</span><span class="p">,</span> <span class="s">"y"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>  <span class="c1">// n = 16, "the bolivian nav"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strchr" rel="nofollow"><code>strchr()</code></a>, <a href="stringref.html#man-strchr" rel="nofollow"><code>strrchr()</code></a></p>
+
+<p><hr></p>
+
+<h2>25.9 <code>strpbrk()</code></h2>
+
+<p>Search a string for one of a set of characters</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">strpbrk</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s2</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This function searches string <code>s1</code> for any of the characters that are found in string <code>s2</code>.</p>
+
+<p>It’s just like how <code>strchr()</code> searches for a specific character in a string, except it will match <em>any</em> of the characters found in <code>s2</code>.</p>
+
+<p>Think of the power!</p>
+
+<h3>Return Value</h3>
+
+<p>Returns a pointer to the first character matched in <code>s1</code>, or NULL if the string isn’t found.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//  p points here after strpbrk</span>
+    <span class="c1">//              v</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s1</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s2</span> <span class="o">=</span> <span class="s">"dow!"</span><span class="p">;</span>  <span class="c1">// Match any of these chars</span>
+
+    <span class="kt">char</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">strpbrk</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">);</span>  <span class="c1">// p points to the o</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>  <span class="c1">// "o, world!"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strchr" rel="nofollow"><code>strchr()</code></a>, <a href="stringref.html#man-strchr" rel="nofollow"><code>memchr()</code></a></p>
+
+<p><hr></p>
+
+<h2>25.10 <code>strstr()</code></h2>
+
+<p>Find a string in another string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">strstr</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">substr</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Let’s say you have a big long string, and you want to find a word, or whatever substring strikes your fancy, inside the first string. Then <code>strstr()</code> is for you! It’ll return a pointer to the <code>substr</code> within the <code>str</code>!</p>
+
+<h3>Return Value</h3>
+
+<p>You get back a pointer to the occurrence of the <code>substr</code> inside the <code>str</code>, or <code>NULL</code> if the substring can’t be found.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">str</span> <span class="o">=</span> <span class="s">"The quick brown fox jumped over the lazy dogs."</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">strstr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="s">"lazy"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span> <span class="o">==</span> <span class="nb">NULL</span><span class="o">?</span> <span class="s">"null"</span><span class="o">:</span> <span class="n">p</span><span class="p">);</span> <span class="c1">// "lazy dogs."</span>
+
+    <span class="c1">// p is NULL after this, since the string "wombat" isn't in str:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">strstr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="s">"wombat"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span> <span class="o">==</span> <span class="nb">NULL</span><span class="o">?</span> <span class="s">"null"</span><span class="o">:</span> <span class="n">p</span><span class="p">);</span> <span class="c1">// "null"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strchr" rel="nofollow"><code>strchr()</code></a>, <a href="stringref.html#man-strchr" rel="nofollow"><code>strrchr()</code></a>, <a href="stringref.html#man-strspn" rel="nofollow"><code>strspn()</code></a>, <a href="stringref.html#man-strspn" rel="nofollow"><code>strcspn()</code></a></p>
+
+<p><hr></p>
+
+<h2>25.11 <code>strtok()</code></h2>
+
+<p>Tokenize a string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">strtok</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">delim</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If you have a string that has a bunch of separators in it, and you want to break that string up into individual pieces, this function can do it for you.</p>
+
+<p>The usage is a little bit weird, but at least whenever you see the function in the wild, it’s consistently weird.</p>
+
+<p>Basically, the first time you call it, you pass the string, <code>str</code> that you want to break up in as the first argument. For each subsequent call to get more tokens out of the string, you pass <code>NULL</code>. This is a little weird, but <code>strtok()</code> remembers the string you originally passed in, and continues to strip tokens off for you.</p>
+
+<p>Note that it does this by actually putting a NUL terminator after the token, and then returning a pointer to the start of the token. So the original string you pass in is destroyed, as it were. If you need to preserve the string, be sure to pass a copy of it to <code>strtok()</code> so the original isn’t destroyed.</p>
+
+<h3>Return Value</h3>
+
+<p>A pointer to the next token. If you’re out of tokens, <code>NULL</code> is returned.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// break up the string into a series of space or</span>
+    <span class="c1">// punctuation-separated words</span>
+    <span class="kt">char</span> <span class="n">str</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"Where is my bacon, dude?"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">token</span><span class="p">;</span>
+
+    <span class="c1">// Note that the following if-do-while construct is very very</span>
+    <span class="c1">// very very very common to see when using strtok().</span>
+
+    <span class="c1">// grab the first token (making sure there is a first token!)</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">token</span> <span class="o">=</span> <span class="n">strtok</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="s">".,?! "</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">do</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Word: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">token</span><span class="p">);</span>
+
+            <span class="c1">// now, the while continuation condition grabs the</span>
+            <span class="c1">// next token (by passing NULL as the first param)</span>
+            <span class="c1">// and continues if the token's not NULL:</span>
+        <span class="p">}</span> <span class="k">while</span> <span class="p">((</span><span class="n">token</span> <span class="o">=</span> <span class="n">strtok</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">".,?! "</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Word:</span> <span class="s">"Where"</span>
+<span class="n">Word</span><span class="o">:</span> <span class="s">"is"</span>
+<span class="n">Word</span><span class="o">:</span> <span class="s">"my"</span>
+<span class="n">Word</span><span class="o">:</span> <span class="s">"bacon"</span>
+<span class="n">Word</span><span class="o">:</span> <span class="s">"dude"</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strchr" rel="nofollow"><code>strchr()</code></a>, <a href="stringref.html#man-strchr" rel="nofollow"><code>strrchr()</code></a>, <a href="stringref.html#man-strspn" rel="nofollow"><code>strspn()</code></a>, <a href="stringref.html#man-strspn" rel="nofollow"><code>strcspn()</code></a></p>
+
+<p><hr></p>
+
+<h2>25.12 <code>memset()</code></h2>
+
+<p>Set a region of memory to a certain value</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">memset</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">int</span> <span class="n">c</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This function is what you use to set a region of memory to a particular value, namely <code>c</code> converted into <code>unsigned char</code>.</p>
+
+<p>The most common usage is to zero out an array or <code>struct</code>.</p>
+
+<h3>Return Value</h3>
+
+<p><code>memset()</code> returns whatever you passed in as <code>s</code> for happy convenience.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">banana</span> <span class="p">{</span>
+        <span class="kt">float</span> <span class="n">ripeness</span><span class="p">;</span>
+        <span class="kt">char</span> <span class="o">*</span><span class="n">peel_color</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">grams</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="k">struct</span> <span class="n">banana</span> <span class="n">b</span><span class="p">;</span>
+
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">b</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">ripeness</span> <span class="o">==</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>     <span class="c1">// True</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">peel_color</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">);</span>  <span class="c1">// True</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">grams</span> <span class="o">==</span> <span class="mi">0</span><span class="p">);</span>          <span class="c1">// True</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-memcpy" rel="nofollow"><code>memcpy()</code></a>, <a href="stringref.html#man-memcpy" rel="nofollow"><code>memmove()</code></a></p>
+
+<p><hr></p>
+
+<h2>25.13 <code>strerror()</code></h2>
+
+<p>Get a string version of an error number</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">strerror</span><span class="p">(</span><span class="kt">int</span> <span class="n">errnum</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This function ties closely into <code>perror()</code> (which prints a human-readable error message corresponding to <code>errno</code>). But instead of printing, <code>strerror()</code> returns a pointer to the locale-specific error message string.</p>
+
+<p>So if you ever need that string back for some reason (e.g. you’re going to <code>fprintf()</code> it to a file or something), this function will give it to you. All you need to do is pass in <code>errno</code> as an argument. (Recall that <code>errno</code> gets set as an error status by a variety of functions.)</p>
+
+<p>You can actually pass in any integer for <code>errnum</code> you want. The function will return <em>some</em> message, even if the number doesn’t correspond to any known value for <code>errno</code>.</p>
+
+<p>The values of <code>errno</code> and the strings returned by <code>strerror()</code> are system-dependent.</p>
+
+<h3>Return Value</h3>
+
+<p>A string error message corresponding to the given error number.</p>
+
+<p>You are not allowed to modify the returned string.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;errno.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"NONEXISTENT_FILE.TXT"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">fp</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">char</span> <span class="o">*</span><span class="n">errmsg</span> <span class="o">=</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Error %d opening file: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">errno</span><span class="p">,</span> <span class="n">errmsg</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Error</span> <span class="mi">2</span> <span class="n">opening</span> <span class="n">file</span><span class="o">:</span> <span class="n">No</span> <span class="n">such</span> <span class="n">file</span> <span class="n">or</span> <span class="n">directory</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-perror" rel="nofollow"><code>perror()</code></a></p>
+
+<p><hr></p>
+
+<h2>25.14 <code>strlen()</code></h2>
+
+<p>Returns the length of a string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">strlen</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This function returns the length of the passed null-terminated string (not counting the NUL character at the end). It does this by walking down the string and counting the bytes until the NUL character, so it’s a little time consuming. If you have to get the length of the same string repeatedly, save it off in a variable somewhere.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of bytes in the string. Note that this might be different than the number of characters in a multibyte string.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span> <span class="c1">// 13 characters</span>
+
+    <span class="c1">// prints "The string is 13 characters long.":</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"The string is %zu characters long.</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">s</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

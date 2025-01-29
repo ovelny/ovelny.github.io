@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - Switching from Joplin to VimWiki</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - Switching from Joplin to VimWiki"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+      <h1>Switching from Joplin to VimWiki</h1>
+    
+    <p>I&#39;ve been using Joplin for a while now, and have been mostly happy with it. It features a simple but sufficient vim keyboard mode, notes are encrypted, and images are easily pasted in markdown.</p>
+
+<p>All in all this is great, but the following pain points made me reconsider this solution:</p>
+
+<ul>
+<li><p>The installation and update process is painful on Linux: you need to run some shell script to get a proper install with shortcuts and icons, or you&#39;re stuck with an AppImage and all the related issues accompanying it. You could also use Flatpak, but at the end of the day I&#39;d just rather <code>sudo apt install joplin</code> and move on with my life.</p></li>
+<li><p>Uninstallation is even more painful. Have fun running <code>sudo find / -iname &quot;*joplin*&quot; 2&gt;/dev/null</code> and sort things out on your own, which is sadly a common occurence with Linux apps.</p></li>
+<li><p>No autocapitalisation. This is not a very common feature with most text editors, which I find surprising because this doesn&#39;t <em>seem</em> hard to implement?</p></li>
+<li><p>Joplin cloud plans. I&#39;m not interested in this and just wish to keep things simple. Syncing files with <a href="https://syncthing.net/" rel="nofollow">syncthing</a> is free and works amazingly well.</p></li>
+<li><p>Having to use a GUI to write text. Joplin does have a CLI interface, but learning a whole new system that mixes up custom commands with only a subset of vim commands doesn&#39;t sound ideal to me.</p></li>
+</ul>
+
+<p>And last but certainly not least: electron. The only apps built with it that didn&#39;t end up eating a frightening amount of RAM on my systems are VSCode and Discord, no other exceptions. I&#39;m not too eager to sacrifice this just to simply type text.</p>
+
+<p>VimWiki has been around for a while and has always intrigued me. As the name implies, this plugin allows you to maintain your own wiki via linked text files, with markdown support. But I would also need the following features to truly make it similar to Joplin:</p>
+
+<ul>
+<li>Seamless note encryption.</li>
+<li>Syntax highlighting.</li>
+<li>Markdown preview.</li>
+<li>Easy way of pasting / linking images in markdown notes.</li>
+<li>Autocapitalisation.</li>
+<li>Easy syncing (already covered by syncthing).</li>
+</ul>
+
+<p>Seems like some kind of deranged dream to expect all of these features from vim, but this is very doable with the following plugins:</p>
+
+<ul>
+<li>vim-markdown: <a href="https://github.com/plasticboy/vim-markdown" rel="nofollow">https://github.com/plasticboy/vim-markdown</a></li>
+<li>markdown-preview: <a href="https://github.com/iamcco/markdown-preview.nvim" rel="nofollow">https://github.com/iamcco/markdown-preview.nvim</a></li>
+<li>markdown-image-paste: <a href="https://github.com/ferrine/md-img-paste.vim" rel="nofollow">https://github.com/ferrine/md-img-paste.vim</a></li>
+</ul>
+
+<p>Note encryption will be done via some vim scripting. Let&#39;s roll and set up everything!</p>
+
+<h2>Plugins installation</h2>
+
+<p>First things first, let&#39;s install all the plugins in your <code>.vimrc</code>:</p>
+
+<div class="highlight"><pre class="highlight viml"><code>Plug <span class="s1">'plasticboy/vim-markdown'</span><span class="p">,</span> <span class="p">{</span> <span class="s1">'for'</span><span class="p">:</span> <span class="s1">'markdown'</span> <span class="p">}</span>
+Plug <span class="s1">'ferrine/md-img-paste.vim'</span><span class="p">,</span> <span class="p">{</span> <span class="s1">'for'</span><span class="p">:</span> <span class="s1">'markdown'</span> <span class="p">}</span>
+Plug <span class="s1">'vimwiki/vimwiki'</span>
+Plug <span class="s1">'iamcco/markdown-preview.nvim'</span><span class="p">,</span> <span class="p">{</span> <span class="s1">'do'</span><span class="p">:</span> <span class="p">{</span> <span class="p">-&gt;</span> mkdp#util#install<span class="p">()</span> <span class="p">},</span> <span class="s1">'for'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'markdown'</span><span class="p">,</span> <span class="s1">'vim-plug'</span><span class="p">]}</span>
+Plug <span class="s1">'junegunn/goyo.vim'</span>
+</code></pre></div>
+
+<p>Goyo is optional but provides an amazing, minimalist interface for notes — I highly recommend it. Note that the following snippet is based on vim-plug: adapt it accordingly if you use another plugin manager, and run the appropriate install command (<code>:PlugInstall</code> in my case).</p>
+
+<h2>Setting up encryption with markdown</h2>
+
+<p>Let&#39;s populate our .vimrc with a few more settings to get seamless encryption. First we&#39;re going to assign the .md.gpg extension to the markdown filetype, so vim can apply highlighting and other features like it normally would:</p>
+
+<div class="highlight"><pre class="highlight viml"><code><span class="k">au</span> <span class="nb">BufEnter</span> *<span class="p">.</span>md<span class="p">.</span>gpg <span class="k">setlocal</span> <span class="k">filetype</span><span class="p">=</span>markdown
+</code></pre></div>
+
+<p>The seamless editing of .gpg files will be handled by an edited mix of the following scripts:</p>
+
+<ul>
+<li><a href="https://vim.fandom.com/wiki/Encryption" rel="nofollow">https://vim.fandom.com/wiki/Encryption</a></li>
+<li><a href="https://vim.fandom.com/wiki/Edit_gpg_encrypted_files#Comments" rel="nofollow">https://vim.fandom.com/wiki/Edit_gpg_encrypted_files#Comments</a></li>
+</ul>
+
+<p>Be aware that nothing is foolproof here, as vim uses temporary files when dealing with data from external programs. While those scripts harden everything as much as possible, you still might be able to retrieve some of your data with forensics—which is an accepted risk in my case.</p>
+
+<p>One issue with those scripts used in conjunction with VimWiki is the management of buffers: VimWiki will open tons of them, and closing / saving them individually can prevent remaining files to remain tightly encrypted at rest.</p>
+
+<p>The most practical solution I found is to always quit the wiki entirely, trust its autosaving feature and treat the bunch of buffers as a unique group this way. As such and to enforce this, I opted to remap <code>:wq</code>, <code>:q</code>, and disable <code>:w</code> and <code>:q</code> for the <code>.md.gpg</code> filetype exclusively:</p>
+
+<div class="highlight"><pre class="highlight viml"><code><span class="k">au</span> <span class="nb">VimEnter</span> *<span class="p">.</span>md<span class="p">.</span>gpg <span class="nb">execute</span> <span class="s2">":cabbrev wq wqa"</span>
+<span class="k">au</span> <span class="nb">VimEnter</span> *<span class="p">.</span>md<span class="p">.</span>gpg <span class="nb">execute</span> <span class="s2">":cabbrev q qa"</span>
+<span class="k">au</span> <span class="nb">VimEnter</span> *<span class="p">.</span>md<span class="p">.</span>gpg <span class="nb">execute</span> <span class="s2">":cabbrev w &lt;Nop&gt;"</span>
+<span class="k">au</span> <span class="nb">VimEnter</span> *<span class="p">.</span>md<span class="p">.</span>gpg <span class="nb">execute</span> <span class="s2">":cabbrev wa &lt;Nop&gt;"</span>
+</code></pre></div>
+
+<p>Some people might find this to be cursed, and if you hate autosaving I feel you. On my end that solution works perfectly but I&#39;m always open to suggestions!</p>
+
+<p>Next comes the automatic handling and editing of gpg files:</p>
+
+<div class="highlight"><pre class="highlight viml"><code><span class="c">" First make sure nothing is written to ~/.viminfo or backups while editing</span>
+<span class="c">" an encrypted file.</span>
+<span class="k">set</span> <span class="nb">backupskip</span><span class="p">+=</span>*<span class="p">.</span>gpg
+<span class="k">set</span> <span class="nb">viminfo</span><span class="p">=</span>
+
+augroup encrypted
+  <span class="k">au</span><span class="p">!</span>
+  <span class="c">" Disable swap file, undo file and backups, and set binary file format</span>
+  <span class="c">" before reading the file</span>
+  autocmd <span class="nb">BufReadPre</span><span class="p">,</span><span class="nb">FileReadPre</span> *<span class="p">.</span>gpg
+<span class="se">    \</span> <span class="k">setlocal</span> <span class="k">noswapfile</span> <span class="nb">noundofile</span> <span class="nb">nobackup</span> <span class="nb">bin</span>
+  <span class="c">" Decrypt contents after reading the file, reset binary file format</span>
+  <span class="c">" and run any BufReadPost autocmds matching the filename without .gpg</span>
+  autocmd <span class="nb">BufReadPost</span><span class="p">,</span><span class="nb">FileReadPost</span> *<span class="p">.</span>gpg
+<span class="se">    \</span> <span class="nb">execute</span> <span class="s2">"%!gpg --decrypt --default-recipient-self 2&gt;/dev/null"</span> <span class="p">|</span>
+<span class="se">    \</span> <span class="k">setlocal</span> <span class="nb">nobin</span> <span class="p">|</span>
+<span class="se">    \</span> <span class="nb">execute</span> <span class="s2">"redraw!"</span> <span class="p">|</span>
+<span class="se">    \</span> <span class="nb">execute</span> <span class="s2">"doautocmd BufReadPost "</span> <span class="p">.</span> <span class="nb">expand</span><span class="p">(</span><span class="s2">"%:r"</span><span class="p">)</span>
+  <span class="c">" Set binary file format and encrypt contents when leaving vim</span>
+  autocmd Vimleave *<span class="p">.</span>gpg
+<span class="se">    \</span> <span class="k">setlocal</span> <span class="nb">bin</span> <span class="p">|</span>
+<span class="se">    \</span> <span class="k">bufdo</span> <span class="nb">execute</span> <span class="s2">"%!gpg --encrypt --armor --default-recipient-self"</span>
+  <span class="c">" Contrary to the original scripts, we are not handling an undo command</span>
+  <span class="c">" to revert encryption in buffer: vimwiki auto-saves contents when quitting,</span>
+  <span class="c">" so we rather leave it at that and disable :w and :wa for .md.gpg files.</span>
+  <span class="c">" If you don't like auto-saving, sorry!</span>
+augroup END
+</code></pre></div>
+
+<p>You will need to have a GPG keypair present on your system for this to work. If you don&#39;t already have one, here&#39;s how to do it:</p>
+
+<ul>
+<li>Run <code>gpg --full-generate-key</code>.</li>
+<li>Select the default key type at the prompt.</li>
+<li>Pick at least a key size of 4096 bits.</li>
+<li>Set your key to never expire, which is the default length of time at the prompt.</li>
+<li>Check your settings.</li>
+<li>Add your ID information.</li>
+<li>Provide a strong passphrase when prompted.</li>
+</ul>
+
+<p>If you&#39;d rather go crazy with ECC and ED25519 (which I encourage you to do), you can do the following instead:</p>
+
+<ul>
+<li>Run <code>gpg --expert --full-generate-key</code>.</li>
+<li>Pick <code>ECC and ECC</code>.</li>
+<li>Pick <code>Curve 25519</code>.</li>
+<li>Follow the same instructions as before.</li>
+</ul>
+
+<p>This part should be working now! Create a <code>.md.gpg</code> file, open it with vim, insert something and save it. If you <code>cat</code> the file, this should return the encrypted, ASCII-armored content which roughly looks like the following:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nt">-----BEGIN</span> PGP MESSAGE-----
+
+hQIMA4RrtUt4dcSyAQ/8DAdDoYkJE8d4kq+dsZykX9qR2cEVjy99RLaaeT22HffP
+SKc3zKXMz6IDVEx1+KBD0zsDR1EZA6tiOoXwqjZnU/CXwuGpE6yYrIjQZiyVsDhV
+zeYupkji0z8JTg8QfAfgW2TvEpctuX7DaXyn26qmg6x1KVhmxDAaaaqQzJIu2dXg
+mM8gnU8Qgx0/hPUf9Axm4lTU/iqZLEFOr+ysRn7BX4OSnkfWUIKGOASLqX7l42/+
+s8YxKRSsJEAf/vdUxgEABTRKQ7Z/ciMn7Lp8gqz4hhLvgwG7gZz6dYgO5f3F0L+h
+oMJnTKOHxkcYPRJODA7jclYqTapSkHXTs1Gl0/d2vjuzYOS9izs6p+iG5eXaZ93a
+83gc4FgVAsxnLPx+M8KmmgQBM2f91NUbYdcA/8sGmzSpHBm7vVhCqm9iZLmqFgtW
+C2Ygwek5KTNuQ0kNYaGz88047oaQn6jYTR146YWxZBkTOO/9xsEQxlrwBOVLW9vX
+qpnRI6Bj0c7Gnb5eh3TBBKJyfKB1r41PBzAoMCr4LBFNjJhtFQmrcV/h+6kqYpE9
+xSju2Ux72H3Nq1UBmGO8u2Or8BgQXRnWmTjaGFKetUac1KuHVdSl6gkTkK2TVSJh
+dwMiPavB4hf6onJqGlW9746glNTRdfmHU9Bvsz6iBJ3HV6EOTCG2XLyU2fr6vvXS
+UQEWWmozZNWc75PUQBSwXDeLUTZU7n3QG0O2dx6brjxbx0hrv3oYYAersvX3NrPK
+mgkSHV0XVcSVvG4uLma1ilDMWKb9+DjiZDt2FvqVFV7E3A<span class="o">==</span>
+<span class="o">=</span>zjQv
+<span class="nt">-----END</span> PGP MESSAGE-----
+</code></pre></div>
+
+<p>Open it again with vim, and you should see the plaintext message. Perfect, moving on!</p>
+
+<h2>Setting up VimWiki</h2>
+
+<p>By default, vimwiki uses its own syntax. Markdown is however supported with a few option changes.</p>
+
+<p>The plugin also needs some specific settings to be set, so let&#39;s do both:</p>
+
+<div class="highlight"><pre class="highlight viml"><code><span class="k">set</span> <span class="nb">nocompatible</span>
+filetypelugin <span class="k">on</span>
+<span class="nb">syntax</span> <span class="k">on</span>
+
+<span class="k">let</span> <span class="nv">g:vimwiki_list</span> <span class="p">=</span> <span class="p">[{</span><span class="s1">'path'</span><span class="p">:</span> <span class="s1">'~/wiki/'</span><span class="p">,</span>
+<span class="se">                      \</span> <span class="s1">'syntax'</span><span class="p">:</span> <span class="s1">'markdown'</span><span class="p">,</span> <span class="s1">'ext'</span><span class="p">:</span> <span class="s1">'.md.gpg'</span><span class="p">}]</span>
+</code></pre></div>
+
+<p>Now VimWiki will identify <code>.md.gpg</code> as its default filetype, and the directory for your entire wiki will be located at <code>~/wiki/</code>. Easy enough.</p>
+
+<p>Learning everything about VimWiki is beyond the scope of this post, but we can still mention a few things. First, you need to create an index by running <code>vim</code> and press <code>&lt;Leader&gt;ww</code>.</p>
+
+<p>Edit the document as you like, and press <code>&lt;enter&gt;</code> with your cursor placed on a word of your choosing: you just made a link! If you press <code>&lt;enter&gt;</code> again, you&#39;ll open a new file which you can edit to your linking. Press backspace, and you&#39;re back to your index.</p>
+
+<p>This hierarchical way of handling files makes VimWiki very suitable for personal notes and even a zettelkasten system (there is an <a href="https://github.com/michal-h21/vim-zettel" rel="nofollow">additional plugin</a> for it). You can learn more about it in the <a href="https://github.com/vimwiki/vimwiki" rel="nofollow">repo&#39;s README</a> and <a href="https://vimwiki.github.io/vimwikiwiki/" rel="nofollow">VimWiki&#39;s wiki</a>.</p>
+
+<p>We&#39;re done with setting the plugin, but these are some options I like to tweak:</p>
+
+<div class="highlight"><pre class="highlight viml"><code><span class="c">" Automatically insert a header when creating a new link</span>
+<span class="k">let</span> <span class="nv">g:vimwiki_auto_header</span> <span class="p">=</span> <span class="m">1</span>
+<span class="c">" Use underscores to replace spaces in the file names</span>
+<span class="k">let</span> <span class="nv">g:vimwiki_links_space_char</span> <span class="p">=</span> <span class="s1">'_'</span>
+<span class="c">" Disable all concealing</span>
+<span class="k">let</span> <span class="nv">g:vimwiki_conceal_onechar_markers</span> <span class="p">=</span> <span class="m">0</span>
+<span class="c">" Disable URL shortening</span>
+<span class="k">let</span> <span class="nv">g:vimwiki_url_maxsave</span> <span class="p">=</span> <span class="m">0</span> 
+<span class="c">" Don't load VimWiki for markdown files located somewhere else</span>
+<span class="k">let</span> <span class="nv">g:vimwiki_global_ext</span> <span class="p">=</span> <span class="m">0</span>
+<span class="c">" Bold headers</span>
+<span class="k">hi</span> VimwikiHeader1 cterm<span class="p">=</span><span class="nb">bold</span> <span class="k">gui</span><span class="p">=</span><span class="nb">bold</span> 
+<span class="k">hi</span> VimwikiHeader2 cterm<span class="p">=</span><span class="nb">bold</span> <span class="k">gui</span><span class="p">=</span><span class="nb">bold</span> 
+<span class="k">hi</span> VimwikiHeader3 cterm<span class="p">=</span><span class="nb">bold</span> <span class="k">gui</span><span class="p">=</span><span class="nb">bold</span> 
+<span class="k">hi</span> VimwikiHeader4 cterm<span class="p">=</span><span class="nb">bold</span> <span class="k">gui</span><span class="p">=</span><span class="nb">bold</span> 
+<span class="k">hi</span> VimwikiHeader5 cterm<span class="p">=</span><span class="nb">bold</span> <span class="k">gui</span><span class="p">=</span><span class="nb">bold</span> 
+<span class="k">hi</span> VimwikiHeader6 cterm<span class="p">=</span><span class="nb">bold</span> <span class="k">gui</span><span class="p">=</span><span class="nb">bold</span>
+</code></pre></div>
+
+<h2>Autocapitalisation</h2>
+
+<p>This feature will be quick to implement. The following function will handle Autocapitalisation wherever we want to:</p>
+
+<div class="highlight"><pre class="highlight viml"><code>func<span class="p">!</span> AutoCapitalisation<span class="p">()</span> 
+    augroup SENTENCES 
+        <span class="k">au</span><span class="p">!</span> 
+        autocmd <span class="nb">InsertCharPre</span> * <span class="k">if</span> <span class="nb">search</span><span class="p">(</span><span class="s1">'\v(%^|[.!?]\_s+|\_^\-\s|\_^\*\s|\_^#+\s|\n\n)%#'</span><span class="p">,</span> <span class="s1">'bcnw'</span><span class="p">)</span> <span class="p">!=</span> <span class="m">0</span> <span class="p">|</span> <span class="k">let</span> <span class="k">v</span><span class="p">:</span>char <span class="p">=</span> <span class="nb">toupper</span><span class="p">(</span><span class="k">v</span><span class="p">:</span>char<span class="p">)</span> <span class="p">|</span> <span class="k">endif</span> 
+    augroup END 
+endfu
+</code></pre></div>
+
+<p>It has been tweaked from the following source and does a really nice job:</p>
+
+<ul>
+<li><a href="https://davidxmoody.com/2014/vim-auto-capitalisation/" rel="nofollow">https://davidxmoody.com/2014/vim-auto-capitalisation/</a></li>
+</ul>
+
+<p>(Thanks David Moody for sharing it!)</p>
+
+<p>To enable the function with VimWiki, all we need to do is the following:</p>
+
+<div class="highlight"><pre class="highlight viml"><code>autocmd <span class="nb">FileType</span> markdown <span class="k">call</span> AutoCapitalisation<span class="p">()</span>
+</code></pre></div>
+
+<h2>Easily pasting images in markdown files</h2>
+
+<p>The <code>md-img-paste</code> plugin uses <code>xclip</code> to work, so let&#39;s install it first:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">sudo </span>apt <span class="nb">install </span>xclip
+</code></pre></div>
+
+<p>The following options can be tweaked to your liking. By default, the plugin will create your image folder at the same location of the currently edited file, which works great for us:</p>
+
+<div class="highlight"><pre class="highlight viml"><code>autocmd <span class="nb">FileType</span> markdown nmap <span class="p">&lt;</span><span class="k">buffer</span><span class="p">&gt;&lt;</span><span class="k">silent</span><span class="p">&gt;</span> <span class="p">&lt;</span>leader<span class="p">&gt;,</span> <span class="p">:</span><span class="k">call</span> mdip#MarkdownClipboardImage<span class="p">()&lt;</span>CR<span class="p">&gt;</span>
+<span class="c">" There are some defaults for image directory and image name, you can change them</span>
+<span class="k">let</span> <span class="nv">g:mdip_imgdir</span> <span class="p">=</span> <span class="s1">'images'</span>
+<span class="k">let</span> <span class="nv">g:mdip_imgname</span> <span class="p">=</span> <span class="s1">'image'</span>
+</code></pre></div>
+
+<h2>Markdown preview</h2>
+
+<p>This plugin works splendidly well out of the box. Just use <code>:MarkdownPreview</code> for a live preview and <code>:MarkdownPreviewStop</code> to stop the service. I only added this shortcut for easy toggling:</p>
+
+<div class="highlight"><pre class="highlight viml"><code>autocmd <span class="nb">FileType</span> markdown nmap <span class="p">&lt;</span>leader<span class="p">&gt;</span><span class="k">n</span> <span class="p">:</span>MarkdownPreviewToggle<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+</code></pre></div>
+
+<p>It also supports preview of diagrams written with mermaid, katex, and others, really an amazing plugin.</p>
+
+<h2>Optional (but amazing): goyo</h2>
+
+<p>Goyo is a vim plugin that provides a clutter-free interface for writing in vim: I really enjoyed using it for a long time now, and nothing else quite matched the experience. I recommend checking out the <a href="https://github.com/junegunn/goyo.vim" rel="nofollow">GitHub repo</a> to get a general feel of the interface.</p>
+
+<p>If you want to use it automatically with vimwiki, add the following line in your <code>.vimrc</code>:</p>
+
+<div class="highlight"><pre class="highlight viml"><code><span class="k">au</span> <span class="nb">VimEnter</span> *<span class="p">.</span>md<span class="p">.</span>gpg <span class="nb">execute</span> <span class="s2">":Goyo"</span>
+</code></pre></div>
+
+<h2>Caveats</h2>
+
+<p>Switching to VimWiki has a few caveats, at least with my current settings:</p>
+
+<ul>
+<li>File names are not encrypted.</li>
+<li>Images are not encrypted.</li>
+<li>Encrypting things through vim is... a peculiar experience to say the least.</li>
+</ul>
+
+<p>But in my use case, I can live with that.</p>
+
+<p>I&#39;m always open to suggestions and my vim scripting is not the best, but so far the experience is really pleasant. Being able to quickly write notes from the CLI with the full power of vim available is way better than any alternative I could find!</p>
+
+<h2>TL;DR: just give me the script!</h2>
+
+<p>Sure thing: <a href="https://gist.github.com/ovelny/72659e841c1dbcee173eb244c8609252" rel="nofollow">https://gist.github.com/ovelny/72659e841c1dbcee173eb244c8609252</a></p>
+
+    
+      <p class="support">
+      If you enjoyed this post or found any of my other work helpful, feel free 
+      to support me on my <a href="https://ko-fi.com/ovelny" rel="nofollow">ko-fi</a>. 
+      Any contribution will help me tremendously!
+      </p>
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

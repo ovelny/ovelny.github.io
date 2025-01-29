@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/protocols-and-systems/Oracle-TNS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/protocols-and-systems/Oracle-TNS"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Oracle TNS</h1>
+
+<h2>Main points</h2>
+
+<ul>
+<li>Oracle Transparent Network Substrate.</li>
+<li>Uses port TCP 1521.</li>
+<li>Communication protocol for oracle databases and applications over networks.</li>
+<li>Supports multiple networking protocols.</li>
+<li>Built-in encryption.</li>
+<li>Updated to support IPv6 and SSL/TLS encryption.</li>
+<li>Provides monitoring and analysis, error reporting, logging, workload management, etc.</li>
+<li>Often used with other oracle services and web servers.</li>
+</ul>
+
+<h2>Insecure configuration</h2>
+
+<p>Configuration can often be found in <code>$ORACLE_HOME/network/admin</code>, look for <code>tnsnames.ora</code> and <code>listener.ora</code> files. Oracle 9 is known to have a default <code>CHANGE_ON_INSTALL</code> password, but Oracle 10 doesn&#39;t have any. The DBSNMP service also has a default <code>dbsnmp</code> password.</p>
+
+<p><code>tnsnames.ora</code> can provide details such as authentication info, load balancing and more. It is used to resolve service names to network adresses.</p>
+
+<p><code>listener.ora</code> is used to list the services it should listen to and the behavior of the listener.</p>
+
+<p>A PL/SQL exclusion list might also be present in <code>$ORACLE_HOME/sqldeveloper/</code> (<code>PlsqlExclusionList</code>). This list mentions packages and types that are excluded from execution. It effectively acts as a deny list.</p>
+
+<h2>Commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Bruteforce SIDs, which are identifiers for all instances of a database:</span>
+nmap <span class="nt">-sV</span> <span class="nt">-p</span> 1521 <span class="nt">--script</span> oracle-sid-brute &lt;IP address&gt;
+
+<span class="c"># Enumerate all possible things with odat modules:</span>
+odat all <span class="nt">-s</span> &lt;IP address&gt;
+
+<span class="c"># Connect to the oracle database with sqlplus.</span>
+<span class="c"># In case of an error related to shared libraries,</span>
+<span class="c"># apply the fix here: https://stackoverflow.com/q/27717312</span>
+sqlplus &lt;username&gt;/&lt;password&gt;@&lt;IP address&gt;/&lt;SID&gt;
+
+<span class="c"># Login as system database admin (sysdba):</span>
+sqlplus &lt;username&gt;/&lt;password&gt;@&lt;IP address&gt;/&lt;SID&gt; as sysdba
+
+<span class="c"># Upload file to web server with odat:</span>
+odat utlfile <span class="nt">-s</span> &lt;IP address&gt; <span class="nt">-d</span> &lt;SID&gt; <span class="nt">-U</span> &lt;username&gt; <span class="nt">-P</span> &lt;password&gt; <span class="nt">--sysdba</span> <span class="nt">--putFile</span> C:<span class="se">\\</span>web<span class="se">\\</span>server<span class="se">\\</span>path text.txt ./text.txt
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

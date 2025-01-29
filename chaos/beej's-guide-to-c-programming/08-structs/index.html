@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/08-structs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/08-structs"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>8 Structs</h1>
+
+<p>In C, we have something called a <code>struct</code>, which is a user-definable type that holds multiple pieces of data, potentially of different types.</p>
+
+<p>It’s a convenient way to bundle multiple variables into a single one. This can be beneficial for passing variables to functions (so you just have to pass one instead of many), and useful for organizing data and making code more readable.</p>
+
+<p>If you’ve come from another language, you might be familiar with the idea of <em>classes</em> and <em>objects</em>. These don’t exist in C, natively<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁷</a>. You can think of a <code>struct</code> as a class with only data members, and no methods.</p>
+
+<h2>8.1 Declaring a Struct</h2>
+
+<p>You can declare a <code>struct</code> in your code like so:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">car</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">price</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">speed</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>This is often done at the global scope outside any functions so that the <code>struct</code> is globally available.</p>
+
+<p>When you do this, you’re making a new <em>type</em>. The full type name is <code>struct car</code>. (Not just <code>car</code>—that won’t work.)</p>
+
+<p>There aren’t any variables of that type yet, but we can declare some:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">car</span> <span class="n">saturn</span><span class="p">;</span>  <span class="c1">// Variable "saturn" of type "struct car"</span>
+</code></pre></div>
+
+<p>And now we have an uninitialized variable <code>saturn</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁸</a> of type <code>struct car</code>.</p>
+
+<p>We should initialize it! But how do we set the values of those individual fields?</p>
+
+<p>Like in many other languages that stole it from C, we’re going to use the dot operator (<code>.</code>) to access the individual fields.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">saturn</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">"Saturn SL/2"</span><span class="p">;</span>
+<span class="n">saturn</span><span class="p">.</span><span class="n">price</span> <span class="o">=</span> <span class="mi">15999</span><span class="p">.</span><span class="mi">99</span><span class="p">;</span>
+<span class="n">saturn</span><span class="p">.</span><span class="n">speed</span> <span class="o">=</span> <span class="mi">175</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"Name:           %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">saturn</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"Price (USD):    %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">saturn</span><span class="p">.</span><span class="n">price</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"Top Speed (km): %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">saturn</span><span class="p">.</span><span class="n">speed</span><span class="p">);</span>
+</code></pre></div>
+
+<p>There on the first lines, we set the values in the <code>struct car</code>, and then in the next bit, we print those values out.</p>
+
+<h2>8.2 Struct Initializers</h2>
+
+<p>That example in the previous section was a little unwieldy. There must be a better way to initialize that <code>struct</code> variable!</p>
+
+<p>You can do it with an initializer by putting values in for the fields <em>in the order they appear in the <code>struct</code></em> when you define the variable. (This won’t work after the variable has been defined—it has to happen in the definition).</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">car</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">price</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">speed</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="c1">// Now with an initializer! Same field order as in the struct declaration:</span>
+<span class="k">struct</span> <span class="n">car</span> <span class="n">saturn</span> <span class="o">=</span> <span class="p">{</span><span class="s">"Saturn SL/2"</span><span class="p">,</span> <span class="mi">16000</span><span class="p">.</span><span class="mi">99</span><span class="p">,</span> <span class="mi">175</span><span class="p">};</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"Name:      %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">saturn</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"Price:     %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">saturn</span><span class="p">.</span><span class="n">price</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"Top Speed: %d km</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">saturn</span><span class="p">.</span><span class="n">speed</span><span class="p">);</span>
+</code></pre></div>
+
+<p>The fact that the fields in the initializer need to be in the same order is a little freaky. If someone changes the order in <code>struct car</code>, it could break all the other code!</p>
+
+<p>We can be more specific with our initializers:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">car</span> <span class="n">saturn</span> <span class="o">=</span> <span class="p">{.</span><span class="n">speed</span><span class="o">=</span><span class="mi">175</span><span class="p">,</span> <span class="p">.</span><span class="n">name</span><span class="o">=</span><span class="s">"Saturn SL/2"</span><span class="p">};</span>
+</code></pre></div>
+
+<p>Now it’s independent of the order in the <code>struct</code> declaration. Which is safer code, for sure.</p>
+
+<p>Similar to array initializers, any missing field designators are initialized to zero (in this case, that would be <code>.price</code>, which I’ve omitted).</p>
+
+<h2>8.3 Passing Structs to Functions</h2>
+
+<p>You can do a couple things to pass a <code>struct</code> to a function.</p>
+
+<ol>
+<li> Pass the <code>struct</code>.</li>
+<li> Pass a pointer to the <code>struct</code>.</li>
+</ol>
+
+<p>Recall that when you pass something to a function, a <em>copy</em> of that thing gets made for the function to operate on, whether it’s a copy of a pointer, an <code>int</code>, a <code>struct</code>, or anything.</p>
+
+<p>There are basically two cases when you’d want to pass a pointer to the <code>struct</code>:</p>
+
+<ol>
+<li> You need the function to be able to make changes to the <code>struct</code> that was passed in, and have those changes show in the caller.</li>
+<li> The <code>struct</code> is somewhat large and it’s more expensive to copy that onto the stack than it is to just copy a pointer<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁹</a>.</li>
+</ol>
+
+<p>For those two reasons, it’s far more common to pass a pointer to a <code>struct</code> to a function, though its by no means illegal to pass the <code>struct</code> itself.</p>
+
+<p>Let’s try passing in a pointer, making a function that will allow you to set the <code>.price</code> field of the <code>struct car</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="k">struct</span> <span class="n">car</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">price</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">speed</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">car</span> <span class="n">saturn</span> <span class="o">=</span> <span class="p">{.</span><span class="n">speed</span><span class="o">=</span><span class="mi">175</span><span class="p">,</span> <span class="p">.</span><span class="n">name</span><span class="o">=</span><span class="s">"Saturn SL/2"</span><span class="p">};</span>
+
+    <span class="c1">// Pass a pointer to this struct car, along with a new,</span>
+    <span class="c1">// more realistic, price:</span>
+    <span class="n">set_price</span><span class="p">(</span><span class="o">&amp;</span><span class="n">saturn</span><span class="p">,</span> <span class="mi">799</span><span class="p">.</span><span class="mi">99</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Price: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">saturn</span><span class="p">.</span><span class="n">price</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>You should be able to come up with the function signature for <code>set_price()</code> just by looking at the types of the arguments we have there.</p>
+
+<p><code>saturn</code> is a <code>struct car</code>, so <code>&amp;saturn</code> must be the address of the <code>struct car</code>, AKA a pointer to a <code>struct car</code>, namely a <code>struct car*</code>.</p>
+
+<p>And <code>799.99</code> is a <code>float</code>.</p>
+
+<p>So the function declaration must look like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="n">set_price</span><span class="p">(</span><span class="k">struct</span> <span class="n">car</span> <span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="kt">float</span> <span class="n">new_price</span><span class="p">)</span>
+</code></pre></div>
+
+<p>We just need to write the body. One attempt might be:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="nf">set_price</span><span class="p">(</span><span class="k">struct</span> <span class="n">car</span> <span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="kt">float</span> <span class="n">new_price</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">c</span><span class="p">.</span><span class="n">price</span> <span class="o">=</span> <span class="n">new_price</span><span class="p">;</span>  <span class="c1">// ERROR!!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>That won’t work because the dot operator only works on <code>struct</code>s… it doesn’t work on <em>pointers</em> to <code>struct</code>s.</p>
+
+<p>Ok, so we can dereference the <code>struct</code> to de-pointer it to get to the <code>struct</code> itself. Dereferencing a <code>struct car*</code> results in the <code>struct car</code> that the pointer points to, which we should be able to use the dot operator on:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="nf">set_price</span><span class="p">(</span><span class="k">struct</span> <span class="n">car</span> <span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="kt">float</span> <span class="n">new_price</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">c</span><span class="p">).</span><span class="n">price</span> <span class="o">=</span> <span class="n">new_price</span><span class="p">;</span>  <span class="c1">// Works, but is ugly and non-idiomatic :(</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>And that works! But it’s a little clunky to type all those parens and the asterisk. C has some syntactic sugar called the <em>arrow operator</em> that helps with that.</p>
+
+<h2>8.4 The Arrow Operator</h2>
+
+<p>The arrow operator helps refer to fields in pointers to <code>struct</code>s.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="nf">set_price</span><span class="p">(</span><span class="k">struct</span> <span class="n">car</span> <span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="kt">float</span> <span class="n">new_price</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// (*c).price = new_price;  // Works, but non-idiomatic :(</span>
+    <span class="c1">//</span>
+    <span class="c1">// The line above is 100% equivalent to the one below:</span>
+
+    <span class="n">c</span><span class="o">-&gt;</span><span class="n">price</span> <span class="o">=</span> <span class="n">new_price</span><span class="p">;</span>  <span class="c1">// That's the one!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>So when accessing fields, when do we use dot and when do we use arrow?</p>
+
+<ul>
+<li>  If you have a <code>struct</code>, use dot (<code>.</code>).</li>
+<li>  If you have a pointer to a <code>struct</code>, use arrow (<code>-&gt;</code>).</li>
+</ul>
+
+<h2>8.5 Copying and Returning <code>struct</code>s</h2>
+
+<p>Here’s an easy one for you!</p>
+
+<p>Just assign from one to the other!</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">car</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">;</span>
+
+<span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>  <span class="c1">// Copy the struct</span>
+</code></pre></div>
+
+<p>And returning a <code>struct</code> (as opposed to a pointer to one) from a function also makes a similar copy to the receiving variable.</p>
+
+<p>This is not a “deep copy”<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷⁰</a>. All fields are copied as-is, including pointers to things.</p>
+
+<h2>8.6 Comparing <code>struct</code>s</h2>
+
+<p>There’s only one safe way to do it: compare each field one at a time.</p>
+
+<p>You might think you could use <a href="https://beej.us/guide/bgclr/html/split/stringref.html#man-strcmp" rel="nofollow"><code>memcmp()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷¹</a>, but that doesn’t handle the case of the possible <a href="structs-ii-more-fun-with-structs.html#struct-padding-bytes" rel="nofollow">padding bytes</a> that might be in there.</p>
+
+<p>If you clear the <code>struct</code> to zero first with <a href="https://beej.us/guide/bgclr/html/split/stringref.html#man-memset" rel="nofollow"><code>memset()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷²</a>, then it <em>might</em> work, though there could be weird elements that <a href="https://stackoverflow.com/questions/141720/how-do-you-compare-structs-for-equality-in-c" rel="nofollow">might not compare as you expect</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷³</a>.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

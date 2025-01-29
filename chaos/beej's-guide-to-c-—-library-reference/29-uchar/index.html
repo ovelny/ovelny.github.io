@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/29-uchar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/29-uchar"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>29 <code>&lt;uchar.h&gt;</code> Unicode utility functions</h1>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="uchar.html#man-c16rtomb" rel="nofollow"><code>c16rtomb()</code></a></td>
+<td>Convert a <code>char16_t</code> to a multibyte character</td>
+</tr>
+<tr>
+<td><a href="uchar.html#man-c16rtomb" rel="nofollow"><code>c32rtomb()</code></a></td>
+<td>Convert a <code>char32_t</code> to a multibyte character</td>
+</tr>
+<tr>
+<td><a href="uchar.html#man-mbrtoc16" rel="nofollow"><code>mbrtoc16()</code></a></td>
+<td>Convert a multibyte character to a <code>char16_t</code></td>
+</tr>
+<tr>
+<td><a href="uchar.html#man-mbrtoc16" rel="nofollow"><code>mbrtoc32()</code></a></td>
+<td>Convert a multibyte character to a <code>char32_t</code></td>
+</tr>
+</tbody></table>
+
+<p>These functions are <em>restartable</em>, meaning multiple threads can safely call them at once. They handle this by having their own conversion state variable (of type <code>mbstate_t</code>) per call.</p>
+
+<h2>29.1 Types</h2>
+
+<p>This header file defines four types.</p>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>char16_t</code></td>
+<td>Type to hold 16-bit characters</td>
+</tr>
+<tr>
+<td><code>char32_t</code></td>
+<td>Type to hold 32-bit characters</td>
+</tr>
+<tr>
+<td><code>mbstate_t</code></td>
+<td>Holds the conversion state for restartable funcitons (also defined in <a href="wchar.html#wchar" rel="nofollow"><code>&lt;wchar.h&gt;</code></a>)</td>
+</tr>
+<tr>
+<td><code>size_t</code></td>
+<td>To hold various counts (also defined in <a href="stddef.html#stddef" rel="nofollow"><code>&lt;stddef.h&gt;</code></a>)</td>
+</tr>
+</tbody></table>
+
+<p>String literals for the character types are <code>u</code> for <code>char16_t</code> and <code>U</code> for <code>char32_t</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char16_t</span> <span class="o">*</span><span class="n">str1</span> <span class="o">=</span> <span class="s">u"Hello, world!"</span><span class="p">;</span>
+<span class="kt">char32_t</span> <span class="o">*</span><span class="n">str2</span> <span class="o">=</span> <span class="s">U"Hello, world!"</span><span class="p">;</span>
+
+<span class="kt">char16_t</span> <span class="o">*</span><span class="n">chr1</span> <span class="o">=</span> <span class="sc">u'A'</span><span class="p">;</span>
+<span class="kt">char32_t</span> <span class="o">*</span><span class="n">chr2</span> <span class="o">=</span> <span class="sc">U'B'</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Note that <code>char16_t</code> and <code>char32_t</code> <em>might</em> contain Unicode. Or not. If <code>__STDC_UTF_16__</code> or <code>__STDC_UTF_32__</code> is defined as <code>1</code>, then <code>char16_t</code> and <code>char32_t</code> use Unicode, respectively. Otherwise they don’t and the actual value stored depend on the locale. And if you’re not using Unicode, you have my commiserations.</p>
+
+<h2>29.2 OS X issue</h2>
+
+<p>This header file doesn’t exist on OS X—bummer. If you just want the types, you can:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdint.h&gt;</span><span class="cp">
+</span>
+<span class="k">typedef</span> <span class="kt">int_least16_t</span> <span class="kt">char16_t</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="kt">int_least32_t</span> <span class="kt">char32_t</span><span class="p">;</span>
+</code></pre></div>
+
+<p>But if you also want the functions, that’s all on you.</p>
+
+<p><hr></p>
+
+<h2>29.3 <code>mbrtoc16()</code> <code>mbrtoc32()</code></h2>
+
+<p>Convert a multibyte character to a <code>char16_t</code> or <code>char32_t</code> restartably</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;uchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">mbrtoc16</span><span class="p">(</span><span class="kt">char16_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">pc16</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">,</span>
+                <span class="kt">mbstate_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">ps</span><span class="p">);</span>
+
+<span class="kt">size_t</span> <span class="nf">mbrtoc32</span><span class="p">(</span><span class="kt">char32_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">pc32</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">,</span>
+                <span class="kt">mbstate_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">ps</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Given a source string <code>s</code> and a destination buffer <code>pc16</code> (or <code>pc32</code> for <code>mbrtoc32()</code>), convert the first character of the source to <code>char16_t</code>s (or <code>char32_t</code>s for <code>mbrtoc32()</code>).</p>
+
+<p>Basically you have a regular character and you want it as <code>char16_t</code> or <code>char32_t</code>. Use these functions to do it. Note that only one character is converted no matter how many characters in <code>s</code>.</p>
+
+<p>As the functions scan <code>s</code>, you don’t want them to overrun the end. So you pass in <code>n</code> as the maximum number of bytes to inspect. The functions will quit after that many bytes or when they have a complete multibyte character, whichever comes first.</p>
+
+<p>Since they’re restartable, pass in a conversion state variable for the functions to do their work.</p>
+
+<p>And the result will be placed in <code>pc16</code> (or <code>pc32</code> for <code>mbrtoc32()</code>).</p>
+
+<h3>Return Value</h3>
+
+<p>When successful this function returns a number between <code>1</code> and <code>n</code> inclusive representing the number of bytes that made up the multibyte character.</p>
+
+<p>Or, also in the success category, they can return <code>0</code> if the source character is the NUL character (value <code>0</code>).</p>
+
+<p>When not entirely successful, they can return a variety of codes. These are all of type <code>size_t</code>, but negative values cast to that type.</p>
+
+<table><thead>
+<tr>
+<th>Return Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>(size_t)(-1)</code></td>
+<td>Encoding error—this isn’t a valid sequence of bytes. <code>errno</code> is set to <code>EILSEQ</code>.</td>
+</tr>
+<tr>
+<td><code>(size_t)(-2)</code></td>
+<td><code>n</code> bytes were examined and were a <em>partial</em> valid character, but not a complete one.</td>
+</tr>
+<tr>
+<td><code>(size_t)(-3)</code></td>
+<td>A subsequent value of a character that can’t be represented as a single value. See below.</td>
+</tr>
+</tbody></table>
+
+<p>Case <code>(size_t)(-3)</code> is an odd one. Basically there are some characters that can’t be represented with 16 bits and so can’t be stored in a <code>char16_t</code>. These characters are store in something called (in the Unicode world) <em>surrogate pairs</em>. That is, there are <em>two</em> 16-bit values back to back that represent a larger Unicode value.</p>
+
+<p>For example, if you want to read the Unicode character <code>\U0001fbc5</code> (which is a <a href="https://en.wikipedia.org/wiki/Symbols_for_Legacy_Computing" rel="nofollow">stick figure</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁷⁶</a>—I’m just not putting it in the text because my font doesn’t render it) that’s more than 16 bits. But each call to <code>mbrtoc16()</code> only returns a single <code>char16_t</code>!</p>
+
+<p>So subsequent calls to <code>mbrtoc16()</code> resolves the <em>next</em> value in the surrogate pair and returns <code>(size_t)(-3)</code> to let you know this has happened.</p>
+
+<p>You can also pass <code>NULL</code> for <code>pc16</code> or <code>pc32</code>. This will cause no result to be stored, but you can use it if you’re only interested in the return value from the functions.</p>
+
+<p>Finally, if you pass <code>NULL</code> for <code>s</code>, the call is equivalent to:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">mbrtoc16</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">""</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ps</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Since the character is a NUL in that case, this has the effect of setting the state in <code>ps</code> to the initial conversion state.</p>
+
+<h3>Example</h3>
+
+<p>Normal use case example where we get the first two character values from the multibyte string <code>&quot;€Zillion&quot;</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;uchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">   // for printf()</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="c1">  // for setlocale()</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="c1">  // for memset()</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"\u20acZillion"</span><span class="p">;</span>  <span class="c1">// 20ac is "€"</span>
+    <span class="kt">char16_t</span> <span class="n">pc16</span><span class="p">;</span>
+    <span class="kt">size_t</span> <span class="n">r</span><span class="p">;</span>
+    <span class="kt">mbstate_t</span> <span class="n">mbs</span><span class="p">;</span>
+
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mbs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">mbs</span><span class="p">);</span>
+
+    <span class="c1">// Examine the next 8 bytes to see if there's a character in there</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">mbrtoc16</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pc16</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbs</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>     <span class="c1">// Prints a value &gt;= 1 (3 in UTF-8 locale)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%#x</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">pc16</span><span class="p">);</span>  <span class="c1">// Prints 0x20ac for "€"</span>
+
+    <span class="n">s</span> <span class="o">+=</span> <span class="n">r</span><span class="p">;</span>  <span class="c1">// Move to next character</span>
+
+    <span class="c1">// Examine the next 8 bytes to see if there's a character in there</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">mbrtoc16</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pc16</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbs</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>     <span class="c1">// Prints 1</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%#x</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">pc16</span><span class="p">);</span>  <span class="c1">// Prints 0x5a for "Z"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Example with a surrogate pair. In this case we read plenty to get the entire character, but the result must be stored in two <code>char16_t</code>s, requiring two calls to get them both.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;uchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">   // for printf()</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="c1">  // for memset()</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="c1">  // for setlocale()</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"\U0001fbc5*"</span><span class="p">;</span>   <span class="c1">// Stick figure glyph, more than 16 bits</span>
+    <span class="kt">char16_t</span> <span class="n">pc16</span><span class="p">;</span>
+    <span class="kt">mbstate_t</span> <span class="n">mbs</span><span class="p">;</span>
+    <span class="kt">size_t</span> <span class="n">r</span><span class="p">;</span>
+
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mbs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">mbs</span><span class="p">);</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">mbrtoc16</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pc16</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbs</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%zd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>     <span class="c1">// r is 4 bytes in UTF-8 locale</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%#x</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">pc16</span><span class="p">);</span>  <span class="c1">// First value of surrogate pair</span>
+
+    <span class="n">s</span> <span class="o">+=</span> <span class="n">r</span><span class="p">;</span>  <span class="c1">// Move to next character</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">mbrtoc16</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pc16</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbs</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%zd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>     <span class="c1">// r is (size_t)(-3) here to indicate...</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%#x</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">pc16</span><span class="p">);</span>  <span class="c1">// ...Second value of surrogate pair</span>
+
+    <span class="c1">// Since r is -3, it means we're still processing the same</span>
+    <span class="c1">// character, so DON'T move to the next character this time</span>
+    <span class="c1">//s += r;  // Commented out</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">mbrtoc16</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pc16</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbs</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%zd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>     <span class="c1">// 1 byte for "*"</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%#x</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">pc16</span><span class="p">);</span>  <span class="c1">// 0x2a for "*"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system, indicating the first character is represented by the pair <code>(0xd83e, 0xdfc5)</code> and the second character is represented by <code>0x2a</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">4</span>
+<span class="mh">0xd83e</span>
+<span class="o">-</span><span class="mi">3</span>
+<span class="mh">0xdfc5</span>
+<span class="mi">1</span>
+<span class="mh">0x2a</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="uchar.html#man-c16rtomb" rel="nofollow"><code>c16rtomb()</code></a>, <a href="uchar.html#man-c16rtomb" rel="nofollow"><code>c32rtomb()</code></a></p>
+
+<p><hr></p>
+
+<h2>29.4 <code>c16rtomb()</code> <code>c32rtomb()</code></h2>
+
+<p>Convert a <code>char16_t</code> or <code>char32_t</code> to a multibyte character restartably</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;uchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">c16rtomb</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">char16_t</span> <span class="n">c16</span><span class="p">,</span> <span class="kt">mbstate_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">ps</span><span class="p">);</span>
+
+<span class="kt">size_t</span> <span class="nf">c32rtomb</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">char32_t</span> <span class="n">c32</span><span class="p">,</span> <span class="kt">mbstate_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">ps</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If you have a character in a <code>char16_t</code> or <code>char32_t</code>, use these functions to convert them into a multibyte character.</p>
+
+<p>These functions figure out how many bytes are needed for the multibyte character in the current locale and stores them in the buffer pointed to by <code>s</code>.</p>
+
+<p>But how big to make that buffer? Luckily there is a macro to help: it needs be no larger than <code>MB_CUR_MAX</code>.</p>
+
+<p>As a special case, if <code>s</code> is <code>NULL</code>, it’s the same as calling</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">c16rtomb</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="sc">L'\0'</span><span class="p">,</span> <span class="n">ps</span><span class="p">);</span>  <span class="c1">// or...</span>
+<span class="n">c32rtomb</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="sc">L'\0'</span><span class="p">,</span> <span class="n">ps</span><span class="p">);</span>
+</code></pre></div>
+
+<p>where <code>buf</code> is a buffer maintained by the system that you don’t have access to.</p>
+
+<p>This has the effect of setting the <code>ps</code> state to the initial state.</p>
+
+<p>Finally for surrogate pairs (where the character has been split into two <code>char16_t</code>s), you call this once with the first of the pair—at this point, the function will return <code>0</code>. Then you call it again with the second of the pair, and the function will return the number of bytes and store the result in the array <code>s</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of bytes stored in the array pointed to by <code>s</code>.</p>
+
+<p>Returns 0 if processing is not yet complete for the current character, as in the case of surrogate pairs.</p>
+
+<p>If there is an encoding error, the functions return <code>(size_t)(-1)</code> and <code>errno</code> is set to <code>EILSEQ</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;uchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="c1">  // for MB_CUR_MAX</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">   // for printf()</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="c1">  // for memset()</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="c1">  // for setlocale()</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char16_t</span> <span class="n">c16</span> <span class="o">=</span> <span class="mh">0x20ac</span><span class="p">;</span>  <span class="c1">// Unicode for Euro symbol</span>
+    <span class="kt">char</span> <span class="n">dest</span><span class="p">[</span><span class="n">MB_CUR_MAX</span><span class="p">];</span>
+    <span class="kt">size_t</span> <span class="n">r</span><span class="p">;</span>
+    <span class="kt">mbstate_t</span> <span class="n">mbs</span><span class="p">;</span>
+
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mbs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">mbs</span><span class="p">);</span>  <span class="c1">// Reset conversion state</span>
+
+    <span class="c1">// Convert</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">c16rtomb</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">c16</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbs</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"r == %zd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>  <span class="c1">// r == 3 on my system</span>
+
+    <span class="c1">// And this should print a Euro symbol</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"dest == </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">dest</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">r</span> <span class="o">==</span> <span class="mi">3</span>
+<span class="n">dest</span> <span class="o">==</span> <span class="s">"€"</span>
+</code></pre></div>
+
+<p>This is a more complex example that converts a large-valued character in a multibyte string into a surrogate pair (as in the <code>mbrtoc16()</code> example, above) and then converts it back again into a multibyte string to print.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;uchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="c1">  // for MB_CUR_MAX</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">   // for printf()</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="c1">  // for memset()</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="c1">  // for setlocale()</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">src</span> <span class="o">=</span> <span class="s">"\U0001fbc5*"</span><span class="p">;</span>   <span class="c1">// Stick figure glyph, more than 16 bits</span>
+    <span class="kt">char</span> <span class="n">dest</span><span class="p">[</span><span class="n">MB_CUR_MAX</span><span class="p">];</span>
+    <span class="kt">char16_t</span> <span class="n">surrogate0</span><span class="p">,</span> <span class="n">surrogate1</span><span class="p">;</span>
+    <span class="kt">mbstate_t</span> <span class="n">mbs</span><span class="p">;</span>
+    <span class="kt">size_t</span> <span class="n">r</span><span class="p">;</span>
+
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mbs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">mbs</span><span class="p">);</span>  <span class="c1">// Reset conversion state</span>
+
+    <span class="c1">// Get first surrogate character</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">mbrtoc16</span><span class="p">(</span><span class="o">&amp;</span><span class="n">surrogate0</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbs</span><span class="p">);</span>
+
+    <span class="c1">// Get next surrogate character</span>
+    <span class="n">src</span> <span class="o">+=</span> <span class="n">r</span><span class="p">;</span>  <span class="c1">// Move to next character</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">mbrtoc16</span><span class="p">(</span><span class="o">&amp;</span><span class="n">surrogate1</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbs</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Surrogate pair: %#x, %#x</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">surrogate0</span><span class="p">,</span> <span class="n">surrogate1</span><span class="p">);</span>
+
+    <span class="c1">// Now reverse it</span>
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mbs</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">mbs</span><span class="p">);</span>  <span class="c1">// Reset conversion state</span>
+
+    <span class="c1">// Process first surrogate character</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">c16rtomb</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">surrogate0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbs</span><span class="p">);</span>
+
+    <span class="c1">// r should be 0 at this point, because the character hasn't been</span>
+    <span class="c1">// processed yet. And dest won't have anything useful... yet!</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"r == %zd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>   <span class="c1">// r == 0</span>
+
+    <span class="c1">// Process second surrogate character</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">c16rtomb</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">surrogate1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbs</span><span class="p">);</span>
+
+    <span class="c1">// Now we should be in business. r should have the number of</span>
+    <span class="c1">// bytes, and dest should hold the character.</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"r == %zd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>  <span class="c1">// r == 4 on my system</span>
+
+    <span class="c1">// And this should print a stick figure, if your font supports it</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"dest == </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">dest</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="uchar.html#man-mbrtoc16" rel="nofollow"><code>mbrtoc16()</code></a>, <a href="uchar.html#man-mbrtoc16" rel="nofollow"><code>mbrtoc32()</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

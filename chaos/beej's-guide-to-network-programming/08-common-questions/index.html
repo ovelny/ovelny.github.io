@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-network-programming/08-common-questions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-network-programming/08-common-questions"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>8 Common Questions</h1>
+
+<p><strong>Where can I get those header files?</strong></p>
+
+<p>If you don’t have them on your system already, you probably don’t need them. Check the manual for your particular platform. If you’re building for Windows, you only need to <code>#include &lt;winsock.h&gt;</code>.</p>
+
+<p><strong>What do I do when <code>bind()</code> reports “Address already in use”?</strong></p>
+
+<p>You have to use <code>setsockopt()</code> with the <code>SO_REUSEADDR</code> option on the listening socket. Check out the <a href="system-calls-or-bust.html#bind" rel="nofollow">section on <code>bind()</code></a> and the <a href="slightly-advanced-techniques.html#select" rel="nofollow">section on <code>select()</code></a> for an example.</p>
+
+<p><strong>How do I get a list of open sockets on the system?</strong></p>
+
+<p>Use the <code>netstat</code>. Check the <code>man</code> page for full details, but you should get some good output just typing:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>$ netstat
+</code></pre></div>
+
+<p>The only trick is determining which socket is associated with which program. <code>:-)</code></p>
+
+<p><strong>How can I view the routing table?</strong></p>
+
+<p>Run the <code>route</code> command (in <code>/sbin</code> on most Linuxes) or the command <code>netstat -r</code>. Or the command <code>ip route</code>.</p>
+
+<p><strong>How can I run the client and server programs if I only have one computer? Don’t I need a network to write network programs?</strong></p>
+
+<p>Fortunately for you, virtually all machines implement a loopback network “device” that sits in the kernel and pretends to be a network card. (This is the interface listed as “<code>lo</code>” in the routing table.)</p>
+
+<p>Pretend you’re logged into a machine named “<code>goat</code>”. Run the client in one window and the server in another. Or start the server in the background (“<code>server &amp;</code>”) and run the client in the same window. The upshot of the loopback device is that you can either <code>client goat</code> or <code>client localhost</code> (since “<code>localhost</code>” is likely defined in your <code>/etc/hosts</code> file) and you’ll have the client talking to the server without a network!</p>
+
+<p>In short, no changes are necessary to any of the code to make it run on a single non-networked machine! Huzzah!</p>
+
+<p><strong>How can I tell if the remote side has closed connection?</strong></p>
+
+<p>You can tell because <code>recv()</code> will return <code>0</code>.</p>
+
+<p><strong>How do I implement a “ping” utility? What is ICMP? Where can I find out more about raw sockets and <code>SOCK_RAW</code>?</strong></p>
+
+<p>All your raw sockets questions will be answered in <a href="more-references.html#books" rel="nofollow">W. Richard Stevens’ UNIX Network Programming books</a>. Also, look in the <code>ping/</code> subdirectory in Stevens’ UNIX Network Programming source code, <a href="http://www.unpbook.com/src.html" rel="nofollow">available online</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴³</a>.</p>
+
+<p><strong>How do I change or shorten the timeout on a call to <code>connect()</code>?</strong></p>
+
+<p>Instead of giving you exactly the same answer that W. Richard Stevens would give you, I’ll just refer you to <a href="http://www.unpbook.com/src.html" rel="nofollow"><code>lib/connect_nonb.c</code> in the UNIX Network Programming source code</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁴</a>.</p>
+
+<p>The gist of it is that you make a socket descriptor with <code>socket()</code>, <a href="slightly-advanced-techniques.html#blocking" rel="nofollow">set it to non-blocking</a>, call <code>connect()</code>, and if all goes well <code>connect()</code> will return <code>-1</code> immediately and <code>errno</code> will be set to <code>EINPROGRESS</code>. Then you call <a href="slightly-advanced-techniques.html#select" rel="nofollow"><code>select()</code></a> with whatever timeout you want, passing the socket descriptor in both the read and write sets. If it doesn’t timeout, it means the <code>connect()</code> call completed. At this point, you’ll have to use <code>getsockopt()</code> with the <code>SO_ERROR</code> option to get the return value from the <code>connect()</code> call, which should be zero if there was no error.</p>
+
+<p>Finally, you’ll probably want to set the socket back to be blocking again before you start transferring data over it.</p>
+
+<p>Notice that this has the added benefit of allowing your program to do something else while it’s connecting, too. You could, for example, set the timeout to something low, like 500 ms, and update an indicator onscreen each timeout, then call <code>select()</code> again. When you’ve called <code>select()</code> and timed-out, say, 20 times, you’ll know it’s time to give up on the connection.</p>
+
+<p>Like I said, check out Stevens’ source for a perfectly excellent example.</p>
+
+<p><strong>How do I build for Windows?</strong></p>
+
+<p>First, delete Windows and install Linux or BSD. <code>};-)</code>. No, actually, just see the <a href="intro.html#windows" rel="nofollow">section on building for Windows</a> in the introduction.</p>
+
+<p><strong>How do I build for Solaris/SunOS? I keep getting linker errors when I try to compile!</strong></p>
+
+<p>The linker errors happen because Sun boxes don’t automatically compile in the socket libraries. See the <a href="intro.html#solaris" rel="nofollow">section on building for Solaris/SunOS</a> in the introduction for an example of how to do this.</p>
+
+<p><strong>Why does <code>select()</code> keep falling out on a signal?</strong></p>
+
+<p>Signals tend to cause blocked system calls to return <code>-1</code> with <code>errno</code> set to <code>EINTR</code>. When you set up a signal handler with <code>sigaction()</code>, you can set the flag <code>SA_RESTART</code>, which is supposed to restart the system call after it was interrupted.</p>
+
+<p>Naturally, this doesn’t always work.</p>
+
+<p>My favorite solution to this involves a <code>goto</code> statement. You know this irritates your professors to no end, so go for it!</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">select_restart:</span>
+<span class="k">if</span> <span class="p">((</span><span class="n">err</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">fdmax</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">readfds</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">))</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EINTR</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// some signal just interrupted us, so restart</span>
+        <span class="k">goto</span> <span class="n">select_restart</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="c1">// handle the real error here:</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"select"</span><span class="p">);</span>
+<span class="p">}</span> 
+</code></pre></div>
+
+<p>Sure, you don’t <em>need</em> to use <code>goto</code> in this case; you can use other structures to control it. But I think the <code>goto</code> statement is actually cleaner.</p>
+
+<p><strong>How can I implement a timeout on a call to <code>recv()</code>?</strong></p>
+
+<p>Use <a href="slightly-advanced-techniques.html#select" rel="nofollow"><code>select()</code></a>! It allows you to specify a timeout parameter for socket descriptors that you’re looking to read from. Or, you could wrap the entire functionality in a single function, like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sys/time.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;sys/socket.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">recvtimeout</span><span class="p">(</span><span class="kt">int</span> <span class="n">s</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="kt">int</span> <span class="n">len</span><span class="p">,</span> <span class="kt">int</span> <span class="n">timeout</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">fd_set</span> <span class="n">fds</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">timeval</span> <span class="n">tv</span><span class="p">;</span>
+
+    <span class="c1">// set up the file descriptor set</span>
+    <span class="n">FD_ZERO</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fds</span><span class="p">);</span>
+    <span class="n">FD_SET</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">fds</span><span class="p">);</span>
+
+    <span class="c1">// set up the struct timeval for the timeout</span>
+    <span class="n">tv</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">=</span> <span class="n">timeout</span><span class="p">;</span>
+    <span class="n">tv</span><span class="p">.</span><span class="n">tv_usec</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="c1">// wait until timeout or data received</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">fds</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">tv</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="k">return</span> <span class="o">-</span><span class="mi">2</span><span class="p">;</span> <span class="c1">// timeout!</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="c1">// error</span>
+
+    <span class="c1">// data must be here, so do a normal recv()</span>
+    <span class="k">return</span> <span class="n">recv</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="p">.</span>
+<span class="p">.</span>
+<span class="p">.</span>
+<span class="c1">// Sample call to recvtimeout():</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">recvtimeout</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">buf</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span> <span class="c1">// 10 second timeout</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// error occurred</span>
+    <span class="n">perror</span><span class="p">(</span><span class="s">"recvtimeout"</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// timeout occurred</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// got some data in buf</span>
+<span class="p">}</span>
+<span class="p">.</span>
+<span class="p">.</span>
+<span class="p">.</span> 
+</code></pre></div>
+
+<p>Notice that <code>recvtimeout()</code> returns <code>-2</code> in case of a timeout. Why not return <code>0</code>? Well, if you recall, a return value of <code>0</code> on a call to <code>recv()</code> means that the remote side closed the connection. So that return value is already spoken for, and <code>-1</code> means “error”, so I chose <code>-2</code> as my timeout indicator.</p>
+
+<p><strong>How do I encrypt or compress the data before sending it through the socket?</strong></p>
+
+<p>One easy way to do encryption is to use SSL (secure sockets layer), but that’s beyond the scope of this guide. (Check out the <a href="https://www.openssl.org/" rel="nofollow">OpenSSL project</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁵</a> for more info.)</p>
+
+<p>But assuming you want to plug in or implement your own compressor or encryption system, it’s just a matter of thinking of your data as running through a sequence of steps between both ends. Each step changes the data in some way.</p>
+
+<ol>
+<li> server reads data from file (or wherever)</li>
+<li> server encrypts/compresses data (you add this part)</li>
+<li> server <code>send()</code>s encrypted data</li>
+</ol>
+
+<p>Now the other way around:</p>
+
+<ol>
+<li> client <code>recv()</code>s encrypted data</li>
+<li> client decrypts/decompresses data (you add this part)</li>
+<li> client writes data to file (or wherever)</li>
+</ol>
+
+<p>If you’re going to compress and encrypt, just remember to compress first. <code>:-)</code></p>
+
+<p>Just as long as the client properly undoes what the server does, the data will be fine in the end no matter how many intermediate steps you add.</p>
+
+<p>So all you need to do to use my code is to find the place between where the data is read and the data is sent (using <code>send()</code>) over the network, and stick some code in there that does the encryption.</p>
+
+<p><strong>What is this “<code>PF_INET</code>” I keep seeing? Is it related to <code>AF_INET</code>?</strong></p>
+
+<p>Yes, yes it is. See <a href="system-calls-or-bust.html#socket" rel="nofollow">the section on <code>socket()</code></a> for details.</p>
+
+<p><strong>How can I write a server that accepts shell commands from a client and executes them?</strong></p>
+
+<p>For simplicity, lets say the client <code>connect()</code>s, <code>send()</code>s, and <code>close()</code>s the connection (that is, there are no subsequent system calls without the client connecting again).</p>
+
+<p>The process the client follows is this:</p>
+
+<ol>
+<li> <code>connect()</code> to server</li>
+<li> <code>send(&quot;/sbin/ls &gt; /tmp/client.out&quot;)</code></li>
+<li> <code>close()</code> the connection</li>
+</ol>
+
+<p>Meanwhile, the server is handling the data and executing it:</p>
+
+<ol>
+<li> <code>accept()</code> the connection from the client</li>
+<li> <code>recv(str)</code> the command string</li>
+<li> <code>close()</code> the connection</li>
+<li> <code>system(str)</code> to run the command</li>
+</ol>
+
+<p><em>Beware!</em> Having the server execute what the client says is like giving remote shell access and people can do things to your account when they connect to the server. For instance, in the above example, what if the client sends “<code>rm -rf ~</code>”? It deletes everything in your account, that’s what!</p>
+
+<p>So you get wise, and you prevent the client from using any except for a couple utilities that you know are safe, like the <code>foobar</code> utility:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">strncmp</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="s">"foobar"</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">sprintf</span><span class="p">(</span><span class="n">sysstr</span><span class="p">,</span> <span class="s">"%s &gt; /tmp/server.out"</span><span class="p">,</span> <span class="n">str</span><span class="p">);</span>
+    <span class="n">system</span><span class="p">(</span><span class="n">sysstr</span><span class="p">);</span>
+<span class="p">}</span> 
+</code></pre></div>
+
+<p>But you’re still unsafe, unfortunately: what if the client enters “<code>foobar; rm -rf ~</code>”? The safest thing to do is to write a little routine that puts an escape (“<code>\</code>”) character in front of all non-alphanumeric characters (including spaces, if appropriate) in the arguments for the command.</p>
+
+<p>As you can see, security is a pretty big issue when the server starts executing things the client sends.</p>
+
+<p><strong>I’m sending a slew of data, but when I <code>recv()</code>, it only receives 536 bytes or 1460 bytes at a time. But if I run it on my local machine, it receives all the data at the same time. What’s going on?</strong></p>
+
+<p>You’re hitting the MTU—the maximum size the physical medium can handle. On the local machine, you’re using the loopback device which can handle 8K or more no problem. But on Ethernet, which can only handle 1500 bytes with a header, you hit that limit. Over a modem, with 576 MTU (again, with header), you hit the even lower limit.</p>
+
+<p>You have to make sure all the data is being sent, first of all. (See the <a href="slightly-advanced-techniques.html#sendall" rel="nofollow"><code>sendall()</code></a> function implementation for details.) Once you’re sure of that, then you need to call <code>recv()</code> in a loop until all your data is read.</p>
+
+<p>Read the section <a href="slightly-advanced-techniques.html#sonofdataencap" rel="nofollow">Son of Data Encapsulation</a> for details on receiving complete packets of data using multiple calls to <code>recv()</code>.</p>
+
+<p><strong>I’m on a Windows box and I don’t have the <code>fork()</code> system call or any kind of <code>struct sigaction</code>. What to do?</strong></p>
+
+<p>If they’re anywhere, they’ll be in POSIX libraries that may have shipped with your compiler. Since I don’t have a Windows box, I really can’t tell you the answer, but I seem to remember that Microsoft has a POSIX compatibility layer and that’s where <code>fork()</code> would be. (And maybe even <code>sigaction</code>.)</p>
+
+<p>Search the help that came with VC++ for “fork” or “POSIX” and see if it gives you any clues.</p>
+
+<p>If that doesn’t work at all, ditch the <code>fork()</code>/<code>sigaction</code> stuff and replace it with the Win32 equivalent: <code>CreateProcess()</code>. I don’t know how to use <code>CreateProcess()</code>—it takes a bazillion arguments, but it should be covered in the docs that came with VC++.</p>
+
+<p><strong>I’m behind a firewall—how do I let people outside the firewall know my IP address so they can connect to my machine?</strong></p>
+
+<p>Unfortunately, the purpose of a firewall is to prevent people outside the firewall from connecting to machines inside the firewall, so allowing them to do so is basically considered a breach of security.</p>
+
+<p>This isn’t to say that all is lost. For one thing, you can still often <code>connect()</code> through the firewall if it’s doing some kind of masquerading or NAT or something like that. Just design your programs so that you’re always the one initiating the connection, and you’ll be fine.</p>
+
+<p>If that’s not satisfactory, you can ask your sysadmins to poke a hole in the firewall so that people can connect to you. The firewall can forward to you either through it’s NAT software, or through a proxy or something like that.</p>
+
+<p>Be aware that a hole in the firewall is nothing to be taken lightly. You have to make sure you don’t give bad people access to the internal network; if you’re a beginner, it’s a lot harder to make software secure than you might imagine.</p>
+
+<p>Don’t make your sysadmin mad at me. <code>;-)</code></p>
+
+<p><strong>How do I write a packet sniffer? How do I put my Ethernet interface into promiscuous mode?</strong></p>
+
+<p>For those not in the know, when a network card is in “promiscuous mode”, it will forward ALL packets to the operating system, not just those that were addressed to this particular machine. (We’re talking Ethernet-layer addresses here, not IP addresses–but since ethernet is lower-layer than IP, all IP addresses are effectively forwarded as well. See the section <a href="what-is-a-socket.html#lowlevel" rel="nofollow">Low Level Nonsense and Network Theory</a> for more info.)</p>
+
+<p>This is the basis for how a packet sniffer works. It puts the interface into promiscuous mode, then the OS gets every single packet that goes by on the wire. You’ll have a socket of some type that you can read this data from.</p>
+
+<p>Unfortunately, the answer to the question varies depending on the platform, but if you Google for, for instance, “windows promiscuous ioctl” you’ll probably get somewhere. For Linux, there’s what looks like a <a href="https://stackoverflow.com/questions/21323023/" rel="nofollow">useful Stack Overflow thread</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁶</a>, as well.</p>
+
+<p><strong>How can I set a custom timeout value for a TCP or UDP socket?</strong></p>
+
+<p>It depends on your system. You might search the net for <code>SO_RCVTIMEO</code> and <code>SO_SNDTIMEO</code> (for use with <code>setsockopt()</code>) to see if your system supports such functionality.</p>
+
+<p>The Linux man page suggests using <code>alarm()</code> or <code>setitimer()</code> as a substitute.</p>
+
+<p><strong>How can I tell which ports are available to use? Is there a list of “official” port numbers?</strong></p>
+
+<p>Usually this isn’t an issue. If you’re writing, say, a web server, then it’s a good idea to use the well-known port 80 for your software. If you’re writing just your own specialized server, then choose a port at random (but greater than 1023) and give it a try.</p>
+
+<p>If the port is already in use, you’ll get an “Address already in use” error when you try to <code>bind()</code>. Choose another port. (It’s a good idea to allow the user of your software to specify an alternate port either with a config file or a command line switch.)</p>
+
+<p>There is a <a href="https://www.iana.org/assignments/port-numbers" rel="nofollow">list of official port numbers</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴⁷</a> maintained by the Internet Assigned Numbers Authority (IANA). Just because something (over 1023) is in that list doesn’t mean you can’t use the port. For instance, Id Software’s DOOM uses the same port as “mdqs”, whatever that is. All that matters is that no one else <em>on the same machine</em> is using that port when you want to use it.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

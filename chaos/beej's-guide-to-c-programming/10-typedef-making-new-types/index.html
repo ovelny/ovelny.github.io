@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/10-typedef-making-new-types</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/10-typedef-making-new-types"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>10 <code>typedef</code>: Making New Types</h1>
+
+<p>Well, not so much making <em>new</em> types as getting new names for existing types. Sounds kinda pointless on the surface, but we can really use this to make our code cleaner.</p>
+
+<h2>10.1 <code>typedef</code> in Theory</h2>
+
+<p>Basically, you take an existing type and you make an alias for it with <code>typedef</code>.</p>
+
+<p>Like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">typedef</span> <span class="kt">int</span> <span class="n">antelope</span><span class="p">;</span>  <span class="c1">// Make "antelope" an alias for "int"</span>
+
+<span class="n">antelope</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>       <span class="c1">// Type "antelope" is the same as type "int"</span>
+</code></pre></div>
+
+<p>You can take any existing type and do it. You can even make a number of types with a comma list:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">typedef</span> <span class="kt">int</span> <span class="n">antelope</span><span class="p">,</span> <span class="n">bagel</span><span class="p">,</span> <span class="n">mushroom</span><span class="p">;</span>  <span class="c1">// These are all "int"</span>
+</code></pre></div>
+
+<p>That’s really useful, right? That you can type <code>mushroom</code> instead of <code>int</code>? You must be <em>super excited</em> about this feature!</p>
+
+<p>OK, Professor Sarcasm—we’ll get to some more common applications of this in a moment.</p>
+
+<h3>10.1.1 Scoping</h3>
+
+<p><code>typedef</code> follows regular <a href="scope.html#scope" rel="nofollow">scoping rules</a>.</p>
+
+<p>For this reason, it’s quite common to find <code>typedef</code> at file scope (“global”) so that all functions can use the new types at will.</p>
+
+<h2>10.2 <code>typedef</code> in Practice</h2>
+
+<p>So renaming <code>int</code> to something else isn’t that exciting. Let’s see where <code>typedef</code> commonly makes an appearance.</p>
+
+<h3>10.2.1 <code>typedef</code> and <code>struct</code>s</h3>
+
+<p>Sometimes a <code>struct</code> will be <code>typedef</code>’d to a new name so you don’t have to type the word <code>struct</code> over and over.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">animal</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">leg_count</span><span class="p">,</span> <span class="n">speed</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="c1">//  original name      new name</span>
+<span class="c1">//            |         |</span>
+<span class="c1">//            v         v</span>
+<span class="c1">//      |-----------| |----|</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">animal</span> <span class="n">animal</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">animal</span> <span class="n">y</span><span class="p">;</span>  <span class="c1">// This works</span>
+<span class="n">animal</span> <span class="n">z</span><span class="p">;</span>         <span class="c1">// This also works because "animal" is an alias</span>
+</code></pre></div>
+
+<p>Personally, I don’t care for this practice. I like the clarity the code has when you add the word <code>struct</code> to the type; programmers know what they’re getting. But it’s really common so I’m including it here.</p>
+
+<p>Now I want to run the exact same example in a way that you might commonly see. We’re going to put the <code>struct animal</code> <em>in</em> the <code>typedef</code>. You can mash it all together like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">//  original name</span>
+<span class="c1">//            |</span>
+<span class="c1">//            v</span>
+<span class="c1">//      |-----------|</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">animal</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">leg_count</span><span class="p">,</span> <span class="n">speed</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">animal</span><span class="p">;</span>                         <span class="c1">// &lt;-- new name</span>
+
+<span class="k">struct</span> <span class="n">animal</span> <span class="n">y</span><span class="p">;</span>  <span class="c1">// This works</span>
+<span class="n">animal</span> <span class="n">z</span><span class="p">;</span>         <span class="c1">// This also works because "animal" is an alias</span>
+</code></pre></div>
+
+<p>That’s exactly the same as the previous example, just more concise.</p>
+
+<p>But that’s not all! There’s another common shortcut that you might see in code using what are called <em>anonymous structures</em><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸¹</a>. It turns out you don’t actually need to name the structure in a variety of places, and with <code>typedef</code> is one of them.</p>
+
+<p>Let’s do the same example with an anonymous structure:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">//  Anonymous struct! It has no name!</span>
+<span class="c1">//         |</span>
+<span class="c1">//         v</span>
+<span class="c1">//      |----|</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">leg_count</span><span class="p">,</span> <span class="n">speed</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">animal</span><span class="p">;</span>                         <span class="c1">// &lt;-- new name</span>
+
+<span class="c1">//struct animal y;  // ERROR: this no longer works--no such struct!</span>
+<span class="n">animal</span> <span class="n">z</span><span class="p">;</span>           <span class="c1">// This works because "animal" is an alias</span>
+</code></pre></div>
+
+<p>As another example, we might find something like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">point</span><span class="p">;</span>
+
+<span class="n">point</span> <span class="n">p</span> <span class="o">=</span> <span class="p">{.</span><span class="n">x</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="p">.</span><span class="n">y</span><span class="o">=</span><span class="mi">40</span><span class="p">};</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d, %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">.</span><span class="n">y</span><span class="p">);</span>  <span class="c1">// 20, 40</span>
+</code></pre></div>
+
+<h3>10.2.2 <code>typedef</code> and Other Types</h3>
+
+<p>It’s not that using <code>typedef</code> with a simple type like <code>int</code> is completely useless… it helps you abstract the types to make it easier to change them later.</p>
+
+<p>For example, if you have <code>float</code> all over your code in 100 zillion places, it’s going to be painful to change them all to <code>double</code> if you find you have to do that later for some reason.</p>
+
+<p>But if you prepared a little with:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">typedef</span> <span class="kt">float</span> <span class="n">app_float</span><span class="p">;</span>
+
+<span class="c1">// and</span>
+
+<span class="n">app_float</span> <span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="p">,</span> <span class="n">f3</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Then if later you want to change to another type, like <code>long double</code>, you just need to change the <code>typedef</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">//        voila!</span>
+<span class="c1">//      |---------|</span>
+<span class="k">typedef</span> <span class="kt">long</span> <span class="kt">double</span> <span class="n">app_float</span><span class="p">;</span>
+
+<span class="c1">// and no need to change this line:</span>
+
+<span class="n">app_float</span> <span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="p">,</span> <span class="n">f3</span><span class="p">;</span>  <span class="c1">// Now these are all long doubles</span>
+</code></pre></div>
+
+<h3>10.2.3 <code>typedef</code> and Pointers</h3>
+
+<p>You can make a type that is a pointer.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">typedef</span> <span class="kt">int</span> <span class="o">*</span><span class="n">intptr</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="n">intptr</span> <span class="n">x</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">;</span>  <span class="c1">// "intptr" is type "int*"</span>
+</code></pre></div>
+
+<p>I really don’t like this practice. It hides the fact that <code>x</code> is a pointer type because you don’t see a <code>*</code> in the declaration.</p>
+
+<p>IMHO, it’s better to explicitly show that you’re declaring a pointer type so that other devs can clearly see it and don’t mistake <code>x</code> for having a non-pointer type.</p>
+
+<p>But at last count, say, 832,007 people had a different opinion.</p>
+
+<h3>10.2.4 <code>typedef</code> and Capitalization</h3>
+
+<p>I’ve seen all kinds of capitalization on <code>typedef</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">my_point</span><span class="p">;</span>          <span class="c1">// lower snake case</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">MyPoint</span><span class="p">;</span>          <span class="c1">// CamelCase</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">Mypoint</span><span class="p">;</span>          <span class="c1">// Leading uppercase</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">MY_POINT</span><span class="p">;</span>          <span class="c1">// UPPER SNAKE CASE</span>
+</code></pre></div>
+
+<p>The C11 specification doesn’t dictate one way or another, and shows examples in all uppercase and all lowercase.</p>
+
+<p>K&amp;R2 uses leading uppercase predominantly, but show some examples in uppercase and snake case (with <code>_t</code>).</p>
+
+<p>If you have a style guide in use, stick with it. If you don’t, grab one and stick with it.</p>
+
+<h2>10.3 Arrays and <code>typedef</code></h2>
+
+<p>The syntax is a little weird, and this is rarely seen in my experience, but you can <code>typedef</code> an array of some number of items.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// Make type five_ints an array of 5 ints</span>
+<span class="k">typedef</span> <span class="kt">int</span> <span class="n">five_ints</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
+
+<span class="n">five_ints</span> <span class="n">x</span> <span class="o">=</span> <span class="p">{</span><span class="mi">11</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">33</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">55</span><span class="p">};</span>
+</code></pre></div>
+
+<p>I don’t like it because it hides the array nature of the variable, but it’s possible to do.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/31-wctype</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/31-wctype"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>31 <code>&lt;wctype.h&gt;</code> Wide Character Classification and Transformation</h1>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="wctype.html#man-iswalnum" rel="nofollow"><code>iswalnum()</code></a></td>
+<td>Test if a wide character is alphanumeric.</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-iswalpha" rel="nofollow"><code>iswalpha()</code></a></td>
+<td>Tests if a wide character is alphabetic</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-iswblank" rel="nofollow"><code>iswblank()</code></a></td>
+<td>Tests if this is a wide blank character</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-iswcntrl" rel="nofollow"><code>iswcntrl()</code></a></td>
+<td>Tests if this is a wide control character.</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-iswctype" rel="nofollow"><code>iswctype()</code></a></td>
+<td>Determine wide character classification</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-iswdigit" rel="nofollow"><code>iswdigit()</code></a></td>
+<td>Test if this wide character is a digit</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-iswgraph" rel="nofollow"><code>iswgraph()</code></a></td>
+<td>Test to see if a wide character is a printable non-space</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-iswlower" rel="nofollow"><code>iswlower()</code></a></td>
+<td>Tests if a wide character is lowercase</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-iswprint" rel="nofollow"><code>iswprint()</code></a></td>
+<td>Tests if a wide character is printable</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-iswpunct" rel="nofollow"><code>iswpunct()</code></a></td>
+<td>Test if a wide character is punctuation</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-iswspace" rel="nofollow"><code>iswspace()</code></a></td>
+<td>Test if a wide character is whitespace</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-iswupper" rel="nofollow"><code>iswupper()</code></a></td>
+<td>Tests if a wide character is uppercase</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-iswxdigit" rel="nofollow"><code>iswxdigit()</code></a></td>
+<td>Tests if a wide character is a hexadecimal digit</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-towctrans" rel="nofollow"><code>towctrans()</code></a></td>
+<td>Convert wide characters to upper or lowercase</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-towlower" rel="nofollow"><code>towlower()</code></a></td>
+<td>Convert an uppercase wide character to lowercase</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-towupper" rel="nofollow"><code>towupper()</code></a></td>
+<td>Convert a lowercase wide character to uppercase</td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-wctrans" rel="nofollow"><code>wctrans()</code></a></td>
+<td>Helper function for <code>towctrans()</code></td>
+</tr>
+<tr>
+<td><a href="wctype.html#man-wctype" rel="nofollow"><code>wctype()</code></a></td>
+<td>Helper function for <code>iswctype()</code></td>
+</tr>
+</tbody></table>
+
+<p>This is like <a href="ctype.html#ctype" rel="nofollow"><code>&lt;ctype.h&gt;</code></a> except for wide characters.</p>
+
+<p>With it you can test for character classifications (like “is this character whitespace?”) or do basic character conversions (like “force this character to lowercase”).</p>
+
+<p><hr></p>
+
+<h2>31.1 <code>iswalnum()</code></h2>
+
+<p>Test if a wide character is alphanumeric.</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iswalnum</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Basically tests if a character is alphabetic (<code>A</code>-<code>Z</code> or <code>a</code>-<code>z</code>) or a digit (<code>0</code>-<code>9</code>). But some other characters might also qualify based on the locale.</p>
+
+<p>This is equivalent to testing if <code>iswalpha()</code> or <code>iswdigit()</code> is true.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns true if the character is alphanumeric.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                  testing this char</span>
+    <span class="c1">//                           v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswalnum</span><span class="p">(</span><span class="sc">L'a'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswalnum</span><span class="p">(</span><span class="sc">L'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswalnum</span><span class="p">(</span><span class="sc">L'5'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswalnum</span><span class="p">(</span><span class="sc">L'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wctype.html#man-iswalpha" rel="nofollow"><code>iswalpha()</code></a>, <a href="wctype.html#man-iswdigit" rel="nofollow"><code>iswdigit()</code></a>, <a href="ctype.html#man-isalnum" rel="nofollow"><code>isalnum()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.2 <code>iswalpha()</code></h2>
+
+<p>Tests if a wide character is alphabetic</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iswalpha</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Basically tests if a character is alphabetic (<code>A</code>-<code>Z</code> or <code>a</code>-<code>z</code>). But some other characters might also qualify based on the locale. (If other characters qualify, they won’t be control characters, digits, punctuation, or spaces.)</p>
+
+<p>This is the same as testing for <code>iswupper()</code> or <code>iswlower()</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns true if the character is alphabetic.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                  testing this char</span>
+    <span class="c1">//                           v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswalpha</span><span class="p">(</span><span class="sc">L'a'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswalpha</span><span class="p">(</span><span class="sc">L'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswalpha</span><span class="p">(</span><span class="sc">L'5'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswalpha</span><span class="p">(</span><span class="sc">L'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wctype.html#man-iswalnum" rel="nofollow"><code>iswalnum()</code></a>, <a href="ctype.html#man-isalpha" rel="nofollow"><code>isalpha()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.3 <code>iswblank()</code></h2>
+
+<p>Tests if this is a wide blank character</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iswblank</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Blank characters are whitespace that are also used as word separators on the same line. In the “C” locale, the only blank characters are space and tab.</p>
+
+<p>Other locales might define other blank characters.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns true if this is a blank character.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                   testing this char</span>
+    <span class="c1">//                           v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswblank</span><span class="p">(</span><span class="sc">L' '</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswblank</span><span class="p">(</span><span class="sc">L'\t'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswblank</span><span class="p">(</span><span class="sc">L'\n'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswblank</span><span class="p">(</span><span class="sc">L'a'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswblank</span><span class="p">(</span><span class="sc">L'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wctype.html#man-iswspace" rel="nofollow"><code>iswspace()</code></a>, <a href="ctype.html#man-isblank" rel="nofollow"><code>isblank()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.4 <code>iswcntrl()</code></h2>
+
+<p>Tests if this is a wide control character.</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iswcntrl</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>The spec is pretty barren, here. But I’m just going to assume that it works like the non-wide version. So let’s look at that.</p>
+
+<p>A <em>control character</em> is a locale-specific non-printing character.</p>
+
+<p>For the “C” locale, this means control characters are in the range 0x00 to 0x1F (the character right before SPACE) and 0x7F (the DEL character).</p>
+
+<p>Basically if it’s not an ASCII (or Unicode less than 128) printable character, it’s a control character in the “C” locale.</p>
+
+<p>Probably.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns true if this is a control character.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                   testing this char</span>
+    <span class="c1">//                           v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswcntrl</span><span class="p">(</span><span class="sc">L'\t'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// yes (tab)</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswcntrl</span><span class="p">(</span><span class="sc">L'\n'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// yes (newline)</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswcntrl</span><span class="p">(</span><span class="sc">L'\r'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// yes (return)</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswcntrl</span><span class="p">(</span><span class="sc">L'\a'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// yes (bell)</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswcntrl</span><span class="p">(</span><span class="sc">L' '</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswcntrl</span><span class="p">(</span><span class="sc">L'a'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswcntrl</span><span class="p">(</span><span class="sc">L'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-iscntrl" rel="nofollow"><code>iscntrl()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.5 <code>iswdigit()</code></h2>
+
+<p>Test if this wide character is a digit</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iswdigit</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if the wide character is a digit (<code>0</code>-<code>9</code>).</p>
+
+<h3>Return Value</h3>
+
+<p>Returns true if the character is a digit.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                   testing this char</span>
+    <span class="c1">//                           v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswdigit</span><span class="p">(</span><span class="sc">L'0'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswdigit</span><span class="p">(</span><span class="sc">L'5'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswdigit</span><span class="p">(</span><span class="sc">L'a'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswdigit</span><span class="p">(</span><span class="sc">L'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswdigit</span><span class="p">(</span><span class="sc">L'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wctype.html#man-iswalnum" rel="nofollow"><code>iswalnum()</code></a>, <a href="ctype.html#man-isdigit" rel="nofollow"><code>isdigit()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.6 <code>iswgraph()</code></h2>
+
+<p>Test to see if a wide character is a printable non-space</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iswgraph</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Returns true if this is a printable (non-control) character and also not a whitespace character.</p>
+
+<p>Basically if <code>iswprint()</code> is true and <code>iswspace()</code> is false.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns true if this is a printable non-space character.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                   testing this char</span>
+    <span class="c1">//                           v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswgraph</span><span class="p">(</span><span class="sc">L'0'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswgraph</span><span class="p">(</span><span class="sc">L'a'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswgraph</span><span class="p">(</span><span class="sc">L'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswgraph</span><span class="p">(</span><span class="sc">L'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswgraph</span><span class="p">(</span><span class="sc">L' '</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswgraph</span><span class="p">(</span><span class="sc">L'\n'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wctype.html#man-iswprint" rel="nofollow"><code>iswprint()</code></a>, <a href="wctype.html#man-iswspace" rel="nofollow"><code>iswspace()</code></a>, <a href="ctype.html#man-isgraph" rel="nofollow"><code>isgraph()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.7 <code>iswlower()</code></h2>
+
+<p>Tests if a wide character is lowercase</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iswlower</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if a character is lowercase, in the range <code>a</code>-<code>z</code>.</p>
+
+<p>In other locales, there could be other lowercase characters. In all cases, to be lowercase, the following must be true:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">!</span><span class="n">iswcntrl</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">iswdigit</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">iswpunct</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">iswspace</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>Returns true if the wide character is lowercase.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                   testing this char</span>
+    <span class="c1">//                           v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswlower</span><span class="p">(</span><span class="sc">L'c'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswlower</span><span class="p">(</span><span class="sc">L'0'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswlower</span><span class="p">(</span><span class="sc">L'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswlower</span><span class="p">(</span><span class="sc">L'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswlower</span><span class="p">(</span><span class="sc">L' '</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-islower" rel="nofollow"><code>islower()</code></a>, <a href="ctype.html#man-isupper" rel="nofollow"><code>iswupper()</code></a>, <a href="ctype.html#man-isalpha" rel="nofollow"><code>iswalpha()</code></a>, <a href="ctype.html#man-toupper" rel="nofollow"><code>towupper()</code></a>, <a href="ctype.html#man-tolower" rel="nofollow"><code>towlower()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.8 <code>iswprint()</code></h2>
+
+<p>Tests if a wide character is printable</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iswprint</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if a wide character is printable, including space (<code>&#39; &#39;</code>). So like <code>isgraph()</code>, except space isn’t left out in the cold.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns true if the wide character is printable, including space (<code>&#39; &#39;</code>).</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                   testing this char</span>
+    <span class="c1">//                           v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswprint</span><span class="p">(</span><span class="sc">L'c'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswprint</span><span class="p">(</span><span class="sc">L'0'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswprint</span><span class="p">(</span><span class="sc">L' '</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswprint</span><span class="p">(</span><span class="sc">L'\r'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isprint" rel="nofollow"><code>isprint()</code></a>, <a href="wctype.html#man-iswgraph" rel="nofollow"><code>iswgraph()</code></a>, <a href="wctype.html#man-iswcntrl" rel="nofollow"><code>iswcntrl()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.9 <code>iswpunct()</code></h2>
+
+<p>Test if a wide character is punctuation</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iswpunct</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if a wide character is punctuation.</p>
+
+<p>This means for any given locale:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">!</span><span class="n">isspace</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isalnum</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>True if the wide character is punctuation.</p>
+
+<h3>Example</h3>
+
+<p>Results may vary based on locale.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                   testing this char</span>
+    <span class="c1">//                           v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswpunct</span><span class="p">(</span><span class="sc">L','</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswpunct</span><span class="p">(</span><span class="sc">L'!'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswpunct</span><span class="p">(</span><span class="sc">L'c'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswpunct</span><span class="p">(</span><span class="sc">L'0'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswpunct</span><span class="p">(</span><span class="sc">L' '</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswpunct</span><span class="p">(</span><span class="sc">L'\n'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-ispunct" rel="nofollow"><code>ispunct()</code></a>, <a href="wctype.html#man-iswspace" rel="nofollow"><code>iswspace()</code></a>, <a href="wctype.html#man-iswalnum" rel="nofollow"><code>iswalnum()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.10 <code>iswspace()</code></h2>
+
+<p>Test if a wide character is whitespace</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iswspace</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if <code>c</code> is a whitespace character. These are probably:</p>
+
+<ul>
+<li>  Space (<code>&#39; &#39;</code>)</li>
+<li>  Formfeed (<code>&#39;\f&#39;</code>)</li>
+<li>  Newline (<code>&#39;\n&#39;</code>)</li>
+<li>  Carriage Return (<code>&#39;\r&#39;</code>)</li>
+<li>  Horizontal Tab (<code>&#39;\t&#39;</code>)</li>
+<li>  Vertical Tab (<code>&#39;\v&#39;</code>)</li>
+</ul>
+
+<p>Other locales might specify other whitespace characters. <code>iswalnum()</code>, <code>iswgraph()</code>, and <code>iswpunct()</code> are all false for all whitespace characters.</p>
+
+<h3>Return Value</h3>
+
+<p>True if the character is whitespace.</p>
+
+<h3>Example</h3>
+
+<p>Results may vary based on locale.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                   testing this char</span>
+    <span class="c1">//                           v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswspace</span><span class="p">(</span><span class="sc">L' '</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswspace</span><span class="p">(</span><span class="sc">L'\n'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswspace</span><span class="p">(</span><span class="sc">L'\t'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>  <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswspace</span><span class="p">(</span><span class="sc">L','</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswspace</span><span class="p">(</span><span class="sc">L'!'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswspace</span><span class="p">(</span><span class="sc">L'c'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isspace" rel="nofollow"><code>isspace()</code></a>, <a href="wctype.html#man-iswblank" rel="nofollow"><code>iswblank()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.11 <code>iswupper()</code></h2>
+
+<p>Tests if a wide character is uppercase</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iswupper</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Tests if a character is uppercase in the current locale.</p>
+
+<p>To be uppercase, the following must be true:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">!</span><span class="n">iscntrl</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isdigit</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">ispunct</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isspace</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>Returns true if the wide character is uppercase.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                   testing this char</span>
+    <span class="c1">//                           v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswupper</span><span class="p">(</span><span class="sc">L'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswupper</span><span class="p">(</span><span class="sc">L'c'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswupper</span><span class="p">(</span><span class="sc">L'0'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswupper</span><span class="p">(</span><span class="sc">L'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswupper</span><span class="p">(</span><span class="sc">L' '</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isupper" rel="nofollow"><code>isupper()</code></a>, <a href="wctype.html#man-iswlower" rel="nofollow"><code>iswlower()</code></a>, <a href="wctype.html#man-iswalpha" rel="nofollow"><code>iswalpha()</code></a>, <a href="wctype.html#man-towupper" rel="nofollow"><code>towupper()</code></a>, <a href="wctype.html#man-towlower" rel="nofollow"><code>towlower()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.12 <code>iswxdigit()</code></h2>
+
+<p>Tests if a wide character is a hexadecimal digit</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iswxdigit</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Returns true if the wide character is a hexadecimal digit. Namely if it’s <code>0</code>-<code>9</code>, <code>a</code>-<code>f</code>, or <code>A</code>-<code>F</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>True if the character is a hexadecimal digit.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                    testing this char</span>
+    <span class="c1">//                            v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswxdigit</span><span class="p">(</span><span class="sc">L'B'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswxdigit</span><span class="p">(</span><span class="sc">L'c'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswxdigit</span><span class="p">(</span><span class="sc">L'2'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// yes</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswxdigit</span><span class="p">(</span><span class="sc">L'G'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">iswxdigit</span><span class="p">(</span><span class="sc">L'?'</span><span class="p">)</span><span class="o">?</span> <span class="s">L"yes"</span><span class="o">:</span> <span class="s">L"no"</span><span class="p">);</span>   <span class="c1">// no</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-isxdigit" rel="nofollow"><code>isxdigit()</code></a>, <a href="wctype.html#man-iswdigit" rel="nofollow"><code>iswdigit()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.13 <code>iswctype()</code></h2>
+
+<p>Determine wide character classification</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">iswctype</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">,</span> <span class="kt">wctype_t</span> <span class="n">desc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the Swiss Army knife of classification functions; it’s all the other ones rolled into one.</p>
+
+<p>You call it with something like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="n">iswctype</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">wctype</span><span class="p">(</span><span class="s">"digit"</span><span class="p">)))</span>  <span class="c1">// or "alpha" or "space" or...</span>
+</code></pre></div>
+
+<p>and it behaves just like you’d called:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="n">iswdigit</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+</code></pre></div>
+
+<p>The difference is that you can specify the type of matching you want to do as a string at runtime, which might be convenient.</p>
+
+<p><code>iswctype()</code> relies on the return value from the <a href="wctype.html#man-wctype" rel="nofollow"><code>wctype()</code></a> call to get its work done.</p>
+
+<p>Stolen from the spec, here are the <code>iswctype()</code> calls and their equivalents:</p>
+
+<table><thead>
+<tr>
+<th><code>iswctype()</code> call</th>
+<th>Hard-coded equivalent</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>iswctype(c, wctype(&quot;alnum&quot;))</code></td>
+<td><code>iswalnum(c)</code></td>
+</tr>
+<tr>
+<td><code>iswctype(c, wctype(&quot;alpha&quot;))</code></td>
+<td><code>iswalpha(c)</code></td>
+</tr>
+<tr>
+<td><code>iswctype(c, wctype(&quot;blank&quot;))</code></td>
+<td><code>iswblank(c)</code></td>
+</tr>
+<tr>
+<td><code>iswctype(c, wctype(&quot;cntrl&quot;))</code></td>
+<td><code>iswcntrl(c)</code></td>
+</tr>
+<tr>
+<td><code>iswctype(c, wctype(&quot;digit&quot;))</code></td>
+<td><code>iswdigit(c)</code></td>
+</tr>
+<tr>
+<td><code>iswctype(c, wctype(&quot;graph&quot;))</code></td>
+<td><code>iswgraph(c)</code></td>
+</tr>
+<tr>
+<td><code>iswctype(c, wctype(&quot;lower&quot;))</code></td>
+<td><code>iswlower(c)</code></td>
+</tr>
+<tr>
+<td><code>iswctype(c, wctype(&quot;print&quot;))</code></td>
+<td><code>iswprint(c)</code></td>
+</tr>
+<tr>
+<td><code>iswctype(c, wctype(&quot;punct&quot;))</code></td>
+<td><code>iswpunct(c)</code></td>
+</tr>
+<tr>
+<td><code>iswctype(c, wctype(&quot;space&quot;))</code></td>
+<td><code>iswspace(c)</code></td>
+</tr>
+<tr>
+<td><code>iswctype(c, wctype(&quot;upper&quot;))</code></td>
+<td><code>iswupper(c)</code></td>
+</tr>
+<tr>
+<td><code>iswctype(c, wctype(&quot;xdigit&quot;))</code></td>
+<td><code>iswxdigit(c)</code></td>
+</tr>
+</tbody></table>
+
+<p>See the <a href="wctype.html#man-wctype" rel="nofollow"><code>wctype()</code> documentation</a> for how that helper function works.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns true if the wide character <code>wc</code> matches the character class in <code>desc</code>.</p>
+
+<h3>Example</h3>
+
+<p>Test for a given character classification at when the classification isn’t known at compile time:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">  // for fflush(stdout)</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="n">c</span><span class="p">;</span>        <span class="c1">// Holds a single wide character (to test)</span>
+    <span class="kt">char</span> <span class="n">desc</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>   <span class="c1">// Holds the character class</span>
+
+    <span class="c1">// Get the character and classification from the user</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Enter a character and character class: "</span><span class="p">);</span>
+    <span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+    <span class="n">wscanf</span><span class="p">(</span><span class="s">L"%lc %s"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">c</span><span class="p">,</span> <span class="n">desc</span><span class="p">);</span>
+
+    <span class="c1">// Compute the type from the given class</span>
+    <span class="kt">wctype_t</span> <span class="n">t</span> <span class="o">=</span> <span class="n">wctype</span><span class="p">(</span><span class="n">desc</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1">// If the type is 0, it's an unknown class</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Unknown character class: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">desc</span><span class="p">);</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// Otherwise, let's test the character and see if its that</span>
+        <span class="c1">// classification</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">iswctype</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+            <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Yes! '%lc' is %s!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">desc</span><span class="p">);</span>
+        <span class="k">else</span>
+            <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Nope! '%lc' is not %s.</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">desc</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">character</span> <span class="n">class</span><span class="o">:</span> <span class="mi">5</span> <span class="n">digit</span>
+<span class="n">Yes</span><span class="o">!</span> <span class="sc">'5'</span> <span class="n">is</span> <span class="n">digit</span><span class="o">!</span>
+
+<span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">character</span> <span class="n">class</span><span class="o">:</span> <span class="n">b</span> <span class="n">digit</span>
+<span class="n">Nope</span><span class="o">!</span> <span class="sc">'b'</span> <span class="n">is</span> <span class="n">not</span> <span class="n">digit</span><span class="p">.</span>
+
+<span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">character</span> <span class="n">class</span><span class="o">:</span> <span class="n">x</span> <span class="n">alnum</span>
+<span class="n">Yes</span><span class="o">!</span> <span class="sc">'x'</span> <span class="n">is</span> <span class="n">alnum</span><span class="o">!</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wctype.html#man-wctype" rel="nofollow"><code>wctype()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.14 <code>wctype()</code></h2>
+
+<p>Helper function for <code>iswctype()</code></p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wctype_t</span> <span class="nf">wctype</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">property</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This function returns an opaque value for the given <code>property</code> that is meant to be passed as the second argument to <a href="wctype.html#man-iswctype" rel="nofollow"><code>iswctype()</code></a>.</p>
+
+<p>The returned value is of type <code>wctype_t</code>.</p>
+
+<p>Valid properties in all locales are:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="s">"alnum"</span>   <span class="s">"alpha"</span>   <span class="s">"blank"</span>   <span class="s">"cntrl"</span>
+<span class="s">"digit"</span>   <span class="s">"graph"</span>   <span class="s">"lower"</span>   <span class="s">"print"</span>
+<span class="s">"punct"</span>   <span class="s">"space"</span>   <span class="s">"upper"</span>   <span class="s">"xdigit"</span>
+</code></pre></div>
+
+<p>Other properties might be defined as determined by the <code>LC_CTYPE</code> category of the current locale.</p>
+
+<p>See the <a href="wctype.html#man-iswctype" rel="nofollow"><code>iswctype()</code> reference page</a> for more usage details.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the <code>wctype_t</code> value associated with the given <code>property</code>.</p>
+
+<p>If an invalid value is passed for <code>property</code>, returns <code>0</code>.</p>
+
+<h3>Example</h3>
+
+<p>Test for a given character classification at when the classification isn’t known at compile time:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">  // for fflush(stdout)</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="n">c</span><span class="p">;</span>        <span class="c1">// Holds a single wide character (to test)</span>
+    <span class="kt">char</span> <span class="n">desc</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>   <span class="c1">// Holds the character class</span>
+
+    <span class="c1">// Get the character and classification from the user</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Enter a character and character class: "</span><span class="p">);</span>
+    <span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+    <span class="n">wscanf</span><span class="p">(</span><span class="s">L"%lc %s"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">c</span><span class="p">,</span> <span class="n">desc</span><span class="p">);</span>
+
+    <span class="c1">// Compute the type from the given class</span>
+    <span class="kt">wctype_t</span> <span class="n">t</span> <span class="o">=</span> <span class="n">wctype</span><span class="p">(</span><span class="n">desc</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1">// If the type is 0, it's an unknown class</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Unknown character class: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">desc</span><span class="p">);</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// Otherwise, let's test the character and see if its that</span>
+        <span class="c1">// classification</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">iswctype</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+            <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Yes! '%lc' is %s!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">desc</span><span class="p">);</span>
+        <span class="k">else</span>
+            <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Nope! '%lc' is not %s.</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">desc</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">character</span> <span class="n">class</span><span class="o">:</span> <span class="mi">5</span> <span class="n">digit</span>
+<span class="n">Yes</span><span class="o">!</span> <span class="sc">'5'</span> <span class="n">is</span> <span class="n">digit</span><span class="o">!</span>
+
+<span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">character</span> <span class="n">class</span><span class="o">:</span> <span class="n">b</span> <span class="n">digit</span>
+<span class="n">Nope</span><span class="o">!</span> <span class="sc">'b'</span> <span class="n">is</span> <span class="n">not</span> <span class="n">digit</span><span class="p">.</span>
+
+<span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">character</span> <span class="n">class</span><span class="o">:</span> <span class="n">x</span> <span class="n">alnum</span>
+<span class="n">Yes</span><span class="o">!</span> <span class="sc">'x'</span> <span class="n">is</span> <span class="n">alnum</span><span class="o">!</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wctype.html#man-iswctype" rel="nofollow"><code>iswctype()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.15 <code>towlower()</code></h2>
+
+<p>Convert an uppercase wide character to lowercase</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wint_t</span> <span class="nf">towlower</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If the character is upper (i.e. <code>iswupper(c)</code> is true), this function returns the corresponding lowercase letter.</p>
+
+<p>Different locales might have different upper and lowercase letters.</p>
+
+<h3>Return Value</h3>
+
+<p>If the letter <code>wc</code> is uppercase, a lowercase version of that letter will be returned according to the current locale.</p>
+
+<p>If the letter is not uppercase, <code>wc</code> is returned unchanged.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                  changing this char</span>
+    <span class="c1">//                           v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%lc</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">towlower</span><span class="p">(</span><span class="sc">L'B'</span><span class="p">));</span>  <span class="c1">// b (made lowercase!)</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%lc</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">towlower</span><span class="p">(</span><span class="sc">L'e'</span><span class="p">));</span>  <span class="c1">// e (unchanged)</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%lc</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">towlower</span><span class="p">(</span><span class="sc">L'!'</span><span class="p">));</span>  <span class="c1">// ! (unchanged)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-tolower" rel="nofollow"><code>tolower()</code></a>, <a href="wctype.html#man-towupper" rel="nofollow"><code>towupper()</code></a>, <a href="wctype.html#man-iswlower" rel="nofollow"><code>iswlower()</code></a>, <a href="wctype.html#man-iswupper" rel="nofollow"><code>iswupper()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.16 <code>towupper()</code></h2>
+
+<p>Convert a lowercase wide character to uppercase</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wint_t</span> <span class="nf">towupper</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If the character is lower (i.e. <code>iswlower(c)</code> is true), this function returns the corresponding uppercase letter.</p>
+
+<p>Different locales might have different upper and lowercase letters.</p>
+
+<h3>Return Value</h3>
+
+<p>If the letter <code>wc</code> is lowercase, an uppercase version of that letter will be returned according to the current locale.</p>
+
+<p>If the letter is not lowercase, <code>wc</code> is returned unchanged.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//                  changing this char</span>
+    <span class="c1">//                           v</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%lc</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">towupper</span><span class="p">(</span><span class="sc">L'B'</span><span class="p">));</span>  <span class="c1">// B (unchanged)</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%lc</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">towupper</span><span class="p">(</span><span class="sc">L'e'</span><span class="p">));</span>  <span class="c1">// E (made uppercase!)</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%lc</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">towupper</span><span class="p">(</span><span class="sc">L'!'</span><span class="p">));</span>  <span class="c1">// ! (unchanged)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="ctype.html#man-toupper" rel="nofollow"><code>toupper()</code></a>, <a href="wctype.html#man-towlower" rel="nofollow"><code>towlower()</code></a>, <a href="wctype.html#man-iswlower" rel="nofollow"><code>iswlower()</code></a>, <a href="wctype.html#man-iswupper" rel="nofollow"><code>iswupper()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.17 <code>towctrans()</code></h2>
+
+<p>Convert wide characters to upper or lowercase</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wint_t</span> <span class="nf">towctrans</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">wc</span><span class="p">,</span> <span class="kt">wctrans_t</span> <span class="n">desc</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the Swiss Army knife of character conversion functions; it’s all the other ones rolled into one. And by “all the other ones” I mean <code>towupper()</code> and <code>towlower()</code>, since those are the only ones there are.</p>
+
+<p>You call it with something like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="n">towctrans</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">wctrans</span><span class="p">(</span><span class="s">"toupper"</span><span class="p">)))</span>  <span class="c1">// or "tolower"</span>
+</code></pre></div>
+
+<p>and it behaves just like you’d called:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">towupper</span><span class="p">(</span><span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<p>The difference is that you can specify the type of conversion you want to do as a string at runtime, which might be convenient.</p>
+
+<p><code>towctrans()</code> relies on the return value from the <a href="wctype.html#man-wctrans" rel="nofollow"><code>wctrans()</code></a> call to get its work done.</p>
+
+<table><thead>
+<tr>
+<th><code>towctrans()</code> call</th>
+<th>Hard-coded equivalent</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>towctrans(c, wctrans(&quot;toupper&quot;))</code></td>
+<td><code>towupper(c)</code></td>
+</tr>
+<tr>
+<td><code>towctrans(c, wctrans(&quot;tolower&quot;))</code></td>
+<td><code>towlower(c)</code></td>
+</tr>
+</tbody></table>
+
+<p>See the <a href="wctype.html#man-wctrans" rel="nofollow"><code>wctrans()</code> documentation</a> for how that helper function works.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the character <code>wc</code> as if run through <code>towupper()</code> or <code>towlower()</code>, depending on the value of <code>desc</code>.</p>
+
+<p>If the character already matches the classification, it is returned as-is.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">  // for fflush(stdout)</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="n">c</span><span class="p">;</span>        <span class="c1">// Holds a single wide character (to test)</span>
+    <span class="kt">char</span> <span class="n">desc</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>   <span class="c1">// Holds the conversion type</span>
+
+    <span class="c1">// Get the character and conversion type from the user</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Enter a character and conversion type: "</span><span class="p">);</span>
+    <span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+    <span class="n">wscanf</span><span class="p">(</span><span class="s">L"%lc %s"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">c</span><span class="p">,</span> <span class="n">desc</span><span class="p">);</span>
+
+    <span class="c1">// Compute the type from the given conversion type</span>
+    <span class="kt">wctrans_t</span> <span class="n">t</span> <span class="o">=</span> <span class="n">wctrans</span><span class="p">(</span><span class="n">desc</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1">// If the type is 0, it's an unknown conversion type</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Unknown conversion: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">desc</span><span class="p">);</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// Otherwise, let's do the conversion</span>
+        <span class="kt">wint_t</span> <span class="n">result</span> <span class="o">=</span> <span class="n">towctrans</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">t</span><span class="p">);</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"'%lc' -&gt; %s -&gt; '%lc'</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">conversion</span> <span class="n">type</span><span class="o">:</span> <span class="n">b</span> <span class="n">toupper</span>
+<span class="sc">'b'</span> <span class="o">-&gt;</span> <span class="n">toupper</span> <span class="o">-&gt;</span> <span class="sc">'B'</span>
+
+<span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">conversion</span> <span class="n">type</span><span class="o">:</span> <span class="n">B</span> <span class="n">toupper</span>
+<span class="sc">'B'</span> <span class="o">-&gt;</span> <span class="n">toupper</span> <span class="o">-&gt;</span> <span class="sc">'B'</span>
+
+<span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">conversion</span> <span class="n">type</span><span class="o">:</span> <span class="n">B</span> <span class="n">tolower</span>
+<span class="sc">'B'</span> <span class="o">-&gt;</span> <span class="n">tolower</span> <span class="o">-&gt;</span> <span class="sc">'b'</span>
+
+<span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">conversion</span> <span class="n">type</span><span class="o">:</span> <span class="o">!</span> <span class="n">toupper</span>
+<span class="sc">'!'</span> <span class="o">-&gt;</span> <span class="n">toupper</span> <span class="o">-&gt;</span> <span class="sc">'!'</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wctype.html#man-wctrans" rel="nofollow"><code>wctrans()</code></a>, <a href="wctype.html#man-towupper" rel="nofollow"><code>towupper()</code></a>, <a href="wctype.html#man-towlower" rel="nofollow"><code>towlower()</code></a></p>
+
+<p><hr></p>
+
+<h2>31.18 <code>wctrans()</code></h2>
+
+<p>Helper function for <code>towctrans()</code></p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wctrans_t</span> <span class="nf">wctrans</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">property</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is a helper function for generating the second argument to <a href="wctype.html#man-towctrans" rel="nofollow"><code>towctrans()</code></a>.</p>
+
+<p>You can pass in one of two things for the <code>property</code>:</p>
+
+<ul>
+<li>  <code>toupper</code> to make <code>towctrans()</code> behave like <code>towupper()</code></li>
+<li>  <code>tolower</code> to make <code>towctrans()</code> behave like <code>towlower()</code></li>
+</ul>
+
+<h3>Return Value</h3>
+
+<p>On success, returns a value that can be used as the <code>desc</code> argument to <code>towctrans()</code>.</p>
+
+<p>Otherwise, if the <code>property</code> isn’t recognized, returns <code>0</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">  // for fflush(stdout)</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="n">c</span><span class="p">;</span>        <span class="c1">// Holds a single wide character (to test)</span>
+    <span class="kt">char</span> <span class="n">desc</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>   <span class="c1">// Holds the conversion type</span>
+
+    <span class="c1">// Get the character and conversion type from the user</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Enter a character and conversion type: "</span><span class="p">);</span>
+    <span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+    <span class="n">wscanf</span><span class="p">(</span><span class="s">L"%lc %s"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">c</span><span class="p">,</span> <span class="n">desc</span><span class="p">);</span>
+
+    <span class="c1">// Compute the type from the given conversion type</span>
+    <span class="kt">wctrans_t</span> <span class="n">t</span> <span class="o">=</span> <span class="n">wctrans</span><span class="p">(</span><span class="n">desc</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1">// If the type is 0, it's an unknown conversion type</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Unknown conversion: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">desc</span><span class="p">);</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// Otherwise, let's do the conversion</span>
+        <span class="kt">wint_t</span> <span class="n">result</span> <span class="o">=</span> <span class="n">towctrans</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">t</span><span class="p">);</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"'%lc' -&gt; %s -&gt; '%lc'</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">conversion</span> <span class="n">type</span><span class="o">:</span> <span class="n">b</span> <span class="n">toupper</span>
+<span class="sc">'b'</span> <span class="o">-&gt;</span> <span class="n">toupper</span> <span class="o">-&gt;</span> <span class="sc">'B'</span>
+
+<span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">conversion</span> <span class="n">type</span><span class="o">:</span> <span class="n">B</span> <span class="n">toupper</span>
+<span class="sc">'B'</span> <span class="o">-&gt;</span> <span class="n">toupper</span> <span class="o">-&gt;</span> <span class="sc">'B'</span>
+
+<span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">conversion</span> <span class="n">type</span><span class="o">:</span> <span class="n">B</span> <span class="n">tolower</span>
+<span class="sc">'B'</span> <span class="o">-&gt;</span> <span class="n">tolower</span> <span class="o">-&gt;</span> <span class="sc">'b'</span>
+
+<span class="n">Enter</span> <span class="n">a</span> <span class="n">character</span> <span class="n">and</span> <span class="n">conversion</span> <span class="n">type</span><span class="o">:</span> <span class="o">!</span> <span class="n">toupper</span>
+<span class="sc">'!'</span> <span class="o">-&gt;</span> <span class="n">toupper</span> <span class="o">-&gt;</span> <span class="sc">'!'</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wctype.html#man-towctrans" rel="nofollow"><code>towctrans()</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

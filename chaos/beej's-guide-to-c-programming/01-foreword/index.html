@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/01-foreword</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/01-foreword"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>1 Foreword</h1>
+
+<blockquote>
+<p><em>C is not a big language, and it is not well served by a big book.</em></p>
+
+<p>–Brian W. Kernighan, Dennis M. Ritchie</p>
+</blockquote>
+
+<p>No point in wasting words here, folks, let’s jump straight into the C code:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">E</span><span class="p">((</span><span class="n">ck</span><span class="o">?</span><span class="n">main</span><span class="p">((</span><span class="n">z</span><span class="o">?</span><span class="p">(</span><span class="n">stat</span><span class="p">(</span><span class="n">M</span><span class="p">,</span><span class="o">&amp;</span><span class="n">t</span><span class="p">)</span><span class="o">?</span><span class="n">P</span><span class="o">+=</span><span class="n">a</span><span class="o">+</span><span class="sc">'{'</span><span class="o">?</span><span class="mi">0</span><span class="o">:</span><span class="mi">3</span><span class="o">:</span>
+<span class="n">execv</span><span class="p">(</span><span class="n">M</span><span class="p">,</span><span class="n">k</span><span class="p">),</span><span class="n">a</span><span class="o">=</span><span class="n">G</span><span class="p">,</span><span class="n">i</span><span class="o">=</span><span class="n">P</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">G</span><span class="o">&amp;</span><span class="mi">255</span><span class="p">,</span>
+<span class="n">sprintf</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span><span class="n">y</span><span class="o">/</span><span class="sc">'@'</span><span class="o">-</span><span class="mi">3</span><span class="o">?</span><span class="n">A</span><span class="p">(</span><span class="o">*</span><span class="n">L</span><span class="p">(</span><span class="n">V</span><span class="p">(</span><span class="o">%</span><span class="n">d</span><span class="o">+%</span><span class="n">d</span><span class="p">)</span><span class="o">+%</span><span class="n">d</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div>
+
+<p>And they lived happily ever after. The End.</p>
+
+<p>What’s this? You say something’s still not clear about this whole C programming language thing?</p>
+
+<p>Well, to be quite honest, I’m not even sure what the above code does. It’s a snippet from one of the entries in the 2001 <a href="https://www.ioccc.org/" rel="nofollow">International Obfuscated C Code Contest</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹</a>, a wonderful competition wherein the entrants attempt to write the most unreadable C code possible, with often surprising results.</p>
+
+<p>The bad news is that if you’re a beginner in this whole thing, all C code you see probably looks obfuscated! The good news is, it’s not going to be that way for long.</p>
+
+<p>What we’ll try to do over the course of this guide is lead you from complete and utter sheer lost confusion on to the sort of enlightened bliss that can only be obtained through pure C programming. Right on.</p>
+
+<p>In the old days, C was a simpler language. A good number of the features contained in this book and a <em>lot</em> of the features in the Library Reference volume didn’t exist when K&amp;R wrote the famous second edition of their book in 1988. Nevertheless, the language remains small at its core, and I hope I’ve presented it here in a way that starts with that simple core and builds outward.</p>
+
+<p>And that’s my excuse for writing such a hilariously large book for such a small, concise language.</p>
+
+<h2>1.1 Audience</h2>
+
+<p>This guide assumes that you’ve already got some programming knowledge under your belt from another language, such as <a href="https://en.wikipedia.org/wiki/Python_(programming_language)" rel="nofollow">Python</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²</a>, <a href="https://en.wikipedia.org/wiki/JavaScript" rel="nofollow">JavaScript</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">³</a>, <a href="https://en.wikipedia.org/wiki/Java_(programming_language)" rel="nofollow">Java</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁴</a>, <a href="https://en.wikipedia.org/wiki/Rust_(programming_language)" rel="nofollow">Rust</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁵</a>, <a href="https://en.wikipedia.org/wiki/Go_(programming_language)" rel="nofollow">Go</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶</a>, <a href="https://en.wikipedia.org/wiki/Swift_(programming_language)" rel="nofollow">Swift</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁷</a>, etc. (<a href="https://en.wikipedia.org/wiki/Objective-C" rel="nofollow">Objective-C</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁸</a> devs will have a particularly easy time of it!)</p>
+
+<p>We’re going to assume you know what variables are, what loops do, how functions work, and so on.</p>
+
+<p>If that’s not you for whatever reason the best I can hope to provide is some honest entertainment for your reading pleasure. The only thing I can reasonably promise is that this guide won’t end on a cliffhanger… or <em>will</em> it?</p>
+
+<h2>1.2 How to Read This Book</h2>
+
+<p>The guide is in two volumes, and this is the first: the tutorial volume!</p>
+
+<p>The second volume is the <a href="https://beej.us/guide/bgclr/" rel="nofollow">library reference</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹</a>, and it’s far more reference than tutorial.</p>
+
+<p>If you’re new, go through the tutorial part in order, generally. The higher you get in chapters, the less important it is to go in order.</p>
+
+<p>And no matter your skill level, the reference part is there with complete examples of the standard library function calls to help refresh your memory whenever needed. Good for reading over a bowl of cereal or other time.</p>
+
+<p>Finally, glancing at the index (if you’re reading the print version), the reference section entries are italicized.</p>
+
+<h2>1.3 Platform and Compiler</h2>
+
+<p>I’ll try to stick to Plain Ol’-Fashioned <a href="https://en.wikipedia.org/wiki/ANSI_C" rel="nofollow">ISO-standard C</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁰</a>. Well, for the most part. Here and there I might go crazy and start talking about <a href="https://en.wikipedia.org/wiki/POSIX" rel="nofollow">POSIX</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹</a> or something, but we’ll see.</p>
+
+<p><strong>Unix</strong> users (e.g. Linux, BSD, etc.) try running <code>cc</code> or <code>gcc</code> from the command line–you might already have a compiler installed. If you don’t, search your distribution for installing <code>gcc</code> or <code>clang</code>.</p>
+
+<p><strong>Windows</strong> users should check out <a href="https://visualstudio.microsoft.com/vs/community/" rel="nofollow">Visual Studio Community</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²</a>. Or, if you’re looking for a more Unix-like experience (recommended!), install <a href="https://docs.microsoft.com/en-us/windows/wsl/install-win10" rel="nofollow">WSL</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³</a> and <code>gcc</code>.</p>
+
+<p><strong>Mac</strong> users will want to install <a href="https://developer.apple.com/xcode/" rel="nofollow">XCode</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴</a>, and in particular the command line tools.</p>
+
+<p>There are a lot of compilers out there, and virtually all of them will work for this book. And a C++ compiler will compile a lot of (but not all!) C code. Best use a proper C compiler if you can.</p>
+
+<h2>1.4 Official Homepage</h2>
+
+<p>This official location of this document is <a href="https://beej.us/guide/bgc/" rel="nofollow">https://beej.us/guide/bgc/</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵</a>. Maybe this’ll change in the future, but it’s more likely that all the other guides are migrated off Chico State computers.</p>
+
+<h2>1.5 Email Policy</h2>
+
+<p>I’m generally available to help out with email questions so feel free to write in, but I can’t guarantee a response. I lead a pretty busy life and there are times when I just can’t answer a question you have. When that’s the case, I usually just delete the message. It’s nothing personal; I just won’t ever have the time to give the detailed answer you require.</p>
+
+<p>As a rule, the more complex the question, the less likely I am to respond. If you can narrow down your question before mailing it and be sure to include any pertinent information (like platform, compiler, error messages you’re getting, and anything else you think might help me troubleshoot), you’re much more likely to get a response.</p>
+
+<p>If you don’t get a response, hack on it some more, try to find the answer, and if it’s still elusive, then write me again with the information you’ve found and hopefully it will be enough for me to help out.</p>
+
+<p>Now that I’ve badgered you about how to write and not write me, I’d just like to let you know that I <em>fully</em> appreciate all the praise the guide has received over the years. It’s a real morale boost, and it gladdens me to hear that it is being used for good! <code>:-)</code> Thank you!</p>
+
+<h2>1.6 Mirroring</h2>
+
+<p>You are more than welcome to mirror this site, whether publicly or privately. If you publicly mirror the site and want me to link to it from the main page, drop me a line at <a href="mailto:beej@beej.us" rel="nofollow"><code>beej@beej.us</code></a>.</p>
+
+<h2>1.7 Note for Translators</h2>
+
+<p>If you want to translate the guide into another language, write me at <a href="beej@beej.us" rel="nofollow"><code>beej@beej.us</code></a> and I’ll link to your translation from the main page. Feel free to add your name and contact info to the translation.</p>
+
+<p>Please note the license restrictions in the Copyright and Distribution section, below.</p>
+
+<h2>1.8 Copyright and Distribution</h2>
+
+<p>Beej’s Guide to C is Copyright © 2021 Brian “Beej Jorgensen” Hall.</p>
+
+<p>With specific exceptions for source code and translations, below, this work is licensed under the Creative Commons Attribution-Noncommercial-No Derivative Works 3.0 License. To view a copy of this license, visit <a href="https://creativecommons.org/licenses/by-nc-nd/3.0/" rel="nofollow"><code>https://creativecommons.org/licenses/by-nc-nd/3.0/</code></a> or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.</p>
+
+<p>One specific exception to the “No Derivative Works” portion of the license is as follows: this guide may be freely translated into any language, provided the translation is accurate, and the guide is reprinted in its entirety. The same license restrictions apply to the translation as to the original guide. The translation may also include the name and contact information for the translator.</p>
+
+<p>The C source code presented in this document is hereby granted to the public domain, and is completely free of any license restriction.</p>
+
+<p>Educators are freely encouraged to recommend or supply copies of this guide to their students.</p>
+
+<p>Contact <a href="beej@beej.us" rel="nofollow"><code>beej@beej.us</code></a> for more information.</p>
+
+<h2>1.9 Dedication</h2>
+
+<p>The hardest things about writing these guides are:</p>
+
+<ul>
+<li>  Learning the material in enough detail to be able to explain it</li>
+<li>  Figuring out the best way to explain it clearly, a seemingly-endless iterative process</li>
+<li>  Putting myself out there as a so-called <em>authority</em>, when really I’m just a regular human trying to make sense of it all, just like everyone else</li>
+<li>  Keeping at it when so many other things draw my attention</li>
+</ul>
+
+<p>A lot of people have helped me through this process, and I want to acknowledge those who have made this book possible.</p>
+
+<ul>
+<li>  Everyone on the Internet who decided to help share their knowledge in one form or another. The free sharing of instructive information is what makes the Internet the great place that it is.</li>
+<li>  The volunteers at <a href="https://en.cppreference.com/" rel="nofollow">cppreference.com</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁶</a> who provide the bridge that leads from the spec to the real world.</li>
+<li>  The helpful and knowledgeable folks on <a href="https://groups.google.com/g/comp.lang.c" rel="nofollow">comp.lang.c</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷</a> and <a href="https://www.reddit.com/r/C_Programming/" rel="nofollow">r/C_Programming</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸</a> who got me through the tougher parts of the language.</li>
+<li>  Everyone who submitted corrections and pull-requests on everything from misleading instructions to typos.</li>
+</ul>
+
+<p>Thank you! ♥</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

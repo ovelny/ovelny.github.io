@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-network-programming/01-intro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-network-programming/01-intro"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>1 Intro</h1>
+
+<p>Hey! Socket programming got you down? Is this stuff just a little too difficult to figure out from the <code>man</code> pages? You want to do cool Internet programming, but you don’t have time to wade through a gob of <code>struct</code>s trying to figure out if you have to call <code>bind()</code> before you <code>connect()</code>, etc., etc.</p>
+
+<p>Well, guess what! I’ve already done this nasty business, and I’m dying to share the information with everyone! You’ve come to the right place. This document should give the average competent C programmer the edge s/he needs to get a grip on this networking noise.</p>
+
+<p>And check it out: I’ve finally caught up with the future (just in the nick of time, too!) and have updated the Guide for IPv6! Enjoy!</p>
+
+<h2>1.1 Audience</h2>
+
+<p>This document has been written as a tutorial, not a complete reference. It is probably at its best when read by individuals who are just starting out with socket programming and are looking for a foothold. It is certainly not the <em>complete and total</em> guide to sockets programming, by any means.</p>
+
+<p>Hopefully, though, it’ll be just enough for those man pages to start making sense… <code>:-)</code></p>
+
+<h2>1.2 Platform and Compiler</h2>
+
+<p>The code contained within this document was compiled on a Linux PC using Gnu’s <code>gcc</code> compiler. It should, however, build on just about any platform that uses <code>gcc</code>. Naturally, this doesn’t apply if you’re programming for Windows—see the <a href="intro.html#windows" rel="nofollow">section on Windows programming</a>, below.</p>
+
+<h2>1.3 Official Homepage and Books For Sale</h2>
+
+<p>This official location of this document is:</p>
+
+<ul>
+<li>  <a href="https://beej.us/guide/bgnet/" rel="nofollow"><code>https://beej.us/guide/bgnet/</code></a></li>
+</ul>
+
+<p>There you will also find example code and translations of the guide into various languages.</p>
+
+<p>To buy nicely bound print copies (some call them “books”), visit:</p>
+
+<ul>
+<li>  <a href="https://beej.us/guide/url/bgbuy" rel="nofollow"><code>https://beej.us/guide/url/bgbuy</code></a></li>
+</ul>
+
+<p>I’ll appreciate the purchase because it helps sustain my document-writing lifestyle!</p>
+
+<h2>1.4 Note for Solaris/SunOS Programmers</h2>
+
+<p>When compiling for Solaris or SunOS, you need to specify some extra command-line switches for linking in the proper libraries. In order to do this, simply add “<code>-lnsl -lsocket -lresolv</code>” to the end of the compile command, like so:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>$ cc -o server server.c -lnsl -lsocket -lresolv
+</code></pre></div>
+
+<p>If you still get errors, you could try further adding a <code>-lxnet</code> to the end of that command line. I don’t know what that does, exactly, but some people seem to need it.</p>
+
+<p>Another place that you might find problems is in the call to <code>setsockopt()</code>. The prototype differs from that on my Linux box, so instead of:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">yes</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<p>enter this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">yes</span><span class="o">=</span><span class="sc">'1'</span><span class="p">;</span>
+</code></pre></div>
+
+<p>As I don’t have a Sun box, I haven’t tested any of the above information—it’s just what people have told me through email.</p>
+
+<h2>1.5 Note for Windows Programmers</h2>
+
+<p>At this point in the guide, historically, I’ve done a bit of bagging on Windows, simply due to the fact that I don’t like it very much. But I should really be fair and tell you that Windows has a huge install base and is obviously a perfectly fine operating system.</p>
+
+<p>They say absence makes the heart grow fonder, and in this case, I believe it to be true. (Or maybe it’s age.) But what I can say is that after a decade-plus of not using Microsoft OSes for my personal work, I’m much happier! As such, I can sit back and safely say, “Sure, feel free to use Windows!” …OK yes, it does make me grit my teeth to say that.</p>
+
+<p>So I still encourage you to try <a href="https://www.linux.com/" rel="nofollow">Linux</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">¹</a>, <a href="https://bsd.org/" rel="nofollow">BSD</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">²</a>, or some flavor of Unix, instead.</p>
+
+<p>But people like what they like, and you Windows folk will be pleased to know that this information is generally applicable to you guys, with a few minor changes, if any.</p>
+
+<p>Another thing that you should strongly consider is the <a href="https://learn.microsoft.com/en-us/windows/wsl/" rel="nofollow">Windows Subsystem for Linux</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">³</a>. This basically allows you to install a Linux VM-ish thing on Windows 10. That will also definitely get you situated, and you’ll be able to build and run these programs as is.</p>
+
+<p>One cool thing you can do is install <a href="https://cygwin.com/" rel="nofollow">Cygwin</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁴</a>, which is a collection of Unix tools for Windows. I’ve heard on the grapevine that doing so allows all these programs to compile unmodified, but I’ve never tried it.</p>
+
+<p>But some of you might want to do things the Pure Windows Way. That’s very gutsy of you, and this is what you have to do: run out and get Unix immediately! No, no—I’m kidding. I’m supposed to be Windows-friendly(er) these days…</p>
+
+<p>This is what you’ll have to do: first, ignore pretty much all of the system header files I mention in here. Instead, include:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;winsock2.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;ws2tcpip.h&gt;</span><span class="cp">
+</span></code></pre></div>
+
+<p><code>winsock2</code> is the “new” (circa 1994) version of the Windows socket library.</p>
+
+<p>Unfortunately, if you include <code>windows.h</code>, it automatically pulls in the older <code>winsock.h</code> (version 1) header file which conflicts with <code>winsock2.h</code>! Fun times.</p>
+
+<p>So if you have to include <code>windows.h</code>, you need to define a macro to get it to <em>not</em> include the older header:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#define WIN32_LEAN_AND_MEAN  // Say this...
+</span>
+<span class="cp">#include</span> <span class="cpf">&lt;windows.h&gt;</span><span class="c1">         // And now we can include that.</span><span class="cp">
+#include</span> <span class="cpf">&lt;winsock2.h&gt;</span><span class="c1">        // And this.</span><span class="cp">
+</span></code></pre></div>
+
+<p>Wait! You also have to make a call to <code>WSAStartup()</code> before doing anything else with the sockets library. You pass in the Winsock version you desire to this function (e.g. version 2.2). And then you can check the result to make sure that version is available.</p>
+
+<p>The code to do that looks something like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;winsock2.h&gt;</span><span class="cp">
+</span>
+<span class="p">{</span>
+    <span class="n">WSADATA</span> <span class="n">wsaData</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">WSAStartup</span><span class="p">(</span><span class="n">MAKEWORD</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">wsaData</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"WSAStartup failed.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">LOBYTE</span><span class="p">(</span><span class="n">wsaData</span><span class="p">.</span><span class="n">wVersion</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="o">||</span>
+        <span class="n">HIBYTE</span><span class="p">(</span><span class="n">wsaData</span><span class="p">.</span><span class="n">wVersion</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="s">"Versiion 2.2 of Winsock is not available.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="n">WSACleanup</span><span class="p">();</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="p">}</span>
+</code></pre></div>
+
+<p>Note that call to <code>WSACleanup()</code> in there. That’s what you want to call when you’re done with the Winsock library.</p>
+
+<p>You also have to tell your compiler to link in the Winsock library, called <code>ws2_32.lib</code> for Winsock 2. Under VC++, this can be done through the <code>Project</code> menu, under <code>Settings...</code>. Click the <code>Link</code> tab, and look for the box titled “Object/library modules”. Add “ws2_32.lib” (or whichever lib is your preference) to that list.</p>
+
+<p>Or so I hear.</p>
+
+<p>Once you do that, the rest of the examples in this tutorial should generally apply, with a few exceptions. For one thing, you can’t use <code>close()</code> to close a socket—you need to use <code>closesocket()</code>, instead. Also, <code>select()</code> only works with socket descriptors, not file descriptors (like <code>0</code> for <code>stdin</code>).</p>
+
+<p>There is also a socket class that you can use, <a href="https://learn.microsoft.com/en-us/cpp/mfc/reference/csocket-class?view=msvc-170" rel="nofollow"><code>CSocket</code></a> Check your compiler’s help pages for more information.</p>
+
+<p>To get more information about Winsock, <a href="https://learn.microsoft.com/en-us/windows/win32/winsock/windows-sockets-start-page-2" rel="nofollow">check out the official page at Microsoft</a>.</p>
+
+<p>Finally, I hear that Windows has no <code>fork()</code> system call which is, unfortunately, used in some of my examples. Maybe you have to link in a POSIX library or something to get it to work, or you can use <code>CreateProcess()</code> instead. <code>fork()</code> takes no arguments, and <code>CreateProcess()</code> takes about 48 billion arguments. If you’re not up to that, the <code>CreateThread()</code> is a little easier to digest…unfortunately a discussion about multithreading is beyond the scope of this document. I can only talk about so much, you know!</p>
+
+<p>Extra finally, Steven Mitchell has <a href="https://www.tallyhawk.net/WinsockExamples/" rel="nofollow">ported a number of the examples</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁵</a> to Winsock. Check that stuff out.</p>
+
+<h2>1.6 Email Policy</h2>
+
+<p>I’m generally available to help out with email questions so feel free to write in, but I can’t guarantee a response. I lead a pretty busy life and there are times when I just can’t answer a question you have. When that’s the case, I usually just delete the message. It’s nothing personal; I just won’t ever have the time to give the detailed answer you require.</p>
+
+<p>As a rule, the more complex the question, the less likely I am to respond. If you can narrow down your question before mailing it and be sure to include any pertinent information (like platform, compiler, error messages you’re getting, and anything else you think might help me troubleshoot), you’re much more likely to get a response. For more pointers, read ESR’s document, <a href="http://www.catb.org/%7Eesr/faqs/smart-questions.html" rel="nofollow">How To Ask Questions The Smart Way</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-network-programming/99-footnotes/" rel="nofollow">⁶</a>.</p>
+
+<p>If you don’t get a response, hack on it some more, try to find the answer, and if it’s still elusive, then write me again with the information you’ve found and hopefully it will be enough for me to help out.</p>
+
+<p>Now that I’ve badgered you about how to write and not write me, I’d just like to let you know that I <em>fully</em> appreciate all the praise the guide has received over the years. It’s a real morale boost, and it gladdens me to hear that it is being used for good! <code>:-)</code> Thank you!</p>
+
+<h2>1.7 Mirroring</h2>
+
+<p>You are more than welcome to mirror this site, whether publicly or privately. If you publicly mirror the site and want me to link to it from the main page, drop me a line at <a href="beej@beej.us" rel="nofollow"><code>beej@beej.us</code></a>.</p>
+
+<h2>1.8 Note for Translators</h2>
+
+<p>If you want to translate the guide into another language, write me at <a href="beej@beej.us" rel="nofollow"><code>beej@beej.us</code></a> and I’ll link to your translation from the main page. Feel free to add your name and contact info to the translation.</p>
+
+<p>This source markdown document uses UTF-8 encoding.</p>
+
+<p>Please note the license restrictions in the <a href="intro.html#legal" rel="nofollow">Copyright, Distribution, and Legal</a> section, below.</p>
+
+<p>If you want me to host the translation, just ask. I’ll also link to it if you want to host it; either way is fine.</p>
+
+<h2>1.9 Copyright, Distribution, and Legal</h2>
+
+<p>Beej’s Guide to Network Programming is Copyright © 2019 Brian “Beej Jorgensen” Hall.</p>
+
+<p>With specific exceptions for source code and translations, below, this work is licensed under the Creative Commons Attribution- Noncommercial- No Derivative Works 3.0 License. To view a copy of this license, visit</p>
+
+<p><a href="https://creativecommons.org/licenses/by-nc-nd/3.0/" rel="nofollow"><code>https://creativecommons.org/licenses/by-nc-nd/3.0/</code></a></p>
+
+<p>or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.</p>
+
+<p>One specific exception to the “No Derivative Works” portion of the license is as follows: this guide may be freely translated into any language, provided the translation is accurate, and the guide is reprinted in its entirety. The same license restrictions apply to the translation as to the original guide. The translation may also include the name and contact information for the translator.</p>
+
+<p>The C source code presented in this document is hereby granted to the public domain, and is completely free of any license restriction.</p>
+
+<p>Educators are freely encouraged to recommend or supply copies of this guide to their students.</p>
+
+<p>Unless otherwise mutually agreed by the parties in writing, the author offers the work as-is and makes no representations or warranties of any kind concerning the work, express, implied, statutory or otherwise, including, without limitation, warranties of title, merchantability, fitness for a particular purpose, noninfringement, or the absence of latent or other defects, accuracy, or the presence of absence of errors, whether or not discoverable.</p>
+
+<p>Except to the extent required by applicable law, in no event will the author be liable to you on any legal theory for any special, incidental, consequential, punitive or exemplary damages arising out of the use of the work, even if the author has been advised of the possibility of such damages.</p>
+
+<p>Contact <a href="mailto:beej@beej.us" rel="nofollow"><code>beej@beej.us</code></a> for more information.</p>
+
+<h2>1.10 Dedication</h2>
+
+<p>Thanks to everyone who has helped in the past and future with me getting this guide written. And thank you to all the people who produce the Free software and packages that I use to make the Guide: GNU, Linux, Slackware, vim, Python, Inkscape, pandoc, many others. And finally a big thank-you to the literally thousands of you who have written in with suggestions for improvements and words of encouragement.</p>
+
+<p>I dedicate this guide to some of my biggest heroes and inpirators in the world of computers: Donald Knuth, Bruce Schneier, W. Richard Stevens, and The Woz, my Readership, and the entire Free and Open Source Software Community.</p>
+
+<h2>1.11 Publishing Information</h2>
+
+<p>This book is written in Markdown using the vim editor on an Arch Linux box loaded with GNU tools. The cover “art” and diagrams are produced with Inkscape. The Markdown is converted to HTML and LaTex/PDF by Python, Pandoc and XeLaTeX, using Liberation fonts. The toolchain is composed of 100% Free and Open Source Software.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

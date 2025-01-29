@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/31-goto</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/31-goto"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>31 <code>goto</code></h1>
+
+<p>The <code>goto</code> statement is universally revered and can be here presented without contest.</p>
+
+<p>Just kidding! Over the years, there has been a lot of back-and-forth over whether or not (often not) <code>goto</code> is <a href="https://en.wikipedia.org/wiki/Goto#Criticism" rel="nofollow">considered harmful</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁴</a>.</p>
+
+<p>In this programmer’s opinion, you should use whichever constructs leads to the <em>best</em> code, factoring in maintainability and speed. And sometimes this might be <code>goto</code>!</p>
+
+<p>In this chapter, we’ll see how <code>goto</code> works in C, and then check out some of the common cases where it is used<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁵</a>.</p>
+
+<h2>31.1 A Simple Example</h2>
+
+<p>In this example, we’re going to use <code>goto</code> to skip a line of code and jump to a <em>label</em>. The label is the identifier that can be a <code>goto</code> target—it ends with a colon (<code>:</code>).</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"One</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Two</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">goto</span> <span class="n">skip_3</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Three</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+<span class="nl">skip_3:</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Five!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The output is:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">One</span>
+<span class="n">Two</span>
+<span class="n">Five</span><span class="o">!</span>
+</code></pre></div>
+
+<p><code>goto</code> sends execution jumping to the specified label, skipping everything in between.</p>
+
+<p>You can jump forward or backward with <code>goto</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">infinite_loop:</span>
+    <span class="n">print</span><span class="p">(</span><span class="s">"Hello, world!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">goto</span> <span class="n">infinite_loop</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Labels are skipped over during execution. The following will print all three numbers in order just as if the labels weren’t there:</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="n">printf</span><span class="p">(</span><span class="s">"Zero</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="n">label_1</span><span class="o">:</span>
+<span class="n">label_2</span><span class="o">:</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"One</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="n">label_3</span><span class="o">:</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Two</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="n">label_4</span><span class="o">:</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Three</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+</code></pre></div>
+
+<p>As you’ve noticed, it’s common convention to justify the labels all the way on the left. This increases readability because a reader can quickly scan to find the destination.</p>
+
+<p>Labels have <em>function scope</em>. That is, no matter how many levels deep in blocks they appear, you can still <code>goto</code> them from anywhere in the function.</p>
+
+<p>It also means you can only <code>goto</code> labels that are in the same function as the <code>goto</code> itself. Labels in other functions are out of scope from <code>goto</code>’s perspective. And it means you can use the same label name in two functions—just not the same label name in the same function.</p>
+
+<h2>31.2 Labeled <code>continue</code></h2>
+
+<p>In some languages, you can actually specify a label for a <code>continue</code> statement. C doesn’t allow it, but you can easily use <code>goto</code> instead.</p>
+
+<p>To show the issue, check out <code>continue</code> in this nested loop:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d, %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">);</span>
+        <span class="k">continue</span><span class="p">;</span>   <span class="c1">// Always goes to next j</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>As we see, that <code>continue</code>, like all <code>continues</code>, goes to the next iteration of the nearest enclosing loop. What if we want to <code>continue</code> in the next loop out, the loop with <code>i</code>?</p>
+
+<p>Well, we can <code>break</code> to get back to the outer loop, right?</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d, %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">);</span>
+        <span class="k">break</span><span class="p">;</span>     <span class="c1">// Gets us to the next iteration of i</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>That gets us two levels of nested loop. But then if we nest another loop, we’re out of options. What about this, where we don’t have any statement that will get us out to the next iteration of <code>i</code>?</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"%d, %d, %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">);</span>
+
+            <span class="k">continue</span><span class="p">;</span>  <span class="c1">// Gets us to the next iteration of k</span>
+            <span class="k">break</span><span class="p">;</span>     <span class="c1">// Gets us to the next iteration of j</span>
+            <span class="o">????</span><span class="p">;</span>      <span class="c1">// Gets us to the next iteration of i???</span>
+
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The <code>goto</code> statement offers us a way!</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">printf</span><span class="p">(</span><span class="s">"%d, %d, %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">);</span>
+
+                <span class="k">goto</span> <span class="n">continue_i</span><span class="p">;</span>   <span class="c1">// Now continuing the i loop!!</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+<span class="nl">continue_i:</span> <span class="p">;</span>
+    <span class="p">}</span>
+</code></pre></div>
+
+<p>We have a <code>;</code> at the end there—that’s because you can’t have a label pointing to the plain end of a compound statement (or before a variable declaration).</p>
+
+<h2>31.3 Bailing Out</h2>
+
+<p>When you’re super nested in the middle of some code, you can use <code>goto</code> to get out of it in a manner that’s often cleaner than nesting more <code>if</code>s and using flag variables.</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="c1">// Pseudocode</span>
+
+    <span class="k">for</span><span class="p">(...)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(...)</span> <span class="p">{</span>
+            <span class="k">while</span> <span class="p">(...)</span> <span class="p">{</span>
+                <span class="k">do</span> <span class="p">{</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">some_error_condition</span><span class="p">)</span>
+                        <span class="k">goto</span> <span class="n">bail</span><span class="p">;</span>
+
+                <span class="p">}</span> <span class="k">while</span><span class="p">(...);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="n">bail</span><span class="o">:</span>
+    <span class="c1">// Cleanup here</span>
+</code></pre></div>
+
+<p>Without <code>goto</code>, you’d have to check an error condition flag in all of the loops to get all the way out.</p>
+
+<h2>31.4 Labeled <code>break</code></h2>
+
+<p>This is a very similar situation to how <code>continue</code> only continues the innermost loop. <code>break</code> also only breaks out of the innermost loop.</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"%d, %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>   <span class="c1">// Only breaks out of the j loop</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Done!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+</code></pre></div>
+
+<p>But we can use <code>goto</code> to break farther:</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"%d, %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">);</span>
+            <span class="k">goto</span> <span class="n">break_i</span><span class="p">;</span>   <span class="c1">// Now breaking out of the i loop!</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="n">break_i</span><span class="o">:</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Done!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+</code></pre></div>
+
+<h2>31.5 Multi-level Cleanup</h2>
+
+<p>If you’re calling multiple functions to initialize multiple systems and one of them fails, you should only de-initialize the ones that you’ve gotten to so far.</p>
+
+<p>Let’s do a fake example where we start initializing systems and checking to see if any returns an error (we’ll use <code>-1</code> to indicate an error). If one of them does, we have to shutdown only the systems we’ve initialized so far.</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="k">if</span> <span class="p">(</span><span class="n">init_system_1</span><span class="p">()</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">goto</span> <span class="n">shutdown</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">init_system_2</span><span class="p">()</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">goto</span> <span class="n">shutdown_1</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">init_system_3</span><span class="p">()</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">goto</span> <span class="n">shutdown_2</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">init_system_4</span><span class="p">()</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">goto</span> <span class="n">shutdown_3</span><span class="p">;</span>
+
+    <span class="n">do_main_thing</span><span class="p">();</span>   <span class="c1">// Run our program</span>
+
+    <span class="n">shutdown_system4</span><span class="p">();</span>
+
+<span class="n">shutdown_3</span><span class="o">:</span>
+    <span class="n">shutdown_system3</span><span class="p">();</span>
+
+<span class="n">shutdown_2</span><span class="o">:</span>
+    <span class="n">shutdown_system2</span><span class="p">();</span>
+
+<span class="n">shutdown_1</span><span class="o">:</span>
+    <span class="n">shutdown_system1</span><span class="p">();</span>
+
+<span class="n">shutdown</span><span class="o">:</span>
+    <span class="n">print</span><span class="p">(</span><span class="s">"All subsystems shut down.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Note that we’re shutting down in the reverse order that we initialized the subsystems. So if subsystem 4 fails to start up, it will shut down 3, 2, then 1 in that order.</p>
+
+<h2>31.6 Tail Call Optimization</h2>
+
+<p>Kinda. For recursive functions only.</p>
+
+<p>If you’re unfamiliar, <a href="https://en.wikipedia.org/wiki/Tail_call" rel="nofollow">Tail Call Optimization (TCO)</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁶</a> is a way to not waste stack space when calling other functions under very specific circumstances. Unfortunately the details are beyond the scope of this guide.</p>
+
+<p>But if you have a recursive function you know can be optimized in this way, you can make use of this technique. (Note that you can’t tail call other functions due to the function scope of labels.)</p>
+
+<p>Let’s do a straightforward example, factorial.</p>
+
+<p>Here’s a recursive version that’s not TCO, but it can be!</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">factorial</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="kt">int</span> <span class="n">a</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">a</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">a</span> <span class="o">*</span> <span class="n">n</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d! == %ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">factorial</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>To make it happen, you can replace the call with two steps:</p>
+
+<ol>
+<li> Set the values of the parameters to what they’d be on the next call.</li>
+<li> <code>goto</code> a label on the first line of the function.</li>
+</ol>
+
+<p>Let’s try it:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">factorial</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="kt">int</span> <span class="n">a</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="nl">tco:</span>  <span class="c1">// add this</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">a</span><span class="p">;</span>
+
+    <span class="c1">// replace return by setting new parameter values and</span>
+    <span class="c1">// goto-ing the beginning of the function</span>
+
+    <span class="c1">//return factorial(n - 1, a * n);</span>
+
+    <span class="kt">int</span> <span class="n">next_n</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>  <span class="c1">// See how these match up with</span>
+    <span class="kt">int</span> <span class="n">next_a</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">n</span><span class="p">;</span>  <span class="c1">// the recursive arguments, above?</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="n">next_n</span><span class="p">;</span>   <span class="c1">// Set the parameters to the new values</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">next_a</span><span class="p">;</span>
+
+    <span class="k">goto</span> <span class="n">tco</span><span class="p">;</span>   <span class="c1">// And repeat!</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d! == %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">factorial</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>I used temporary variables up there to set the next values of the parameters before jumping to the start of the function. See how they correspond to the recursive arguments that were in the recursive call?</p>
+
+<p>Now, why use temp variables? I could have done this instead:</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="n">a</span> <span class="o">*=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="n">n</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="k">goto</span> <span class="n">tco</span><span class="p">;</span>
+</code></pre></div>
+
+<p>and that actually works just fine. But if I carelessly reverse those two lines of code:</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="n">n</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>  <span class="c1">// BAD NEWS</span>
+    <span class="n">a</span> <span class="o">*=</span> <span class="n">n</span><span class="p">;</span>
+</code></pre></div>
+
+<p>—now we’re in trouble. We modified <code>n</code> before using it to modify <code>a</code>. That’s Bad because that’s not how it works when you call recursively. Using the temporary variables avoids this problem even if you’re not looking out for it. And the compiler likely optimizes them out, anyway.</p>
+
+<h2>31.7 Restarting Interrupted System Calls</h2>
+
+<p>This is outside the spec, but commonly seen in Unix-like systems.</p>
+
+<p>Certain long-lived system calls might return an error if they’re interrupted by a signal, and <code>errno</code> will be set to <code>EINTR</code> to indicate the syscall was doing fine; it was just interrupted.</p>
+
+<p>In those cases, it’s really common for the programmer to want to restart the call and try it again.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">retry:</span>
+    <span class="n">byte_count</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>  <span class="c1">// Unix read() syscall</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">byte_count</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>            <span class="c1">// An error occurred...</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">==</span> <span class="n">EINTR</span><span class="p">)</span> <span class="p">{</span>          <span class="c1">// But it was just interrupted</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Restarting...</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="k">goto</span> <span class="n">retry</span><span class="p">;</span>
+        <span class="p">}</span>
+</code></pre></div>
+
+<p>Many Unix-likes have an <code>SA_RESTART</code> flag you can pass to <code>sigaction()</code> to request the OS automatically restart any slow syscalls instead of failing with <code>EINTR</code>.</p>
+
+<p>Again, this is Unix-specific and is outside the C standard.</p>
+
+<p>That said, it’s possible to use a similar technique any time any function should be restarted.</p>
+
+<h2>31.8 <code>goto</code> and Thread Preemption</h2>
+
+<p>This example is ripped directly from <a href="http://www.ostep.org/" rel="nofollow"><em>Operating Systems: Three Easy Pieces</em></a>, another excellent book from like-minded authors who also feel that quality books should be free to download. Not that I’m opinionated, or anything.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">retry:</span>
+
+    <span class="n">pthread_mutex_lock</span><span class="p">(</span><span class="n">L1</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">pthread_mutex_trylock</span><span class="p">(</span><span class="n">L2</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">pthread_mutex_unlock</span><span class="p">(</span><span class="n">L1</span><span class="p">);</span>
+        <span class="k">goto</span> <span class="n">retry</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">save_the_day</span><span class="p">();</span>
+
+    <span class="n">pthread_mutex_unlock</span><span class="p">(</span><span class="n">L2</span><span class="p">);</span>
+    <span class="n">pthread_mutex_unlock</span><span class="p">(</span><span class="n">L1</span><span class="p">);</span>
+</code></pre></div>
+
+<p>There the thread happily acquires the mutex <code>L1</code>, but then potentially fails to get the second resource guarded by mutex <code>L2</code> (if some other uncooperative thread holds it, say). If our thread can’t get the <code>L2</code> lock, it unlocks <code>L1</code> and then uses <code>goto</code> to cleanly retry.</p>
+
+<p>We hope our heroic thread eventually manages to acquire both mutexes and save the day, all while avoiding evil deadlock.</p>
+
+<h2>31.9 <code>goto</code> and Variable Scope</h2>
+
+<p>We’ve already seen that labels have function scope, but weird things can happen if we jump past some variable initialization.</p>
+
+<p>Look at this example where we jump from a place where the variable <code>x</code> is out of scope into the middle of its scope (in the block).</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="k">goto</span> <span class="n">label</span><span class="p">;</span>
+
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">12345</span><span class="p">;</span>
+
+<span class="nl">label:</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+    <span class="p">}</span>
+</code></pre></div>
+
+<p>This will compile and run, but gives me a warning:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">warning:</span> <span class="err">‘</span><span class="n">x</span><span class="err">’</span> <span class="n">is</span> <span class="n">used</span> <span class="n">uninitialized</span> <span class="n">in</span> <span class="n">this</span> <span class="n">function</span>
+</code></pre></div>
+
+<p>And then it prints out <code>0</code> when I run it (your mileage may vary).</p>
+
+<p>Basically what has happened is that we jumped into <code>x</code>’s scope (so it was OK to reference it in the <code>printf()</code>) but we jumped over the line that actually initialized it to <code>12345</code>. So the value was indeterminate.</p>
+
+<p>The fix is, of course, to get the initialization <em>after</em> the label one way or another.</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="k">goto</span> <span class="n">label</span><span class="p">;</span>
+
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
+
+<span class="nl">label:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="mi">12345</span><span class="p">;</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+    <span class="p">}</span>
+</code></pre></div>
+
+<p>Let’s look at one more example.</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+<span class="nl">label:</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">goto</span> <span class="n">label</span><span class="p">;</span>
+</code></pre></div>
+
+<p>What happens here?</p>
+
+<p>The first time through the block, we’re good. <code>x</code> is <code>10</code> and that’s what prints.</p>
+
+<p>But after the <code>goto</code>, we’re jumping into the scope of <code>x</code>, but past its initialization. Which means we can still print it, but the value is indeterminate (since it hasn’t been reinitialized).</p>
+
+<p>On my machine, it prints <code>10</code> again (to infinity), but that’s just luck. It could print any value after the <code>goto</code> since <code>x</code> is uninitialized.</p>
+
+<h2>31.10 <code>goto</code> and Variable-Length Arrays</h2>
+
+<p>When it comes to VLAs and <code>goto</code>, there’s one rule: you can’t jump from outside the scope of a VLA into the scope of that VLA.</p>
+
+<p>If I try to do this:</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+    <span class="k">goto</span> <span class="n">label</span><span class="p">;</span>
+
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">v</span><span class="p">[</span><span class="n">x</span><span class="p">];</span>
+
+<span class="nl">label:</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Hi!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="p">}</span>
+</code></pre></div>
+
+<p>I get an error:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">error:</span> <span class="n">jump</span> <span class="n">into</span> <span class="n">scope</span> <span class="n">of</span> <span class="n">identifier</span> <span class="n">with</span> <span class="n">variably</span> <span class="n">modified</span> <span class="n">type</span>
+</code></pre></div>
+
+<p>You can jump in ahead of the VLA declaration, like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+    <span class="k">goto</span> <span class="n">label</span><span class="p">;</span>
+
+    <span class="p">{</span>
+<span class="nl">label:</span>  <span class="p">;</span>
+        <span class="kt">int</span> <span class="n">v</span><span class="p">[</span><span class="n">x</span><span class="p">];</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Hi!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="p">}</span>
+</code></pre></div>
+
+<p>Because that way the VLA gets allocated properly before its inevitable deallocation once it falls out of scope.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

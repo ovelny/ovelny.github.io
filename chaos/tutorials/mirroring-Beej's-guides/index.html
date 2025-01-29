@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/tutorials/mirroring-Beej's-guides</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/tutorials/mirroring-Beej's-guides"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Mirroring Beej&#39;s guides</h1>
+
+<p>Beej&#39;s guides are great. It is mentioned that <a href="https://beej.us/guide/bgc/html/split/foreword.html#mirroring" rel="nofollow">mirroring them is okay</a> so I really wanted to add them on chaos as raw markdown files, for consistency with my own theme.</p>
+
+<p>Here&#39;s how i did it for <code>Beej&#39;s Guide to C Programming</code>:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c">#!/usr/bin/env bash</span>
+
+<span class="nv">urls</span><span class="o">=(</span><span class="s2">"https://beej.us/guide/bgc/html/split/index.html"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/foreword.html#foreword"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/hello-world.html#hello-world"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/variables-and-statements.html#variables-and-statements"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/functions.html#functions"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/pointers.html#pointers"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/arrays.html#arrays"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/strings.html#strings"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/structs.html#structs"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/file-inputoutput.html#file-inputoutput"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/typedef-making-new-types.html#typedef-making-new-types"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/pointers2.html#pointers2"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/manual-memory-allocation.html#manual-memory-allocation"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/scope.html#scope"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/types-ii-way-more-types.html#types-ii-way-more-types"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/types-iii-conversions.html#types-iii-conversions"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/types-iv-qualifiers-and-specifiers.html#types-iv-qualifiers-and-specifiers"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/multifile-projects.html#multifile-projects"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/the-outside-environment.html#the-outside-environment"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/the-c-preprocessor.html#the-c-preprocessor"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/structs-ii-more-fun-with-structs.html#structs-ii-more-fun-with-structs"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/characters-and-strings-ii.html#characters-and-strings-ii"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/enumerated-types-enum.html#enumerated-types-enum"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/pointers-iii-pointers-to-pointers-and-more.html#pointers-iii-pointers-to-pointers-and-more"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/bitwise-operations.html#bitwise-operations"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/variadic-functions.html#variadic-functions"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/locale-and-internationalization.html#locale-and-internationalization"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/unicode-wide-characters-and-all-that.html#unicode-wide-characters-and-all-that"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/exiting-a-program.html#exiting-a-program"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/signal-handling.html#signal-handling"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/variable-length-arrays-vlas.html#variable-length-arrays-vlas"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/goto.html#goto"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/types-part-v-compound-literals-and-generic-selections.html#types-part-v-compound-literals-and-generic-selections"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/arrays-part-ii.html#arrays-part-ii"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/setjmp-longjmp.html#setjmp-longjmp"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/incomplete-types.html#incomplete-types"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/complex-numbers.html#complex-numbers"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/fixed-width-integer-types.html#fixed-width-integer-types"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/date-and-time-functionality.html#date-and-time-functionality"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/multithreading.html#multithreading"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/chapter-atomics.html#chapter-atomics"</span> <span class="s2">"https://beej.us/guide/bgc/html/split/function-specifiers-alignment-specifiersoperators.html#function-specifiers-alignment-specifiersoperators"</span><span class="o">)</span>
+
+<span class="k">for </span>url <span class="k">in</span> <span class="s2">"</span><span class="k">${</span><span class="p">!urls[@]</span><span class="k">}</span><span class="s2">"</span><span class="p">;</span> <span class="k">do
+    </span><span class="nv">filename</span><span class="o">=</span><span class="si">$(</span><span class="nb">basename</span> <span class="s2">"</span><span class="k">${</span><span class="nv">urls</span><span class="p">[url]</span><span class="k">}</span><span class="s2">"</span> | <span class="nb">sed</span> <span class="s2">"s/</span><span class="se">\#</span><span class="s2">.*//g"</span><span class="si">)</span>
+    curl <span class="nt">-O</span> <span class="s2">"</span><span class="k">${</span><span class="nv">urls</span><span class="p">[url]</span><span class="k">}</span><span class="s2">"</span>
+    pandoc <span class="nt">-f</span> html <span class="nt">-t</span> gfm-raw_html <span class="nt">--wrap</span><span class="o">=</span>none <span class="s2">"</span><span class="nv">$filename</span><span class="s2">"</span> | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s2">"&lt;div"</span> | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s2">"&lt;/div"</span> | <span class="nb">sed</span> <span class="s2">"s/sourceCode/c/g"</span> <span class="o">&gt;</span> <span class="s2">"</span><span class="nv">$url</span><span class="s2">"</span>-<span class="si">$(</span><span class="nb">basename</span> <span class="s2">"</span><span class="nv">$filename</span><span class="s2">"</span> .html<span class="si">)</span>.md
+<span class="k">done</span>
+</code></pre></div>
+
+<p>Yes, this means I gathered each chapter&#39;s link manually (not the sub-chapters though, thankfully). That pandoc line along with the grep + sed cleanups most likely work with the other guides as well.</p>
+
+<p>This doesn&#39;t do everything however: chapters 1-9 included have to be renamed 01-09, and headers and footers have to be removed in each markdown file:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="k">for </span>file <span class="k">in</span> <span class="k">*</span>.md<span class="p">;</span> <span class="k">do </span><span class="nb">cat</span> <span class="nv">$file</span> | <span class="nb">sed</span> <span class="s1">'1,6d'</span> | <span class="nb">head</span> <span class="nt">-n</span> <span class="nt">-6</span> <span class="o">&gt;</span> <span class="si">$(</span><span class="nb">basename</span> <span class="nv">$file</span> .md<span class="si">)</span>.trimmed<span class="p">;</span> <span class="k">done
+
+</span><span class="nb">rm</span> <span class="k">*</span>.md
+
+<span class="k">for </span>file <span class="k">in</span> <span class="k">*</span>.trimmed<span class="p">;</span> <span class="k">do
+    </span><span class="nb">mv</span> <span class="nt">--</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">file</span><span class="p">%.trimmed</span><span class="k">}</span><span class="s2">.md"</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<p>(You should still check if there are no empty lines left.)</p>
+
+<p>The indexes should also be stripped of their links, they just serve as a reference on chaos:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">cat </span>00-index.md | <span class="nb">sed</span> <span class="nt">-e</span> <span class="s1">'s/\[//g'</span> <span class="nt">-e</span> <span class="s1">'s/\].*$//g'</span> <span class="o">&gt;</span> 99-index.md
+<span class="nb">mv </span>99-index.md 00-index.md
+</code></pre></div>
+
+<p>That leaves us with the footnotes. Again, they&#39;ll be kept as reference and we won&#39;t exactly link every footnote to their HTML&#39;s ID like we should. Which means we&#39;ll ctrl+f the ID once redirected to the footnotes&#39; page. Bummer, but anything else is way too complicated for my tastes.</p>
+
+<p>Download it and convert it into raw markdown as we did earlier:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>curl <span class="nt">-O</span> https://beej.us/guide/bgc/html/split/footnotes.html
+pandoc <span class="nt">-f</span> html <span class="nt">-t</span> gfm-raw_html <span class="nt">--wrap</span><span class="o">=</span>none footnotes.html | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s2">"&lt;div"</span> | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s2">"&lt;/div"</span> | <span class="nb">sed</span> <span class="s2">"s/sourceCode/c/g"</span> <span class="o">&gt;</span> 99-<span class="si">$(</span><span class="nb">basename </span>footnotes.html .html<span class="si">)</span>.md
+<span class="nb">rm </span>footnotes.html
+</code></pre></div>
+
+<p>Remove the header and footer just like the other pages, then brace yourself for sed horrors:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">cat </span>99-footnotes.md | <span class="nb">cut</span> <span class="nt">-d</span> <span class="s1">' '</span> <span class="nt">-f</span> 4- | <span class="nb">sed</span> <span class="s1">'/^[[:space:]]*$/d'</span> | <span class="nb">awk</span> <span class="s1">'{print NR "." $0}'</span> | <span class="nb">sed</span> <span class="nt">-e</span> <span class="s1">'s/\[↩.*//g'</span> | <span class="nb">tr</span> <span class="nt">-s</span> <span class="s1">' '</span> <span class="o">&gt;</span> 999-footnotes.md
+<span class="nb">mv </span>999-footnotes.md 99-footnotes.md
+</code></pre></div>
+
+<p>Then list all markdown files and edit in place the links of the footnotes:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="k">for </span>file <span class="k">in</span> <span class="k">*</span>.md<span class="p">;</span> <span class="k">do </span><span class="nb">cat</span> <span class="nv">$file</span> | <span class="nb">sed</span> <span class="nt">-i</span> <span class="s2">"s/</span><span class="se">\(</span><span class="s2">footnotes</span><span class="se">\.</span><span class="s2">html</span><span class="se">\#</span><span class="s2">fn[0-9][0-9]</span><span class="se">\?</span><span class="s2">[0-9]</span><span class="se">\?\)</span><span class="s2">/</span><span class="se">\h</span><span class="s2">ttps:</span><span class="se">\/\/</span><span class="s2">ovelny.sh</span><span class="se">\/</span><span class="s2">chaos</span><span class="se">\/</span><span class="s2">beej</span><span class="se">\'</span><span class="s2">s-guide-to-c-programming</span><span class="se">\/</span><span class="s2">99-footnotes</span><span class="se">\/</span><span class="s2">/g"</span> <span class="nv">$file</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></div>
+
+<p>Change the URL according to the guide, of course. And you should hopefully be done with it.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

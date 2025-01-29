@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/29-signal-handling</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/29-signal-handling"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>29 Signal Handling</h1>
+
+<p>Before we start, I’m just going to advise you to generally ignore this entire chapter and use your OS’s (very likely) superior signal handling functions. Unix-likes have the <code>sigaction()</code> family of functions, and Windows has… whatever it does<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁰</a>.</p>
+
+<p>With that out of the way, what are signals?</p>
+
+<h2>29.1 What Are Signals?</h2>
+
+<p>A <em>signal</em> is <em>raised</em> on a variety of external events. Your program can be configured to be interrupted to <em>handle</em> the signal, and, optionally, continue where it left off once the signal has been handled.</p>
+
+<p>Think of it like a function that’s automatically called when one of these external events occurs.</p>
+
+<p>What are these events? On your system, there are probably a lot of them, but in the C spec there are just a few:</p>
+
+<table><thead>
+<tr>
+<th>Signal</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>SIGABRT</code></td>
+<td>Abnormal termination—what happens when <code>abort()</code> is called.</td>
+</tr>
+<tr>
+<td><code>SIGFPE</code></td>
+<td>Floating point exception.</td>
+</tr>
+<tr>
+<td><code>SIGILL</code></td>
+<td>Illegal instruction.</td>
+</tr>
+<tr>
+<td><code>SIGINT</code></td>
+<td>Interrupt—usually the result of <code>CTRL-C</code> being hit.</td>
+</tr>
+<tr>
+<td><code>SIGSEGV</code></td>
+<td>“Segmentation Violation”: invalid memory access.</td>
+</tr>
+<tr>
+<td><code>SIGTERM</code></td>
+<td>Termination requested.</td>
+</tr>
+</tbody></table>
+
+<p>You can set up your program to ignore, handle, or allow the default action for each of these by using the <code>signal()</code> function.</p>
+
+<h2>29.2 Handling Signals with <code>signal()</code></h2>
+
+<p>The <code>signal()</code> call takes two parameters: the signal in question, and an action to take when that signal is raised.</p>
+
+<p>The action can be one of three things:</p>
+
+<ul>
+<li>  A pointer to a handler function.</li>
+<li>  <code>SIG_IGN</code> to ignore the signal.</li>
+<li>  <code>SIG_DFL</code> to restore the default handler for the signal.</li>
+</ul>
+
+<p>Let’s write a program that you can’t <code>CTRL-C</code> out of. (Don’t fret—in the following program, you can also hit <code>RETURN</code> and it’ll exit.)</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;signal.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
+
+    <span class="n">signal</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">SIG_IGN</span><span class="p">);</span>    <span class="c1">// Ignore SIGINT, caused by ^C</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Try hitting ^C... (hit RETURN to exit)</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="c1">// Wait for a line of input so the program doesn't just exit</span>
+    <span class="n">fgets</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">s</span><span class="p">,</span> <span class="n">stdin</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Check out line 8—we tell the program to ignore <code>SIGINT</code>, the interrupt signal that’s raised when <code>CTRL-C</code> is hit. No matter how much you hit it, the signal remains ignored. If you comment out line 8, you’ll see you can <code>CTRL-C</code> with impunity and quit the program on the spot.</p>
+
+<h2>29.3 Writing Signal Handlers</h2>
+
+<p>I mentioned you could also write a handler function that gets called when the signal is raised.</p>
+
+<p>These are pretty straightforward, are also very capability-limited when it comes to the spec.</p>
+
+<p>Before we start, let’s look at the function prototype for the <code>signal()</code> call:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">signal</span><span class="p">(</span><span class="kt">int</span> <span class="n">sig</span><span class="p">,</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">int</span><span class="p">)))(</span><span class="kt">int</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Pretty easy to read, right?</p>
+
+<p><em>WRONG!</em> <code>:)</code></p>
+
+<p>Let’s take a moment to take it apart for practice.</p>
+
+<p><code>signal()</code> takes two arguments: an integer <code>sig</code> representing the signal, and a pointer <code>func</code> to the handler (the handler returns <code>void</code> and takes an <code>int</code> as an argument), highlighted below:</p>
+
+<div class="highlight"><pre class="highlight c"><code>                <span class="n">sig</span>          <span class="n">func</span>
+              <span class="o">|-----|</span>  <span class="o">|---------------|</span>
+<span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">signal</span><span class="p">(</span><span class="kt">int</span> <span class="n">sig</span><span class="p">,</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">int</span><span class="p">)))(</span><span class="kt">int</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Basically, we’re going to pass in the signal number we’re interested in catching, and we’re going to pass a pointer to a function of the form:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="nf">f</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">);</span>
+</code></pre></div>
+
+<p>that will do the actual catching.</p>
+
+<p>Now—what about the rest of that prototype? It’s basically all the return type. See, <code>signal()</code> will return whatever you passed as <code>func</code> on success… so that means it’s returning a pointer to a function that returns <code>void</code> and takes an <code>int</code> as an argument.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">returned</span>
+<span class="n">function</span>    <span class="n">indicates</span> <span class="n">we</span><span class="err">'</span><span class="n">re</span>              <span class="n">and</span>
+<span class="n">returns</span>     <span class="n">returning</span> <span class="n">a</span>                  <span class="n">that</span> <span class="n">function</span>
+<span class="kt">void</span>        <span class="n">pointer</span> <span class="n">to</span> <span class="n">function</span>          <span class="n">takes</span> <span class="n">an</span> <span class="kt">int</span>
+<span class="o">|--|</span>        <span class="o">|</span>                                   <span class="o">|---|</span>
+<span class="kt">void</span>       <span class="p">(</span><span class="o">*</span><span class="n">signal</span><span class="p">(</span><span class="kt">int</span> <span class="n">sig</span><span class="p">,</span> <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="kt">int</span><span class="p">)))(</span><span class="kt">int</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Also, it can return <code>SIG_ERR</code> in case of an error.</p>
+
+<p>Let’s do an example where we make it so you have to hit <code>CTRL-C</code> twice to exit.</p>
+
+<p>I want to be clear that this program engages in undefined behavior in a couple ways. But it’ll probably work for you, and it’s hard to come up with portable non-trivial demos.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;signal.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">sigint_handler</span><span class="p">(</span><span class="kt">int</span> <span class="n">signum</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// The compiler is allowed to run:</span>
+    <span class="c1">//</span>
+    <span class="c1">//   signal(signum, SIG_DFL)</span>
+    <span class="c1">//</span>
+    <span class="c1">// when the handler is called. So we reset the handler here:</span>
+    <span class="n">signal</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">sigint_handler</span><span class="p">);</span>
+
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">signum</span><span class="p">;</span>   <span class="c1">// Get rid of unused variable warning</span>
+
+    <span class="n">count</span><span class="o">++</span><span class="p">;</span>                       <span class="c1">// Undefined behavior</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Count: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>  <span class="c1">// Undefined behavior</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Exiting!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>      <span class="c1">// Undefined behavior</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">signal</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">sigint_handler</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Try hitting ^C...</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">for</span><span class="p">(;;);</span>  <span class="c1">// Wait here forever</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>One of the things you’ll notice is that on line 14 we reset the signal handler. This is because C has the option of resetting the signal handler to its <code>SIG_DFL</code> behavior before running your custom handler. In other words, it could be a one-off. So we reset it first thing so that we handle it again for the next one.</p>
+
+<p>We’re ignoring the return value from <code>signal()</code> in this case. If we’d set it to a different handler earlier, it would return a pointer to that handler, which we could get like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// old_handler is type "pointer to function that takes a single</span>
+<span class="c1">// int parameter and returns void":</span>
+
+<span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">old_handler</span><span class="p">)(</span><span class="kt">int</span><span class="p">);</span>
+
+<span class="n">old_handler</span> <span class="o">=</span> <span class="n">signal</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">sigint_handler</span><span class="p">);</span>
+</code></pre></div>
+
+<p>That said, I’m not sure of a common use case for this. But if you need the old handler for some reason, you can get it that way.</p>
+
+<p>Quick note on line 16—that’s just to tell the compiler to not warn that we’re not using this variable. It’s like saying, “I know I’m not using it; you don’t have to warn me.”</p>
+
+<p>And lastly you’ll see that I’ve marked undefined behavior in a couple places. More on that in the next section.</p>
+
+<h2>29.4 What Can We Actually Do?</h2>
+
+<p>Turns out we’re pretty limited in what we can and can’t do in our signal handlers. This is one of the reasons why I say you shouldn’t even bother with this and instead use your OS’s signal handling instead (e.g. <code>sigaction()</code> for Unix-like systems).</p>
+
+<p>Wikipedia goes so far as to say the only really portable thing you can do is call <code>signal()</code> with <code>SIG_IGN</code> or <code>SIG_DFL</code> and that’s it.</p>
+
+<p>Here’s what we <strong>can’t</strong> portably do:</p>
+
+<ul>
+<li>  Call any standard library function.
+
+<ul>
+<li>  Like <code>printf()</code>, for example.</li>
+<li>  I think it’s probably safe to call restartable/reentrant functions, but the spec doesn’t allow that liberty.</li>
+</ul></li>
+<li>  Get or set values from a local <code>static</code>, file scope, or thread-local variable.
+
+<ul>
+<li>  Unless it’s a lock-free atomic object or…</li>
+<li>  You’re assigning into a variable of type <code>volatile sig_atomic_t</code>.</li>
+</ul></li>
+</ul>
+
+<p>That last bit–<code>sig_atomic_t</code>–is your ticket to getting data out of a signal handler. (Unless you want to use lock-free atomic objects, which is outside the scope of this section<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷¹</a>.) It’s an integer type that might or might not be signed. And it’s bounded by what you can put in there.</p>
+
+<p>You can look at the minimum and maximum allowable values in the macros <code>SIG_ATOMIC_MIN</code> and <code>SIG_ATOMIC_MAX</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷²</a>.</p>
+
+<p>Confusingly, the spec also says you can’t refer “to any object with static or thread storage duration that is not a lock-free atomic object other than by assigning a value to an object declared as <code>volatile sig_atomic_t</code> […]”</p>
+
+<p>My read on this is that you can’t read or write anything that’s not a lock-free atomic object. Also you can assign to an object that’s <code>volatile sig_atomic_t</code>.</p>
+
+<p>But can you read from it? I honestly don’t see why not, except that the spec is very pointed about mentioning assigning into. But if you have to read it and make any kind of decision based on it, you might be opening up room for some kind of race conditions.</p>
+
+<p>With that in mind, we can rewrite our “hit <code>CTRL-C</code> twice to exit” code to be a little more portable, albeit less verbose on the output.</p>
+
+<p>Let’s change our <code>SIGINT</code> handler to do nothing except increment a value that’s of type <code>volatile sig_atomic_t</code>. So it’ll count the number of <code>CTRL-C</code>s that have been hit.</p>
+
+<p>Then in our main loop, we’ll check to see if that counter is over <code>2</code>, then bail out if it is.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;signal.h&gt;</span><span class="cp">
+</span>
+<span class="k">volatile</span> <span class="kt">sig_atomic_t</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">sigint_handler</span><span class="p">(</span><span class="kt">int</span> <span class="n">signum</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">signum</span><span class="p">;</span>                    <span class="c1">// Unused variable warning</span>
+
+    <span class="n">signal</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">sigint_handler</span><span class="p">);</span>  <span class="c1">// Reset signal handler</span>
+
+    <span class="n">count</span><span class="o">++</span><span class="p">;</span>                         <span class="c1">// Undefined behavior</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">signal</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">sigint_handler</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Hit ^C twice to exit.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="n">count</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Undefined behavior again? It’s my read that this is, because we have to read the value in order to increment and store it.</p>
+
+<p>If we only want to postpone the exit by one hitting of <code>CTRL-C</code>, we can do that without too much trouble. But any more postponement would require some ridiculous function chaining.</p>
+
+<p>What we’ll do is handle it once, and the handler will reset the signal to its default behavior (that is, to exit):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;signal.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">sigint_handler</span><span class="p">(</span><span class="kt">int</span> <span class="n">signum</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">signum</span><span class="p">;</span>                      <span class="c1">// Unused variable warning</span>
+    <span class="n">signal</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">SIG_DFL</span><span class="p">);</span>           <span class="c1">// Reset signal handler</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">signal</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">sigint_handler</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Hit ^C twice to exit.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">while</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Later when we look at lock-free atomic variables, we’ll see a way to fix the <code>count</code> version (assuming lock-free atomic variables are available on your particular system).</p>
+
+<p>This is why at the beginning, I was suggesting checking out your OS’s built-in signal system as a probably-superior alternative.</p>
+
+<h2>29.5 Friends Don’t Let Friends <code>signal()</code></h2>
+
+<p>Again, use your OS’s built-in signal handling or the equivalent. It’s not in the spec, not as portable, but probably is far more capable. Plus your OS probably has a number of signals defined that aren’t in the C spec. And it’s difficult to write portable code using <code>signal()</code> anyway.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

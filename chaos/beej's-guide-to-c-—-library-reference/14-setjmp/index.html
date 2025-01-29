@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/14-setjmp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/14-setjmp"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>14 <code>&lt;setjmp.h&gt;</code> Non-local Goto</h1>
+
+<p>These functions enable you to rewind the call stack to an earlier point, with a bunch of gotchas. It is rarely used.</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>longjmp()</code></td>
+<td>Return to the previously-placed bookmark</td>
+</tr>
+<tr>
+<td><code>setjmp()</code></td>
+<td>Bookmark this place to return to later</td>
+</tr>
+</tbody></table>
+
+<p>There’s also a new opaque type, <code>jmp_buf</code>, that holds all the information needed to pull off this magic trick.</p>
+
+<p>If you want your automatic local variables to be correct after a call to <code>longjmp()</code>. declare them as <code>volatile</code> where you called <code>setjmp()</code>.</p>
+
+<p><hr></p>
+
+<h2>14.1 <code>setjmp()</code></h2>
+
+<p>Save this location as one to return to later</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;setjmp.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">setjmp</span><span class="p">(</span><span class="kt">jmp_buf</span> <span class="n">env</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is how you save your position so you can <code>longjmp()</code> back it, later. Think of it as setting up a warp destination for later use.</p>
+
+<p>Basically, you call this, giving it an <code>env</code> it can fill in with all the information it needs to come back here later. This <code>env</code> is one you’ll pass to <code>longjmp()</code> later when you want to teleport back here.</p>
+
+<p>And the really funky part is this can return two different ways:</p>
+
+<ol>
+<li><p>It can return <code>0</code> from the call where you set up the jump destination.</p></li>
+<li><p>If can return non-zero when you actually warp back here as the result of a call to <code>longjmp()</code>.</p></li>
+</ol>
+
+<p>What you can do is check the return value to see which case has occurred.</p>
+
+<p>You’re only allowed to call <code>setjmp()</code> in a limited number of circumstances.</p>
+
+<ol>
+<li><p>As a standalone expression:</p>
+<div class="highlight"><pre class="highlight c"><code><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">);</span>
+</code></pre></div>
+<p>You can also cast it to <code>(void)</code> if you really wanted to do such a thing.</p></li>
+<li><p>As the complete controlling expression in an <code>if</code> or <code>switch</code>.</p>
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">))</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+
+<span class="k">switch</span> <span class="p">(</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">))</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+</code></pre></div>
+<p>But not this as it’s not the complete controlling expression in this case:</p>
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="mi">2</span> <span class="o">&amp;&amp;</span> <span class="n">setjmp</span><span class="p">())</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>   <span class="c1">// Undefined behavior</span>
+</code></pre></div></li>
+<li><p>The same as (2), above, except with a comparison to an integer constant:</p>
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+</code></pre></div></li>
+<li><p>As the operand to the not (<code>!</code>) operator:</p>
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">))</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+</code></pre></div></li>
+</ol>
+
+<p>Anything else is (you guessed it) undefined behavior!</p>
+
+<p>This can be a macro or a function, but you’ll treat it the same way in any case.</p>
+
+<h3>Return Value</h3>
+
+<p>This one is funky. It returns one of two things:</p>
+
+<p>Returns <code>0</code> if this was the call to <code>setjmp()</code> to set it up.</p>
+
+<p>Returns non-zero if being here was the result of a call to <code>longjmp()</code>. (Namely, it returns the value passed into the <code>longjmp()</code> function.)</p>
+
+<h3>Example</h3>
+
+<p>Here’s a function that calls <code>setjmp()</code> to set things up (where it returns <code>0</code>), then calls a couple levels deep into functions, and finally short-circuits the return path by <code>longjmp()</code>ing back to the place where <code>setjmp()</code> was called, earlier. This time, it passes <code>3490</code> as a value, which <code>setjmp()</code> returns.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;setjmp.h&gt;</span><span class="cp">
+</span>
+<span class="kt">jmp_buf</span> <span class="n">env</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">depth2</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Entering depth 2</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">longjmp</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="mi">3490</span><span class="p">);</span>           <span class="c1">// Jump back to setjmp()!!</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Leaving depth 2</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// This won't happen</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">depth1</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Entering depth 1</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">depth2</span><span class="p">();</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Leaving depth 1</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// This won't happen</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Calling into functions, setjmp() returned 0</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="n">depth1</span><span class="p">();</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Returned from functions</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// This won't happen</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="mi">3490</span><span class="p">:</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Bailed back to main, setjmp() returned 3490</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>When run, this outputs:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Calling</span> <span class="n">into</span> <span class="n">functions</span><span class="p">,</span> <span class="n">setjmp</span><span class="p">()</span> <span class="n">returned</span> <span class="mi">0</span>
+<span class="n">Entering</span> <span class="n">depth</span> <span class="mi">1</span>
+<span class="n">Entering</span> <span class="n">depth</span> <span class="mi">2</span>
+<span class="n">Bailed</span> <span class="n">back</span> <span class="n">to</span> <span class="n">main</span><span class="p">,</span> <span class="n">setjmp</span><span class="p">()</span> <span class="n">returned</span> <span class="mi">3490</span>
+</code></pre></div>
+
+<p>Notice that the second <code>printf()</code> in <code>case 0</code> didn’t run; it got jumped over by <code>longjmp()</code>!</p>
+
+<h3>See Also</h3>
+
+<p><a href="setjmp.html#man-longjmp" rel="nofollow"><code>longjmp()</code></a></p>
+
+<p><hr></p>
+
+<h2>14.2 <code>longjmp()</code></h2>
+
+<p>Return to the previous <code>setjmp()</code> location</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code> <span class="cp">#include</span> <span class="cpf">&lt;setjmp.h&gt;</span><span class="cp">
+</span>
+<span class="k">_Noreturn</span> <span class="kt">void</span> <span class="nf">longjmp</span><span class="p">(</span><span class="kt">jmp_buf</span> <span class="n">env</span><span class="p">,</span> <span class="kt">int</span> <span class="n">val</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This returns to a previous call to <code>setjmp()</code> back in the call history. <code>setjmp()</code> will return the <code>val</code> passed into <code>longjmp()</code>.</p>
+
+<p>The <code>env</code> passed to <code>setjmp()</code> should be the same one you pass into <code>longjmp()</code>.</p>
+
+<p>There are a bunch of potential issues with doing this, so you’ll want to be careful that you avoid undefined behavior by not doing the following:</p>
+
+<ol>
+<li><p>Don’t call <code>longjmp()</code> if the corresponding <code>setjmp()</code> was in a different thread.</p></li>
+<li><p>Don’t call <code>longjmp()</code> if you didn’t call <code>setjmp()</code> first.</p></li>
+<li><p>Don’t call <code>longjmp()</code> if the function that called <code>setjmp()</code> has completed.</p></li>
+<li><p>Don’t call <code>longjmp()</code> if the call to <code>setjmp()</code> had a variable length array (VLA) in scope and the scope has ended.</p></li>
+<li><p>Don’t call <code>longjmp()</code> if there are any VLAs in any active scopes between the <code>setjmp()</code> and the <code>longjmp()</code>. A good rule of thumb here is to not mix VLAs and <code>longjmp()</code>.</p></li>
+</ol>
+
+<p>Though <code>longjmp()</code> attempts to restore the machine to the state at the <code>setjmp()</code>, including local variables, there are some things that aren’t brought back to life:</p>
+
+<ul>
+<li>  Non-volatile local variables that might have changed</li>
+<li>  Floating point status flags</li>
+<li>  Open files</li>
+<li>  Any other component of the abstract machine</li>
+</ul>
+
+<h3>Return Value</h3>
+
+<p>This one is also funky in that it is one of the few functions in C that never returns!</p>
+
+<h3>Example</h3>
+
+<p>Here’s a function that calls <code>setjmp()</code> to set things up (where it returns <code>0</code>), then calls a couple levels deep into functions, and finally short-circuits the return path by <code>longjmp()</code>ing back to the place where <code>setjmp()</code> was called, earlier. This time, it passes <code>3490</code> as a value, which <code>setjmp()</code> returns.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;setjmp.h&gt;</span><span class="cp">
+</span>
+<span class="kt">jmp_buf</span> <span class="n">env</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">depth2</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Entering depth 2</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">longjmp</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="mi">3490</span><span class="p">);</span>           <span class="c1">// Jump back to setjmp()!!</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Leaving depth 2</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// This won't happen</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">depth1</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Entering depth 1</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">depth2</span><span class="p">();</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Leaving depth 1</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// This won't happen</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Calling into functions, setjmp() returned 0</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="n">depth1</span><span class="p">();</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Returned from functions</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// This won't happen</span>
+            <span class="k">break</span><span class="p">;</span>
+
+        <span class="k">case</span> <span class="mi">3490</span><span class="p">:</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Bailed back to main, setjmp() returned 3490</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>When run, this outputs:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Calling</span> <span class="n">into</span> <span class="n">functions</span><span class="p">,</span> <span class="n">setjmp</span><span class="p">()</span> <span class="n">returned</span> <span class="mi">0</span>
+<span class="n">Entering</span> <span class="n">depth</span> <span class="mi">1</span>
+<span class="n">Entering</span> <span class="n">depth</span> <span class="mi">2</span>
+<span class="n">Bailed</span> <span class="n">back</span> <span class="n">to</span> <span class="n">main</span><span class="p">,</span> <span class="n">setjmp</span><span class="p">()</span> <span class="n">returned</span> <span class="mi">3490</span>
+</code></pre></div>
+
+<p>Notice that the second <code>printf()</code> in <code>case 0</code> didn’t run; it got jumped over by <code>longjmp()</code>!</p>
+
+<h3>See Also</h3>
+
+<p><a href="setjmp.html#man-setjmp" rel="nofollow"><code>setjmp()</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

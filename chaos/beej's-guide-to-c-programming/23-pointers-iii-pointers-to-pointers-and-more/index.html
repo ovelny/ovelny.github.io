@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/23-pointers-iii-pointers-to-pointers-and-more</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/23-pointers-iii-pointers-to-pointers-and-more"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>23 Pointers III: Pointers to Pointers and More</h1>
+
+<p>Here’s where we cover some intermediate and advanced pointer usage. If you don’t have pointers down well, review the previous chapters on <a href="pointers.html#pointers" rel="nofollow">pointers</a> and <a href="pointers2.html#pointers2" rel="nofollow">pointer arithmetic</a> before starting on this stuff.</p>
+
+<h2>23.1 Pointers to Pointers</h2>
+
+<p>If you can have a pointer to a variable, and a variable can be a pointer, can you have a pointer to a variable that it itself a pointer?</p>
+
+<p>Yes! This is a pointer to a pointer, and it’s held in variable of type pointer-pointer.</p>
+
+<p>Before we tear into that, I want to try for a <em>gut feel</em> for how pointers to pointers work.</p>
+
+<p>Remember that a pointer is just a number. It’s a number that represents an index in computer memory, typically one that holds a value we’re interested in for some reason.</p>
+
+<p>That pointer, which is a number, has to be stored somewhere. And that place is memory, just like everything else<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁹</a>.</p>
+
+<p>But because it’s stored in memory, it must have an index it’s stored at, right? The pointer must have an index in memory where it is stored. And that index is a number. It’s the address of the pointer. It’s a pointer to the pointer.</p>
+
+<p>Let’s start with a regular pointer to an <code>int</code>, back from the earlier chapters:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>  <span class="c1">// Type: int</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>   <span class="c1">// Type: pointer to an int</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">);</span>  <span class="c1">// 3490</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Straightforward enough, right? We have two types represented: <code>int</code> and <code>int*</code>, and we set up <code>p</code> to point to <code>x</code>. Then we can dereference <code>p</code> on line 8 and print out the value <code>3490</code>.</p>
+
+<p>But, like we said, we can have a pointer to any variable… so does that mean we can have a pointer to <code>p</code>?</p>
+
+<p>In other words, what type is this expression?</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>  <span class="c1">// Type: int</span>
+<span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>   <span class="c1">// Type: pointer to an int</span>
+
+<span class="o">&amp;</span><span class="n">p</span>  <span class="c1">// &lt;-- What type is the address of p? AKA a pointer to p?</span>
+</code></pre></div>
+
+<p>If <code>x</code> is an <code>int</code>, then <code>&amp;x</code> is a pointer to an <code>int</code> that we’ve stored in <code>p</code> which is type <code>int*</code>. Follow? (Repeat this paragraph until you do!)</p>
+
+<p>And therefore <code>&amp;p</code> is a pointer to an <code>int*</code>, AKA a “pointer to a pointer to an <code>int</code>”. AKA “<code>int</code>-pointer-pointer”.</p>
+
+<p>Got it? (Repeat the previous paragraph until you do!)</p>
+
+<p>We write this type with two asterisks: <code>int **</code>. Let’s see it in action.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>  <span class="c1">// Type: int</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>   <span class="c1">// Type: pointer to an int</span>
+    <span class="kt">int</span> <span class="o">**</span><span class="n">q</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">p</span><span class="p">;</span>  <span class="c1">// Type: pointer to pointer to int</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="o">**</span><span class="n">q</span><span class="p">);</span>  <span class="c1">// 3490 3490</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Let’s make up some pretend addresses for the above values as examples and see what these three variables might look like in memory. The address values, below are just made up by me for example purposes:</p>
+
+<table><thead>
+<tr>
+<th>Variable</th>
+<th>Stored at Address</th>
+<th>Value Stored There</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>x</code></td>
+<td><code>28350</code></td>
+<td><code>3490</code>—the value from the code</td>
+</tr>
+<tr>
+<td><code>p</code></td>
+<td><code>29122</code></td>
+<td><code>28350</code>—the address of <code>x</code>!</td>
+</tr>
+<tr>
+<td><code>q</code></td>
+<td><code>30840</code></td>
+<td><code>29122</code>—the address of <code>p</code>!</td>
+</tr>
+</tbody></table>
+
+<p>Indeed, let’s try it for real on my computer<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁰</a> and print out the pointer values with <code>%p</code> and I’ll do the same table again with actual references (printed in hex).</p>
+
+<table><thead>
+<tr>
+<th>Variable</th>
+<th>Stored at Address</th>
+<th>Value Stored There</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>x</code></td>
+<td><code>0x7ffd96a07b94</code></td>
+<td><code>3490</code>—the value from the code</td>
+</tr>
+<tr>
+<td><code>p</code></td>
+<td><code>0x7ffd96a07b98</code></td>
+<td><code>0x7ffd96a07b94</code>—the address of <code>x</code>!</td>
+</tr>
+<tr>
+<td><code>q</code></td>
+<td><code>0x7ffd96a07ba0</code></td>
+<td><code>0x7ffd96a07b98</code>—the address of <code>p</code>!</td>
+</tr>
+</tbody></table>
+
+<p>You can see those addresses are the same except the last byte, so just focus on those.</p>
+
+<p>On my system, <code>int</code>s are 4 bytes, which is why we’re seeing the address go up by 4 from <code>x</code> to <code>p</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴¹</a> and then goes up by 8 from <code>p</code> to <code>q</code>. On my system, all pointers are 8 bytes.</p>
+
+<p>Does it matter if it’s an <code>int*</code> or an <code>int**</code>? Is one more bytes than the other? Nope! Remember that all pointers are addresses, that is indexes into memory. And on my machine you can represent an index with 8 bytes… doesn’t matter what’s stored at that index.</p>
+
+<p>Now check out what we did there on line 9 of the previous example: we <em>double dereferenced</em> <code>q</code> to get back to our <code>3490</code>.</p>
+
+<p>This is the important bit about pointers and pointers to pointers:</p>
+
+<ul>
+<li>  You can get a pointer to anything with <code>&amp;</code> (including to a pointer!)</li>
+<li>  You can get the thing a pointer points to with <code>*</code> (including a pointer!)</li>
+</ul>
+
+<p>So you can think of <code>&amp;</code> as being used to make pointers, and <code>*</code> being the inverse—it goes the opposite direction of <code>&amp;</code>—to get to the thing pointed to.</p>
+
+<p>In terms of type, each time you <code>&amp;</code>, that adds another pointer level to the type.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">If you have</th>
+<th style="text-align: center">Then you run</th>
+<th style="text-align: left">The result type is</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>int x</code></td>
+<td style="text-align: center"><code>&amp;x</code></td>
+<td style="text-align: left"><code>int *</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>int *x</code></td>
+<td style="text-align: center"><code>&amp;x</code></td>
+<td style="text-align: left"><code>int **</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>int **x</code></td>
+<td style="text-align: center"><code>&amp;x</code></td>
+<td style="text-align: left"><code>int ***</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>int ***x</code></td>
+<td style="text-align: center"><code>&amp;x</code></td>
+<td style="text-align: left"><code>int ****</code></td>
+</tr>
+</tbody></table>
+
+<p>And each time you use dereference (<code>*</code>), it does the opposite:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">If you have</th>
+<th style="text-align: center">Then you run</th>
+<th style="text-align: left">The result type is</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>int ****x</code></td>
+<td style="text-align: center"><code>*x</code></td>
+<td style="text-align: left"><code>int ***</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>int ***x</code></td>
+<td style="text-align: center"><code>*x</code></td>
+<td style="text-align: left"><code>int **</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>int **x</code></td>
+<td style="text-align: center"><code>*x</code></td>
+<td style="text-align: left"><code>int *</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>int *x</code></td>
+<td style="text-align: center"><code>*x</code></td>
+<td style="text-align: left"><code>int</code></td>
+</tr>
+</tbody></table>
+
+<p>Note that you can use multiple <code>*</code>s in a row to quickly dereference, just like we saw in the example code with <code>**q</code>, above. Each one strips away one level of indirection.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">If you have</th>
+<th style="text-align: center">Then you run</th>
+<th style="text-align: left">The result type is</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left"><code>int ****x</code></td>
+<td style="text-align: center"><code>***x</code></td>
+<td style="text-align: left"><code>int *</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>int ***x</code></td>
+<td style="text-align: center"><code>**x</code></td>
+<td style="text-align: left"><code>int *</code></td>
+</tr>
+<tr>
+<td style="text-align: left"><code>int **x</code></td>
+<td style="text-align: center"><code>**x</code></td>
+<td style="text-align: left"><code>int</code></td>
+</tr>
+</tbody></table>
+
+<p>In general, <code>&amp;*E == E</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴²</a>. The dereference “undoes” the address-of.</p>
+
+<p>But <code>&amp;</code> doesn’t work the same way—you can only do those one at a time, and have to store the result in an intermediate variable:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>     <span class="c1">// Type: int</span>
+<span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>      <span class="c1">// Type: int *, pointer to an int</span>
+<span class="kt">int</span> <span class="o">**</span><span class="n">q</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">p</span><span class="p">;</span>     <span class="c1">// Type: int **, pointer to pointer to int</span>
+<span class="kt">int</span> <span class="o">***</span><span class="n">r</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">q</span><span class="p">;</span>    <span class="c1">// Type: int ***, pointer to pointer to pointer to int</span>
+<span class="kt">int</span> <span class="o">****</span><span class="n">s</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">r</span><span class="p">;</span>   <span class="c1">// Type: int ****, you get the idea</span>
+<span class="kt">int</span> <span class="o">*****</span><span class="n">t</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">s</span><span class="p">;</span>  <span class="c1">// Type: int *****</span>
+</code></pre></div>
+
+<h3>23.1.1 Pointer Pointers and <code>const</code></h3>
+
+<p>If you recall, declaring a pointer like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="o">*</span><span class="k">const</span> <span class="n">p</span><span class="p">;</span>
+</code></pre></div>
+
+<p>means that you can’t modify <code>p</code>. Trying to <code>p++</code> would give you a compile-time error.</p>
+
+<p>But how does that work with <code>int **</code> or <code>int ***</code>? Where does the <code>const</code> go, and what does it mean?</p>
+
+<p>Let’s start with the simple bit. The <code>const</code> right next to the variable name refers to that variable. So if you want an <code>int***</code> that you can’t change, you can do this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="o">***</span><span class="k">const</span> <span class="n">p</span><span class="p">;</span>
+
+<span class="n">p</span><span class="o">++</span><span class="p">;</span>  <span class="c1">// Not allowed</span>
+</code></pre></div>
+
+<p>But here’s where things get a little weird.</p>
+
+<p>What if we had this situation:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="k">const</span> <span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="o">**</span><span class="n">q</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">p</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>When I build that, I get a warning:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">warning:</span> <span class="n">initialization</span> <span class="n">discards</span> <span class="err">‘</span><span class="k">const</span><span class="err">’</span> <span class="n">qualifier</span> <span class="n">from</span> <span class="n">pointer</span> <span class="n">target</span> <span class="n">type</span>
+    <span class="mi">7</span> <span class="o">|</span>     <span class="kt">int</span> <span class="o">**</span><span class="n">q</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">p</span><span class="p">;</span>
+      <span class="o">|</span>               <span class="o">^</span>
+</code></pre></div>
+
+<p>What’s going on? The compiler is telling us here that we had a variable that was <code>const</code>, and we’re assigning its value into another variable that is not <code>const</code> in the same way. The “<code>const</code>ness” is discarded, which probably isn’t what we wanted to do.</p>
+
+<p>The type of <code>p</code> is <code>int *const p</code>, and so <code>&amp;p</code> is type <code>int *const *</code>. And we try to assign that into <code>q</code>.</p>
+
+<p>But <code>q</code> is <code>int **</code>! A type with different <code>const</code>ness on the first <code>*</code>! So we get a warning that the <code>const</code> in <code>p</code>’s <code>int *const *</code> is being ignored and thrown away.</p>
+
+<p>We can fix that by making sure <code>q</code>’s type is at least as <code>const</code> as <code>p</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+<span class="kt">int</span> <span class="o">*</span><span class="k">const</span> <span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>
+<span class="kt">int</span> <span class="o">*</span><span class="k">const</span> <span class="o">*</span><span class="n">q</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">p</span><span class="p">;</span>
+</code></pre></div>
+
+<p>And now we’re happy.</p>
+
+<p>We could make <code>q</code> even more <code>const</code>. As it is, above, we’re saying, “<code>q</code> isn’t itself <code>const</code>, but the thing it points to is <code>const</code>.” But we could make them both <code>const</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+<span class="kt">int</span> <span class="o">*</span><span class="k">const</span> <span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>
+<span class="kt">int</span> <span class="o">*</span><span class="k">const</span> <span class="o">*</span><span class="k">const</span> <span class="n">q</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">p</span><span class="p">;</span>  <span class="c1">// More const!</span>
+</code></pre></div>
+
+<p>And that works, too. Now we can’t modify <code>q</code>, or the pointer <code>q</code> points to.</p>
+
+<h2>23.2 Multibyte Values</h2>
+
+<p>We kinda hinted at this in a variety of places earlier, but clearly not every value can be stored in a single byte of memory. Things take up multiple bytes of memory (assuming they’re not <code>char</code>s). You can tell how many bytes by using <code>sizeof</code>. And you can tell which address in memory is the <em>first</em> byte of the object by using the standard <code>&amp;</code> operator, which always returns the address of the first byte.</p>
+
+<p>And here’s another fun fact! If you iterate over the bytes of any object, you get its <em>object representation</em>. Two things with the same object representation in memory are equal.</p>
+
+<p>If you want to iterate over the object representation, you should do it with pointers to <code>unsigned char</code>.</p>
+
+<p>Let’s make our own version of <a href="https://beej.us/guide/bgclr/html/split/stringref.html#man-memcpy" rel="nofollow"><code>memcpy()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴³</a> that does exactly this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="o">*</span><span class="nf">my_memcpy</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">dest</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">src</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Make local variables for src and dest, but of type unsigned char</span>
+
+    <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="n">src</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">d</span> <span class="o">=</span> <span class="n">dest</span><span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">n</span><span class="o">--</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>   <span class="c1">// For the given number of bytes</span>
+        <span class="o">*</span><span class="n">d</span><span class="o">++</span> <span class="o">=</span> <span class="o">*</span><span class="n">s</span><span class="o">++</span><span class="p">;</span>  <span class="c1">// Copy source byte to dest byte</span>
+
+    <span class="c1">// Most copy functions return a pointer to the dest as a convenience</span>
+    <span class="c1">// to the caller</span>
+
+    <span class="k">return</span> <span class="n">dest</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>(There are some good examples of post-increment and post-decrement in there for you to study, as well.)</p>
+
+<p>It’s important to note that the version, above, is probably less efficient than the one that comes with your system.</p>
+
+<p>But you can pass pointers to anything into it, and it’ll copy those objects. Could be <code>int*</code>, <code>struct animal*</code>, or anything.</p>
+
+<p>Let’s do another example that prints out the object representation bytes of a <code>struct</code> so we can see if there’s any padding in there and what values it has<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁴</a>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="k">struct</span> <span class="n">foo</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="n">a</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">foo</span> <span class="n">x</span> <span class="o">=</span> <span class="p">{</span><span class="mh">0x12</span><span class="p">,</span> <span class="mh">0x12345678</span><span class="p">};</span>
+    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="k">sizeof</span> <span class="n">x</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%02X</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>What we have there is a <code>struct foo</code> that’s built in such a way that should encourage a compiler to inject padding bytes (though it doesn’t have to). And then we get an <code>unsigned char *</code> to the first byte of the <code>struct foo</code> variable <code>x</code>.</p>
+
+<p>From there, all we need to know is the <code>sizeof x</code> and we can loop through that many bytes, printing out the values (in hex for ease).</p>
+
+<p>Running this gives a bunch of numbers as output. I’ve annotated it below to identify where the values were stored:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">12</span>  <span class="o">|</span> <span class="n">x</span><span class="p">.</span><span class="n">a</span> <span class="o">==</span> <span class="mh">0x12</span>
+
+<span class="n">AB</span>  <span class="o">|</span>
+<span class="n">BF</span>  <span class="o">|</span> <span class="n">padding</span> <span class="n">bytes</span> <span class="n">with</span> <span class="s">"random"</span> <span class="n">value</span>
+<span class="mi">26</span>  <span class="o">|</span>
+
+<span class="mi">78</span>  <span class="o">|</span>
+<span class="mi">56</span>  <span class="o">|</span> <span class="n">x</span><span class="p">.</span><span class="n">b</span> <span class="o">==</span> <span class="mh">0x12345678</span>
+<span class="mi">34</span>  <span class="o">|</span>
+<span class="mi">12</span>  <span class="o">|</span>
+</code></pre></div>
+
+<p>On all systems, <code>sizeof(char)</code> is 1, and we see that first byte at the top of the output holding the value <code>0x12</code> that we stored there.</p>
+
+<p>Then we have some padding bytes—for me, these varied from run to run.</p>
+
+<p>Finally, on my system, <code>sizeof(int)</code> is 4, and we can see those 4 bytes at the end. Notice how they’re the same bytes as are in the hex value <code>0x12345678</code>, but strangely in reverse order<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁵</a>.</p>
+
+<p>So that’s a little peek under the hood at the bytes of a more complex entity in memory.</p>
+
+<h2>23.3 The <code>NULL</code> Pointer and Zero</h2>
+
+<p>These things can be used interchangeably:</p>
+
+<ul>
+<li>  <code>NULL</code></li>
+<li>  <code>0</code></li>
+<li>  <code>&#39;\0&#39;</code></li>
+<li>  <code>(void *)0</code></li>
+</ul>
+
+<p>Personally, I always use <code>NULL</code> when I mean <code>NULL</code>, but you might see some other variants from time to time. Though <code>&#39;\0&#39;</code> (a byte with all bits set to zero) will also compare equal, it’s <em>weird</em> to compare it to a pointer; you should compare <code>NULL</code> against the pointer. (Of course, lots of times in string processing, you’re comparing <em>the thing the pointer points to</em> to <code>&#39;\0&#39;</code>, and that’s right.)</p>
+
+<p><code>0</code> is called the <em>null pointer constant</em>, and, when compared to or assigned into another pointer, it is converted to a null pointer of the same type.</p>
+
+<h2>23.4 Pointers as Integers</h2>
+
+<p>You can cast pointers to integers and vice-versa (since a pointer is just an index into memory), but you probably only ever need to do this if you’re doing some low-level hardware stuff. The results of such machinations are implementation-defined, so they aren’t portable. And <em>weird things</em> could happen.</p>
+
+<p>C does make one guarantee, though: you can convert a pointer to a <code>uintptr_t</code> type and you’ll be able to convert it back to a pointer without losing any data.</p>
+
+<p><code>uintptr_t</code> is defined in <code>&lt;stdint.h&gt;</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁶</a>.</p>
+
+<p>Additionally, if you feel like being signed, you can use <code>intptr_t</code> to the same effect.</p>
+
+<h2>23.5 Casting Pointers to other Pointers</h2>
+
+<p>There’s only one safe pointer conversion:</p>
+
+<ol>
+<li> Converting to <code>intptr_t</code> or <code>uintptr_t</code>.</li>
+<li> Converting to and from <code>void*</code>.</li>
+</ol>
+
+<p>TWO! Two safe pointer conversions.</p>
+
+<ol>
+<li> Converting to and from <code>char*</code>.</li>
+</ol>
+
+<p>THREE! Three safe conversions!</p>
+
+<ol>
+<li> Converting to and from a pointer to a <code>struct</code> and a pointer to its first member, and vice-versa.</li>
+</ol>
+
+<p>FOUR! Four safe conversions!</p>
+
+<p>If you cast to a pointer of another type and then access the object it points to, the behavior is undefined due to something called <em>strict aliasing</em>.</p>
+
+<p>Plain old <em>aliasing</em> refers to the ability to have more than one way to access the same object. The access points are aliases for each other.</p>
+
+<p><em>Strict aliasing</em> says you are only allowed to access an object via pointers to <em>compatible types</em> to that object.</p>
+
+<p>For example, this is definitely allowed:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">;</span>
+</code></pre></div>
+
+<p><code>p</code> is a pointer to an <code>int</code>, and it points to a compatible type—namely <code>int</code>—so we’re golden.</p>
+
+<p>But the following isn’t good because <code>int</code> and <code>float</code> are not compatible types:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="kt">float</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">a</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Here’s a demo program that does some aliasing. It takes a variable <code>v</code> of type <code>int32_t</code> and aliases it to a pointer to a <code>struct words</code>. That <code>struct</code> has two <code>int16_t</code>s in it. These types are incompatible, so we’re in violation of strict aliasing rules. The compiler will assume that these two pointers never point to the same object… but we’re making it so they do. Which is naughty of us.</p>
+
+<p>Let’s see if we can break something.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdint.h&gt;</span><span class="cp">
+</span>
+<span class="k">struct</span> <span class="n">words</span> <span class="p">{</span>
+    <span class="kt">int16_t</span> <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="p">};</span>
+
+<span class="kt">void</span> <span class="nf">fun</span><span class="p">(</span><span class="kt">int32_t</span> <span class="o">*</span><span class="n">pv</span><span class="p">,</span> <span class="k">struct</span> <span class="n">words</span> <span class="o">*</span><span class="n">pw</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">(</span><span class="o">*</span><span class="n">pv</span><span class="p">)</span><span class="o">++</span><span class="p">;</span>
+
+        <span class="c1">// Print the 32-bit value and the 16-bit values:</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%x, %x-%x</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">pv</span><span class="p">,</span> <span class="n">pw</span><span class="o">-&gt;</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">pw</span><span class="o">-&gt;</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int32_t</span> <span class="n">v</span> <span class="o">=</span> <span class="mh">0x12345678</span><span class="p">;</span>
+
+    <span class="k">struct</span> <span class="n">words</span> <span class="o">*</span><span class="n">pw</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">words</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">v</span><span class="p">;</span>  <span class="c1">// Violates strict aliasing</span>
+
+    <span class="n">fun</span><span class="p">(</span><span class="o">&amp;</span><span class="n">v</span><span class="p">,</span> <span class="n">pw</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>See how I pass in the two incompatible pointers to <code>fun()</code>? One of the types is <code>int32_t*</code> and the other is <code>struct words*</code>.</p>
+
+<p>But they both point to the same object: the 32-bit value initialized to <code>0x12345678</code>.</p>
+
+<p>So if we look at the fields in the <code>struct words</code>, we should see the two 16-bit halves of that number. Right?</p>
+
+<p>And in the <code>fun()</code> loop, we increment the pointer to the <code>int32_t</code>. That’s it. But since the <code>struct</code> points to that same memory, it, too, should be updated to the same value.</p>
+
+<p>So let’s run it and get this, with the 32-bit value on the left and the two 16-bit portions on the right. It should match<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁷</a>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">12345679</span><span class="p">,</span> <span class="mi">1234</span><span class="o">-</span><span class="mi">5679</span>
+<span class="mi">1234567</span><span class="n">a</span><span class="p">,</span> <span class="mi">1234</span><span class="o">-</span><span class="mi">567</span><span class="n">a</span>
+<span class="mi">1234567</span><span class="n">b</span><span class="p">,</span> <span class="mi">1234</span><span class="o">-</span><span class="mi">567</span><span class="n">b</span>
+<span class="mi">1234567</span><span class="n">c</span><span class="p">,</span> <span class="mi">1234</span><span class="o">-</span><span class="mi">567</span><span class="n">c</span>
+<span class="mi">1234567</span><span class="n">d</span><span class="p">,</span> <span class="mi">1234</span><span class="o">-</span><span class="mi">567</span><span class="n">d</span>
+</code></pre></div>
+
+<p>and it does… <em>UNTIL TOMORROW!</em></p>
+
+<p>Let’s try it compiling GCC with <code>-O3</code> and <code>-fstrict-aliasing</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">12345679</span><span class="p">,</span> <span class="mi">1234</span><span class="o">-</span><span class="mi">5678</span>
+<span class="mi">1234567</span><span class="n">a</span><span class="p">,</span> <span class="mi">1234</span><span class="o">-</span><span class="mi">5679</span>
+<span class="mi">1234567</span><span class="n">b</span><span class="p">,</span> <span class="mi">1234</span><span class="o">-</span><span class="mi">567</span><span class="n">a</span>
+<span class="mi">1234567</span><span class="n">c</span><span class="p">,</span> <span class="mi">1234</span><span class="o">-</span><span class="mi">567</span><span class="n">b</span>
+<span class="mi">1234567</span><span class="n">d</span><span class="p">,</span> <span class="mi">1234</span><span class="o">-</span><span class="mi">567</span><span class="n">c</span>
+</code></pre></div>
+
+<p>They’re off by one! But they point to the same memory! How could this be? Answer: it’s undefined behavior to alias memory like that. <em>Anything is possible</em>, except not in a good way.</p>
+
+<p>If your code violates strict aliasing rules, whether it works or not depends on how someone decides to compile it. And that’s a bummer since that’s beyond your control. Unless you’re some kind of omnipotent deity.</p>
+
+<p>Unlikely, sorry.</p>
+
+<p>GCC can be forced to not use the strict aliasing rules with <code>-fno-strict-aliasing</code>. Compiling the demo program, above, with <code>-O3</code> and this flag causes the output to be as expected.</p>
+
+<p>Lastly, <em>type punning</em> is using pointers of different types to look at the same data. Before strict aliasing, this kind of things was fairly common:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mh">0x12345678</span><span class="p">;</span>
+<span class="kt">short</span> <span class="n">b</span> <span class="o">=</span> <span class="o">*</span><span class="p">((</span><span class="kt">short</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">a</span><span class="p">);</span>   <span class="c1">// Violates strict aliasing</span>
+</code></pre></div>
+
+<p>If you want to do type punning (relatively) safely, see the section on <a href="structs-ii-more-fun-with-structs.html#union-type-punning" rel="nofollow">Unions and Type Punning</a>.</p>
+
+<h2>23.6 Pointer Differences</h2>
+
+<p>As you know from the section on pointer arithmetic, you can subtract one pointer from another<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁸</a> to get the difference between them in count of array elements.</p>
+
+<p>Now the <em>type of that difference</em> is something that’s up to the implementation, so it could vary from system to system.</p>
+
+<p>To be more portable, you can store the result in a variable of type <code>ptrdiff_t</code> defined in <code>&lt;stddef.h&gt;</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">cats</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+
+<span class="kt">int</span> <span class="o">*</span><span class="n">f</span> <span class="o">=</span> <span class="n">cats</span> <span class="o">+</span> <span class="mi">20</span><span class="p">;</span>
+<span class="kt">int</span> <span class="o">*</span><span class="n">g</span> <span class="o">=</span> <span class="n">cats</span> <span class="o">+</span> <span class="mi">60</span><span class="p">;</span>
+
+<span class="kt">ptrdiff_t</span> <span class="n">d</span> <span class="o">=</span> <span class="n">g</span> <span class="o">-</span> <span class="n">f</span><span class="p">;</span>  <span class="c1">// difference is 40</span>
+</code></pre></div>
+
+<p>And you can print it by prefixing the integer format specifier with <code>t</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"%td</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">d</span><span class="p">);</span>  <span class="c1">// Print decimal: 40</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%tX</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">d</span><span class="p">);</span>  <span class="c1">// Print hex:     28</span>
+</code></pre></div>
+
+<h2>23.7 Pointers to Functions</h2>
+
+<p>Functions are just collections of machine instructions in memory, so there’s no reason we can’t get a pointer to the first instruction of the function.</p>
+
+<p>And then call it.</p>
+
+<p>This can be useful for passing a pointer to a function into another function as an argument. Then the second one could call whatever was passed in.</p>
+
+<p>The tricky part with these, though, is that C needs to know the type of the variable that is the pointer to the function.</p>
+
+<p>And it would really like to know all the details.</p>
+
+<p>Like “this is a pointer to a function that takes two <code>int</code> arguments and returns <code>void</code>”.</p>
+
+<p>How do you write all that down so you can declare a variable?</p>
+
+<p>Well, it turns out it looks very much like a function prototype, except with some extra parentheses:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// Declare p to be a pointer to a function.</span>
+<span class="c1">// This function returns a float, and takes two ints as arguments.</span>
+
+<span class="kt">float</span> <span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Also notice that you don’t have to give the parameters names. But you can if you want; they’re just ignored.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// Declare p to be a pointer to a function.</span>
+<span class="c1">// This function returns a float, and takes two ints as arguments.</span>
+
+<span class="kt">float</span> <span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">)(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">);</span>
+</code></pre></div>
+
+<p>So now that we know how to declare a variable, how do we know what to assign into it? How do we get the address of a function?</p>
+
+<p>Turns out there’s a shortcut just like with getting a pointer to an array: you can just refer to the bare function name without parens. (You can put an <code>&amp;</code> in front of this if you like, but it’s unnecessary and not idiomatic.)</p>
+
+<p>Once you have a pointer to a function, you can call it just by adding parens and an argument list.</p>
+
+<p>Let’s do a simple example where I effectively make an alias for a function by setting a pointer to it. Then we’ll call it.</p>
+
+<p>This code prints out <code>3490</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">print_int</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Assign p to point to print_int:</span>
+
+    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">)(</span><span class="kt">int</span><span class="p">)</span> <span class="o">=</span> <span class="n">print_int</span><span class="p">;</span>
+
+    <span class="n">p</span><span class="p">(</span><span class="mi">3490</span><span class="p">);</span>          <span class="c1">// Call print_int via the pointer</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Notice how the type of <code>p</code> represents the return value and parameter types of <code>print_int</code>. It has to, or else C will complain about incompatible pointer types.</p>
+
+<p>One more example here shows how we might pass a pointer to a function as an argument to another function.</p>
+
+<p>We’ll write a function that takes a couple integer arguments, plus a pointer to a function that operates on those two arguments. Then it prints the result.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">mult</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">print_math</span><span class="p">(</span><span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">op</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">),</span> <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">op</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">print_math</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">);</span>   <span class="c1">// 12</span>
+    <span class="n">print_math</span><span class="p">(</span><span class="n">mult</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">);</span>  <span class="c1">// 35</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Take a moment to digest that. The idea here is that we’re going to pass a pointer to a function to <code>print_math()</code>, and it’s going to call that function to do some math.</p>
+
+<p>This way we can change the behavior of <code>print_math()</code> by passing another function into it. You can see we do that on lines 22-23 when we pass in pointers to functions <code>add</code> and <code>mult</code>, respectively.</p>
+
+<p>Now, on line 13, I think we can all agree the function signature of <code>print_math()</code> is a sight to behold. And, if you can believe it, this one is actually pretty straight-forward compared to some things you can construct<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁴⁹</a>.</p>
+
+<p>But let’s digest it. Turns out there are only three parameters, but they’re a little hard to see:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">//                      op             x      y</span>
+<span class="c1">//              |-----------------|  |---|  |---|</span>
+<span class="kt">void</span> <span class="n">print_math</span><span class="p">(</span><span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">op</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">),</span> <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span>
+</code></pre></div>
+
+<p>The first, <code>op</code>, is a pointer to a function that takes two <code>int</code>s as arguments and returns an <code>int</code>. This matches the signatures for both <code>add()</code> and <code>mult()</code>.</p>
+
+<p>The second and third, <code>x</code> and <code>y</code>, are just standard <code>int</code> parameters.</p>
+
+<p>Slowly and deliberately let your eyes play over the signature while you identify the working parts. One thing that always stands out for me is the sequence <code>(*op)(</code>, the parens and the asterisk. That’s the giveaway it’s a pointer to a function.</p>
+
+<p>Finally, jump back to the <em>Pointers II</em> chapter for a pointer-to-function <a href="pointers2.html#qsort-example" rel="nofollow">example using the built-in <code>qsort()</code></a>.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

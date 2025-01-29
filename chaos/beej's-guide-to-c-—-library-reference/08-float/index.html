@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/08-float</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/08-float"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>8 <code>&lt;float.h&gt;</code> Floating Point Limits</h1>
+
+<table><thead>
+<tr>
+<th>Macro</th>
+<th style="text-align: center">Minimum Magnitude</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>FLT_ROUNDS</code></td>
+<td style="text-align: center"></td>
+<td>Current rounding mode</td>
+</tr>
+<tr>
+<td><code>FLT_EVAL_METHOD</code></td>
+<td style="text-align: center"></td>
+<td>Types used for evaluation</td>
+</tr>
+<tr>
+<td><code>FLT_HAS_SUBNORM</code></td>
+<td style="text-align: center"></td>
+<td>Subnormal support for <code>float</code></td>
+</tr>
+<tr>
+<td><code>DBL_HAS_SUBNORM</code></td>
+<td style="text-align: center"></td>
+<td>Subnormal support for <code>double</code></td>
+</tr>
+<tr>
+<td><code>LDBL_HAS_SUBNORM</code></td>
+<td style="text-align: center"></td>
+<td>Subnormal support for <code>long double</code></td>
+</tr>
+<tr>
+<td><code>FLT_RADIX</code></td>
+<td style="text-align: center"><code>2</code></td>
+<td>Floating point radix (base)</td>
+</tr>
+<tr>
+<td><code>FLT_MANT_DIG</code></td>
+<td style="text-align: center"></td>
+<td>Number of base <code>FLT_RADIX</code> digits in a <code>float</code></td>
+</tr>
+<tr>
+<td><code>DBL_MANT_DIG</code></td>
+<td style="text-align: center"></td>
+<td>Number of base <code>FLT_RADIX</code> digits in a <code>double</code></td>
+</tr>
+<tr>
+<td><code>LDBL_MANT_DIG</code></td>
+<td style="text-align: center"></td>
+<td>Number of base <code>FLT_RADIX</code> digits in a <code>long double</code></td>
+</tr>
+<tr>
+<td><code>FLT_DECIMAL_DIG</code></td>
+<td style="text-align: center"><code>6</code></td>
+<td>Number of decimal digits required to encode a <code>float</code></td>
+</tr>
+<tr>
+<td><code>DBL_DECIMAL_DIG</code></td>
+<td style="text-align: center"><code>10</code></td>
+<td>Number of decimal digits required to encode a <code>double</code></td>
+</tr>
+<tr>
+<td><code>LDBL_DECIMAL_DIG</code></td>
+<td style="text-align: center"><code>10</code></td>
+<td>Number of decimal digits required to encode a <code>long double</code></td>
+</tr>
+<tr>
+<td><code>DECIMAL_DIG</code></td>
+<td style="text-align: center"><code>10</code></td>
+<td>Number of decimal digits required to encode the the widest floating point number supported</td>
+</tr>
+<tr>
+<td><code>FLT_DIG</code></td>
+<td style="text-align: center"><code>6</code></td>
+<td>Number of decimal digits that can be safely stored in a <code>float</code></td>
+</tr>
+<tr>
+<td><code>DBL_DIG</code></td>
+<td style="text-align: center"><code>10</code></td>
+<td>Number of decimal digits that can be safely stored in a <code>double</code></td>
+</tr>
+<tr>
+<td><code>LDBL_DIG</code></td>
+<td style="text-align: center"><code>10</code></td>
+<td>Number of decimal digits that can be safely stored in a <code>long double</code></td>
+</tr>
+<tr>
+<td><code>FLT_MIN_EXP</code></td>
+<td style="text-align: center"></td>
+<td><code>FLT_RADIX</code> to the <code>FLT_MIN_EXP-1</code> power is the smallest normalized <code>float</code></td>
+</tr>
+<tr>
+<td><code>DBL_MIN_EXP</code></td>
+<td style="text-align: center"></td>
+<td><code>FLT_RADIX</code> to the <code>DBL_MIN_EXP-1</code> power is the smallest normalized <code>double</code></td>
+</tr>
+<tr>
+<td><code>LDBL_MIN_EXP</code></td>
+<td style="text-align: center"></td>
+<td><code>FLT_RADIX</code> to the <code>LDBL_MIN_EXP-1</code> power is the smallest normalized <code>long double</code></td>
+</tr>
+<tr>
+<td><code>FLT_MIN_10_EXP</code></td>
+<td style="text-align: center"><code>-37</code></td>
+<td>Minimum exponent such that <code>10</code> to this number is a normalized <code>float</code></td>
+</tr>
+<tr>
+<td><code>DBL_MIN_10_EXP</code></td>
+<td style="text-align: center"><code>-37</code></td>
+<td>Minimum exponent such that <code>10</code> to this number is a normalized <code>double</code></td>
+</tr>
+<tr>
+<td><code>LDBL_MIN_10_EXP</code></td>
+<td style="text-align: center"><code>-37</code></td>
+<td>Minimum exponent such that <code>10</code> to this number is a normalized <code>long_double</code></td>
+</tr>
+<tr>
+<td><code>FLT_MAX_EXP</code></td>
+<td style="text-align: center"></td>
+<td><code>FLT_RADIX</code> to the <code>FLT_MAX_EXP-1</code> power is the largest finite <code>float</code></td>
+</tr>
+<tr>
+<td><code>DBL_MAX_EXP</code></td>
+<td style="text-align: center"></td>
+<td><code>FLT_RADIX</code> to the <code>DBL_MAX_EXP-1</code> power is the largest finite <code>double</code></td>
+</tr>
+<tr>
+<td><code>LDBL_MAX_EXP</code></td>
+<td style="text-align: center"></td>
+<td><code>FLT_RADIX</code> to the <code>LDBL_MAX_EXP-1</code> power is the largest finite <code>long double</code></td>
+</tr>
+<tr>
+<td><code>FLT_MAX_10_EXP</code></td>
+<td style="text-align: center"><code>-37</code></td>
+<td>Minimum exponent such that <code>10</code> to this number is a finite <code>float</code></td>
+</tr>
+<tr>
+<td><code>DBL_MAX_10_EXP</code></td>
+<td style="text-align: center"><code>-37</code></td>
+<td>Minimum exponent such that <code>10</code> to this number is a finite <code>double</code></td>
+</tr>
+<tr>
+<td><code>LDBL_MAX_10_EXP</code></td>
+<td style="text-align: center"><code>-37</code></td>
+<td>Minimum exponent such that <code>10</code> to this number is a finite <code>long_double</code></td>
+</tr>
+<tr>
+<td><code>FLT_MAX</code></td>
+<td style="text-align: center"><code>1E+37</code></td>
+<td>Largest finite <code>float</code></td>
+</tr>
+<tr>
+<td><code>DBL_MAX</code></td>
+<td style="text-align: center"><code>1E+37</code></td>
+<td>Largest finite <code>double</code></td>
+</tr>
+<tr>
+<td><code>LDBL_MAX</code></td>
+<td style="text-align: center"><code>1E+37</code></td>
+<td>Largest finite <code>long double</code></td>
+</tr>
+</tbody></table>
+
+<table><thead>
+<tr>
+<th>Macro</th>
+<th style="text-align: center">Maximum Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>FLT_EPSILON</code></td>
+<td style="text-align: center"><code>1E-5</code></td>
+<td>Difference between 1 and the next biggest representable <code>float</code></td>
+</tr>
+<tr>
+<td><code>DBL_EPSILON</code></td>
+<td style="text-align: center"><code>1E-9</code></td>
+<td>Difference between 1 and the next biggest representable <code>double</code></td>
+</tr>
+<tr>
+<td><code>LDBL_EPSILON</code></td>
+<td style="text-align: center"><code>1E-9</code></td>
+<td>Difference between 1 and the next biggest representable <code>long double</code></td>
+</tr>
+<tr>
+<td><code>FLT_MIN</code></td>
+<td style="text-align: center"><code>1E-37</code></td>
+<td>Minimum positive normalized <code>float</code></td>
+</tr>
+<tr>
+<td><code>DBL_MIN</code></td>
+<td style="text-align: center"><code>1E-37</code></td>
+<td>Minimum positive normalized <code>double</code></td>
+</tr>
+<tr>
+<td><code>LDBL_MIN</code></td>
+<td style="text-align: center"><code>1E-37</code></td>
+<td>Minimum positive normalized <code>long double</code></td>
+</tr>
+<tr>
+<td><code>FLT_TRUE_MIN</code></td>
+<td style="text-align: center"><code>1E-37</code></td>
+<td>Minimum positive <code>float</code></td>
+</tr>
+<tr>
+<td><code>DBL_TRUE_MIN</code></td>
+<td style="text-align: center"><code>1E-37</code></td>
+<td>Minimum positive <code>double</code></td>
+</tr>
+<tr>
+<td><code>LDBL_TRUE_MIN</code></td>
+<td style="text-align: center"><code>1E-37</code></td>
+<td>Minimum positive <code>long double</code></td>
+</tr>
+</tbody></table>
+
+<p>The minimum and maximum values here are from the spec—they should what you can at least expect across all platforms. Your super dooper machine might do better, still!</p>
+
+<h2>8.1 Background</h2>
+
+<p>The spec allows a lot of leeway when it comes to how C represents floating point numbers. This header file spells out the limits on those numbers.</p>
+
+<p>It gives a model that can describe any floating point number that I <em>know</em> you’re going to absolutely love. It looks like this:</p>
+
+<p>\(\displaystyle x=sb<sup>e\sum_{k=1}<sup>p</sup></sup> f_k b<sup>{-k},</sup> e_{min} \le e \le e_{max}\)</p>
+
+<p>where:</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Variable</th>
+<th>Meaning</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center">\(s\)</td>
+<td>Sign, \(-1\) or \(1\)</td>
+</tr>
+<tr>
+<td style="text-align: center">\(b\)</td>
+<td>Base (radix), probably \(2\) on your system</td>
+</tr>
+<tr>
+<td style="text-align: center">\(e\)</td>
+<td>Exponent</td>
+</tr>
+<tr>
+<td style="text-align: center">\(p\)</td>
+<td>Precision: how many base-\(b\) digits in the number</td>
+</tr>
+<tr>
+<td style="text-align: center">\(f_k\)</td>
+<td>The individual digits of the number, the significand</td>
+</tr>
+</tbody></table>
+
+<p>But let’s blissfully ignore all that for a second.</p>
+
+<p>Let’s assume your computer uses base 2 for it’s floating point (it probably does). And that in the example below the 1s-and-0s numbers are in binary, and the rest are in decimal.</p>
+
+<p>The short of it is you could have floating point numbers like shown in this example:</p>
+
+<p>\(-0.10100101 \times 2<sup>5</sup> = -10100.101 = -20.625\)</p>
+
+<p>That’s your fractional part multiplied by the base to the exponent’s power. The exponent controls where the decimal point is. It “floats” around!</p>
+
+<h2>8.2 <code>FLT_ROUNDS</code> Details</h2>
+
+<p>This tells you the rounding mode. It can be changed with a call to <a href="fenv.html#man-fegetround" rel="nofollow"><code>fesetround()</code></a>.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Mode</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>-1</code></td>
+<td>Indeterminable</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>0</code></td>
+<td>Toward zero</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>1</code></td>
+<td>To nearest</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>2</code></td>
+<td>Toward positive infinity</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>3</code></td>
+<td>Toward negative infinity… and beyond!</td>
+</tr>
+</tbody></table>
+
+<p>Unlike every other macro in this here header, <code>FLT_ROUNDS</code> might not be a constant expression.</p>
+
+<h2>8.3 <code>FLT_EVAL_METHOD</code> Details</h2>
+
+<p>This basically tells you how floating point values are promoted to different types in expressions.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Method</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>-1</code></td>
+<td>Indeterminable</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>0</code></td>
+<td>Evaluate all operations and constants to the precision of their respective types</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>1</code></td>
+<td>Evaluate <code>float</code> and <code>double</code> operations as <code>double</code> and <code>long double</code> ops as <code>long double</code></td>
+</tr>
+<tr>
+<td style="text-align: center"><code>2</code></td>
+<td>Evaluate all operations and constants as <code>long double</code></td>
+</tr>
+</tbody></table>
+
+<h2>8.4 Subnormal Numbers</h2>
+
+<p>The macros <code>FLT_HAS_SUBNORM</code>, <code>DBL_HAS_SUBNORM</code>, and <code>LDBL_HAS_SUBNORM</code> all let you know if those types support <a href="https://en.wikipedia.org/wiki/Subnormal_number" rel="nofollow">subnormal numbers</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">¹⁸</a>.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: center">Value</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: center"><code>-1</code></td>
+<td>Indeterminable</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>0</code></td>
+<td>Subnormals not supported for this type</td>
+</tr>
+<tr>
+<td style="text-align: center"><code>1</code></td>
+<td>Subnormals supported for this type</td>
+</tr>
+</tbody></table>
+
+<h2>8.5 How Many Decimal Places Can I Use?</h2>
+
+<p>It depends on what you want to do.</p>
+
+<p>The safe thing is if you never use more than <code>FLT_DIG</code> base-10 digits in your <code>float</code>, you’re good. (Same for <code>DBL_DIG</code> and <code>LDBL_DIG</code> for their types.)</p>
+
+<p>And by “use” I mean print out, have in code, read from the keyboard, etc.</p>
+
+<p>You can print out that many decimal places with <code>printf()</code> and the <code>%g</code> format specifier:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;float.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">float</span> <span class="n">pi</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">1415926535897932384626433832795028841971</span><span class="p">;</span>
+
+    <span class="c1">// With %g or %G, the precision refers to the number of significant</span>
+    <span class="c1">// digits:</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%.*g</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_DIG</span><span class="p">,</span> <span class="n">pi</span><span class="p">);</span>  <span class="c1">// For me: 3.14159</span>
+
+    <span class="c1">// But %f prints too many, since the precision is the number of</span>
+    <span class="c1">// digits to the right of the decimal--it doesn't count the digits</span>
+    <span class="c1">// to the left of it:</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%.*f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_DIG</span><span class="p">,</span> <span class="n">pi</span><span class="p">);</span>  <span class="c1">// For me: 3.14159... 3 ???</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>That’s the end, but stay tuned for the exciting conclusion of “How Many Decimal Places Can I Use?”</p>
+
+<p>Because base 10 and base 2 (your typical <code>FLT_RADIX</code>) don’t mix very well, you can actually have more than <code>FLT_DIG</code> in your <code>float</code>; the bits of storage go out a little farther. But these might round in a way you don’t expect.</p>
+
+<p>But if you want to convert a floating point number to base 10 and then be able to convert it back again to the exact same floating point number, you’ll need <code>FLT_DECIMAL_DIG</code> digits from your <code>float</code> to make sure you get those extra bits of storage represented. (And <code>DBL_DECIMAL_DIG</code> and <code>LDBL_DECIMAL_DIG</code> for those corresponding types.)</p>
+
+<p>Here’s some example output that shows how the value stored might have some extra decimal places at the end.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;math.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;float.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_DIG = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_DIG</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_DECIMAL_DIG = %d</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_DECIMAL_DIG</span><span class="p">);</span>
+
+    <span class="n">assert</span><span class="p">(</span><span class="n">FLT_DIG</span> <span class="o">==</span> <span class="mi">6</span><span class="p">);</span>  <span class="c1">// Code below assumes this</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">float</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">.</span><span class="mi">123456</span><span class="p">;</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">.</span><span class="mi">12346</span><span class="p">;</span> <span class="n">x</span> <span class="o">+=</span> <span class="mi">0</span><span class="p">.</span><span class="mo">000001</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"As written: %.*g</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_DIG</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"As stored:  %.*g</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_DECIMAL_DIG</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>And the output on my machine, starting at <code>0.123456</code> and incrementing by <code>0.000001</code> each time:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">FLT_DIG</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">FLT_DECIMAL_DIG</span> <span class="o">=</span> <span class="mi">9</span>
+
+<span class="n">As</span> <span class="n">written</span><span class="o">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">123456</span>
+<span class="n">As</span> <span class="n">stored</span><span class="o">:</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">123456001</span>
+
+<span class="n">As</span> <span class="n">written</span><span class="o">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">123457</span>
+<span class="n">As</span> <span class="n">stored</span><span class="o">:</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">123457</span>
+
+<span class="n">As</span> <span class="n">written</span><span class="o">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">123458</span>
+<span class="n">As</span> <span class="n">stored</span><span class="o">:</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">123457998</span>
+
+<span class="n">As</span> <span class="n">written</span><span class="o">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">123459</span>
+<span class="n">As</span> <span class="n">stored</span><span class="o">:</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">123458996</span>
+
+<span class="n">As</span> <span class="n">written</span><span class="o">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">12346</span>
+<span class="n">As</span> <span class="n">stored</span><span class="o">:</span>  <span class="mi">0</span><span class="p">.</span><span class="mi">123459995</span>
+</code></pre></div>
+
+<p>You can see that the value stored isn’t always the value we’re expecting since base-2 can’t represent all base-10 fractions exactly. The best it can do is store more places and then round.</p>
+
+<p>Also notice that even though we tried to stop the <code>for</code> loop <em>before</em> <code>0.123460</code>, it actually ran including that value since the stored version of that number was <code>0.123459995</code>, which is still less than <code>0.123460</code>.</p>
+
+<p>Aren’t floating point numbers fun?</p>
+
+<h2>8.6 Comprehensive Example</h2>
+
+<p>Here’s a program that prints out the details for a particular machine:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;float.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_RADIX: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_RADIX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_ROUNDS: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_ROUNDS</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_EVAL_METHOD: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_EVAL_METHOD</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"DECIMAL_DIG: %d</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="n">DECIMAL_DIG</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_HAS_SUBNORM: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_HAS_SUBNORM</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_MANT_DIG: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_MANT_DIG</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_DECIMAL_DIG: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_DECIMAL_DIG</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_DIG: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_DIG</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_MIN_EXP: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_MIN_EXP</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_MIN_10_EXP: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_MIN_10_EXP</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_MAX_EXP: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_MAX_EXP</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_MAX_10_EXP: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_MAX_10_EXP</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_MIN: %.*e</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_DECIMAL_DIG</span><span class="p">,</span> <span class="n">FLT_MIN</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_MAX: %.*e</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_DECIMAL_DIG</span><span class="p">,</span> <span class="n">FLT_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_EPSILON: %.*e</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_DECIMAL_DIG</span><span class="p">,</span> <span class="n">FLT_EPSILON</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FLT_TRUE_MIN: %.*e</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="n">FLT_DECIMAL_DIG</span><span class="p">,</span> <span class="n">FLT_TRUE_MIN</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"DBL_HAS_SUBNORM: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">DBL_HAS_SUBNORM</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"DBL_MANT_DIG: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">DBL_MANT_DIG</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"DBL_DECIMAL_DIG: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">DBL_DECIMAL_DIG</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"DBL_DIG: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">DBL_DIG</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"DBL_MIN_EXP: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">DBL_MIN_EXP</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"DBL_MIN_10_EXP: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">DBL_MIN_10_EXP</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"DBL_MAX_EXP: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">DBL_MAX_EXP</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"DBL_MAX_10_EXP: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">DBL_MAX_10_EXP</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"DBL_MIN: %.*e</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">DBL_DECIMAL_DIG</span><span class="p">,</span> <span class="n">DBL_MIN</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"DBL_MAX: %.*e</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">DBL_DECIMAL_DIG</span><span class="p">,</span> <span class="n">DBL_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"DBL_EPSILON: %.*e</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">DBL_DECIMAL_DIG</span><span class="p">,</span> <span class="n">DBL_EPSILON</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"DBL_TRUE_MIN: %.*e</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="n">DBL_DECIMAL_DIG</span><span class="p">,</span> <span class="n">DBL_TRUE_MIN</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LDBL_HAS_SUBNORM: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LDBL_HAS_SUBNORM</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LDBL_MANT_DIG: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LDBL_MANT_DIG</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LDBL_DECIMAL_DIG: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LDBL_DECIMAL_DIG</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LDBL_DIG: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LDBL_DIG</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LDBL_MIN_EXP: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LDBL_MIN_EXP</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LDBL_MIN_10_EXP: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LDBL_MIN_10_EXP</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LDBL_MAX_EXP: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LDBL_MAX_EXP</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LDBL_MAX_10_EXP: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LDBL_MAX_10_EXP</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LDBL_MIN: %.*Le</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LDBL_DECIMAL_DIG</span><span class="p">,</span> <span class="n">LDBL_MIN</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LDBL_MAX: %.*Le</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LDBL_DECIMAL_DIG</span><span class="p">,</span> <span class="n">LDBL_MAX</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LDBL_EPSILON: %.*Le</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LDBL_DECIMAL_DIG</span><span class="p">,</span> <span class="n">LDBL_EPSILON</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"LDBL_TRUE_MIN: %.*Le</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="n">LDBL_DECIMAL_DIG</span><span class="p">,</span> <span class="n">LDBL_TRUE_MIN</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"sizeof(float): %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"sizeof(double): %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"sizeof(long double): %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>And here’s the output on my machine:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">FLT_RADIX:</span> <span class="mi">2</span>
+<span class="n">FLT_ROUNDS</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">FLT_EVAL_METHOD</span><span class="o">:</span> <span class="mi">0</span>
+<span class="n">DECIMAL_DIG</span><span class="o">:</span> <span class="mi">21</span>
+
+<span class="n">FLT_HAS_SUBNORM</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">FLT_MANT_DIG</span><span class="o">:</span> <span class="mi">24</span>
+<span class="n">FLT_DECIMAL_DIG</span><span class="o">:</span> <span class="mi">9</span>
+<span class="n">FLT_DIG</span><span class="o">:</span> <span class="mi">6</span>
+<span class="n">FLT_MIN_EXP</span><span class="o">:</span> <span class="o">-</span><span class="mi">125</span>
+<span class="n">FLT_MIN_10_EXP</span><span class="o">:</span> <span class="o">-</span><span class="mi">37</span>
+<span class="n">FLT_MAX_EXP</span><span class="o">:</span> <span class="mi">128</span>
+<span class="n">FLT_MAX_10_EXP</span><span class="o">:</span> <span class="mi">38</span>
+<span class="n">FLT_MIN</span><span class="o">:</span> <span class="mf">1.175494351e-38</span>
+<span class="n">FLT_MAX</span><span class="o">:</span> <span class="mf">3.402823466e+38</span>
+<span class="n">FLT_EPSILON</span><span class="o">:</span> <span class="mf">1.192092896e-07</span>
+<span class="n">FLT_TRUE_MIN</span><span class="o">:</span> <span class="mf">1.401298464e-45</span>
+
+<span class="n">DBL_HAS_SUBNORM</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">DBL_MANT_DIG</span><span class="o">:</span> <span class="mi">53</span>
+<span class="n">DBL_DECIMAL_DIG</span><span class="o">:</span> <span class="mi">17</span>
+<span class="n">DBL_DIG</span><span class="o">:</span> <span class="mi">15</span>
+<span class="n">DBL_MIN_EXP</span><span class="o">:</span> <span class="o">-</span><span class="mi">1021</span>
+<span class="n">DBL_MIN_10_EXP</span><span class="o">:</span> <span class="o">-</span><span class="mi">307</span>
+<span class="n">DBL_MAX_EXP</span><span class="o">:</span> <span class="mi">1024</span>
+<span class="n">DBL_MAX_10_EXP</span><span class="o">:</span> <span class="mi">308</span>
+<span class="n">DBL_MIN</span><span class="o">:</span> <span class="mf">2.22507385850720138e-308</span>
+<span class="n">DBL_MAX</span><span class="o">:</span> <span class="mf">1.79769313486231571e+308</span>
+<span class="n">DBL_EPSILON</span><span class="o">:</span> <span class="mf">2.22044604925031308e-16</span>
+<span class="n">DBL_TRUE_MIN</span><span class="o">:</span> <span class="mf">4.94065645841246544e-324</span>
+
+<span class="n">LDBL_HAS_SUBNORM</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">LDBL_MANT_DIG</span><span class="o">:</span> <span class="mi">64</span>
+<span class="n">LDBL_DECIMAL_DIG</span><span class="o">:</span> <span class="mi">21</span>
+<span class="n">LDBL_DIG</span><span class="o">:</span> <span class="mi">18</span>
+<span class="n">LDBL_MIN_EXP</span><span class="o">:</span> <span class="o">-</span><span class="mi">16381</span>
+<span class="n">LDBL_MIN_10_EXP</span><span class="o">:</span> <span class="o">-</span><span class="mi">4931</span>
+<span class="n">LDBL_MAX_EXP</span><span class="o">:</span> <span class="mi">16384</span>
+<span class="n">LDBL_MAX_10_EXP</span><span class="o">:</span> <span class="mi">4932</span>
+<span class="n">LDBL_MIN</span><span class="o">:</span> <span class="mf">3.362103143112093506263e-4932</span>
+<span class="n">LDBL_MAX</span><span class="o">:</span> <span class="mf">1.189731495357231765021e+4932</span>
+<span class="n">LDBL_EPSILON</span><span class="o">:</span> <span class="mf">1.084202172485504434007e-19</span>
+<span class="n">LDBL_TRUE_MIN</span><span class="o">:</span> <span class="mf">3.645199531882474602528e-4951</span>
+
+<span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="o">:</span> <span class="mi">4</span>
+<span class="k">sizeof</span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="o">:</span> <span class="mi">8</span>
+<span class="k">sizeof</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span><span class="p">)</span><span class="o">:</span> <span class="mi">16</span>
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

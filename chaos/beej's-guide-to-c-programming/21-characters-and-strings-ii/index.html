@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/21-characters-and-strings-ii</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/21-characters-and-strings-ii"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>21 Characters and Strings II</h1>
+
+<p>We’ve talked about how <code>char</code> types are actually just small integer types… but it’s the same for a character in single quotes.</p>
+
+<p>But a string in double quotes is type <code>const char *</code>.</p>
+
+<p>Turns out there are few more types of strings and characters, and it leads down one of the most infamous rabbit holes in the language: the whole multibyte/wide/Unicode/localization thingy.</p>
+
+<p>We’re going to peer into that rabbit hole, but not go in. …Yet!</p>
+
+<h2>21.1 Escape Sequences</h2>
+
+<p>We’re used to strings and characters with regular letters, punctuation, and numbers:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Hello!"</span><span class="p">;</span>
+<span class="kt">char</span> <span class="n">t</span> <span class="o">=</span> <span class="sc">'c'</span><span class="p">;</span>
+</code></pre></div>
+
+<p>But what if we want some special characters in there that we can’t type on the keyboard because they don’t exist (e.g. “€”), or even if we want a character that’s a single quote? We clearly can’t do this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">t</span> <span class="o">=</span> <span class="err">'''</span><span class="p">;</span>
+</code></pre></div>
+
+<p>To do these things, we use something called <em>escape sequences</em>. These are the backslash character (<code>\</code>) followed by another character. The two (or more) characters together have special meaning.</p>
+
+<p>For our single quote character example, we can put an escape (that is, <code>\</code>) in front of the central single quote to solve it:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">t</span> <span class="o">=</span> <span class="sc">'\''</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Now C knows that <code>\&#39;</code> means just a regular quote we want to print, not the end of the character sequence.</p>
+
+<p>You can say either “backslash” or “escape” in this context (“escape that quote”) and C devs will know what you’re talking about. Also, “escape” in this context is different than your <code>Esc</code> key or the ASCII <code>ESC</code> code.</p>
+
+<h3>21.1.1 Frequently-used Escapes</h3>
+
+<p>In my humble opinion, these escape characters make up 99.2%<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹³⁸</a> of all escapes.</p>
+
+<table><thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>\n</code></td>
+<td>Newline character—when printing, continue subsequent output on the next line</td>
+</tr>
+<tr>
+<td><code>\&#39;</code></td>
+<td>Single quote—used for a single quote character constant</td>
+</tr>
+<tr>
+<td><code>\&quot;</code></td>
+<td>Double quote—used for a double quote in a string literal</td>
+</tr>
+<tr>
+<td><code>\\</code></td>
+<td>Backslash—used for a literal <code>\</code> in a string or character</td>
+</tr>
+</tbody></table>
+
+<p>Here are some examples of the escapes and what they output when printed.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"Use </span><span class="se">\\</span><span class="s">n for newline</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// Use \n for newline</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"Say </span><span class="se">\"</span><span class="s">hello</span><span class="se">\"</span><span class="s">!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>       <span class="c1">// Say "hello"!</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="sc">'\''</span><span class="p">);</span>             <span class="c1">// '</span>
+</code></pre></div>
+
+<h3>21.1.2 Rarely-used Escapes</h3>
+
+<p>But there are more escapes! You just don’t see these as often.</p>
+
+<table><thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>\a</code></td>
+<td>Alert. This makes the terminal make a sound or flash, or both!</td>
+</tr>
+<tr>
+<td><code>\b</code></td>
+<td>Backspace. Moves the cursor back a character. Doesn’t delete the character.</td>
+</tr>
+<tr>
+<td><code>\f</code></td>
+<td>Formfeed. This moves to the next “page”, but that doesn’t have much modern meaning. On my system, this behaves like <code>\v</code>.</td>
+</tr>
+<tr>
+<td><code>\r</code></td>
+<td>Return. Move to the beginning of the same line.</td>
+</tr>
+<tr>
+<td><code>\t</code></td>
+<td>Horizontal tab. Moves to the next horizontal tab stop. On my machine, this lines up on columns that are multiples of 8, but YMMV.</td>
+</tr>
+<tr>
+<td><code>\v</code></td>
+<td>Vertical tab. Moves to the next vertical tab stop. On my machine, this moves to the same column on the next line.</td>
+</tr>
+<tr>
+<td><code>\?</code></td>
+<td>Literal question mark. Sometimes you need this to avoid trigraphs, as shown below.</td>
+</tr>
+</tbody></table>
+
+<h4>21.1.2.1 Single Line Status Updates</h4>
+
+<p>A use case for <code>\b</code> or <code>\r</code> is to show status updates that appear on the same line on the screen and don’t cause the display to scroll. Here’s an example that does a countdown from 10. (Note this makes use of the non-standard POSIX function <code>sleep()</code> from <code>&lt;unistd.h&gt;</code>—if you’re not on a Unix-like, search for your platform and <code>sleep</code> for the equivalent.)</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\r</span><span class="s">T minus %d second%s... </span><span class="se">\b</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">1</span><span class="o">?</span> <span class="s">"s"</span><span class="o">:</span> <span class="s">""</span><span class="p">);</span>
+
+        <span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>  <span class="c1">// Force output to update</span>
+
+        <span class="c1">// Sleep for 1 second</span>
+        <span class="n">thrd_sleep</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="k">struct</span> <span class="n">timespec</span><span class="p">){.</span><span class="n">tv_sec</span><span class="o">=</span><span class="mi">1</span><span class="p">},</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\r</span><span class="s">Liftoff!             </span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Quite a few things are happening on line 7. First of all, we lead with a <code>\r</code> to get us to the beginning of the current line, then we overwrite whatever’s there with the current countdown. (There’s ternary operator out there to make sure we print <code>1 second</code> instead of <code>1 seconds</code>.)</p>
+
+<p>Also, there’s a space after the <code>...</code> That’s so that we properly overwrite the last <code>.</code> when <code>i</code> drops from <code>10</code> to <code>9</code> and we get a column narrower. Try it without the space to see what I mean.</p>
+
+<p>And we wrap it up with a <code>\b</code> to back up over that space so the cursor sits at the exact end of the line in an aesthetically-pleasing way.</p>
+
+<p>Note that line 14 also has a lot of spaces at the end to overwrite the characters that were already there from the countdown.</p>
+
+<p>Finally, we have a weird <code>fflush(stdout)</code> in there, whatever that means. Short answer is that most terminals are <em>line buffered</em> by default, meaning they don’t actually display anything until a newline character is encountered. Since we don’t have a newline (we just have <code>\r</code>), without this line, the program would just sit there until <code>Liftoff!</code> and then print everything all in one instant. <code>fflush()</code> overrides this behavior and forces output to happen <em>right now</em>.</p>
+
+<h4>21.1.2.2 The Question Mark Escape</h4>
+
+<p>Why bother with this? After all, this works just fine:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"Doesn't it?</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+</code></pre></div>
+
+<p>And it works fine with the escape, too:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"Doesn't it\?</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>   <span class="c1">// Note \?</span>
+</code></pre></div>
+
+<p>So what’s the point??!</p>
+
+<p>Let’s get more emphatic with another question mark and an exclamation point:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"Doesn't it??!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+</code></pre></div>
+
+<p>When I compile this, I get this warning:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">foo</span><span class="p">.</span><span class="n">c</span><span class="o">:</span> <span class="n">In</span> <span class="n">function</span> <span class="err">‘</span><span class="n">main</span><span class="err">’</span><span class="o">:</span>
+<span class="n">foo</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">5</span><span class="o">:</span><span class="mi">23</span><span class="o">:</span> <span class="n">warning</span><span class="o">:</span> <span class="n">trigraph</span> <span class="o">??!</span> <span class="n">converted</span> <span class="n">to</span> <span class="o">|</span> <span class="p">[</span><span class="o">-</span><span class="n">Wtrigraphs</span><span class="p">]</span>
+    <span class="mi">5</span> <span class="o">|</span>     <span class="n">printf</span><span class="p">(</span><span class="s">"Doesn't it??!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+      <span class="o">|</span>    
+</code></pre></div>
+
+<p>And running it gives this unlikely result:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Doesn</span><span class="err">'</span><span class="n">t</span> <span class="n">it</span><span class="o">|</span>
+</code></pre></div>
+
+<p>So <em>trigraphs</em>? What the heck is this??!</p>
+
+<p>I’m sure we’ll revisit this dusty corner of the language later, but the short of it is the compiler looks for certain triplets of characters starting with <code>??</code> and it substitutes other characters in their place. So if you’re on some ancient terminal without a pipe symbol (<code>|</code>) on the keyboard, you can type <code>??!</code> instead.</p>
+
+<p>You can fix this by escaping the second question mark, like so:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"Doesn't it?\?!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+</code></pre></div>
+
+<p>And then it compiles and works as-expected.</p>
+
+<p>These days, of course, no one ever uses trigraphs. But that whole <code>??!</code> does sometimes appear if you decide to use it in a string for emphasis.</p>
+
+<h3>21.1.3 Numeric Escapes</h3>
+
+<p>In addition, there are ways to specify numeric constants or other character values inside strings or character constants.</p>
+
+<p>If you know an octal or hexadecimal representation of a byte, you can include that in a string or character constant.</p>
+
+<p>The following table has example numbers, but any hex or octal numbers may be used. Pad with leading zeros if necessary to read the proper digit count.</p>
+
+<table><thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>\123</code></td>
+<td>Embed the byte with octal value <code>123</code>, 3 digits exactly.</td>
+</tr>
+<tr>
+<td><code>\x4D</code></td>
+<td>Embed the byte with hex value <code>4D</code>, 2 digits.</td>
+</tr>
+<tr>
+<td><code>\u2620</code></td>
+<td>Embed the Unicode character at code point with hex value <code>2620</code>, 4 digits.</td>
+</tr>
+<tr>
+<td><code>\U0001243F</code></td>
+<td>Embed the Unicode character at code point with hex value <code>1243F</code>, 8 digits.</td>
+</tr>
+</tbody></table>
+
+<p>Here’s an example of the less-commonly used octal notation to represent the letter <code>B</code> in between <code>A</code> and <code>C</code>. Normally this would be used for some kind of special unprintable character, but we have other ways to do that, below, and this is just an octal demo:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"A</span><span class="se">\102</span><span class="s">C</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// 102 is `B` in ASCII/UTF-8</span>
+</code></pre></div>
+
+<p>Note there’s no leading zero on the octal number when you include it this way. But it does need to be three characters, so pad with leading zeros if you need to.</p>
+
+<p>But far more common is to use hex constants these days. Here’s a demo that you shouldn’t use, but it demos embedding the UTF-8 bytes 0xE2, 0x80, and 0xA2 in a string, which corresponds to the Unicode “bullet” character (•).</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\xE2\x80\xA2</span><span class="s"> Bullet 1</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\xE2\x80\xA2</span><span class="s"> Bullet 2</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\xE2\x80\xA2</span><span class="s"> Bullet 3</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Produces the following output if you’re on a UTF-8 console (or probably garbage if you’re not):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="err">•</span> <span class="n">Bullet</span> <span class="mi">1</span>
+<span class="err">•</span> <span class="n">Bullet</span> <span class="mi">2</span>
+<span class="err">•</span> <span class="n">Bullet</span> <span class="mi">3</span>
+</code></pre></div>
+
+<p>But that’s a crummy way to do Unicode. You can use the escapes <code>\u</code> (16-bit) or <code>\U</code> (32-bit) to just refer to Unicode by code point number. The bullet is <code>2022</code> (hex) in Unicode, so you can do this and get more portable results:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"\u2022 Bullet 1</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"\u2022 Bullet 2</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"\u2022 Bullet 3</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Be sure to pad <code>\u</code> with enough leading zeros to get to four characters, and <code>\U</code> with enough to get to eight.</p>
+
+<p>For example, that bullet could be done with <code>\U</code> and four leading zeros:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"\U00002022 Bullet 1</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+</code></pre></div>
+
+<p>But who has time to be that verbose?</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

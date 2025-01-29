@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/web-servers</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/web-servers"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>web servers</h1>
+
+<p>running web servers with various languages and tools. all examples here use port 8080, with the exception of the second powershell example which uses port 8000.</p>
+
+<h2>powershell</h2>
+
+<div class="highlight"><pre class="highlight powershell"><code><span class="nv">$Hso</span><span class="o">=</span><span class="n">New-Object</span><span class="w"> </span><span class="nx">Net.HttpListener</span><span class="p">;</span><span class="nv">$Hso</span><span class="o">.</span><span class="nf">Prefixes</span><span class="o">.</span><span class="nf">Add</span><span class="p">(</span><span class="s2">"http://+:8080/"</span><span class="p">);</span><span class="nv">$Hso</span><span class="o">.</span><span class="nf">Start</span><span class="p">();</span><span class="kr">While</span><span class="w"> </span><span class="p">(</span><span class="nv">$Hso</span><span class="o">.</span><span class="nf">IsListening</span><span class="p">){</span><span class="nv">$HC</span><span class="o">=</span><span class="nv">$Hso</span><span class="o">.</span><span class="nf">GetContext</span><span class="p">();</span><span class="nv">$HRes</span><span class="o">=</span><span class="nv">$HC</span><span class="o">.</span><span class="nf">Response</span><span class="p">;</span><span class="nv">$HRes</span><span class="o">.</span><span class="nf">Headers</span><span class="o">.</span><span class="nf">Add</span><span class="p">(</span><span class="s2">"Content-Type"</span><span class="p">,</span><span class="s2">"text/plain"</span><span class="p">);</span><span class="nv">$Buf</span><span class="o">=</span><span class="p">[</span><span class="n">Text.Encoding</span><span class="p">]::</span><span class="n">UTF8.GetBytes</span><span class="p">((</span><span class="n">GC</span><span class="w"> </span><span class="p">(</span><span class="n">Join-Path</span><span class="w"> </span><span class="nv">$Pwd</span><span class="w"> </span><span class="p">(</span><span class="nv">$HC</span><span class="o">.</span><span class="nf">Request</span><span class="p">)</span><span class="o">.</span><span class="nf">RawUrl</span><span class="p">)));</span><span class="nv">$HRes</span><span class="o">.</span><span class="nf">ContentLength64</span><span class="o">=</span><span class="nv">$Buf</span><span class="o">.</span><span class="nf">Length</span><span class="p">;</span><span class="nv">$HRes</span><span class="o">.</span><span class="nf">OutputStream</span><span class="o">.</span><span class="nf">Write</span><span class="p">(</span><span class="nv">$Buf</span><span class="p">,</span><span class="nx">0</span><span class="p">,</span><span class="nv">$Buf</span><span class="o">.</span><span class="nf">Length</span><span class="p">);</span><span class="nv">$HRes</span><span class="o">.</span><span class="nf">Close</span><span class="p">()};</span><span class="nv">$Hso</span><span class="o">.</span><span class="nf">Stop</span><span class="p">()</span><span class="w">
+
+</span><span class="c"># from cmd.exe, uses port 8000</span><span class="w">
+</span><span class="n">powershell.exe</span><span class="w"> </span><span class="nt">-nop</span><span class="w"> </span><span class="nt">-enc</span><span class="w"> </span><span class="nx">JABIAHMAbwA9AE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAEgAdAB0AHAATABpAHMAdABlAG4AZQByADsAJABIAHMAbwAuAFAAcgBlAGYAaQB4AGUAcwAuAEEAZABkACgAIgBoAHQAdABwADoALwAvACsAOgA4ADAAMAAwAC8AIgApADsAJABIAHMAbwAuAFMAdABhAHIAdAAoACkAOwBXAGgAaQBsAGUAIAAoACQASABzAG8ALgBJAHMATABpAHMAdABlAG4AaQBuAGcAKQB7ACQASABDAD0AJABIAHMAbwAuAEcAZQB0AEMAbwBuAHQAZQB4AHQAKAApADsAJABIAFIAZQBzAD0AJABIAEMALgBSAGUAcwBwAG8AbgBzAGUAOwAkAEgAUgBlAHMALgBIAGUAYQBkAGUAcgBzAC4AQQBkAGQAKAAiAEMAbwBuAHQAZQBuAHQALQBUAHkAcABlACIALAAiAHQAZQB4AHQALwBwAGwAYQBpAG4AIgApADsAJABCAHUAZgA9AFsAVABlAHgAdAAuAEUAbgBjAG8AZABpAG4AZwBdADoAOgBVAFQARgA4AC4ARwBlAHQAQgB5AHQAZQBzACgAKABHAEMAIAAoAEoAbwBpAG4ALQBQAGEAdABoACAAJABQAHcAZAAgACgAJABIAEMALgBSAGUAcQB1AGUAcwB0ACkALgBSAGEAdwBVAHIAbAApACkAKQA7ACQASABSAGUAcwAuAEMAbwBuAHQAZQBuAHQATABlAG4AZwB0AGgANgA0AD0AJABCAHUAZgAuAEwAZQBuAGcAdABoADsAJABIAFIAZQBzAC4ATwB1AHQAcAB1AHQAUwB0AHIAZQBhAG0ALgBXAHIAaQB0AGUAKAAkAEIAdQBmACwAMAAsACQAQgB1AGYALgBMAGUAbgBnAHQAaAApADsAJABIAFIAZQBzAC4AQwBsAG8AcwBlACgAKQB9ADsAJABIAHMAbwAuAFMAdABvAHAAKAApAA</span><span class="o">==</span><span class="w">
+</span></code></pre></div>
+
+<h2>bash</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">rm</span> <span class="nt">-f</span> /tmp/f<span class="p">;</span> <span class="nb">mkfifo</span> /tmp/f<span class="p">;</span> <span class="nb">cat</span> /tmp/f | /bin/bash <span class="nt">-i</span> 2&gt;&amp;1 | nc <span class="nt">-l</span> 8080 <span class="o">&gt;</span> /tmp/f
+</code></pre></div>
+
+<h2>python 2</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>python2.7 <span class="nt">-m</span> SimpleHTTPServer 8080
+</code></pre></div>
+
+<h2>python 3</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>python3 <span class="nt">-m</span> http.server 8080
+</code></pre></div>
+
+<h2>twisted (python)</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>twistd <span class="nt">-n</span> web <span class="nt">-p</span> 8080 <span class="nt">--path</span> <span class="nb">.</span>
+
+<span class="c"># alternative method</span>
+python <span class="nt">-c</span> <span class="s1">'from twisted.web.server import Site; from twisted.web.static import File; from twisted.internet import reactor; reactor.listenTCP(8080, Site(File("."))); reactor.run()'</span>
+</code></pre></div>
+
+<h2>ruby 1.9.2+</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>ruby <span class="nt">-run</span> <span class="nt">-ehttpd</span> <span class="nb">.</span> <span class="nt">-p8080</span>
+</code></pre></div>
+
+<h2>ruby</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>ruby <span class="nt">-rwebrick</span> <span class="nt">-e</span><span class="s1">'WEBrick::HTTPServer.new(:Port =&gt; 8080, :DocumentRoot =&gt; Dir.pwd).start'</span>
+</code></pre></div>
+
+<h2>adsf (Ruby)</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>gem <span class="nb">install </span>adsf
+adsf <span class="nt">-p</span> 8080
+</code></pre></div>
+
+<h2>sinatra (ruby)</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>gem <span class="nb">install </span>sinatra
+ruby <span class="nt">-rsinatra</span> <span class="nt">-e</span><span class="s1">'set :public_folder, "."; set :port, 8080'</span>
+</code></pre></div>
+
+<h2>perl</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>cpan HTTP::Server::Brick
+perl <span class="nt">-MHTTP</span>::Server::Brick <span class="nt">-e</span> <span class="s1">'$s=HTTP::Server::Brick-&gt;new(port=&gt;8080); $s-&gt;mount("/"=&gt;{path=&gt;"."}); $s-&gt;start'</span>
+</code></pre></div>
+
+<h2>plack (perl)</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>cpan Plack
+plackup <span class="nt">-MPlack</span>::App::Directory <span class="nt">-e</span> <span class="s1">'Plack::App::Directory-&gt;new(root=&gt;".");'</span> <span class="nt">-p</span> 8080
+</code></pre></div>
+
+<h2>mojolicious (perl)</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>cpan Mojolicious::Lite
+perl <span class="nt">-MMojolicious</span>::Lite <span class="nt">-MCwd</span> <span class="nt">-e</span> <span class="s1">'app-&gt;static-&gt;paths-&gt;[0]=getcwd; app-&gt;start'</span> daemon <span class="nt">-l</span> http://<span class="k">*</span>:8080
+</code></pre></div>
+
+<h2>HTTP-server (node.js)</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>npm <span class="nb">install</span> <span class="nt">-g</span> http-server
+http-server <span class="nt">-p</span> 8080
+</code></pre></div>
+
+<h2>node-static (node.js)</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>npm <span class="nb">install</span> <span class="nt">-g</span> node-static
+static <span class="nt">-p</span> 8080
+</code></pre></div>
+
+<h2>php (&gt;= 5.4)</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>php <span class="nt">-S</span> 127.0.0.1:8080
+</code></pre></div>
+
+<h2>erlang</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>erl <span class="nt">-s</span> inets <span class="nt">-eval</span> <span class="s1">'inets:start(httpd,[{server_name,"NAME"},{document_root, "."},{server_root, "."},{port, 8080},{mime_types,[{"html","text/html"},{"htm","text/html"},{"js","text/javascript"},{"css","text/css"},{"gif","image/gif"},{"jpg","image/jpeg"},{"jpeg","image/jpeg"},{"png","image/png"}]}]).'</span>
+</code></pre></div>
+
+<h2>busybox httpd</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>busybox httpd <span class="nt">-f</span> <span class="nt">-p</span> 8080
+</code></pre></div>
+
+<h2>webfs</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>webfsd <span class="nt">-F</span> <span class="nt">-p</span> 8080
+</code></pre></div>
+
+<h2>IIS express</h2>
+
+<div class="highlight"><pre class="highlight powershell"><code><span class="s2">"C:\Program Files (x86)\IIS Express\iisexpress.exe"</span><span class="w"> </span><span class="n">/path:C:\MyWeb</span><span class="w"> </span><span class="nx">/port:8080</span><span class="w">
+</span></code></pre></div>
+
+<h2>references</h2>
+
+<ul>
+<li><a href="https://gist.github.com/willurd/5720255" rel="nofollow">https://gist.github.com/willurd/5720255</a></li>
+</ul>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

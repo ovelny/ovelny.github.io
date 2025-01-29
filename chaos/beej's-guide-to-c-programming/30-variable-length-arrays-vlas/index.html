@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/30-variable-length-arrays-vlas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/30-variable-length-arrays-vlas"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>30 Variable-Length Arrays (VLAs)</h1>
+
+<p>C provides a way for you to declare an array whose size is determined at runtime. This gives you the benefits of dynamic runtime sizing like you get with <code>malloc()</code>, but without needing to worry about <code>free()</code>ing the memory after.</p>
+
+<p>Now, a lot of people don’t like VLAs. They’ve been banned from the Linux kernel, for example. We’ll dig into more of that rationale <a href="variable-length-arrays-vlas.html#vla-general-issues" rel="nofollow">later</a>.</p>
+
+<p>This is an optional feature of the language. The macro <code>__STDC_NO_VLA__</code> is set to <code>1</code> if VLAs are <em>not</em> present. (They were mandatory in C99, and then became optional in C11.)</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#if __STDC_NO_VLA__ == 1
+</span>   <span class="cp">#error Sorry, need VLAs for this program!
+#endif
+</span></code></pre></div>
+
+<p>But since neither GCC nor Clang bother to define this macro, you may get limited mileage from this.</p>
+
+<p>Let’s dive in first with an example, and then we’ll look for the devil in the details.</p>
+
+<h2>30.1 The Basics</h2>
+
+<p>A normal array is declared with a constant size, like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">v</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+</code></pre></div>
+
+<p>But with VLAs, we can use a size determined at runtime to set the array, like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">v</span><span class="p">[</span><span class="n">n</span><span class="p">];</span>
+</code></pre></div>
+
+<p>Now, that looks like the same thing, and in many ways is, but this gives you the flexibility to compute the size you need, and then get an array of exactly that size.</p>
+
+<p>Let’s ask the user to input the size of the array, and then store the index-times-10 in each of those array elements:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Enter a number: "</span><span class="p">);</span> <span class="n">fflush</span><span class="p">(</span><span class="n">stdout</span><span class="p">);</span>
+    <span class="n">scanf</span><span class="p">(</span><span class="s">" %d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">n</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">v</span><span class="p">[</span><span class="n">n</span><span class="p">];</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">10</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"v[%d] = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>(On line 7, I have an <code>fflush()</code> that should force the line to output even though I don’t have a newline at the end.)</p>
+
+<p>Line 10 is where we declare the VLA—once execution gets past that line, the size of the array is set to whatever <code>n</code> was at that moment. The array length can’t be changed later.</p>
+
+<p>You can put an expression in the brackets, as well:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">v</span><span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mi">100</span><span class="p">];</span>
+</code></pre></div>
+
+<p>Some restrictions:</p>
+
+<ul>
+<li>  You can’t declare a VLA at file scope, and you can’t make a <code>static</code> one in block scope<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷³</a>.</li>
+<li>  You can’t use an initializer list to initialize the array.</li>
+</ul>
+
+<p>Also, entering a negative value for the size of the array invokes undefined behavior—in this universe, anyway.</p>
+
+<h2>30.2 <code>sizeof</code> and VLAs</h2>
+
+<p>We’re used to <code>sizeof</code> giving us the size in bytes of any particular object, including arrays. And VLAs are no exception.</p>
+
+<p>The main difference is that <code>sizeof</code> on a VLA is executed at <em>runtime</em>, whereas on a non-variably-sized variable it is computed at <em>compile time</em>.</p>
+
+<p>But the usage is the same.</p>
+
+<p>You can even compute the number of elements in a VLA with the usual array trick:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">size_t</span> <span class="n">num_elems</span> <span class="o">=</span> <span class="k">sizeof</span> <span class="n">v</span> <span class="o">/</span> <span class="k">sizeof</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</code></pre></div>
+
+<p>There’s a subtle and correct implication from the above line: pointer arithmetic works just like you’d expect for a regular array. So go ahead and use it to your heart’s content:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">v</span><span class="p">[</span><span class="n">n</span><span class="p">];</span>
+
+    <span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">v</span><span class="p">;</span>
+
+    <span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>  <span class="c1">// 12</span>
+
+    <span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">34</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">v</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>  <span class="c1">// 34</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Like with regular arrays, you can use parentheses with <code>sizeof()</code> to get the size of a would-be VLA without actually declaring one:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span> <span class="p">[</span><span class="n">x</span><span class="p">]));</span>  <span class="c1">// Prints 48 on my system</span>
+</code></pre></div>
+
+<h2>30.3 Multidimensional VLAs</h2>
+
+<p>You can go ahead and make all kinds of VLAs with one or more dimensions set to a variable</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">w</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">h</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="n">x</span><span class="p">[</span><span class="n">h</span><span class="p">][</span><span class="n">w</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">y</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="n">w</span><span class="p">];</span>
+<span class="kt">int</span> <span class="n">z</span><span class="p">[</span><span class="mi">10</span><span class="p">][</span><span class="n">w</span><span class="p">][</span><span class="mi">20</span><span class="p">];</span>
+</code></pre></div>
+
+<p>Again, you can navigate these just like you would a regular array.</p>
+
+<h2>30.4 Passing One-Dimensional VLAs to Functions</h2>
+
+<p>Passing single-dimensional VLAs into a function can be no different than passing a regular array in. You just go for it.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">sum</span><span class="p">(</span><span class="kt">int</span> <span class="n">count</span><span class="p">,</span> <span class="kt">int</span> <span class="o">*</span><span class="n">v</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+    <span class="k">return</span> <span class="n">total</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>   <span class="c1">// Standard array</span>
+
+    <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">y</span><span class="p">[</span><span class="n">a</span><span class="p">];</span>   <span class="c1">// VLA</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">a</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">sum</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">x</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">sum</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>But there’s a bit more to it than that. You can also let C know that the array is a specific VLA size by passing that in first and then giving that dimension in the parameter list:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">sum</span><span class="p">(</span><span class="kt">int</span> <span class="n">count</span><span class="p">,</span> <span class="kt">int</span> <span class="n">v</span><span class="p">[</span><span class="n">count</span><span class="p">])</span>
+<span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Incidentally, there are a couple ways of listing a prototype for the above function; one of them involves an <code>*</code> if you don’t want to specifically name the value in the VLA. It just indicates that the type is a VLA as opposed to a regular pointer.</p>
+
+<p>VLA prototypes:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="nf">do_something</span><span class="p">(</span><span class="kt">int</span> <span class="n">count</span><span class="p">,</span> <span class="kt">int</span> <span class="n">v</span><span class="p">[</span><span class="n">count</span><span class="p">]);</span>  <span class="c1">// With names</span>
+<span class="kt">void</span> <span class="nf">do_something</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span> <span class="n">v</span><span class="p">[</span><span class="o">*</span><span class="p">]);</span>            <span class="c1">// Without names</span>
+</code></pre></div>
+
+<p>Again, that <code>*</code> thing only works with the prototype—in the function itself, you’ll have to put the explicit size.</p>
+
+<p>Now—<em>let’s get multidimensional</em>! This is where the fun begins.</p>
+
+<h2>30.5 Passing Multi-Dimensional VLAs to Functions</h2>
+
+<p>Same thing as we did with the second form of one-dimensional VLAs, above, but this time we’re passing in two dimensions and using those.</p>
+
+<p>In the following example, we build a multiplication table matrix of a variable width and height, and then pass it to a function to print it out.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">print_matrix</span><span class="p">(</span><span class="kt">int</span> <span class="n">h</span><span class="p">,</span> <span class="kt">int</span> <span class="n">w</span><span class="p">,</span> <span class="kt">int</span> <span class="n">m</span><span class="p">[</span><span class="n">h</span><span class="p">][</span><span class="n">w</span><span class="p">])</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="n">h</span><span class="p">;</span> <span class="n">row</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">w</span><span class="p">;</span> <span class="n">col</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"%2d "</span><span class="p">,</span> <span class="n">m</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">rows</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">cols</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">matrix</span><span class="p">[</span><span class="n">rows</span><span class="p">][</span><span class="n">cols</span><span class="p">];</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="n">rows</span><span class="p">;</span> <span class="n">row</span><span class="o">++</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">cols</span><span class="p">;</span> <span class="n">col</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">matrix</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span> <span class="o">*</span> <span class="n">col</span><span class="p">;</span>
+
+    <span class="n">print_matrix</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">matrix</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>30.5.1 Partial Multidimensional VLAs</h3>
+
+<p>You can have some of the dimensions fixed and some variable. Let’s say we have a record length fixed at 5 elements, but we don’t know how many records there are.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">print_records</span><span class="p">(</span><span class="kt">int</span> <span class="n">count</span><span class="p">,</span> <span class="kt">int</span> <span class="n">record</span><span class="p">[</span><span class="n">count</span><span class="p">][</span><span class="mi">5</span><span class="p">])</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"%2d "</span><span class="p">,</span> <span class="n">record</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">rec_count</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">records</span><span class="p">[</span><span class="n">rec_count</span><span class="p">][</span><span class="mi">5</span><span class="p">];</span>
+
+    <span class="c1">// Fill with some dummy data</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">rec_count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">records</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">2</span><span class="p">);</span>
+
+    <span class="n">print_records</span><span class="p">(</span><span class="n">rec_count</span><span class="p">,</span> <span class="n">records</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>30.6 Compatibility with Regular Arrays</h2>
+
+<p>Because VLAs are just like regular arrays in memory, it’s perfectly permissible to pass them interchangeably… as long as the dimensions match.</p>
+
+<p>For example, if we have a function that specifically wants a \(3\times5\) array, we can still pass a VLA into it.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">foo</span><span class="p">(</span><span class="kt">int</span> <span class="n">m</span><span class="p">[</span><span class="mi">5</span><span class="p">][</span><span class="mi">3</span><span class="p">])</span> <span class="p">{...}</span>
+
+<span class="err">\\</span> <span class="p">...</span>
+
+<span class="kt">int</span> <span class="n">w</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">matrix</span><span class="p">[</span><span class="n">h</span><span class="p">][</span><span class="n">w</span><span class="p">];</span>
+
+<span class="n">foo</span><span class="p">(</span><span class="n">matrix</span><span class="p">);</span>   <span class="c1">// OK!</span>
+</code></pre></div>
+
+<p>Likewise, if you have a VLA function, you can pass a regular array into it:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">foo</span><span class="p">(</span><span class="kt">int</span> <span class="n">h</span><span class="p">,</span> <span class="kt">int</span> <span class="n">w</span><span class="p">,</span> <span class="kt">int</span> <span class="n">m</span><span class="p">[</span><span class="n">h</span><span class="p">][</span><span class="n">w</span><span class="p">])</span> <span class="p">{...}</span>
+
+<span class="err">\\</span> <span class="p">...</span>
+
+<span class="kt">int</span> <span class="n">matrix</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">5</span><span class="p">];</span>
+
+<span class="n">foo</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">matrix</span><span class="p">);</span>   <span class="c1">// OK!</span>
+</code></pre></div>
+
+<p>Beware, though: if your dimensions mismatch, you’re going to have some undefined behavior going on, likely.</p>
+
+<h2>30.7 <code>typedef</code> and VLAs</h2>
+
+<p>You can <code>typedef</code> a VLA, but the behavior might not be as you expect.</p>
+
+<p>Basically, <code>typedef</code> makes a new type with the values as they existed the moment the <code>typedef</code> was executed.</p>
+
+<p>So it’s not a <code>typedef</code> of a VLA so much as a new fixed size array type of the dimensions at the time.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">w</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+    <span class="k">typedef</span> <span class="kt">int</span> <span class="n">goat</span><span class="p">[</span><span class="n">w</span><span class="p">];</span>
+
+    <span class="c1">// goat is an array of 10 ints</span>
+    <span class="n">goat</span> <span class="n">x</span><span class="p">;</span>
+
+    <span class="c1">// Init with squares of numbers</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">w</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="n">i</span><span class="p">;</span>
+
+    <span class="c1">// Print them</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">w</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+
+    <span class="c1">// Now let's change w...</span>
+
+    <span class="n">w</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+
+    <span class="c1">// But goat is STILL an array of 10 ints, because that was the</span>
+    <span class="c1">// value of w when the typedef executed.</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>So it acts like an array of fixed size.</p>
+
+<p>But you still can’t use an initializer list on it.</p>
+
+<h2>30.8 Jumping Pitfalls</h2>
+
+<p>You have to watch out when using <code>goto</code> near VLAs because a lot of things aren’t legal.</p>
+
+<p>And when you’re using <code>longjmp()</code> there’s a case where you could leak memory with VLAs.</p>
+
+<p>But both of these things we’ll cover in their respective chapters.</p>
+
+<h2>30.9 General Issues</h2>
+
+<p>VLAs have been banned from the Linux kernel for a few reasons:</p>
+
+<ul>
+<li>  Lots of places they were used should have just been fixed-size.</li>
+<li>  The code behind VLAs is slower (to a degree that most people wouldn’t notice, but makes a difference in an operating system).</li>
+<li>  VLAs are not supported to the same degree by all C compilers.</li>
+<li>  Stack size is limited, and VLAs go on the stack. If some code accidentally (or maliciously) passes a large value into a kernel function that allocates a VLA, <em>Bad Things</em>™ could happen.</li>
+</ul>
+
+<p>Other folks online point out that there’s no way to detect a VLA’s failure to allocate, and programs that suffered such problems would likely just crash. While fixed-size arrays also have the same issue, it’s far more likely that someone accidentally make a <em>VLA Of Unusual Size</em> than somehow accidentally declare a fixed-size, say, 30 megabyte array.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

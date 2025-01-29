@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/35-incomplete-types</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/35-incomplete-types"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>35 Incomplete Types</h1>
+
+<p>It might surprise you to learn that this builds without error:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">extern</span> <span class="kt">int</span> <span class="n">a</span><span class="p">[];</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">foo</span> <span class="o">*</span><span class="n">x</span><span class="p">;</span>
+    <span class="k">union</span> <span class="n">bar</span> <span class="o">*</span><span class="n">y</span><span class="p">;</span>
+    <span class="k">enum</span> <span class="n">baz</span> <span class="o">*</span><span class="n">z</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>We never gave a size for <code>a</code>. And we have pointers to <code>struct</code>s <code>foo</code>, <code>bar</code>, and <code>baz</code> that never seem to be declared anywhere.</p>
+
+<p>And the only warnings I get are that <code>x</code>, <code>y</code>, and <code>z</code> are unused.</p>
+
+<p>These are examples of <em>incomplete types</em>.</p>
+
+<p>An incomplete type is a type the size (i.e. the size you’d get back from <code>sizeof</code>) for which is not known. Another way to think of it is a type that you haven’t finished declaring.</p>
+
+<p>You can have a pointer to an incomplete type, but you can’t dereference it or use pointer arithmetic on it. And you can’t <code>sizeof</code> it.</p>
+
+<p>So what can you do with it?</p>
+
+<h2>35.1 Use Case: Self-Referential Structures</h2>
+
+<p>I only know of one real use case: forward references to <code>struct</code>s or <code>union</code>s with self-referential or co-dependent structures. (I’m going to use <code>struct</code> for the rest of these examples, but they all apply equally to <code>union</code>s, as well.)</p>
+
+<p>Let’s do the classic example first.</p>
+
+<p>But before I do, know this! As you declare a <code>struct</code>, the <code>struct</code> is incomplete until the closing brace is reached!</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">antelope</span> <span class="p">{</span>              <span class="c1">// struct antelope is incomplete here</span>
+    <span class="kt">int</span> <span class="n">leg_count</span><span class="p">;</span>             <span class="c1">// Still incomplete</span>
+    <span class="kt">float</span> <span class="n">stomach_fullness</span><span class="p">;</span>    <span class="c1">// Still incomplete</span>
+    <span class="kt">float</span> <span class="n">top_speed</span><span class="p">;</span>           <span class="c1">// Still incomplete</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">nickname</span><span class="p">;</span>            <span class="c1">// Still incomplete</span>
+<span class="p">};</span>                             <span class="c1">// NOW it's complete.</span>
+</code></pre></div>
+
+<p>So what? Seems sane enough.</p>
+
+<p>But what if we’re doing a linked list? Each linked list node needs to have a reference to another node. But how can we create a reference to another node if we haven’t finished even declaring the node yet?</p>
+
+<p>C’s allowance for incomplete types makes it possible. We can’t declare a node, but we <em>can</em> declare a pointer to one, even if it’s incomplete!</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">node</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">val</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>  <span class="c1">// struct node is incomplete, but that's OK!</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>Even though the <code>struct node</code> is incomplete on line 3, we can still declare a pointer to one<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸²</a>.</p>
+
+<p>We can do the same thing if we have two different <code>struct</code>s that refer to each other:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">a</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">b</span> <span class="o">*</span><span class="n">x</span><span class="p">;</span>  <span class="c1">// Refers to a `struct b`</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">b</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">a</span> <span class="o">*</span><span class="n">x</span><span class="p">;</span>  <span class="c1">// Refers to a `struct a`</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>We’d never be able to make that pair of structures without the relaxed rules for incomplete types.</p>
+
+<h2>35.2 Incomplete Type Error Messages</h2>
+
+<p>Are you getting errors like these?</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">invalid</span> <span class="n">application</span> <span class="n">of</span> <span class="err">‘</span><span class="k">sizeof</span><span class="err">’</span> <span class="n">to</span> <span class="n">incomplete</span> <span class="n">type</span>
+
+<span class="n">invalid</span> <span class="n">use</span> <span class="n">of</span> <span class="n">undefined</span> <span class="n">type</span>
+
+<span class="n">dereferencing</span> <span class="n">pointer</span> <span class="n">to</span> <span class="n">incomplete</span> <span class="n">type</span>
+</code></pre></div>
+
+<p>Most likely culprit: you probably forgot to <code>#include</code> the header file that declares the type.</p>
+
+<h2>35.3 Other Incomplete Types</h2>
+
+<p>Declaring a <code>struct</code> or <code>union</code> with no body makes an incomplete type, e.g. <code>struct foo;</code>.</p>
+
+<p><code>enums</code> are incomplete until the closing brace.</p>
+
+<p><code>void</code> is an incomplete type.</p>
+
+<p>Arrays declared <code>extern</code> with no size are incomplete, e.g.:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">extern</span> <span class="kt">int</span> <span class="n">a</span><span class="p">[];</span>
+</code></pre></div>
+
+<p>If it’s a non-<code>extern</code> array with no size followed by an initializer, it’s incomplete until the closing brace of the initializer.</p>
+
+<h2>35.4 Use Case: Arrays in Header Files</h2>
+
+<p>It can be useful to declare incomplete array types in header files. In those cases, the actual storage (where the complete array is declared) should be in a single <code>.c</code> file. If you put it in the <code>.h</code> file, it will be duplicated every time the header file is included.</p>
+
+<p>So what you can do is make a header file with an incomplete type that refers to the array, like so:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// File: bar.h</span>
+
+<span class="cp">#ifndef BAR_H
+#define BAR_H
+</span>
+<span class="k">extern</span> <span class="kt">int</span> <span class="n">my_array</span><span class="p">[];</span>  <span class="c1">// Incomplete type</span>
+
+<span class="cp">#endif
+</span></code></pre></div>
+
+<p>And the in the <code>.c</code> file, actually define the array:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// File: bar.c</span>
+
+<span class="kt">int</span> <span class="n">my_array</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>     <span class="c1">// Complete type!</span>
+</code></pre></div>
+
+<p>Then you can include the header from as many places as you’d like, and every one of those places will refer to the same underlying <code>my_array</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// File: foo.c</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">"bar.h"</span><span class="c1">    // includes the incomplete type for my_array</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">my_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">my_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>When compiling multiple files, remember to specify all the <code>.c</code> files to the compiler, but not the <code>.h</code> files, e.g.:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">gcc</span> <span class="o">-</span><span class="n">o</span> <span class="n">foo</span> <span class="n">foo</span><span class="p">.</span><span class="n">c</span> <span class="n">bar</span><span class="p">.</span><span class="n">c</span>
+</code></pre></div>
+
+<h2>35.5 Completing Incomplete Types</h2>
+
+<p>If you have an incomplete type, you can complete it by defining the complete <code>struct</code>, <code>union</code>, <code>enum</code>, or array in the same scope.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">foo</span><span class="p">;</span>        <span class="c1">// incomplete type</span>
+
+<span class="k">struct</span> <span class="n">foo</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>     <span class="c1">// pointer, no problem</span>
+
+<span class="c1">// struct foo f;   // Error: incomplete type!</span>
+
+<span class="k">struct</span> <span class="n">foo</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">;</span>
+<span class="p">};</span>                 <span class="c1">// Now the struct foo is complete!</span>
+
+<span class="k">struct</span> <span class="n">foo</span> <span class="n">f</span><span class="p">;</span>      <span class="c1">// Success!</span>
+</code></pre></div>
+
+<p>Note that though <code>void</code> is an incomplete type, there’s no way to complete it. Not that anyone ever thinks of doing that weird thing. But it does explain why you can do this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>             <span class="c1">// OK: pointer to incomplete type</span>
+</code></pre></div>
+
+<p>and not either of these:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="n">v</span><span class="p">;</span>              <span class="c1">// Error: declare variable of incomplete type</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">);</span>  <span class="c1">// Error: dereference incomplete type</span>
+</code></pre></div>
+
+<p>The more you know…</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

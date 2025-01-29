@@ -1,0 +1,2481 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/30-wchar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/30-wchar"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>30 <code>&lt;wchar.h&gt;</code> Wide Character Handling</h1>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="wchar.html#man-btowc" rel="nofollow"><code>btowc()</code></a></td>
+<td>Convert a single byte character to a wide character</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-getwc" rel="nofollow"><code>fgetwc()</code></a></td>
+<td>Get a wide character from a wide stream</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-fgetws" rel="nofollow"><code>fgetws()</code></a></td>
+<td>Read a wide string from a wide stream</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-putwc" rel="nofollow"><code>fputwc()</code></a></td>
+<td>Write a wide character to a wide stream</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-fputws" rel="nofollow"><code>fputws()</code></a></td>
+<td>Write a wide string to a wide stream</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-fwide" rel="nofollow"><code>fwide()</code></a></td>
+<td>Get or set the orientation of the stream</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wprintf" rel="nofollow"><code>fwprintf()</code></a></td>
+<td>Formatted wide output to a wide stream</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wscanf" rel="nofollow"><code>fwscanf()</code></a></td>
+<td>Formatted wide input from a wide stream</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-getwc" rel="nofollow"><code>getwchar()</code></a></td>
+<td>Get a wide character from <code>stdin</code></td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-getwc" rel="nofollow"><code>getwc()</code></a></td>
+<td>Get a wide character from <code>stdin</code></td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-mbrlen" rel="nofollow"><code>mbrlen()</code></a></td>
+<td>Compute the number of bytes in a multibyte character restartably</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-mbrtowc" rel="nofollow"><code>mbrtowc()</code></a></td>
+<td>Convert multibyte to wide characters restartably</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-mbsinit" rel="nofollow"><code>mbsinit()</code></a></td>
+<td>Test if an <code>mbstate_t</code> is in the initial conversion state</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-mbsrtowcs" rel="nofollow"><code>mbsrtowcs()</code></a></td>
+<td>Convert a multibyte string to a wide character string restartably</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-putwc" rel="nofollow"><code>putwchar()</code></a></td>
+<td>Write a wide character to <code>stdout</code></td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-putwc" rel="nofollow"><code>putwc()</code></a></td>
+<td>Write a wide character to <code>stdout</code></td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wprintf" rel="nofollow"><code>swprintf()</code></a></td>
+<td>Formatted wide output to a wide string</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wscanf" rel="nofollow"><code>swscanf()</code></a></td>
+<td>Formatted wide input from a wide string</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-ungetwc" rel="nofollow"><code>ungetwc()</code></a></td>
+<td>Pushes a wide character back into the input stream</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wprintf" rel="nofollow"><code>vfwprintf()</code></a></td>
+<td>Variadic formatted wide output to a wide stream</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wscanf" rel="nofollow"><code>vfwscanf()</code></a></td>
+<td>Variadic formatted wide input from a wide stream</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wprintf" rel="nofollow"><code>vswprintf()</code></a></td>
+<td>Variadic formatted wide output to a wide string</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wscanf" rel="nofollow"><code>vswscanf()</code></a></td>
+<td>Variadic formatted wide input from a wide string</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wprintf" rel="nofollow"><code>vwprintf()</code></a></td>
+<td>Variadic formatted wide output</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wscanf" rel="nofollow"><code>vwscanf()</code></a></td>
+<td>Variadic formatted wide input</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcscat" rel="nofollow"><code>wcscat()</code></a></td>
+<td>Concatenate wide strings dangerously</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcschr" rel="nofollow"><code>wcschr()</code></a></td>
+<td>Find a wide character in a wide string</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcscmp" rel="nofollow"><code>wcscmp()</code></a></td>
+<td>Compare wide strings</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcscoll" rel="nofollow"><code>wcscoll()</code></a></td>
+<td>Compare two wide strings accounting for locale</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcscpy" rel="nofollow"><code>wcscpy()</code></a></td>
+<td>Copy a wide string dangerously</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcsspn" rel="nofollow"><code>wcscspn()</code></a></td>
+<td>Count characters not from a start at the front of a wide string</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcsftime" rel="nofollow"><code>wcsftime()</code></a></td>
+<td>Formatted date and time output</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcslen" rel="nofollow"><code>wcslen()</code></a></td>
+<td>Returns the length of a wide string</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcscat" rel="nofollow"><code>wcsncat()</code></a></td>
+<td>Concatenate wide strings more safely</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcscmp" rel="nofollow"><code>wcsncmp()</code></a></td>
+<td>Compare wide strings, length limited</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcscpy" rel="nofollow"><code>wcsncpy()</code></a></td>
+<td>Copy a wide string more safely</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcspbrk" rel="nofollow"><code>wcspbrk()</code></a></td>
+<td>Search a wide string for one of a set of wide characters</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcschr" rel="nofollow"><code>wcsrchr()</code></a></td>
+<td>Find a wide character in a wide string from the end</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcsrtombs" rel="nofollow"><code>wcsrtombs()</code></a></td>
+<td>Convert a wide character string to a multibyte string restartably</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcsspn" rel="nofollow"><code>wcsspn()</code></a></td>
+<td>Count characters from a set at the front of a wide string</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcsstr" rel="nofollow"><code>wcsstr()</code></a></td>
+<td>Find a wide string in another wide string</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcstod" rel="nofollow"><code>wcstod()</code></a></td>
+<td>Convert a wide string to a <code>double</code></td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcstod" rel="nofollow"><code>wcstof()</code></a></td>
+<td>Convert a wide string to a <code>float</code></td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcstok" rel="nofollow"><code>wcstok()</code></a></td>
+<td>Tokenize a wide string</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcstod" rel="nofollow"><code>wcstold()</code></a></td>
+<td>Convert a wide string to a <code>long double</code></td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcstol" rel="nofollow"><code>wcstoll()</code></a></td>
+<td>Convert a wide string to a <code>long long</code></td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcstol" rel="nofollow"><code>wcstol()</code></a></td>
+<td>Convert a wide string to a <code>long</code></td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcstol" rel="nofollow"><code>wcstoull()</code></a></td>
+<td>Convert a wide string to an <code>unsigned long long</code></td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcstol" rel="nofollow"><code>wcstoul()</code></a></td>
+<td>Convert a wide string to an <code>unsigned long</code></td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcsxfrm" rel="nofollow"><code>wcsxfrm()</code></a></td>
+<td>Transform a wide string for comparing based on locale</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-btowc" rel="nofollow"><code>wctob()</code></a></td>
+<td>Convert a wide character to a single byte character</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcrtomb" rel="nofollow"><code>wctombr()</code></a></td>
+<td>Convert wide to multibyte characters restartably</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wcscmp" rel="nofollow"><code>wmemcmp()</code></a></td>
+<td>Compare wide characters in memory</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wmemcpy" rel="nofollow"><code>wmemcpy()</code></a></td>
+<td>Copy wide character memory</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wmemcpy" rel="nofollow"><code>wmemmove()</code></a></td>
+<td>Copy wide character memory, potentially overlapping</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wprintf" rel="nofollow"><code>wprintf()</code></a></td>
+<td>Formatted wide output</td>
+</tr>
+<tr>
+<td><a href="wchar.html#man-wscanf" rel="nofollow"><code>wscanf()</code></a></td>
+<td>Formatted wide input</td>
+</tr>
+</tbody></table>
+
+<p>These are the wide character variants of the functions found in <a href="stdio.html#stdio" rel="nofollow"><code>&lt;stdio.h&gt;</code></a>.</p>
+
+<p>Remember that you can’t mix-and-match multibyte output functions (like <a href="stdio.html#man-printf" rel="nofollow"><code>printf()</code></a>) with wide character output functions (like <a href="wchar.html#man-wprintf" rel="nofollow"><code>wprintf()</code></a>). The output stream has an <em>orientation</em> to either multibyte or wide that gets set on the first I/O call to that stream. (Or it can be set with <a href="wchar.html#man-fwide" rel="nofollow"><code>fwide()</code></a>.)</p>
+
+<p>So choose one or the other and stick with it.</p>
+
+<p>And you can specify wide character constants and string literals by prefixing <code>L</code> to the front of it:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">L"Hello, world!"</span><span class="p">;</span>
+<span class="kt">wchar_t</span> <span class="n">c</span> <span class="o">=</span> <span class="sc">L'B'</span><span class="p">;</span>
+</code></pre></div>
+
+<p>This header also introduces a type <code>wint_t</code> that is used by the character I/O functions. It’s a type that can hold any single wide character, but <em>also</em> the macro <code>WEOF</code> to indicate wide end-of-file.</p>
+
+<h2>30.1 Restartable Functions</h2>
+
+<p>Finally, a note on the “restartable” functions that are included here. When conversion is happening, some encodings require C to keep track of some <em>state</em> about the progress of the conversion so far.</p>
+
+<p>For a lot of the functions, C uses an internal variable for the state that is shared between function calls. The problem is if you’re writing multithreaded code, this state might get trampled by other threads.</p>
+
+<p>To avoid this, each thread needs to maintain its own state in a variable of the opaque type <code>mbstate_t</code>. And the “restartable” functions allow you to pass in this state so that each thread can use their own.</p>
+
+<p><hr></p>
+
+<h2>30.2 <code>wprintf()</code>, <code>fwprintf()</code>, <code>swprintf()</code></h2>
+
+<p>Formatted output with a wide string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">   // For fwprintf()</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">wprintf</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
+
+<span class="kt">int</span> <span class="nf">fwprintf</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">stream</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
+
+<span class="kt">int</span> <span class="nf">swprintf</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">,</span>
+             <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are the wide versions of <a href="stdio.html#man-printf" rel="nofollow"><code>printf()</code></a>, <a href="#man-printf" rel="nofollow">`fprintf()</a>, and <a href="stdio.html#man-printf" rel="nofollow"><code>sprintf()\</code></a>.</p>
+
+<p>See those pages for exact substantial usage.</p>
+
+<p>These are the same except the <code>format</code> string is a wide character string instead of a multibyte string.</p>
+
+<p>And that <code>swprintf()</code> is analogous to <code>snprintf()</code> in that they both take the size of the destination array as an argument.</p>
+
+<p>And one more thing: the precision specified for a <code>%s</code> specifier corresponds to the number of wide characters printed, not the number of bytes. If you know of other difference, let me know.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of wide characters outputted, or <code>-1</code> if there’s an error.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">mbs</span> <span class="o">=</span> <span class="s">"multibyte"</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">ws</span> <span class="o">=</span> <span class="s">L"wide"</span><span class="p">;</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"We're all wide for %s and %ls!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mbs</span><span class="p">,</span> <span class="n">ws</span><span class="p">);</span>
+
+    <span class="kt">double</span> <span class="n">pi</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14159265358979</span><span class="p">;</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"pi = %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">pi</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">We</span><span class="err">'</span><span class="n">re</span> <span class="n">all</span> <span class="n">wide</span> <span class="k">for</span> <span class="n">multibyte</span> <span class="n">and</span> <span class="n">wide</span><span class="o">!</span>
+<span class="n">pi</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">141593</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-printf" rel="nofollow"><code>printf()</code></a>, <a href="wchar.html#man-vwprintf" rel="nofollow"><code>vwprintf()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.3 <code>wscanf()</code> <code>fwscanf()</code> <code>swscanf()</code></h2>
+
+<p>Scan a wide stream or wide string for formatted input</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">  // for fwscanf()</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">wscanf</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
+
+<span class="kt">int</span> <span class="nf">fwscanf</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">stream</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
+
+<span class="kt">int</span> <span class="nf">swscanf</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="p">...);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are the wide variants of <a href="stdio.html#man-scanf" rel="nofollow"><code>scanf()</code></a>, <a href="stdio.html#man-scanf" rel="nofollow"><code>fscanf()</code></a>, and <a href="stdio.html#man-scanf" rel="nofollow"><code>sscanf()</code></a>.</p>
+
+<p>See the <a href="stdio.html#man-scanf" rel="nofollow"><code>scanf()</code></a> page for all the details.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of items successfully scanned, or <code>EOF</code> on some kind of input failure.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">quantity</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="n">item</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Enter </span><span class="se">\"</span><span class="s">quantity: item</span><span class="se">\"\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">wscanf</span><span class="p">(</span><span class="s">L"%d:%99ls"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">quantity</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Malformed input!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"You entered: %d %ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">item</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output (input of <code>12: apples</code>):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Enter</span> <span class="s">"quantity: item"</span>
+<span class="mi">12</span><span class="o">:</span> <span class="n">apples</span>
+<span class="n">You</span> <span class="n">entered</span><span class="o">:</span> <span class="mi">12</span> <span class="n">apples</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-scanf" rel="nofollow"><code>scanf()</code></a>, <a href="wchar.html#man-vwscanf" rel="nofollow"><code>vwscanf()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.4 <code>vwprintf()</code> <code>vfwprintf()</code> <code>vswprintf()</code></h2>
+
+<p><code>wprintf()</code> variants using variable argument lists (<code>va_list</code>)</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">   // For vfwprintf()</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">vwprintf</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="kt">va_list</span> <span class="n">arg</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">vswprintf</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">,</span>
+              <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="kt">va_list</span> <span class="n">arg</span><span class="p">);</span> 
+
+<span class="kt">int</span> <span class="nf">vfwprintf</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">stream</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span>
+              <span class="kt">va_list</span> <span class="n">arg</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These functions are the wide character variants of the <a href="stdio.html#man-vprintf" rel="nofollow"><code>vprintf()</code></a>, functions. You can <a href="stdio.html#man-vprintf" rel="nofollow">refer to that reference page</a> for more details.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of wide characters stored, or a negative value on error.</p>
+
+<h3>Example</h3>
+
+<p>In this example, we make our own version of <code>wprintf()</code> called <code>wlogger()</code> that timestamps output. Notice how the calls to <code>wlogger()</code> have all the bells and whistles of <code>wprintf()</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">wlogger</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="kt">va_list</span> <span class="n">va</span><span class="p">;</span>
+    <span class="kt">time_t</span> <span class="n">now_secs</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+    <span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="n">now</span> <span class="o">=</span> <span class="n">gmtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now_secs</span><span class="p">);</span>
+
+    <span class="c1">// Output timestamp in format "YYYY-MM-DD hh:mm:ss : "</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%04d-%02d-%02d %02d:%02d:%02d : "</span><span class="p">,</span>
+        <span class="n">now</span><span class="o">-&gt;</span><span class="n">tm_year</span> <span class="o">+</span> <span class="mi">1900</span><span class="p">,</span> <span class="n">now</span><span class="o">-&gt;</span><span class="n">tm_mon</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">now</span><span class="o">-&gt;</span><span class="n">tm_mday</span><span class="p">,</span>
+        <span class="n">now</span><span class="o">-&gt;</span><span class="n">tm_hour</span><span class="p">,</span> <span class="n">now</span><span class="o">-&gt;</span><span class="n">tm_min</span><span class="p">,</span> <span class="n">now</span><span class="o">-&gt;</span><span class="n">tm_sec</span><span class="p">);</span>
+
+    <span class="n">va_start</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">format</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">vwprintf</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">va</span><span class="p">);</span>
+    <span class="n">va_end</span><span class="p">(</span><span class="n">va</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">2</span><span class="p">;</span>
+
+    <span class="n">wlogger</span><span class="p">(</span><span class="s">L"Hello!"</span><span class="p">);</span>
+    <span class="n">wlogger</span><span class="p">(</span><span class="s">L"x = %d and y = %.2f"</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">2021</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">30</span> <span class="mo">04</span><span class="o">:</span><span class="mi">25</span><span class="o">:</span><span class="mi">49</span> <span class="o">:</span> <span class="n">Hello</span><span class="o">!</span>
+<span class="mi">2021</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">30</span> <span class="mo">04</span><span class="o">:</span><span class="mi">25</span><span class="o">:</span><span class="mi">49</span> <span class="o">:</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">12</span> <span class="n">and</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">20</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdio.html#man-printf" rel="nofollow"><code>printf()</code></a>, <a href="stdio.html#man-vprintf" rel="nofollow"><code>vprintf()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.5 <code>vwscanf()</code>, <code>vfwscanf()</code>, <code>vswscanf()</code></h2>
+
+<p><code>wscanf()</code> variants using variable argument lists (<code>va_list</code>)</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">   // For vfwscanf()</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">vwscanf</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span> <span class="kt">va_list</span> <span class="n">arg</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">vfwscanf</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">stream</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span>
+             <span class="kt">va_list</span> <span class="n">arg</span><span class="p">);</span> 
+
+<span class="kt">int</span> <span class="nf">vswscanf</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span>
+             <span class="kt">va_list</span> <span class="n">arg</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are the wide counterparts to the <a href="stdio.html#man-vscanf" rel="nofollow"><code>vscanf()</code></a> collection of functions. See their <a href="stdio.html#man-vscanf" rel="nofollow">reference page for details</a>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of items successfully scanned, or <code>EOF</code> on some kind of input failure.</p>
+
+<h3>Example</h3>
+
+<p>I have to admit I was wracking my brain to think of when you’d ever want to use this. The best example I could find was <a href="https://stackoverflow.com/questions/17017331/c99-vscanf-for-dummies/17018046#17018046" rel="nofollow">one on Stack Overflow</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁷⁷</a> that error-checks the return value from <code>scanf()</code> against the expected. A variant of that is shown below.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">error_check_wscanf</span><span class="p">(</span><span class="kt">int</span> <span class="n">expected_count</span><span class="p">,</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="kt">va_list</span> <span class="n">va</span><span class="p">;</span>
+
+    <span class="n">va_start</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">format</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="n">vwscanf</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">va</span><span class="p">);</span>
+    <span class="n">va_end</span><span class="p">(</span><span class="n">va</span><span class="p">);</span>
+
+    <span class="c1">// This line will crash the program if the condition is false:</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="n">expected_count</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">count</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="n">error_check_wscanf</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">L"%d, %d/%f"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">c</span><span class="p">);</span>
+    <span class="n">error_check_wscanf</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">L"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-wscanf" rel="nofollow"><code>wscanf()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.6 <code>getwc()</code> <code>fgetwc()</code> <code>getwchar()</code></h2>
+
+<p>Get a wide character from an input stream</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">   // For getwc() and fgetwc()</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wint_t</span> <span class="nf">getwchar</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+
+<span class="kt">wint_t</span> <span class="nf">getwc</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="kt">wint_t</span> <span class="nf">fgetwc</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are the wide variants of <a href="stdio.html#man-getc" rel="nofollow"><code>fgetc()</code></a>.</p>
+
+<p><code>fgetwc()</code> and <code>getwc()</code> are identical except that <code>getwc()</code> might be implemented as a macro and is allowed to evaluate <code>stream</code> multiple times.</p>
+
+<p><code>getwchar()</code> is identical to <code>getwc()</code> with <code>stream</code> set to <code>stdin</code>.</p>
+
+<p>I don’t know why you’d ever use <code>getwc()</code> instead of <code>fgetwc()</code>, but if anyone knows, drop me a line.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the next wide character in the input stream. Return <code>WEOF</code> on end-of-file or error.</p>
+
+<p>If an I/O error occurs, the error flag is also set on the stream.</p>
+
+<p>If an invalid byte sequence is encountered, <code>errno</code> is set to <code>ILSEQ</code>.</p>
+
+<h3>Example</h3>
+
+<p>Reads all the characters from a file, outputting only the letter ’b’s it finds in the file:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+    <span class="kt">wint_t</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"datafile.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span> <span class="c1">// error check this!</span>
+
+    <span class="c1">// this while-statement assigns into c, and then checks against EOF:</span>
+
+    <span class="k">while</span><span class="p">((</span><span class="n">c</span> <span class="o">=</span> <span class="n">fgetc</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span> <span class="o">!=</span> <span class="n">WEOF</span><span class="p">)</span> 
+        <span class="k">if</span> <span class="p">(</span><span class="n">c</span> <span class="o">==</span> <span class="sc">L'b'</span><span class="p">)</span>
+            <span class="n">fputwc</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">stdout</span><span class="p">);</span>
+
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-putwc" rel="nofollow"><code>fputwc</code></a>, <a href="wchar.html#man-fgetws" rel="nofollow"><code>fgetws</code></a>, <a href="errno.html#errno" rel="nofollow"><code>errno</code></a></p>
+
+<p><hr></p>
+
+<h2>30.7 <code>fgetws()</code></h2>
+
+<p>Read a wide string from a file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">fgetws</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="kt">FILE</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the wide version of <a href="stdio.html#man-gets" rel="nofollow"><code>fgets()</code></a>. See <a href="stdio.html#man-gets" rel="nofollow">its reference page for details</a>.</p>
+
+<p>A wide <code>NUL</code> character is used to terminate the string.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns <code>s</code> on success, or a <code>NULL</code> pointer on end-of-file or error.</p>
+
+<h3>Example</h3>
+
+<p>The following example reads lines from a file and prepends them with numbers:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define BUF_SIZE 1024
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="n">buf</span><span class="p">[</span><span class="n">BUF_SIZE</span><span class="p">];</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"textfile.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span> <span class="c1">// error check this!</span>
+
+    <span class="kt">int</span> <span class="n">line_count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">((</span><span class="n">fgetws</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">BUF_SIZE</span><span class="p">,</span> <span class="n">fp</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> 
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%04d: %ls"</span><span class="p">,</span> <span class="o">++</span><span class="n">line_count</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
+
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Example output for a file with these lines in them (without the prepended numbers):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mo">0001</span><span class="o">:</span> <span class="n">line</span> <span class="mi">1</span>
+<span class="mo">0002</span><span class="o">:</span> <span class="n">line</span> <span class="mi">2</span>
+<span class="mo">0003</span><span class="o">:</span> <span class="n">something</span>
+<span class="mo">0004</span><span class="o">:</span> <span class="n">line</span> <span class="mi">4</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-getwc" rel="nofollow"><code>fgetwc()</code></a>, <a href="stdio.html#man-gets" rel="nofollow"><code>fgets()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.8 <code>putwchar()</code> <code>putwc()</code> <code>fputwc()</code></h2>
+
+<p>Write a single wide character to the console or to a file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">   // For putwc() and fputwc()</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wint_t</span> <span class="nf">putwchar</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="n">c</span><span class="p">);</span>
+
+<span class="kt">wint_t</span> <span class="nf">putwc</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="n">c</span><span class="p">,</span> <span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+
+<span class="kt">wint_t</span> <span class="nf">fputwc</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="n">c</span><span class="p">,</span> <span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are the wide character equivalents to the <a href="stdio.html#man-putc" rel="nofollow">‘fputc()’</a> group of functions. You can find more information <a href="stdio.html#man-putc" rel="nofollow">‘in that reference section’</a>.</p>
+
+<p><code>fputwc()</code> and <code>putwc()</code> are identical except that <code>putwc()</code> might be implemented as a macro and is allowed to evaluate <code>stream</code> multiple times.</p>
+
+<p><code>putwchar()</code> is identical to <code>putwc()</code> with <code>stream</code> set to <code>stdin</code>.</p>
+
+<p>I don’t know why you’d ever use <code>putwc()</code> instead of <code>fputwc()</code>, but if anyone knows, drop me a line.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the wide character written, or <code>WEOF</code> on error.</p>
+
+<p>If it’s an I/O error, the error flag will be set for the stream.</p>
+
+<p>If it’s an encoding error, <code>errno</code> will be set to <code>EILSEQ</code>.</p>
+
+<h3>Example</h3>
+
+<p>Read all characters from a file, outputting only the letter ’b’s it finds in the file:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+    <span class="kt">wint_t</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">fopen</span><span class="p">(</span><span class="s">"datafile.txt"</span><span class="p">,</span> <span class="s">"r"</span><span class="p">);</span> <span class="c1">// error check this!</span>
+
+    <span class="c1">// this while-statement assigns into c, and then checks against EOF:</span>
+
+    <span class="k">while</span><span class="p">((</span><span class="n">c</span> <span class="o">=</span> <span class="n">fgetc</span><span class="p">(</span><span class="n">fp</span><span class="p">))</span> <span class="o">!=</span> <span class="n">WEOF</span><span class="p">)</span> 
+        <span class="k">if</span> <span class="p">(</span><span class="n">c</span> <span class="o">==</span> <span class="sc">L'b'</span><span class="p">)</span>
+            <span class="n">fputwc</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">stdout</span><span class="p">);</span>
+
+    <span class="n">fclose</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-getwc" rel="nofollow"><code>fgetwc()</code></a>, <a href="stdio.html#man-putc" rel="nofollow"><code>fputc()</code></a>, <a href="errno.html#errno" rel="nofollow"><code>errno</code></a></p>
+
+<p><hr></p>
+
+<h2>30.9 <code>fputws()</code></h2>
+
+<p>Write a wide string to a file</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">fputws</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">FILE</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the wide version of <a href="stdio.html#man-puts" rel="nofollow"><code>fputs()</code></a>.</p>
+
+<p>Pass in a wide string and an output stream, and it will so be written.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns a non-negative value on success, or <code>EOF</code> on error.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">fputws</span><span class="p">(</span><span class="s">L"Hello, world!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">stdout</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-putwc" rel="nofollow"><code>fputwc()</code></a> <a href="stdio.html#man-puts" rel="nofollow"><code>fputs()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.10 <code>fwide()</code></h2>
+
+<p>Get or set the orientation of the stream</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">fwide</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">,</span> <span class="kt">int</span> <span class="n">mode</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Streams can be either wide-oriented (meaning the wide functions are in use) or byte-oriented (that the regular multibyte functions are in use). Or, before an orientation is chosen, unoriented.</p>
+
+<p>There are two ways to set the orientation of an unoriented stream:</p>
+
+<ul>
+<li><p>Implicitly: just use a function like <code>printf()</code> (byte oriented) or <code>wprintf()</code> (wide oriented), and the orientation will be set.</p></li>
+<li><p>Explicitly: use this function to set it.</p></li>
+</ul>
+
+<p>You can set the orientation for the stream by passing different numbers to <code>mode</code>:</p>
+
+<table><thead>
+<tr>
+<th><code>mode</code></th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>0</code></td>
+<td>Do not alter the orientation</td>
+</tr>
+<tr>
+<td><code>-1</code></td>
+<td>Set stream to byte-oriented</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>Set stream to wide-oriented</td>
+</tr>
+</tbody></table>
+
+<p>(I said <code>-1</code> and <code>1</code> there, but really it could be any positive or negative number.)</p>
+
+<p>Most people choose the wide or byte functions (<code>printf()</code> or <code>wprintf()</code>) and just start using them and never use <code>fwide()</code> to set the orientation.</p>
+
+<p>And once the orientation is set, you can’t change it. So you can’t use <code>fwide()</code> for that, either.</p>
+
+<p>So what can you use it for?</p>
+
+<p>You can <em>test</em> to see what orientation a stream is in by passing <code>0</code> as the <code>mode</code> and checking the return value.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns greater than zero if the stream is wide-oriented.</p>
+
+<p>Returns less than zero if the stream is byte-oriented.</p>
+
+<p>Returns zero if the stream is unoriented.</p>
+
+<h3>Example</h3>
+
+<p>Example setting to byte-oriented:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Hello world!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// Implicitly set to byte</span>
+
+    <span class="kt">int</span> <span class="n">mode</span> <span class="o">=</span> <span class="n">fwide</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Stream is %s-oriented</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mode</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">?</span> <span class="s">"byte"</span><span class="o">:</span> <span class="s">"wide"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Hello</span> <span class="n">world</span><span class="o">!</span>
+<span class="n">Stream</span> <span class="n">is</span> <span class="n">byte</span><span class="o">-</span><span class="n">oriented</span>
+</code></pre></div>
+
+<p>Example setting to wide-oriented:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Hello world!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// Implicitly set to wide</span>
+
+    <span class="kt">int</span> <span class="n">mode</span> <span class="o">=</span> <span class="n">fwide</span><span class="p">(</span><span class="n">stdout</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Stream is %ls-oriented</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mode</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">?</span> <span class="s">L"byte"</span><span class="o">:</span> <span class="s">L"wide"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Hello</span> <span class="n">world</span><span class="o">!</span>
+<span class="n">Stream</span> <span class="n">is</span> <span class="n">wide</span><span class="o">-</span><span class="n">oriented</span>
+</code></pre></div>
+
+<p><hr></p>
+
+<h2>30.11 <code>ungetwc()</code></h2>
+
+<p>Pushes a wide character back into the input stream</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wint_t</span> <span class="nf">ungetwc</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">c</span><span class="p">,</span> <span class="kt">FILE</span> <span class="o">*</span><span class="n">stream</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the wide character variant of <a href="stdio.html#man-ungetc" rel="nofollow"><code>ungetc()</code></a>.</p>
+
+<p>It performs the reverse operation of <a href="wchar.html#man-getwc" rel="nofollow"><code>fgetwc()</code></a>, pushing a character back on the input stream.</p>
+
+<p>The spec guarantees you can do this one time in a row. You can probably do it more times, but it’s up to the implementation. If you do too many calls without an intervening read, an error could be returned.</p>
+
+<p>Setting the file position discards any characters pushed by <code>ungetwc()</code> without being subsequently read.</p>
+
+<p>The end-of-file flag is cleared after a successful call.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the value of the pushed character on success, or <code>WEOF</code> on failure.</p>
+
+<h3>Example</h3>
+
+<p>This example reads a piece of punctuation, then everything after it up to the next piece of punctuation. It returns the leading punctuation, and stores the rest in a string.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wctype.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wint_t</span> <span class="nf">read_punctstring</span><span class="p">(</span><span class="kt">FILE</span> <span class="o">*</span><span class="n">fp</span><span class="p">,</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wint_t</span> <span class="n">origpunct</span><span class="p">,</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="n">origpunct</span> <span class="o">=</span> <span class="n">fgetwc</span><span class="p">(</span><span class="n">fp</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">origpunct</span> <span class="o">==</span> <span class="n">WEOF</span><span class="p">)</span>  <span class="c1">// return EOF on end-of-file</span>
+        <span class="k">return</span> <span class="n">WEOF</span><span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">c</span> <span class="o">=</span> <span class="n">fgetwc</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span> <span class="o">!</span><span class="n">iswpunct</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">c</span> <span class="o">!=</span> <span class="n">WEOF</span><span class="p">)</span>
+        <span class="o">*</span><span class="n">s</span><span class="o">++</span> <span class="o">=</span> <span class="n">c</span><span class="p">;</span>  <span class="c1">// save it in the string</span>
+
+    <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="sc">L'\0'</span><span class="p">;</span> <span class="c1">// nul-terminate the string</span>
+
+    <span class="c1">// if we read punctuation last, ungetc it so we can fgetc it next</span>
+    <span class="c1">// time:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">iswpunct</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+        <span class="n">ungetwc</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">fp</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">origpunct</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="n">s</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+    <span class="kt">wint_t</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">((</span><span class="n">c</span> <span class="o">=</span> <span class="n">read_punctstring</span><span class="p">(</span><span class="n">stdin</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span> <span class="o">!=</span> <span class="n">WEOF</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%lc: %ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Sample Input:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">!</span><span class="n">foo</span><span class="err">#</span><span class="n">bar</span><span class="o">*</span><span class="n">baz</span>
+</code></pre></div>
+
+<p>Sample output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">!:</span> <span class="n">foo</span>
+<span class="cp">#: bar
+</span><span class="o">*:</span> <span class="n">baz</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-getwc" rel="nofollow"><code>fgetwc()</code></a>, <a href="stdio.html#man-ungetc" rel="nofollow"><code>ungetc()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.12 <code>wcstod()</code> <code>wcstof()</code> <code>wcstold()</code></h2>
+
+<p>Convert a wide string to a floating point number</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="nf">wcstod</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span> <span class="kt">wchar_t</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="nf">wcstof</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span> <span class="kt">wchar_t</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="nf">wcstold</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span> <span class="kt">wchar_t</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are the wide counterparts to the <a href="stdlib.html#man-strtod" rel="nofollow"><code>strtod()</code></a> family of functions. See <a href="stdlib.html#man-strtod" rel="nofollow">their reference pages for details</a>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the string converted to a floating point value.</p>
+
+<p>Returns <code>0</code> if there’s no valid number in the string.</p>
+
+<p>On overflow, returns an apporpriately-signed <code>HUGE_VAL</code>, <code>HUGE_VALF</code>. or <code>HUGE_VALL</code> depending on the return type, and <code>errno</code> is set to <code>ERANGE</code>.</p>
+
+<p>On underflow, returns a number no greater than the smallest normalized positive number, appropriately signed. The implemention <em>might</em> set <code>errno</code> to <code>ERANGE</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">inp</span> <span class="o">=</span> <span class="s">L"   123.4567beej"</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">badchar</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">val</span> <span class="o">=</span> <span class="n">wcstod</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">badchar</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Converted string to %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Encountered bad characters: %ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">badchar</span><span class="p">);</span>
+
+    <span class="n">val</span> <span class="o">=</span> <span class="n">wcstod</span><span class="p">(</span><span class="s">L"987.654321beej"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Ignoring bad chars: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+
+    <span class="n">val</span> <span class="o">=</span> <span class="n">wcstod</span><span class="p">(</span><span class="s">L"11.2233"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">badchar</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">badchar</span> <span class="o">==</span> <span class="sc">L'\0'</span><span class="p">)</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"No bad chars: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Found bad chars: %f, %ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">badchar</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Converted</span> <span class="n">string</span> <span class="n">to</span> <span class="mi">123</span><span class="p">.</span><span class="mi">456700</span>
+<span class="n">Encountered</span> <span class="n">bad</span> <span class="n">characters</span><span class="o">:</span> <span class="n">beej</span>
+<span class="n">Ignoring</span> <span class="n">bad</span> <span class="n">chars</span><span class="o">:</span> <span class="mi">987</span><span class="p">.</span><span class="mi">654321</span>
+<span class="n">No</span> <span class="n">bad</span> <span class="n">chars</span><span class="o">:</span> <span class="mi">11</span><span class="p">.</span><span class="mi">223300</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-wcstol" rel="nofollow"><code>wcstol()</code></a>, <a href="stdlib.html#man-strtod" rel="nofollow"><code>strtod()</code></a>, <a href="errno.html#errno" rel="nofollow"><code>errno</code></a></p>
+
+<p><hr></p>
+
+<h2>30.13 <code>wcstol()</code> <code>wcstoll()</code> <code>wcstoul()</code> <code>wcstoull()</code></h2>
+
+<p>Convert a wide string to an integer value</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">long</span> <span class="kt">int</span> <span class="nf">wcstol</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span>
+                <span class="kt">wchar_t</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="nf">wcstoll</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span>
+                      <span class="kt">wchar_t</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
+
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span> <span class="nf">wcstoul</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span>
+                          <span class="kt">wchar_t</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
+
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="nf">wcstoull</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">nptr</span><span class="p">,</span>
+                                <span class="kt">wchar_t</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">endptr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are the wide counterparts to the <a href="stdlib.html#man-strtol" rel="nofollow"><code>strtol()</code></a> family of functions, so see <a href="stdlib.html#man-strtol" rel="nofollow">their reference pages for the details</a>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the integer value of the string.</p>
+
+<p>If nothing can be found, <code>0</code> is returned.</p>
+
+<p>If the result is out of range, the value returned is one of <code>LONG_MIN</code>, <code>LONG_MAX</code>, <code>LLONG_MIN</code>, <code>LLONG_MAX</code>, <code>ULONG_MAX</code> or <code>ULLONG_MAX</code>, as appropriate. And <code>errno</code> is set to <code>ERANGE</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// All output in decimal (base 10)</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcstol</span><span class="p">(</span><span class="s">L"123"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>     <span class="c1">// 123</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcstol</span><span class="p">(</span><span class="s">L"123"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">10</span><span class="p">));</span>    <span class="c1">// 123</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcstol</span><span class="p">(</span><span class="s">L"101010"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">2</span><span class="p">));</span>  <span class="c1">// binary, 42</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcstol</span><span class="p">(</span><span class="s">L"123"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">8</span><span class="p">));</span>     <span class="c1">// octal, 83</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcstol</span><span class="p">(</span><span class="s">L"123"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">16</span><span class="p">));</span>    <span class="c1">// hex, 291</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcstol</span><span class="p">(</span><span class="s">L"0123"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>    <span class="c1">// octal, 83</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcstol</span><span class="p">(</span><span class="s">L"0x123"</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>   <span class="c1">// hex, 291</span>
+
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">badchar</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">wcstol</span><span class="p">(</span><span class="s">L"   1234beej"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">badchar</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Value is %ld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>                  <span class="c1">// Value is 1234</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Bad chars at </span><span class="se">\"</span><span class="s">%ls</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">badchar</span><span class="p">);</span>    <span class="c1">// Bad chars at "beej"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">123</span>
+<span class="mi">123</span>
+<span class="mi">42</span>
+<span class="mi">83</span>
+<span class="mi">291</span>
+<span class="mi">83</span>
+<span class="mi">291</span>
+<span class="n">Value</span> <span class="n">is</span> <span class="mi">1234</span>
+<span class="n">Bad</span> <span class="n">chars</span> <span class="n">at</span> <span class="s">"beej"</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-wcstod" rel="nofollow"><code>wcstod()</code></a>, <a href="stdlib.html#man-strtol" rel="nofollow"><code>strtol()</code></a>, <a href="errno.html#errno" rel="nofollow"><code>errno</code></a>, <a href="inttypes.html#man-wcstoimax" rel="nofollow"><code>wcstoimax()</code></a>, <a href="inttypes.html#man-wcstoimax" rel="nofollow"><code>wcstoumax()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.14 <code>wcscpy()</code> <code>wcsncpy()</code></h2>
+
+<p>Copy a wide string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">wcscpy</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s2</span><span class="p">);</span>
+
+<span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">wcsncpy</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s1</span><span class="p">,</span>
+                 <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s2</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are the wide versions of <a href="stringref.html#man-strcpy" rel="nofollow"><code>strcpy()</code></a> and <a href="stringref.html#man-strcpy" rel="nofollow"><code>strncpy()</code></a>.</p>
+
+<p>They’ll copy a string up to a wide NUL. Or, in the case of the safer <code>wcsncpy()</code>, until then or until <code>n</code> wide characters are copied.</p>
+
+<p>If the string in <code>s1</code> is shorter than <code>n</code>, <code>wcsncpy()</code> will pad <code>s2</code> with wide NUL characters until the <code>n</code>th wide character is reached.</p>
+
+<p>Even though <code>wcsncpy()</code> is safer because it will never overrun the end of <code>s2</code> (assuming you set <code>n</code> correctly), it’s still unsafe a NUL is not found in <code>s1</code> in the first <code>n</code> characters. In that case, <code>s2</code> will not be NUL-terminated. Always make sure <code>n</code> is greater than the string length of <code>s1</code>!</p>
+
+<h3>Return Value</h3>
+
+<p>Returns <code>s1</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1</span> <span class="o">=</span> <span class="s">L"Hello!"</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="n">s2</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+
+    <span class="n">wcsncpy</span><span class="p">(</span><span class="n">s2</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"</span><span class="se">\"</span><span class="s">%ls</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s2</span><span class="p">);</span>  <span class="c1">// "Hello!"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-wmemcpy" rel="nofollow"><code>wmemcpy()</code></a>, <a href="wchar.html#man-wmemcpy" rel="nofollow"><code>wmemmove()</code></a> <a href="stringref.html#man-strcpy" rel="nofollow"><code>strcpy()</code></a>, <a href="stringref.html#man-strcpy" rel="nofollow"><code>strncpy()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.15 <code>wmemcpy()</code> <code>wmemmove()</code></h2>
+
+<p>Copy wide characters</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">wmemcpy</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s1</span><span class="p">,</span>
+                 <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s2</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+
+<span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">wmemmove</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s2</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are the wide versions of <a href="stringref.html#man-memcpy" rel="nofollow"><code>memcpy()</code></a> and <a href="stringref.html#man-memcpy" rel="nofollow"><code>memmove()</code></a>.</p>
+
+<p>They copy <code>n</code> wide characters from <code>s2</code> to <code>s1</code>.</p>
+
+<p>They’re the same except that <code>wmemmove()</code> is guaranteed to work with overlapping memory regions, and <code>wmemcpy()</code> is not.</p>
+
+<h3>Return Value</h3>
+
+<p>Both functions return the pointer <code>s1</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="n">s</span><span class="p">[</span><span class="mi">100</span><span class="p">]</span> <span class="o">=</span> <span class="s">L"Goats"</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="n">t</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+
+    <span class="n">wmemcpy</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">6</span><span class="p">);</span>       <span class="c1">// Copy non-overlapping memory</span>
+
+    <span class="n">wmemmove</span><span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">6</span><span class="p">);</span>  <span class="c1">// Copy overlapping memory</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"s is </span><span class="se">\"</span><span class="s">%ls</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"t is </span><span class="se">\"</span><span class="s">%ls</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">t</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">s</span> <span class="n">is</span> <span class="s">"GoGoats"</span>
+<span class="n">t</span> <span class="n">is</span> <span class="s">"Goats"</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-wcscpy" rel="nofollow"><code>wcscpy()</code></a>, <a href="wchar.html#man-wcscpy" rel="nofollow"><code>wcsncpy()</code></a>, <a href="stringref.html#man-memcpy" rel="nofollow"><code>memcpy()</code></a>, <a href="stringref.html#man-memcpy" rel="nofollow"><code>memmove()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.16 <code>wcscat()</code> <code>wcsncat()</code></h2>
+
+<p>Concatenate wide strings</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">wcscat</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s2</span><span class="p">);</span>
+
+<span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">wcsncat</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s1</span><span class="p">,</span>
+                 <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s2</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are the wide variants of <a href="stringref.html#man-strcat" rel="nofollow"><code>strcat()</code></a> and <a href="stringref.html#man-strcat" rel="nofollow"><code>strncat()</code></a>.</p>
+
+<p>They concatenate <code>s2</code> onto the end of <code>s1</code>.</p>
+
+<p>They’re the same except <code>wcsncat()</code> gives you the option to limit the number of wide characters appended.</p>
+
+<p>Note that <code>wcsncat()</code> always adds a NUL terminator to the end, even if <code>n</code> characters were appended. So be sure to leave room for that.</p>
+
+<h3>Return Value</h3>
+
+<p>Both functions return the pointer <code>s1</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="n">dest</span><span class="p">[</span><span class="mi">30</span><span class="p">]</span> <span class="o">=</span> <span class="s">L"Hello"</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">src</span> <span class="o">=</span> <span class="s">L", World!"</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="n">numbers</span><span class="p">[]</span> <span class="o">=</span> <span class="s">L"12345678"</span><span class="p">;</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"dest before strcat: </span><span class="se">\"</span><span class="s">%ls</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">dest</span><span class="p">);</span> <span class="c1">// "Hello"</span>
+
+    <span class="n">wcscat</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">);</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"dest after strcat:  </span><span class="se">\"</span><span class="s">%ls</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">dest</span><span class="p">);</span> <span class="c1">// "Hello, world!"</span>
+
+    <span class="n">wcsncat</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">numbers</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span> <span class="c1">// strcat first 3 chars of numbers</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"dest after strncat: </span><span class="se">\"</span><span class="s">%ls</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">dest</span><span class="p">);</span> <span class="c1">// "Hello, world!123"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strcat" rel="nofollow"><code>strcat()</code></a>, <a href="stringref.html#man-strcat" rel="nofollow"><code>strncat()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.17 <code>wcscmp()</code>, <code>wcsncmp()</code>, <code>wmemcmp()</code></h2>
+
+<p>Compare wide strings or memory</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">wcscmp</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s2</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">wcsncmp</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s2</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">wmemcmp</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s2</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are the wide variants of <a href="stringref.html#man-strcmp" rel="nofollow"><code>memcmp()</code></a>, <a href="stringref.html#man-strcmp" rel="nofollow"><code>strcmp()</code></a>, and <a href="stringref.html#man-strcmp" rel="nofollow"><code>strncmp()</code></a>.</p>
+
+<p><code>wcscmp()</code> and <code>wcsncmp()</code> both compare strings until a NUL character.</p>
+
+<p><code>wcsncmp()</code> also has the additional restriction that it will only compare the first <code>n</code> characters.</p>
+
+<p><code>wmemcmp()</code> is like <code>wcsncmp()</code> except it won’t stop at a NUL.</p>
+
+<p>The comparison is done against the character value (which might (or might not) be its Unicode code point).</p>
+
+<h3>Return Value</h3>
+
+<p>Returns zero if both regions are equal.</p>
+
+<p>Returns a negative number if the region pointed to by <code>s1</code> is less than <code>s2</code>.</p>
+
+<p>Returns a positive number if the region pointed to by <code>s1</code> is greater than <code>s2</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1</span> <span class="o">=</span> <span class="s">L"Muffin"</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s2</span> <span class="o">=</span> <span class="s">L"Muffin Sandwich"</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s3</span> <span class="o">=</span> <span class="s">L"Muffin"</span><span class="p">;</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcscmp</span><span class="p">(</span><span class="s">L"Biscuits"</span><span class="p">,</span> <span class="s">L"Kittens"</span><span class="p">));</span> <span class="c1">// &lt;0 since 'B' &lt; 'K'</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcscmp</span><span class="p">(</span><span class="s">L"Kittens"</span><span class="p">,</span> <span class="s">L"Biscuits"</span><span class="p">));</span> <span class="c1">// &gt;0 since 'K' &gt; 'B'</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">wcscmp</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"This won't get printed because the strings differ</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">wcscmp</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s3</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"This will print because s1 and s3 are the same</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="c1">// this is a little weird...but if the strings are the same, it'll</span>
+    <span class="c1">// return zero, which can also be thought of as "false". Not-false</span>
+    <span class="c1">// is "true", so (!wcscmp()) will be true if the strings are the</span>
+    <span class="c1">// same. yes, it's odd, but you see this all the time in the wild</span>
+    <span class="c1">// so you might as well get used to it:</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">wcscmp</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s3</span><span class="p">))</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"The strings are the same!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">wcsncmp</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"The first 6 characters of s1 and s2 are the same</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">-</span><span class="mi">1</span>
+<span class="mi">1</span>
+<span class="n">This</span> <span class="n">will</span> <span class="n">print</span> <span class="n">because</span> <span class="n">s1</span> <span class="n">and</span> <span class="n">s3</span> <span class="n">are</span> <span class="n">the</span> <span class="n">same</span>
+<span class="n">The</span> <span class="n">strings</span> <span class="n">are</span> <span class="n">the</span> <span class="n">same</span><span class="o">!</span>
+<span class="n">The</span> <span class="n">first</span> <span class="mi">6</span> <span class="n">characters</span> <span class="n">of</span> <span class="n">s1</span> <span class="n">and</span> <span class="n">s2</span> <span class="n">are</span> <span class="n">the</span> <span class="n">same</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-wcscoll" rel="nofollow"><code>wcscoll()</code></a>, <a href="stringref.html#man-strcmp" rel="nofollow"><code>memcmp()</code></a>, <a href="stringref.html#man-strcmp" rel="nofollow"><code>strcmp()</code></a>, <a href="stringref.html#man-strcmp" rel="nofollow"><code>strncmp()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.18 <code>wcscoll()</code></h2>
+
+<p>Compare two wide strings accounting for locale</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">wcscoll</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s2</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the wide version of <a href="stringref.html#man-strcoll" rel="nofollow"><code>strcoll()</code></a>. See <a href="stringref.html#man-strcoll" rel="nofollow"><code>that reference page</code></a> for details.</p>
+
+<p>This is slower than <code>wcscmp()</code>, so only use it if you need the locale-specific compare.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns zero if both regions are equal in this locale.</p>
+
+<p>Returns a negative number if the region pointed to by <code>s1</code> is less than <code>s2</code> in this locale.</p>
+
+<p>Returns a positive number if the region pointed to by <code>s1</code> is greater than <code>s2</code> in this locale.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="c1">// If your source character set doesn't support "é" in a string</span>
+    <span class="c1">// you can replace it with `\u00e9`, the Unicode code point</span>
+    <span class="c1">// for "é".</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcscmp</span><span class="p">(</span><span class="s">L"é"</span><span class="p">,</span> <span class="s">L"f"</span><span class="p">));</span>   <span class="c1">// Reports é &gt; f, yuck.</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcscoll</span><span class="p">(</span><span class="s">L"é"</span><span class="p">,</span> <span class="s">L"f"</span><span class="p">));</span>  <span class="c1">// Reports é &lt; f, yay!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-wcscmp" rel="nofollow"><code>wcscmp()</code></a>, <a href="wchar.html#man-wcsxfrm" rel="nofollow"><code>wcsxfrm()</code></a>, <a href="stringref.html#man-strcoll" rel="nofollow"><code>strcoll()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.19 <code>wcsxfrm()</code></h2>
+
+<p>Transform a wide string for comparing based on locale</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">wcsxfrm</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s1</span><span class="p">,</span>
+               <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s2</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the wide variant of <a href="stringref.html#man-strxfrm" rel="nofollow"><code>strxfrm()</code></a>. See <a href="stringref.html#man-strxfrm" rel="nofollow">that reference page</a> for details.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the length of the transformed wide string in wide characters.</p>
+
+<p>If the return value is greater than <code>n</code>, all bets are off for the result in <code>s1</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// Transform a string for comparison, returning a malloc'd</span>
+<span class="c1">// result</span>
+<span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">get_xfrm_str</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="n">wcsxfrm</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">d</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">len</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">wchar_t</span><span class="p">));</span>
+
+    <span class="n">wcsxfrm</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">d</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Does half the work of a regular wcscoll() because the second</span>
+<span class="c1">// string arrives already transformed.</span>
+<span class="kt">int</span> <span class="nf">half_wcscoll</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s2_transformed</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1_transformed</span> <span class="o">=</span> <span class="n">get_xfrm_str</span><span class="p">(</span><span class="n">s1</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">wcscmp</span><span class="p">(</span><span class="n">s1_transformed</span><span class="p">,</span> <span class="n">s2_transformed</span><span class="p">);</span>
+
+    <span class="n">free</span><span class="p">(</span><span class="n">s1_transformed</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="c1">// Pre-transform the string to compare against</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="n">get_xfrm_str</span><span class="p">(</span><span class="s">L"éfg"</span><span class="p">);</span>
+
+    <span class="c1">// Repeatedly compare against "éfg" </span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">half_wcscoll</span><span class="p">(</span><span class="s">L"fgh"</span><span class="p">,</span> <span class="n">s</span><span class="p">));</span>  <span class="c1">// "fgh" &gt; "éfg"</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">half_wcscoll</span><span class="p">(</span><span class="s">L"àbc"</span><span class="p">,</span> <span class="n">s</span><span class="p">));</span>  <span class="c1">// "àbc" &lt; "éfg"</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">half_wcscoll</span><span class="p">(</span><span class="s">L"ĥij"</span><span class="p">,</span> <span class="n">s</span><span class="p">));</span>  <span class="c1">// "ĥij" &gt; "éfg"</span>
+
+    <span class="n">free</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">1</span>
+<span class="o">-</span><span class="mi">1</span>
+<span class="mi">1</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-wcscmp" rel="nofollow"><code>wcscmp()</code></a>, <a href="wchar.html#man-wcscoll" rel="nofollow"><code>wcscoll()</code></a>, <a href="stringref.html#man-strxfrm" rel="nofollow"><code>strxfrm()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.20 <code>wcschr()</code> <code>wcsrchr()</code></h2>
+
+<p>Find a wide character in a wide string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">wcschr</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">wchar_t</span> <span class="n">c</span><span class="p">);</span>
+
+<span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">wcsrchr</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">wchar_t</span> <span class="n">c</span><span class="p">);</span>
+
+<span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">wmemchr</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="kt">wchar_t</span> <span class="n">c</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These are the wide equivalents to <a href="stringref.html#man-strchr" rel="nofollow"><code>strchr()</code></a>, <a href="stringref.html#man-strchr" rel="nofollow"><code>strrchr()</code></a>, and <a href="stringref.html#man-strchr" rel="nofollow"><code>memchr()</code></a>.</p>
+
+<p>They search for wide characters in a wide string from the front (<code>wcschr()</code>), the end (<code>wcsrchr()</code>) or for an arbitrary number of wide characters (<code>wmemchr()</code>).</p>
+
+<h3>Return Value</h3>
+
+<p>All three functions return a pointer to the wide character found, or <code>NULL</code> if the character, sadly, isn’t found.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// "Hello, world!"</span>
+    <span class="c1">//       ^  ^   ^</span>
+    <span class="c1">//       A  B   C</span>
+
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">str</span> <span class="o">=</span> <span class="s">L"Hello, world!"</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">wcschr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="sc">','</span><span class="p">);</span>       <span class="c1">// p now points at position A</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">wcsrchr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="sc">'o'</span><span class="p">);</span>      <span class="c1">// p now points at position B</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">wmemchr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="sc">'!'</span><span class="p">,</span> <span class="mi">13</span><span class="p">);</span>   <span class="c1">// p now points at position C</span>
+
+    <span class="c1">// repeatedly find all occurrences of the letter 'B'</span>
+    <span class="n">str</span> <span class="o">=</span> <span class="s">L"A BIG BROWN BAT BIT BEEJ"</span><span class="p">;</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="n">wcschr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="sc">'B'</span><span class="p">);</span> <span class="n">p</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">p</span> <span class="o">=</span> <span class="n">wcschr</span><span class="p">(</span><span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="sc">'B'</span><span class="p">))</span> <span class="p">{</span>
+        <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Found a 'B' here: %ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Found</span> <span class="n">a</span> <span class="sc">'B'</span> <span class="n">here</span><span class="o">:</span> <span class="n">BIG</span> <span class="n">BROWN</span> <span class="n">BAT</span> <span class="n">BIT</span> <span class="n">BEEJ</span>
+<span class="n">Found</span> <span class="n">a</span> <span class="sc">'B'</span> <span class="n">here</span><span class="o">:</span> <span class="n">BROWN</span> <span class="n">BAT</span> <span class="n">BIT</span> <span class="n">BEEJ</span>
+<span class="n">Found</span> <span class="n">a</span> <span class="sc">'B'</span> <span class="n">here</span><span class="o">:</span> <span class="n">BAT</span> <span class="n">BIT</span> <span class="n">BEEJ</span>
+<span class="n">Found</span> <span class="n">a</span> <span class="sc">'B'</span> <span class="n">here</span><span class="o">:</span> <span class="n">BIT</span> <span class="n">BEEJ</span>
+<span class="n">Found</span> <span class="n">a</span> <span class="sc">'B'</span> <span class="n">here</span><span class="o">:</span> <span class="n">BEEJ</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strchr" rel="nofollow"><code>strchr()</code></a>, <a href="stringref.html#man-strchr" rel="nofollow"><code>strrchr()</code></a>, <a href="stringref.html#man-strchr" rel="nofollow"><code>memchr()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.21 <code>wcsspn()</code> <code>wcscspn()</code></h2>
+
+<p>Return the length of a wide string consisting entirely of a set of wide characters, or of not a set of wide characters</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">wcsspn</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s2</span><span class="p">);</span>
+
+<span class="kt">size_t</span> <span class="nf">wcscspn</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s2</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>The are the wide character counterparts to [<code>strspn()</code>] (#man-strspn)and <a href="stringref.html#man-strspn" rel="nofollow"><code>strcspn()</code></a>.</p>
+
+<p>They compute the length of the string pointed to by <code>s1</code> consisting entirely of the characters found in <code>s2</code>. Or, in the case of <code>wcscspn()</code>, the characters <em>not</em> found in <code>s2</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>The length of the string pointed to by <code>s1</code> consisting solely of the characters in <code>s2</code> (in the case of <code>wcsspn()</code>) or of the characters <em>not</em> in <code>s2</code> (in th ecase of <code>wcscspn()</code>).</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="n">str1</span><span class="p">[]</span> <span class="o">=</span> <span class="s">L"a banana"</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="n">str2</span><span class="p">[]</span> <span class="o">=</span> <span class="s">L"the bolivian navy on maneuvers in the south pacific"</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+
+    <span class="c1">// how many letters in str1 until we reach something that's not a vowel?</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">wcsspn</span><span class="p">(</span><span class="n">str1</span><span class="p">,</span> <span class="s">L"aeiou"</span><span class="p">);</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>  <span class="c1">// n == 1, just "a"</span>
+
+    <span class="c1">// how many letters in str1 until we reach something that's not a, b,</span>
+    <span class="c1">// or space?</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">wcsspn</span><span class="p">(</span><span class="n">str1</span><span class="p">,</span> <span class="s">L"ab "</span><span class="p">);</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>  <span class="c1">// n == 4, "a ba"</span>
+
+    <span class="c1">// how many letters in str2 before we get a "y"?</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">wcscspn</span><span class="p">(</span><span class="n">str2</span><span class="p">,</span> <span class="s">L"y"</span><span class="p">);</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>  <span class="c1">// n = 16, "the bolivian nav"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-wcschr" rel="nofollow"><code>wcschr()</code></a>, <a href="wchar.html#man-wcschr" rel="nofollow"><code>wcsrchr()</code></a>, <a href="stringref.html#man-strspn" rel="nofollow"><code>strspn()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.22 <code>wcspbrk()</code></h2>
+
+<p>Search a wide string for one of a set of wide characters</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">wcspbrk</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s2</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the wide character variant of <a href="stringref.html#man-strpbrk" rel="nofollow"><code>strpbrk()</code></a>.</p>
+
+<p>It finds the first occurrance of any of a set of wide characters in a wide string.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns a pointer to the first character in the string <code>s1</code> that exists in the string <code>s2</code>.</p>
+
+<p>Or <code>NULL</code> if none of the characters in <code>s2</code> can be found in <code>s1</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//  p points here after wcspbrk</span>
+    <span class="c1">//                  v</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1</span> <span class="o">=</span> <span class="s">L"Hello, world!"</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s2</span> <span class="o">=</span> <span class="s">L"dow!"</span><span class="p">;</span>  <span class="c1">// Match any of these chars</span>
+
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">wcspbrk</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span> <span class="n">s2</span><span class="p">);</span>  <span class="c1">// p points to the o</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>  <span class="c1">// "o, world!"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-wcschr" rel="nofollow"><code>wcschr()</code></a>, <a href="wchar.html#man-wcschr" rel="nofollow"><code>wmemchr()</code></a>, <a href="stringref.html#man-strpbrk" rel="nofollow"><code>strpbrk()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.23 <code>wcsstr()</code></h2>
+
+<p>Find a wide string in another wide string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">wcsstr</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s2</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the wide variant of <a href="stringref.html#man-strstr" rel="nofollow"><code>strstr()</code></a>.</p>
+
+<p>It locates a substring in a string.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns a pointer to the location in <code>s1</code> that contains <code>s2</code>.</p>
+
+<p>Or <code>NULL</code> if <code>s2</code> cannot be found in <code>s1</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">str</span> <span class="o">=</span> <span class="s">L"The quick brown fox jumped over the lazy dogs."</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">wcsstr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="s">L"lazy"</span><span class="p">);</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span> <span class="o">==</span> <span class="nb">NULL</span><span class="o">?</span> <span class="s">L"null"</span><span class="o">:</span> <span class="n">p</span><span class="p">);</span> <span class="c1">// "lazy dogs."</span>
+
+    <span class="c1">// p is NULL after this, since the string "wombat" isn't in str:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">wcsstr</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="s">L"wombat"</span><span class="p">);</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span> <span class="o">==</span> <span class="nb">NULL</span><span class="o">?</span> <span class="s">L"null"</span><span class="o">:</span> <span class="n">p</span><span class="p">);</span> <span class="c1">// "null"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-wcschr" rel="nofollow"><code>wcschr()</code></a>, <a href="wchar.html#man-wcschr" rel="nofollow"><code>wcsrchr()</code></a>, <a href="wchar.html#man-wcsspn" rel="nofollow"><code>wcsspn()</code></a>, <a href="wchar.html#man-wcsspn" rel="nofollow"><code>wcscspn()</code></a>, <a href="stringref.html#man-strstr" rel="nofollow"><code>strstr()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.24 <code>wcstok()</code></h2>
+
+<p>Tokenize a wide string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span><span class="kt">wchar_t</span> <span class="o">*</span><span class="nf">wcstok</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s1</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s2</span><span class="p">,</span>
+                <span class="kt">wchar_t</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">ptr</span><span class="p">);</span> 
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the wide version of <a href="stringref.html#man-strtok" rel="nofollow"><code>strtok()</code></a>.</p>
+
+<p>And, like that one, it modifies the string <code>s1</code>. So make a copy of it first if you want to preserve the original.</p>
+
+<p>One key difference is that <code>wcstok()</code> can be threadsafe because you pass in the pointer <code>ptr</code> to the current state of the transformation. This gets initializers for you when <code>s1</code> is initially passed in as non-<code>NULL</code>. (Subsequent calls with a <code>NULL</code> <code>s1</code> cause the state to update.)</p>
+
+<h3>Return Value</h3>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// break up the string into a series of space or</span>
+    <span class="c1">// punctuation-separated words</span>
+    <span class="kt">wchar_t</span> <span class="n">str</span><span class="p">[]</span> <span class="o">=</span> <span class="s">L"Where is my bacon, dude?"</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">token</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">state</span><span class="p">;</span>
+
+    <span class="c1">// Note that the following if-do-while construct is very very</span>
+    <span class="c1">// very very very common to see when using strtok().</span>
+
+    <span class="c1">// grab the first token (making sure there is a first token!)</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">token</span> <span class="o">=</span> <span class="n">wcstok</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="s">L".,?! "</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">do</span> <span class="p">{</span>
+            <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Word: </span><span class="se">\"</span><span class="s">%ls</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">token</span><span class="p">);</span>
+
+            <span class="c1">// now, the while continuation condition grabs the</span>
+            <span class="c1">// next token (by passing NULL as the first param)</span>
+            <span class="c1">// and continues if the token's not NULL:</span>
+        <span class="p">}</span> <span class="k">while</span> <span class="p">((</span><span class="n">token</span> <span class="o">=</span> <span class="n">wcstok</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">L".,?! "</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Word:</span> <span class="s">"Where"</span>
+<span class="n">Word</span><span class="o">:</span> <span class="s">"is"</span>
+<span class="n">Word</span><span class="o">:</span> <span class="s">"my"</span>
+<span class="n">Word</span><span class="o">:</span> <span class="s">"bacon"</span>
+<span class="n">Word</span><span class="o">:</span> <span class="s">"dude"</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strtok" rel="nofollow"><code>strtok()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.25 <code>wcslen()</code></h2>
+
+<p>Returns the length of a wide string</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">wcslen</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the wide counterpart to <a href="stringref.html#man-strlen" rel="nofollow"><code>strlen()</code></a>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of wide characters before the wide NUL terminator.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">L"Hello, world!"</span><span class="p">;</span> <span class="c1">// 13 characters</span>
+
+    <span class="c1">// prints "The string is 13 characters long.":</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"The string is %zu characters long.</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcslen</span><span class="p">(</span><span class="n">s</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stringref.html#man-strlen" rel="nofollow"><code>strlen()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.26 <code>wcsftime()</code></h2>
+
+<p>Formatted date and time output</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">wcsftime</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">maxsize</span><span class="p">,</span>
+                <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span>
+                <span class="k">const</span> <span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">timeptr</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the wide equivalent to <a href="time.html#man-strftime" rel="nofollow"><code>strftime()</code></a>. See that reference page for details.</p>
+
+<p><code>maxsize</code> here refers to the maximum number of wide characters that can be in the result string.</p>
+
+<h3>Return Value</h3>
+
+<p>If successful, returns the number of wide characters written.</p>
+
+<p>If not successful because the result couldn’t fit in the space alloted, <code>0</code> is returned and the contents of the string could be anything.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define BUFSIZE 128
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wchar_t</span> <span class="n">s</span><span class="p">[</span><span class="n">BUFSIZE</span><span class="p">];</span>
+    <span class="kt">time_t</span> <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="c1">// %c: print date as per current locale</span>
+    <span class="n">wcsftime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">BUFSIZE</span><span class="p">,</span> <span class="s">L"%c"</span><span class="p">,</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>   <span class="c1">// Sun Feb 28 22:29:00 2021</span>
+
+    <span class="c1">// %A: full weekday name</span>
+    <span class="c1">// %B: full month name</span>
+    <span class="c1">// %d: day of the month</span>
+    <span class="n">wcsftime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">BUFSIZE</span><span class="p">,</span> <span class="s">L"%A, %B %d"</span><span class="p">,</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>   <span class="c1">// Sunday, February 28</span>
+
+    <span class="c1">// %I: hour (12 hour clock)</span>
+    <span class="c1">// %M: minute</span>
+    <span class="c1">// %S: second</span>
+    <span class="c1">// %p: AM or PM</span>
+    <span class="n">wcsftime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">BUFSIZE</span><span class="p">,</span> <span class="s">L"It's %I:%M:%S %p"</span><span class="p">,</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>   <span class="c1">// It's 10:29:00 PM</span>
+
+    <span class="c1">// %F: ISO 8601 yyyy-mm-dd</span>
+    <span class="c1">// %T: ISO 8601 hh:mm:ss</span>
+    <span class="c1">// %z: ISO 8601 time zone offset</span>
+    <span class="n">wcsftime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">BUFSIZE</span><span class="p">,</span> <span class="s">L"ISO 8601: %FT%T%z"</span><span class="p">,</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"%ls</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>   <span class="c1">// ISO 8601: 2021-02-28T22:29:00-0800</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="time.html#man-strftime" rel="nofollow"><code>strftime()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.27 <code>btowc()</code> <code>wctob()</code></h2>
+
+<p>Convert a single byte character to a wide character</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">wint_t</span> <span class="nf">btowc</span><span class="p">(</span><span class="kt">int</span> <span class="n">c</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">wctob</span><span class="p">(</span><span class="kt">wint_t</span> <span class="n">c</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These functions convert between single byte characters and wide characters, and vice-versa.</p>
+
+<p>Even though <code>int</code>s are involved, don’t let this mislead you; they’re effectively converted to <code>unsigned char</code>s internally.</p>
+
+<p>The characters in the basic character set are guaranteed to be a single byte.</p>
+
+<h3>Return Value</h3>
+
+<p><code>btowc()</code> returns the single-byte character as a wide character. Returns <code>WEOF</code> if <code>EOF</code> is passed in, or if the byte doesn’t correspond to a valid wide character.</p>
+
+<p><code>wctob()</code> returns the wide character as a single-byte character. Returns <code>EOF</code> if <code>WEOF</code> is passed in, or if the wide character doesn’t correspond to a value single-byte character.</p>
+
+<p>See <a href="stdlib.html#man-mbtowc" rel="nofollow"><code>mbtowc()</code></a> and <a href="stdlib.html#man-wctomb" rel="nofollow"><code>wctomb()</code></a> for multibyte to wide character conversion.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">wint_t</span> <span class="n">wc</span> <span class="o">=</span> <span class="n">btowc</span><span class="p">(</span><span class="sc">'B'</span><span class="p">);</span>    <span class="c1">// Convert single byte to wide char</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Wide character: %lc</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wc</span><span class="p">);</span>
+
+    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="n">wctob</span><span class="p">(</span><span class="n">wc</span><span class="p">);</span>  <span class="c1">// Convert back to single byte</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Single-byte character: %c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Wide</span> <span class="n">character</span><span class="o">:</span> <span class="n">B</span>
+<span class="n">Single</span><span class="o">-</span><span class="n">byte</span> <span class="n">character</span><span class="o">:</span> <span class="n">B</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-mbtowc" rel="nofollow"><code>mbtowc()</code></a>, <a href="stdlib.html#man-wctomb" rel="nofollow"><code>wctomb()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.28 <code>mbsinit()</code></h2>
+
+<p>Test if an <code>mbstate_t</code> is in the initial conversion state</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">mbsinit</span><span class="p">(</span><span class="k">const</span> <span class="kt">mbstate_t</span> <span class="o">*</span><span class="n">ps</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>For a given conversion state in a <code>mbstate_t</code> variable, this function determines if it’s in the initial conversion state.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns non-zero if the value pointed to by <code>ps</code> is in the initial conversion state, or if <code>ps</code> is <code>NULL</code>.</p>
+
+<p>Returns <code>0</code> if the value pointed to by <code>ps</code> is <strong>not</strong> in the initial conversion state.</p>
+
+<h3>Example</h3>
+
+<p>For me, this example doesn’t do anything exciting, saying that the <code>mbstate_t</code> variable is always in the initial state. Yay.</p>
+
+<p>But if have a stateful encoding like 2022-JP, try messing around with this to see if you can get into an intermediate state.</p>
+
+<p>This program has a bit of code at the top that reports if your locale’s encoding requires any state.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="c1">   // For setlocale()</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="c1">   // For memset()</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="c1">   // For mbtowc()</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">mbstate_t</span> <span class="n">state</span><span class="p">;</span>
+    <span class="kt">wchar_t</span> <span class="n">wc</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">is_state_dependent</span> <span class="o">=</span> <span class="n">mbtowc</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Is encoding state dependent? %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">is_state_dependent</span><span class="p">);</span>
+
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">state</span><span class="p">);</span>  <span class="c1">// Set to initial state</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"In initial conversion state? %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mbsinit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">));</span>
+
+    <span class="n">mbrtowc</span><span class="p">(</span><span class="n">wc</span><span class="p">,</span> <span class="s">"B"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"In initial conversion state? %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mbsinit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-mbtowc" rel="nofollow"><code>mbtowc()</code></a>, <a href="stdlib.html#man-wctomb" rel="nofollow"><code>wctomb()</code></a>, <a href="wchar.html#man-mbrtowc" rel="nofollow"><code>mbrtowc()</code></a>, <a href="wchar.html#man-wcrtomb" rel="nofollow"><code>wcrtomb()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.29 <code>mbrlen()</code></h2>
+
+<p>Compute the number of bytes in a multibyte character, restartably</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">mbrlen</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">,</span> <span class="kt">mbstate_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">ps</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the restartable version of <a href="stdlib.html#man-mblen" rel="nofollow"><code>mblen()</code></a>.</p>
+
+<p>It inspects at most <code>n</code> bytes of the string <code>s</code> to see how many bytes in this character.</p>
+
+<p>The conversion state is stored in <code>ps</code>.</p>
+
+<p>This function doesn’t have the functionality of <code>mblen()</code> that allowed you to query if this character encoding was stateful and to reset the internal state.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the number of bytes required for this multibyte character.</p>
+
+<p>Returns <code>(size_t)(-1)</code> if the data in <code>s</code> is not a valid multibyte character.</p>
+
+<p>Returns <code>(size_t)(-2)</code> if the data is <code>s</code> is a valid but not complete multibyte character.</p>
+
+<h3>Example</h3>
+
+<p>If your character set doesn’t support the Euro symbol “€”, substitute the Unicode escape sequence <code>\u20ac</code>, below.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="c1">   // For setlocale()</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="c1">   // For memset()</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">mbstate_t</span> <span class="n">state</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">len</span><span class="p">;</span>
+
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">state</span><span class="p">);</span>  <span class="c1">// Set to initial state</span>
+
+    <span class="n">len</span> <span class="o">=</span> <span class="n">mbrlen</span><span class="p">(</span><span class="s">"B"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Length of 'B' is %d byte(s)</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+
+    <span class="n">len</span> <span class="o">=</span> <span class="n">mbrlen</span><span class="p">(</span><span class="s">"€"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Length of '€' is %d byte(s)</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Length</span> <span class="n">of</span> <span class="sc">'B'</span> <span class="n">is</span> <span class="mi">1</span> <span class="n">byte</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">Length</span> <span class="n">of</span> <span class="sc">'€'</span> <span class="n">is</span> <span class="mi">3</span> <span class="n">byte</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-mblen" rel="nofollow"><code>mblen()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.30 <code>mbrtowc()</code></h2>
+
+<p>Convert multibyte to wide characters restartably</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">mbrtowc</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">pwc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span>
+               <span class="kt">size_t</span> <span class="n">n</span><span class="p">,</span> <span class="kt">mbstate_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">ps</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the restartable counterpart to <a href="stdlib.html#man-mbtowc" rel="nofollow"><code>mbtowc()</code></a>.</p>
+
+<p>It converts individual characters from multibyte to wide, tracking the conversion state in the variable pointed to by <code>ps</code>.</p>
+
+<p>At most <code>n</code> bytes are inspected for conversion to a wide character.</p>
+
+<p>These two variants are identical and cause the state pointed to by <code>ps</code> to be set to the initial conversion state:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">mbrtowc</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+<span class="n">mbrtowc</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">""</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Also, if you’re just interested in the length in bytes of the multibyte character, you can pass <code>NULL</code> for <code>pwc</code> and nothing will be stored for the wide character:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="n">mbrtowc</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">"€"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+</code></pre></div>
+
+<p>This function doesn’t have the functionality of <code>mbtowc()</code> that allowed you to query if this character encoding was stateful and to reset the internal state.</p>
+
+<h3>Return Value</h3>
+
+<p>On success, returns a positive number corresponding to the number of bytes in the multibyte character.</p>
+
+<p>Returns <code>0</code> if the character encoded is a wide NUL character.</p>
+
+<p>Returns <code>(size_t)(-1)</code> if the data in <code>s</code> is not a valid multibyte character.</p>
+
+<p>Returns <code>(size_t)(-2)</code> if the data is <code>s</code> is a valid but not complete multibyte character.</p>
+
+<h3>Example</h3>
+
+<p>If your character set doesn’t support the Euro symbol “€”, substitute the Unicode escape sequence <code>\u20ac</code>, below.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="c1">  // For memset()</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="c1">  // For mbtowc()</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="c1">  // For setlocale()</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">mbstate_t</span> <span class="n">state</span><span class="p">;</span>
+
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">state</span><span class="p">);</span>
+
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"State dependency: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mbtowc</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+
+    <span class="kt">wchar_t</span> <span class="n">wc</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">bytes</span><span class="p">;</span>
+
+    <span class="n">bytes</span> <span class="o">=</span> <span class="n">mbrtowc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wc</span><span class="p">,</span> <span class="s">"€"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"L'%lc' takes %d bytes as multibyte char '€'</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wc</span><span class="p">,</span> <span class="n">bytes</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">State</span> <span class="n">dependency</span><span class="o">:</span> <span class="mi">0</span>
+<span class="sc">L'€'</span> <span class="n">takes</span> <span class="mi">3</span> <span class="n">bytes</span> <span class="n">as</span> <span class="n">multibyte</span> <span class="kt">char</span> <span class="sc">'€'</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdlib.html#man-mbtowc" rel="nofollow"><code>mbtowc()</code></a>, <a href="wchar.html#man-wcrtomb" rel="nofollow"><code>wcrtomb()</code></a></p>
+
+<p><hr></p>
+
+<h2>30.31 <code>wcrtomb()</code></h2>
+
+<p>Convert wide to multibyte characters restartably</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">wcrtomb</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">wchar_t</span> <span class="n">wc</span><span class="p">,</span> <span class="kt">mbstate_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">ps</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the restartable counterpart to <a href="stdlib.html#man-wctomb" rel="nofollow"><code>wctomb()</code></a>.</p>
+
+<p>It converts individual characters from wide to multibyte, tracking the conversion state in the variable pointed to by <code>ps</code>.</p>
+
+<p>The destination array <code>s</code> should be at least <code>MB_CUR_MAX</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁷⁸</a> bytes in size—you won’t get anything bigger back from this function.</p>
+
+<p>Note that the values in this result array won’t be NUL-terminated.</p>
+
+<p>If you pass a wide NUL character in, the result will contain any bytes needed to restore the conversion state to its initial state followed by a NUL character, and the state pointed to by <code>ps</code> will be reset to its initial state:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// Reset state</span>
+<span class="n">wcrtomb</span><span class="p">(</span><span class="n">mb</span><span class="p">,</span> <span class="sc">L'\0'</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">)</span>
+</code></pre></div>
+
+<p>If you don’t care about the results (i.e. you’re just interested in resetting the state or getting the return value), you can do this by passing <code>NULL</code> for <code>s</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">wcrtomb</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="sc">L'\0'</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>                <span class="c1">// Reset state</span>
+
+<span class="kt">int</span> <span class="n">byte_count</span> <span class="o">=</span> <span class="n">wctomb</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="s">"X"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>  <span class="c1">// Count bytes in 'X'</span>
+</code></pre></div>
+
+<p>This function doesn’t have the functionality of <code>wctomb()</code> that allowed you to query if this character encoding was stateful and to reset the internal state.</p>
+
+<h3>Return Value</h3>
+
+<p>On success, returns the number of bytes needed to encode this wide character in the current locale.</p>
+
+<p>If the input is an invalid wide character, <code>errno</code> will be set to <code>EILSEQ</code> and the function returns <code>(size_t)(-1)</code>. If this happens, all bets are off for the conversion state, so you might as well reset it.</p>
+
+<h3>Example</h3>
+
+<p>If your character set doesn’t support the Euro symbol “€”, substitute the Unicode escape sequence <code>\u20ac</code>, below.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="c1">  // For memset()</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="c1">  // For mbtowc()</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="c1">  // For setlocale()</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">mbstate_t</span> <span class="n">state</span><span class="p">;</span>
+
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">state</span><span class="p">);</span>
+
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"State dependency: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mbtowc</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+
+    <span class="kt">char</span> <span class="n">mb</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+    <span class="kt">int</span> <span class="n">bytes</span> <span class="o">=</span> <span class="n">wcrtomb</span><span class="p">(</span><span class="n">mb</span><span class="p">,</span> <span class="sc">L'€'</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"L'€' takes %d bytes as multibyte char '%s'</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">mb</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-mbrtowc" rel="nofollow"><code>mbrtowc()</code></a>, <a href="stdlib.html#man-wctomb" rel="nofollow"><code>wctomb()</code></a>, <a href="errno.html#errno" rel="nofollow"><code>errno</code></a></p>
+
+<p><hr></p>
+
+<h2>30.32 <code>mbsrtowcs()</code></h2>
+
+<p>Convert a multibyte string to a wide character string restartably</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">mbsrtowcs</span><span class="p">(</span><span class="kt">wchar_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">dst</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">src</span><span class="p">,</span>
+                 <span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">mbstate_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">ps</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the restartable version of <a href="stdlib.html#man-mbstowcs" rel="nofollow"><code>mbstowcs()</code></a>.</p>
+
+<p>It converts a multibyte string to a wide character string.</p>
+
+<p>The result is put in the buffer pointed to by <code>dst</code>, and the pointer <code>src</code> is updated to indicate how much of the string was consumed (unless <code>dst</code> is <code>NULL</code>).</p>
+
+<p>At most <code>len</code> wide characters will be stored.</p>
+
+<p>This also takes a pointer to its own <code>mbstate_t</code> variable in <code>ps</code> for holding the conversion state.</p>
+
+<p>You can set <code>dst</code> to <code>NULL</code> if you only care about the return value. This could be useful for getting the number of characters in a multibyte string.</p>
+
+<p>In the normal case, the <code>src</code> string will be consumed up to the NUL character, and the results will be stored in the <code>dst</code> buffer, including the wide NUL character. In this case, the pointer pointed to by <code>src</code> will be set to <code>NULL</code>. And the conversion state will be set to the initial conversion state.</p>
+
+<p>If things go wrong because the source string isn’t a valid sequence of characters, conversion will stop and the pointer pointed to by <code>src</code> will be set to the address just after the last successfully-translated multibyte character.</p>
+
+<h3>Return Value</h3>
+
+<p>If successful, returns the number of characters converted, not including any NUL terminator.</p>
+
+<p>If the multibyte sequence is invalid, the function returns <code>(size_t)(-1)</code> and <code>errno</code> is set to <code>EILSEQ</code>.</p>
+
+<h3>Example</h3>
+
+<p>Here we’ll convert the string “€5 ± π” into a wide character string:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="c1">  // For setlocale()</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="c1">  // For memset()</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define WIDE_STR_SIZE 10
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">mbs</span> <span class="o">=</span> <span class="s">"€5 ± π"</span><span class="p">;</span>  <span class="c1">// That's the exact price range</span>
+
+    <span class="kt">wchar_t</span> <span class="n">wcs</span><span class="p">[</span><span class="n">WIDE_STR_SIZE</span><span class="p">];</span>
+
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="kt">mbstate_t</span> <span class="n">state</span><span class="p">;</span>
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">state</span><span class="p">);</span>
+
+    <span class="kt">size_t</span> <span class="n">count</span> <span class="o">=</span> <span class="n">mbsrtowcs</span><span class="p">(</span><span class="n">wcs</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbs</span><span class="p">,</span> <span class="n">WIDE_STR_SIZE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Wide string L</span><span class="se">\"</span><span class="s">%ls</span><span class="se">\"</span><span class="s"> is %d characters</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">wcs</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Wide</span> <span class="n">string</span> <span class="s">L"€5 ± π"</span> <span class="n">is</span> <span class="mi">6</span> <span class="n">characters</span>
+</code></pre></div>
+
+<p>Here’s another example of using <code>mbsrtowcs()</code> to get the length in characters of a multibyte string even if the string is full of multibyte characters. This is in contrast to <code>strlen()</code>, which returns the total number of bytes in the string.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="c1">   // For printf()</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="c1">  // For setlocale()</span><span class="cp">
+</span>
+<span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="c1">  // For memset()</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdint.h&gt;</span><span class="c1">  // For SIZE_MAX</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">mbstrlen</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">mbs</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">mbstate_t</span> <span class="n">state</span><span class="p">;</span>
+
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">state</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">mbsrtowcs</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbs</span><span class="p">,</span> <span class="n">SIZE_MAX</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="kt">char</span> <span class="o">*</span><span class="n">mbs</span> <span class="o">=</span> <span class="s">"€5 ± π"</span><span class="p">;</span>  <span class="c1">// That's the exact price range</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\"</span><span class="s">%s</span><span class="se">\"</span><span class="s"> is %zu characters...</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mbs</span><span class="p">,</span> <span class="n">mbstrlen</span><span class="p">(</span><span class="n">mbs</span><span class="p">));</span> 
+    <span class="n">printf</span><span class="p">(</span><span class="s">"but it's %zu bytes!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">mbs</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="s">"€5 ± π"</span> <span class="n">is</span> <span class="mi">6</span> <span class="n">characters</span><span class="p">...</span>
+<span class="n">but</span> <span class="n">it</span><span class="err">'</span><span class="n">s</span> <span class="mi">10</span> <span class="n">bytes</span><span class="o">!</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-mbrtowc" rel="nofollow"><code>mbrtowc()</code></a>, <a href="stdlib.html#man-mbstowcs" rel="nofollow"><code>mbstowcs()</code></a>, <a href="wchar.html#man-wcsrtombs" rel="nofollow"><code>wcsrtombs()</code></a>, <a href="stringref.html#man-strlen" rel="nofollow"><code>strlen()</code></a>, <a href="errno.html#errno" rel="nofollow"><code>errno</code></a></p>
+
+<p><hr></p>
+
+<h2>30.33 <code>wcsrtombs()</code></h2>
+
+<p>Convert a wide character string to a multibyte string restartably</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">wcsrtombs</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">dst</span><span class="p">,</span> <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">**</span> <span class="kr">restrict</span> <span class="n">src</span><span class="p">,</span>
+                 <span class="kt">size_t</span> <span class="n">len</span><span class="p">,</span> <span class="kt">mbstate_t</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">ps</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If you have a wide character string, you can convert it to a multibyte character string in the current locale using this function.</p>
+
+<p>At most <code>len</code> bytes of data will be stored in the buffer pointed to by <code>dst</code>. Conversion will stop just after the NUL terminator is copied, or <code>len</code> bytes get copied, or some other error occurs.</p>
+
+<p>If <code>dst</code> is a <code>NULL</code> pointer, no result is stored. You might do this if you’re just interested in the return value (nominally the number of bytes this would use in a multibyte string, not including the NUL terminator).</p>
+
+<p>If <code>dst</code> is not a <code>NULL</code> pointer, the pointer pointed to by <code>src</code> will get modified to indicate how much of the data was copied. If it contains <code>NULL</code> at the end, it means everything went well. In this case, the state <code>ps</code> will be set to the initial conversion state.</p>
+
+<p>If <code>len</code> was reached or an error occurred, it’ll point one address past <code>dst+len</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>If everything goes well, returns the number of bytes needed for the multibyte string, not counting the NUL terminator.</p>
+
+<p>If any character in the string doesn’t correspond to a valid multibyte character in the currently locale, it returns <code>(size_t)(-1)</code> and <code>EILSEQ</code> is stored in <code>errno</code>.</p>
+
+<h3>Example</h3>
+
+<p>Here we’ll convert the wide string “€5 ± π” into a multibyte character string:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="c1">  // For setlocale()</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="c1">  // For memset()</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define MB_STR_SIZE 20
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">wcs</span> <span class="o">=</span> <span class="s">L"€5 ± π"</span><span class="p">;</span>  <span class="c1">// That's the exact price range</span>
+
+    <span class="kt">char</span> <span class="n">mbs</span><span class="p">[</span><span class="n">MB_STR_SIZE</span><span class="p">];</span>
+
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="kt">mbstate_t</span> <span class="n">state</span><span class="p">;</span>
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">state</span><span class="p">);</span>
+
+    <span class="kt">size_t</span> <span class="n">count</span> <span class="o">=</span> <span class="n">wcsrtombs</span><span class="p">(</span><span class="n">mbs</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">wcs</span><span class="p">,</span> <span class="n">MB_STR_SIZE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Multibyte string </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"</span><span class="s"> is %d bytes</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mbs</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Here’s another example helper function that <code>malloc()</code>s just enough memory to hold the converted string, then returns the result. (Which must later be freed, of course, to prevent leaking memory.)</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="c1">  // For malloc()</span><span class="cp">
+#include</span> <span class="cpf">&lt;locale.h&gt;</span><span class="c1">  // For setlocale()</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="c1">  // For memset()</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdint.h&gt;</span><span class="c1">  // For SIZE_MAX</span><span class="cp">
+#include</span> <span class="cpf">&lt;wchar.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">get_mb_string</span><span class="p">(</span><span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">wcs</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">setlocale</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="s">""</span><span class="p">);</span>
+
+    <span class="kt">mbstate_t</span> <span class="n">state</span><span class="p">;</span>
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">state</span><span class="p">);</span>
+
+    <span class="c1">// Need a copy of this because wcsrtombs changes it</span>
+    <span class="k">const</span> <span class="kt">wchar_t</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">wcs</span><span class="p">;</span>
+
+    <span class="c1">// Compute the number of bytes needed to hold the result</span>
+    <span class="kt">size_t</span> <span class="n">bytes_needed</span> <span class="o">=</span> <span class="n">wcsrtombs</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">p</span><span class="p">,</span> <span class="n">SIZE_MAX</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+
+    <span class="c1">// If we didn't get a good full conversion, forget it</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">bytes_needed</span> <span class="o">==</span> <span class="p">(</span><span class="kt">size_t</span><span class="p">)(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+
+    <span class="c1">// Allocate space for result</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">mbs</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="n">bytes_needed</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>  <span class="c1">// +1 for NUL terminator</span>
+
+    <span class="c1">// Set conversion state to initial state</span>
+    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">state</span><span class="p">);</span>
+
+    <span class="c1">// Convert and store result</span>
+    <span class="n">wcsrtombs</span><span class="p">(</span><span class="n">mbs</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">wcs</span><span class="p">,</span> <span class="n">bytes_needed</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">state</span><span class="p">);</span>
+
+    <span class="c1">// Make sure things went well</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">wcs</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">free</span><span class="p">(</span><span class="n">mbs</span><span class="p">);</span>
+        <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Success!</span>
+    <span class="k">return</span> <span class="n">mbs</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">mbs</span> <span class="o">=</span> <span class="n">get_mb_string</span><span class="p">(</span><span class="s">L"€5 ± π"</span><span class="p">);</span>
+
+    <span class="n">wprintf</span><span class="p">(</span><span class="s">L"Multibyte result: </span><span class="se">\"</span><span class="s">%s</span><span class="se">\"\n</span><span class="s">"</span><span class="p">,</span> <span class="n">mbs</span><span class="p">);</span>
+
+    <span class="n">free</span><span class="p">(</span><span class="n">mbs</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="wchar.html#man-wcrtomb" rel="nofollow"><code>wcrtomb()</code></a>, <a href="stdlib.html#man-wcstombs" rel="nofollow"><code>wcstombs()</code></a>, <a href="wchar.html#man-mbsrtowcs" rel="nofollow"><code>mbsrtowcs()</code></a>, <a href="errno.html#errno" rel="nofollow"><code>errno</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

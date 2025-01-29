@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/protocols-and-systems/SMB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/protocols-and-systems/SMB"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>SMB</h1>
+
+<h2>Main points</h2>
+
+<ul>
+<li>Enables sharing of files and services on the network.</li>
+<li>Mostly aimed for Windows but usable on Linux with samba.</li>
+<li>Uses TCP protocol.</li>
+<li>ACLs define access rights, based on the shares.</li>
+<li>Samba for Linux implements <code>CIFS</code>, which is an implementation of the SMB protocol created by Windows.</li>
+<li><p>Several versions still in use, ranging from <code>CIFS</code> to <code>SMB 3.1.1</code>.</p></li>
+<li><p>Ports used: </p>
+
+<ul>
+<li>Direct SMB over TCP/IP uses port 445.</li>
+<li>SMB operating with netbios over TCP/IP (NBT) uses ports 137,138,139:
+
+<ul>
+<li>Port 137 for name services.</li>
+<li>Port 138 for datagram services.</li>
+<li>Port 139 for session services.</li>
+</ul></li>
+<li>If both NBT and direct SMB are available, windows tries both and pick whichever responds first.</li>
+</ul></li>
+</ul>
+
+<h2>Terminology / acronyms</h2>
+
+<table><thead>
+<tr>
+<th>Term / acronym</th>
+<th>Definition</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>workgroup</td>
+<td>Collection of computers and resources on the SMB network.</td>
+</tr>
+<tr>
+<td>NetBIOS</td>
+<td>Network Basic Input/Output System.</td>
+</tr>
+<tr>
+<td>NBNS</td>
+<td>NetBIOS Name Server.</td>
+</tr>
+<tr>
+<td>WINS</td>
+<td>Windows Internet Name Service, enhances NBNS.</td>
+</tr>
+<tr>
+<td>RPC</td>
+<td>Remote Procedure Call, communication with parameters and return values.</td>
+</tr>
+</tbody></table>
+
+<h2>Insecure configuration</h2>
+
+<p>Samba configuration can be found in <code>/etc/samba/smb.conf</code>. The <code>[global]</code> configuration is applied unless individual shares (like <code>[print$]</code>) override them.</p>
+
+<p>The following settings can provide us some insight or more as an attacker:</p>
+
+<ul>
+<li><code>browseable = yes</code></li>
+<li><code>read only = no</code></li>
+<li><code>writable = yes</code></li>
+<li><code>guest ok = yes</code></li>
+<li><code>enable privileges = yes</code></li>
+<li><code>create mask = 0777</code></li>
+<li><code>directory mask = 0777</code></li>
+<li><code>logon script = &lt;script file&gt;</code></li>
+<li><code>magic script = &lt;script file&gt;</code></li>
+<li><code>magic output = &lt;output file&gt;</code></li>
+</ul>
+
+<h2>Commands</h2>
+
+<p>On a windows host, remember that you can access a SMB share with winkey + r, and type the file share location in the dialog box, like <code>\\&lt;IP address&gt;\share\</code>.</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># List the shares with a NULL (anonymous) session.</span>
+<span class="c"># print$ and IPC$ are always default shares:</span>
+smbclient <span class="nt">-N</span> <span class="nt">-L</span> //&lt;IP address&gt;
+
+<span class="c"># List the shares with credentials:</span>
+smbclient <span class="nt">-U</span> &lt;username&gt;%&lt;password&gt; <span class="nt">-L</span> //&lt;IP address&gt;
+
+<span class="c"># Connect with credentials:</span>
+smbclient <span class="nt">-U</span> &lt;username&gt;%&lt;password&gt; <span class="nt">-L</span> //&lt;IP address&gt;/&lt;share-name&gt;
+
+<span class="c"># In a smbclient session, execute a local</span>
+<span class="c"># system command without having to leave:</span>
+<span class="o">!</span>&lt;<span class="nb">command</span><span class="o">&gt;</span>
+
+<span class="c"># Check current connections and related info:</span>
+smbstatus
+
+<span class="c"># Connect with RPCclient:</span>
+rpcclient <span class="nt">-U</span> <span class="s2">""</span> &lt;IP address&gt;
+
+<span class="c"># Inside RPCclient prompt, get server information:</span>
+srvinfo
+
+<span class="c"># Inside RPCclient prompt, enumerate all domains in the network:</span>
+enumdomains
+
+<span class="c"># Inside RPCclient prompt, return domain, server and user info of deployed domains:</span>
+querydominfo
+
+<span class="c"># Inside RPCclient prompt, enumerate all available shares:</span>
+netshareenumall
+
+<span class="c"># Inside RPCclient prompt, get info of specific share:</span>
+netsharegetinfo &lt;share&gt;
+
+<span class="c"># Inside RPCclient prompt, enumerate all domain users:</span>
+enumdomusers
+
+<span class="c"># Inside RPCclient prompt, get info of specific user:</span>
+queryuser &lt;RID&gt;
+
+<span class="c"># Brute force user RIDs with RPCclient:</span>
+<span class="k">for </span>i <span class="k">in</span> <span class="si">$(</span><span class="nb">seq </span>500 1100<span class="si">)</span><span class="p">;</span> <span class="k">do </span>rpcclient <span class="nt">-N</span> <span class="nt">-U</span> <span class="s2">""</span> 10.129.14.128 <span class="nt">-c</span> <span class="s2">"queryuser 0x</span><span class="si">$(</span><span class="nb">printf</span> <span class="s1">'%x\n'</span> <span class="nv">$i</span><span class="si">)</span><span class="s2">"</span> | <span class="nb">grep</span> <span class="s2">"User Name</span><span class="se">\|</span><span class="s2">user_rid</span><span class="se">\|</span><span class="s2">group_rid"</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">""</span><span class="p">;</span> <span class="k">done</span>
+
+<span class="c"># Enumerate recursively with smbmap:</span>
+smbmap <span class="nt">-H</span> &lt;IP address&gt; <span class="nt">-r</span> &lt;share name&gt;
+
+<span class="c"># Download file with smbmap:</span>
+smbmap <span class="nt">-H</span> &lt;IP address&gt; <span class="nt">--download</span> <span class="s2">"&lt;share name&gt;</span><span class="se">\f</span><span class="s2">ile.txt"</span>
+
+<span class="c"># Upload file with smbmap:</span>
+smbmap <span class="nt">-H</span> &lt;IP address&gt; <span class="nt">--upload</span> file.txt <span class="s2">"&lt;share name&gt;</span><span class="se">\f</span><span class="s2">ile.txt"</span>
+
+<span class="c"># Enumerate with crackmapexec:</span>
+crackmapexec smb &lt;IP address&gt; <span class="nt">--shares</span> <span class="nt">-u</span> <span class="s1">''</span> <span class="nt">-p</span> <span class="s1">''</span>
+
+<span class="c"># Try to enumerate everything with enum4linux:</span>
+enum4linux &lt;IP address&gt; <span class="nt">-A</span>
+
+<span class="c"># Execute a password attack with hydra:</span>
+hydra <span class="nt">-V</span> <span class="nt">-L</span> &lt;username list&gt; <span class="nt">-P</span> &lt;password list&gt; smb://&lt;IP address&gt;
+
+<span class="c"># Mount a SMB share on a linux host.</span>
+<span class="c"># This requires the cifs-utils package:</span>
+<span class="nb">sudo mkdir</span> /mnt/share
+<span class="nb">sudo </span>mount <span class="nt">-t</span> cifs <span class="nt">-o</span> <span class="nv">username</span><span class="o">=</span>&lt;username&gt;,password<span class="o">=</span>&lt;password&gt;,domain<span class="o">=</span><span class="nb">.</span> //&lt;IP address&gt;/share /mnt/share
+
+</code></pre></div><div class="highlight"><pre class="highlight powershell"><code><span class="c"># On a Windows host, authenticate to a share and map it to n:</span><span class="w">
+</span><span class="n">net</span><span class="w"> </span><span class="nx">use</span><span class="w"> </span><span class="nx">n:</span><span class="w"> </span><span class="nx">\\</span><span class="err">&lt;</span><span class="nx">IP</span><span class="w"> </span><span class="nx">address</span><span class="err">&gt;</span><span class="nx">\share</span><span class="w"> </span><span class="nx">/user:</span><span class="err">&lt;</span><span class="nx">username</span><span class="err">&gt;</span><span class="w"> </span><span class="err">&lt;</span><span class="nx">password</span><span class="err">&gt;</span><span class="w">
+
+</span><span class="c"># Same thing with powershell:</span><span class="w">
+</span><span class="nv">$username</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'&lt;username&gt;'</span><span class="w">
+</span><span class="nv">$password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'&lt;password&gt;'</span><span class="w">
+</span><span class="nv">$secpassword</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ConvertTo-SecureString</span><span class="w"> </span><span class="nv">$password</span><span class="w"> </span><span class="nt">-AsPlainText</span><span class="w"> </span><span class="nt">-Force</span><span class="w">
+</span><span class="nv">$cred</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Management.Automation.PSCredential</span><span class="w"> </span><span class="nv">$username</span><span class="p">,</span><span class="w"> </span><span class="nv">$secpassword</span><span class="w">
+</span><span class="n">New-PSDrive</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="s2">"N"</span><span class="w"> </span><span class="nt">-Root</span><span class="w"> </span><span class="s2">"\\&lt;IP address&gt;\share"</span><span class="w"> </span><span class="nt">-PSProvider</span><span class="w"> </span><span class="s2">"FileSystem"</span><span class="w"> </span><span class="nt">-Credential</span><span class="w"> </span><span class="nv">$cred</span><span class="w">
+</span></code></pre></div>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://4sysops.com/archives/smb-port-number-ports-445-139-138-and-137-explained/" rel="nofollow">https://4sysops.com/archives/smb-port-number-ports-445-139-138-and-137-explained/</a></li>
+</ul>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

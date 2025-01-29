@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/07-strings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/07-strings"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>7 Strings</h1>
+
+<p>Finally! Strings! What could be simpler?</p>
+
+<p>Well, turns out strings aren’t actually strings in C. That’s right! They’re pointers! Of course they are!</p>
+
+<p>Much like arrays, strings in C <em>barely exist</em>.</p>
+
+<p>But let’s check it out—it’s not really such a big deal.</p>
+
+<h2>7.1 String Literals</h2>
+
+<p>Before we start, let’s talk about string literals in C. These are sequences of characters in <em>double</em> quotes (<code>&quot;</code>). (Single quotes enclose characters, and are a different animal entirely.)</p>
+
+<p>Examples:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="s">"Hello, world!</span><span class="se">\n</span><span class="s">"</span>
+<span class="s">"This is a test."</span>
+<span class="s">"When asked if this string had quotes in it, she replied, </span><span class="se">\"</span><span class="s">It does.</span><span class="se">\"</span><span class="s">"</span>
+</code></pre></div>
+
+<p>The first one has a newline at the end—quite a common thing to see.</p>
+
+<p>The last one has quotes embedded within it, but you see each is preceded by (we say “escaped by”) a backslash (<code>\</code>) indicating that a literal quote belongs in the string at this point. This is how the C compiler can tell the difference between printing a double quote and the double quote at the end of the string.</p>
+
+<h2>7.2 String Variables</h2>
+
+<p>Now that we know how to make a string literal, let’s assign it to a variable so we can do something with it.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Check out that type: pointer to a <code>char</code>. The string variable <code>s</code> is actually a pointer to the first character in that string, namely the <code>H</code>.</p>
+
+<p>And we can print it with the <code>%s</code> (for “string”) format specifier:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>  <span class="c1">// "Hello, world!"</span>
+</code></pre></div>
+
+<h2>7.3 String Variables as Arrays</h2>
+
+<p>Another option is this, nearly equivalent to the above <code>char*</code> usage:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+
+<span class="c1">// or, if we were properly lazy and have the compiler</span>
+<span class="c1">// figure the length for us:</span>
+
+<span class="kt">char</span> <span class="n">s</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+</code></pre></div>
+
+<p>This means you can use array notation to access characters in a string. Let’s do exactly that to print all the characters in a string on the same line:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">13</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Note that we’re using the format specifier <code>%c</code> to print a single character.</p>
+
+<p>Also, check this out. The program will still work fine if we change the definition of <code>s</code> to be a <code>char*</code> type:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>   <span class="c1">// char* here</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">13</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%c</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>    <span class="c1">// But still use arrays here...?</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>And we still can use array notation to get the job done when printing it out! This is surprising, but is still only because we haven’t talked about array/pointer equivalence yet. But this is yet another hint that arrays and pointers are the same thing, deep down.</p>
+
+<h2>7.4 String Initializers</h2>
+
+<p>We’ve already seen some examples with initializing string variables with string literals:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+<span class="kt">char</span> <span class="n">t</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"Hello, again!"</span><span class="p">;</span>
+</code></pre></div>
+
+<p>But these two are subtly different.</p>
+
+<p>This one is a pointer to a string literal (i.e. a pointer to the first character in a string):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+</code></pre></div>
+
+<p>If you try to mutate that string with this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+
+<span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'z'</span><span class="p">;</span>  <span class="c1">// BAD NEWS: tried to mutate a string literal!</span>
+</code></pre></div>
+
+<p>The behavior is undefined. Probably, depending on your system, a crash will result.</p>
+
+<p>But declaring it as an array is different. This one is a mutable <em>copy</em> of the string that we can change at will:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="n">t</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"Hello, again!"</span><span class="p">;</span>  <span class="c1">// t is an array copy of the string </span>
+<span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'z'</span><span class="p">;</span> <span class="c1">//  No problem</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">t</span><span class="p">);</span>  <span class="c1">// "zello, again!"</span>
+</code></pre></div>
+
+<p>So remember: if you have a pointer to a string literal, don’t try to change it! And if you use a string in double quotes to initialize an array, that’s not actually a string literal.</p>
+
+<h2>7.5 Getting String Length</h2>
+
+<p>You can’t, since C doesn’t track it for you. And when I say “can’t”, I actually mean “can”<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶²</a>. There’s a function in <code>&lt;string.h&gt;</code> called <code>strlen()</code> that can be used to compute the length of any string in bytes<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶³</a>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"The string is %zu bytes long.</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">strlen</span><span class="p">(</span><span class="n">s</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The <code>strlen()</code> function returns type <code>size_t</code>, which is an integer type so you can use it for integer math. We print <code>size_t</code> with <code>%zu</code>.</p>
+
+<p>The above program prints:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">The</span> <span class="n">string</span> <span class="n">is</span> <span class="mi">13</span> <span class="n">bytes</span> <span class="kt">long</span><span class="p">.</span>
+</code></pre></div>
+
+<p>Great! So it <em>is</em> possible to get the string length!</p>
+
+<p>But… if C doesn’t track the length of the string anywhere, how does it know how long the string is?</p>
+
+<h2>7.6 String Termination</h2>
+
+<p>C does strings a little differently than many programming languages, and in fact differently than almost every modern programming language.</p>
+
+<p>When you’re making a new language, you have basically two options for storing a string in memory:</p>
+
+<ol>
+<li><p>Store the bytes of the string along with a number indicating the length of the string.</p></li>
+<li><p>Store the bytes of the string, and mark the end of the string with a special byte called the <em>terminator</em>.</p></li>
+</ol>
+
+<p>If you want strings longer than 255 characters, option 1 requires at least two bytes to store the length. Whereas option 2 only requires one byte to terminate the string. So a bit of savings there.</p>
+
+<p>Of course, these days it seems ridiculous to worry about saving a byte (or 3—lots of languages will happily let you have strings that are 4 gigabytes in length). But back in the day, it was a bigger deal.</p>
+
+<p>So C took approach #2. In C, a “string” is defined by two basic characteristics:</p>
+
+<ul>
+<li>  A pointer to the first character in the string.</li>
+<li>  A zero-valued byte (or <code>NUL</code> character<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁴</a>) somewhere in memory after the pointer that indicates the end of the string.</li>
+</ul>
+
+<p>A <code>NUL</code> character can be written in C code as <code>\0</code>, though you don’t often have to do this.</p>
+
+<p>When you include a string in double quotes in your code, the <code>NUL</code> character is automatically, implicitly included.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Hello!"</span><span class="p">;</span>  <span class="c1">// Actually "Hello!\0" behind the scenes</span>
+</code></pre></div>
+
+<p>So with this in mind, let’s write our own <code>strlen()</code> function that counts <code>char</code>s in a string until it finds a <code>NUL</code>.</p>
+
+<p>The procedure is to look down the string for a single <code>NUL</code> character, counting as we go<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁵</a>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">my_strlen</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">while</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">count</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">'\0'</span><span class="p">)</span>  <span class="c1">// Single quotes for single char</span>
+        <span class="n">count</span><span class="o">++</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">count</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>And that’s basically how the built-in <code>strlen()</code> gets the job done.</p>
+
+<h2>7.7 Copying a String</h2>
+
+<p>You can’t copy a string through the assignment operator (<code>=</code>). All that does is make a copy of the pointer to the first character… so you end up with two pointers to the same string:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">t</span><span class="p">;</span>
+
+    <span class="c1">// This makes a copy of the pointer, not a copy of the string!</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">s</span><span class="p">;</span>
+
+    <span class="c1">// We modify t</span>
+    <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'z'</span><span class="p">;</span>
+
+    <span class="c1">// But printing s shows the modification!</span>
+    <span class="c1">// Because t and s point to the same string!</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>  <span class="c1">// "zello, world!"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>If you want to make a copy of a string, you have to copy it a byte at a time—but this is made easier with the <code>strcpy()</code> function<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁶⁶</a>.</p>
+
+<p>Before you copy the string, make sure you have room to copy it into, i.e. the destination array that’s going to hold the characters needs to be at least as long as the string you’re copying.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[]</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">t</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>  <span class="c1">// Each char is one byte, so plenty of room</span>
+
+    <span class="c1">// This makes a copy of the string!</span>
+    <span class="n">strcpy</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+
+    <span class="c1">// We modify t</span>
+    <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'z'</span><span class="p">;</span>
+
+    <span class="c1">// And s remains unaffected because it's a different string</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>  <span class="c1">// "Hello, world!"</span>
+
+    <span class="c1">// But t has been changed</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">t</span><span class="p">);</span>  <span class="c1">// "zello, world!"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Notice with <code>strcpy()</code>, the destination pointer is the first argument, and the source pointer is the second. A mnemonic I use to remember this is that it’s the order you would have put <code>t</code> and <code>s</code> if an assignment <code>=</code> worked for strings, with the source on the right and the destination on the left.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

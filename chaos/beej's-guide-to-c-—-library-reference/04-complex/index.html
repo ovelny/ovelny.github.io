@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/04-complex</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/04-complex"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>4 <code>&lt;complex.h&gt;</code> Complex Number Functionality</h1>
+
+<p>The complex functions in this reference section come in three flavors each: <code>double complex</code>, <code>float complex</code>, and <code>long double complex</code>.</p>
+
+<p>The <code>float</code> variants end with <code>f</code> and the <code>long double</code> variants end with <code>l</code>, e.g. for complex cosine:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">ccos</span><span class="p">()</span>   <span class="kt">double</span> <span class="n">complex</span>
+<span class="n">ccosf</span><span class="p">()</span>  <span class="kt">float</span> <span class="n">complex</span>
+<span class="n">ccosl</span><span class="p">()</span>  <span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span>
+</code></pre></div>
+
+<p>The table below only lists the <code>double complex</code> version for brevity.</p>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="complex.html#man-cabs" rel="nofollow"><code>cabs()</code></a></td>
+<td>Compute the complex absolute value</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-cacos" rel="nofollow"><code>cacos()</code></a></td>
+<td>Compute the complex arc-cosine</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-cacosh" rel="nofollow"><code>cacosh()</code></a></td>
+<td>Compute the complex arc hyperbolic cosine</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-carg" rel="nofollow"><code>carg()</code></a></td>
+<td>Compute the complex argument</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-casin" rel="nofollow"><code>casin()</code></a></td>
+<td>Compute the complex arc-sine</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-casinh" rel="nofollow"><code>casinh()</code></a></td>
+<td>Compute the complex arc hyperbolic sine</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-catan" rel="nofollow"><code>catan()</code></a></td>
+<td>Compute the complex arc-tangent</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-catanh" rel="nofollow"><code>catanh()</code></a></td>
+<td>Compute the complex arc hyperbolic tangent</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-ccos" rel="nofollow"><code>ccos()</code></a></td>
+<td>Compute the complex cosine</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-ccosh" rel="nofollow"><code>ccosh()</code></a></td>
+<td>Compute the complex hyperbolic cosine</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-cexp" rel="nofollow"><code>cexp()</code></a></td>
+<td>Compute the complex base-\(e\) exponential</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-cimag" rel="nofollow"><code>cimag()</code></a></td>
+<td>Returns the imaginary part of a complex number</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-clog" rel="nofollow"><code>clog()</code></a></td>
+<td>Compute the complex logarithm</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-CMPLX" rel="nofollow"><code>CMPLX()</code></a></td>
+<td>Build a complex value from real and imaginary types</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-conj" rel="nofollow"><code>conj()</code></a></td>
+<td>Compute the conjugate of a complex number</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-cproj" rel="nofollow"><code>cproj()</code></a></td>
+<td>Compute the projection of a complex number</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-creal" rel="nofollow"><code>creal()</code></a></td>
+<td>Returns the real part of a complex number</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-csin" rel="nofollow"><code>csin()</code></a></td>
+<td>Compute the complex sine</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-csinh" rel="nofollow"><code>csinh()</code></a></td>
+<td>Compute the complex hyperbolic sine</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-csqrt" rel="nofollow"><code>csqrt()</code></a></td>
+<td>Compute the complex square root</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-ctan" rel="nofollow"><code>ctan()</code></a></td>
+<td>Compute the complex tangent</td>
+</tr>
+<tr>
+<td><a href="complex.html#man-ctanh" rel="nofollow"><code>ctanh()</code></a></td>
+<td>Compute the complex hyperbolic tangent</td>
+</tr>
+</tbody></table>
+
+<p>You can test for complex number support by looking at the <code>__STDC_NO_COMPLEX__</code> macro. If it’s defined, complex numbers aren’t available.</p>
+
+<p>There are possibly two types of numbers defined: <em>complex</em> and <em>imaginary</em>. No system I’m currently aware of implements imaginary types.</p>
+
+<p>The complex types, which are a real value plus a multiple of \(i\), are:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">float</span> <span class="n">complex</span>
+<span class="kt">double</span> <span class="n">complex</span>
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span>
+</code></pre></div>
+
+<p>The imaginary types, which hold a multiple of \(i\), are:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">float</span> <span class="n">imaginary</span>
+<span class="kt">double</span> <span class="n">imaginary</span>
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">imaginary</span>
+</code></pre></div>
+
+<p>The mathematical value \(i=\sqrt{-1}\) is represented by the symbol <code>_Complex_I</code> or <code>_Imaginary_I</code>, if it exists.</p>
+
+<p>The The macro <code>I</code> will be preferentially set to <code>_Imaginary_I</code> (if it exists), or to <code>_Complex_I</code> otherwise.</p>
+
+<p>You can write imaginary literals (if supported) using this notation:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">double</span> <span class="n">imaginary</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">4</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+</code></pre></div>
+
+<p>You can write complex literals using regular complex notation:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">3</span><span class="p">.</span><span class="mi">4</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+</code></pre></div>
+
+<p>or build them with the <code>CMPLX()</code> macro:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="n">CMPLX</span><span class="p">(</span><span class="mi">1</span><span class="p">.</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">.</span><span class="mi">4</span><span class="p">);</span>  <span class="c1">// Like 1.2 + 3.4 * I</span>
+</code></pre></div>
+
+<p>The latter has the advantage of handing special cases of complex numbers correctly (like those involving infinity or signed zeroes) as if <code>_Imaginary_I</code> were present, even if it’s not.</p>
+
+<p>All angular values are in radians.</p>
+
+<p>Some functions have discontinuities called <em>branch cuts</em>. Now, I’m no mathematician so I can’t really talk sensibly about this, but if you’re here, I like to think you know what you’re doing when it comes to this side of things.</p>
+
+<p>If you system has signed zeroes, you can tell which side of the cut you’re on by the sign. And you can’t if you don’t. The spec elaborates:</p>
+
+<blockquote>
+<p>Implementations that do not support a signed zero […] cannot distinguish the sides of branch cuts. These implementations shall map a cut so the function is continuous as the cut is approached coming around the finite endpoint of the cut in a counter clockwise direction. (Branch cuts for the functions specified here have just one finite endpoint.) For example, for the square root function, coming counter clockwise around the finite endpoint of the cut along the negative real axis approaches the cut from above, so the cut maps to the positive imaginary axis.</p>
+</blockquote>
+
+<p>Finally, there’s a pragma called <code>CX_LIMITED_RANGE</code> that can be turned on and off (default is off). You can turn it on with:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#pragma STDC CX_LIMITED_RANGE ON
+</span></code></pre></div>
+
+<p>It allows for certain intermediate operations to underflow, overflow, or deal badly with infinity, presumably for a tradeoff in speed. If you’re sure these types of errors won’t occur with the numbers you’re using AND you’re trying to get as much speed out as you can, you could turn this macro on.</p>
+
+<p>The spec also elaborates here:</p>
+
+<blockquote>
+<p>The purpose of the pragma is to allow the implementation to use the formulas:</p>
+
+<p>\((x+iy)\times(u+iv) = (xu-yv)+i(yu+xv)\)</p>
+
+<p>\((x+iy)/(u+iv) = [(xu+yv)+i(yu-xv)]/(u<sup>2+v<sup>2)\)</sup></sup></p>
+
+<p>\(|x+iy|=\sqrt{x<sup>2+y<sup>2}\)</sup></sup></p>
+
+<p>where the programmer can determine they are safe.</p>
+</blockquote>
+
+<p><hr></p>
+
+<h2>4.1 <code>cacos()</code>, <code>cacosf()</code>, <code>cacosl()</code></h2>
+
+<p>Compute the complex arc-cosine</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">cacos</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">cacosf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">cacosl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex arc-cosine of a complex number.</p>
+
+<p>The complex number <code>z</code> will have an imaginary component in the range \([0,\pi]\), and the real component is unbounded.</p>
+
+<p>There are branch cuts outside the interval \([-1,+1]\) on the real axis.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex arc-cosine of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">5708</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cacos</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">195321</span> <span class="o">+</span> <span class="o">-</span><span class="mi">2</span><span class="p">.</span><span class="mi">788006</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-ccos" rel="nofollow"><code>ccos()</code></a>, <a href="complex.html#man-casin" rel="nofollow"><code>casin()</code></a>, <a href="complex.html#man-catan" rel="nofollow"><code>catan()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.2 <code>casin()</code>, <code>casinf()</code>, <code>casinl()</code></h2>
+
+<p>Compute the complex arc-sine</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">casin</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">casinf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">casinl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex arc-sine of a complex number.</p>
+
+<p>The complex number <code>z</code> will have an imaginary component in the range \([-\pi/2,+\pi/2]\), and the real component is unbounded.</p>
+
+<p>There are branch cuts outside the interval \([-1,+1]\) on the real axis.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex arc-sine of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">5708</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">casin</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">1</span><span class="p">.</span><span class="mi">375476</span> <span class="o">+</span> <span class="mi">2</span><span class="p">.</span><span class="mi">788006</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-csin" rel="nofollow"><code>csin()</code></a>, <a href="complex.html#man-cacos" rel="nofollow"><code>cacos()</code></a>, <a href="complex.html#man-catan" rel="nofollow"><code>catan()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.3 <code>catan()</code>, <code>catanf()</code>, <code>catanl()</code></h2>
+
+<p>Compute the complex arc-tangent</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">catan</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">catanf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">catanl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex arc-tangent of a complex number.</p>
+
+<p>The complex number <code>z</code> will have an real component in the range \([-\pi/2,+\pi/2]\), and the imaginary component is unbounded.</p>
+
+<p>There are branch cuts outside the interval \([-i,+i]\) on the imaginary axis.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex arc-tangent of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">wheat</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>
+    <span class="kt">double</span> <span class="n">sheep</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="mi">5708</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="n">wheat</span> <span class="o">+</span> <span class="n">sheep</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">catan</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">1</span><span class="p">.</span><span class="mi">450947</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mo">0232</span><span class="mi">99</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-ctan" rel="nofollow"><code>ctan()</code></a>, <a href="complex.html#man-cacos" rel="nofollow"><code>cacos()</code></a>, <a href="complex.html#man-casin" rel="nofollow"><code>casin()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.4 <code>ccos()</code>, <code>ccosf()</code>, <code>ccosl()</code></h2>
+
+<p>Compute the complex cosine</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">ccos</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">ccosf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">ccosl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex cosine of a complex number.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex cosine of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">5708</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">ccos</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="o">-</span><span class="mi">0</span><span class="p">.</span><span class="mi">365087</span> <span class="o">+</span> <span class="o">-</span><span class="mi">2</span><span class="p">.</span><span class="mi">276818</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-csin" rel="nofollow"><code>csin()</code></a>, <a href="complex.html#man-ctan" rel="nofollow"><code>ctan()</code></a>, <a href="complex.html#man-cacos" rel="nofollow"><code>cacos()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.5 <code>csin()</code>, <code>csinf()</code>, <code>csinl()</code></h2>
+
+<p>Compute the complex sine</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">csin</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">csinf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">csinl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex sine of a complex number.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex sine of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">5708</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">csin</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">482485</span> <span class="o">+</span> <span class="o">-</span><span class="mi">0</span><span class="p">.</span><span class="mi">334840</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-ccos" rel="nofollow"><code>ccos()</code></a>, <a href="complex.html#man-ctan" rel="nofollow"><code>ctan()</code></a>, <a href="complex.html#man-casin" rel="nofollow"><code>casin()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.6 <code>ctan()</code>, <code>ctanf()</code>, <code>ctanl()</code></h2>
+
+<p>Compute the complex tangent</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">ctan</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">ctanf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">ctanl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex tangent of a complex number.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex tangent of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">5708</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">ctan</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="o">-</span><span class="mi">0</span><span class="p">.</span><span class="mo">027073</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">085990</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-ccos" rel="nofollow"><code>ccos()</code></a>, <a href="complex.html#man-csin" rel="nofollow"><code>csin()</code></a>, <a href="complex.html#man-catan" rel="nofollow"><code>catan()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.7 <code>cacosh()</code>, <code>cacoshf()</code>, <code>cacoshl()</code></h2>
+
+<p>Compute the complex arc hyperbolic cosine</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">cacosh</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">cacoshf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">cacoshl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex arc hyperbolic cosine of a complex number.</p>
+
+<p>There is a branch cut at values less than \(1\) on the real axis.</p>
+
+<p>The return value will be non-negative on the real number axis, and in the range \([-i\pi,+i\pi]\) on the imaginary axis.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex arc hyperbolic cosine of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">5708</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cacosh</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">788006</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">195321</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-casinh" rel="nofollow"><code>casinh()</code></a>, <a href="complex.html#man-catanh" rel="nofollow"><code>catanh()</code></a>, <a href="math.html#man-acosh" rel="nofollow"><code>acosh()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.8 <code>casinh()</code>, <code>casinhf()</code>, <code>casinhl()</code></h2>
+
+<p>Compute the complex arc hyperbolic sine</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">casinh</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">casinhf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">casinhl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex arc hyperbolic sine of a complex number.</p>
+
+<p>There are branch cuts outside \([-i,+i]\) on the imaginary axis.</p>
+
+<p>The return value will be unbounded on the real number axis, and in the range \([-i\pi/2,+i\pi/2]\) on the imaginary axis.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex arc hyperbolic sine of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">5708</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">casinh</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">794970</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">192476</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-cacosh" rel="nofollow"><code>cacosh()</code></a>, <a href="complex.html#man-catanh" rel="nofollow"><code>catanh()</code></a>, <a href="math.html#man-asinh" rel="nofollow"><code>asinh()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.9 <code>catanh()</code>, <code>catanhf()</code>, <code>catanhl()</code></h2>
+
+<p>Compute the complex arc hyperbolic tangent</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">catanh</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">catanhf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">catanhl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex arc hyperbolic tangent of a complex number.</p>
+
+<p>There are branch cuts outside \([-1,+1]\) on the real axis.</p>
+
+<p>The return value will be unbounded on the real number axis, and in the range \([-i\pi/2,+i\pi/2]\) on the imaginary axis.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex arc hyperbolic tangent of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">5708</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">catanh</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">120877</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">546821</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-cacosh" rel="nofollow"><code>cacosh()</code></a>, <a href="complex.html#man-casinh" rel="nofollow"><code>casinh()</code></a>, <a href="math.html#man-atanh" rel="nofollow"><code>atanh()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.10 <code>ccosh()</code>, <code>ccoshf()</code>, <code>ccoshl()</code></h2>
+
+<p>Compute the complex hyperbolic cosine</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">ccosh</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">ccoshf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">ccoshl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex hyperbolic cosine of a complex number.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex hyperbolic cosine of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">5708</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">ccosh</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="o">-</span><span class="mi">0</span><span class="p">.</span><span class="mo">005475</span> <span class="o">+</span> <span class="mi">1490</span><span class="p">.</span><span class="mi">478826</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-csinh" rel="nofollow"><code>csinh()</code></a>, <a href="complex.html#man-ctanh" rel="nofollow"><code>ctanh()</code></a>, <a href="complex.html#man-ccos" rel="nofollow"><code>ccos()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.11 <code>csinh()</code>, <code>csinhf()</code>, <code>csinhl()</code></h2>
+
+<p>Compute the complex hyperbolic sine</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">csinh</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">csinhf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">csinhl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex hyperbolic sine of a complex number.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex hyperbolic sine of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">5708</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">csinh</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="o">-</span><span class="mi">0</span><span class="p">.</span><span class="mo">005475</span> <span class="o">+</span> <span class="mi">1490</span><span class="p">.</span><span class="mi">479161</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-ccosh" rel="nofollow"><code>ccosh()</code></a>, <a href="complex.html#man-ctanh" rel="nofollow"><code>ctanh()</code></a>, <a href="complex.html#man-csin" rel="nofollow"><code>csin()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.12 <code>ctanh()</code>, <code>ctanhf()</code>, <code>ctanhl()</code></h2>
+
+<p>Compute the complex hyperbolic tangent</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">ctanh</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">ctanhf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">ctanhl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex hyperbolic tangent of a complex number.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex hyperbolic tangent of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">5708</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">ctanh</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">1</span><span class="p">.</span><span class="mo">000000</span> <span class="o">+</span> <span class="o">-</span><span class="mi">0</span><span class="p">.</span><span class="mo">000000</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-ccosh" rel="nofollow"><code>ccosh()</code></a>, <a href="complex.html#man-csinh" rel="nofollow"><code>csinh()</code></a>, <a href="complex.html#man-ctan" rel="nofollow"><code>ctan()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.13 <code>cexp()</code>, <code>cexpf()</code>, <code>cexpl()</code></h2>
+
+<p>Compute the complex base-\(e\) exponential</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">cexp</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">cexpf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">cexpl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex base-\(e\) exponential of <code>z</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex base-\(e\) exponential of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cexp</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">131204</span> <span class="o">+</span> <span class="mi">2</span><span class="p">.</span><span class="mi">471727</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-cpow" rel="nofollow"><code>cpow()</code></a>, <a href="complex.html#man-clog" rel="nofollow"><code>clog()</code></a>, <a href="math.html#man-exp" rel="nofollow"><code>exp()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.14 <code>clog()</code>, <code>clogf()</code>, <code>clogl()</code></h2>
+
+<p>Compute the complex logarithm</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">clog</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">clogf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">clogl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Compute the base-\(e\) complex logarithm of <code>z</code>. There is a branch cut on the negative real axis.</p>
+
+<p>The returns value is unbounded on the real axis and in the range \([-i\pi,+i\pi]\) on the imaginary axis.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the base-\(e\) complex logarithm of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">clog</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">804719</span> <span class="o">+</span> <span class="mi">1</span><span class="p">.</span><span class="mi">107149</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-cexp" rel="nofollow"><code>cexp()</code></a>, <a href="math.html#man-log" rel="nofollow"><code>log()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.15 <code>cabs()</code>, <code>cabsf()</code>, <code>cabsl()</code></h2>
+
+<p>Compute the complex absolute value</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="nf">cabs</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="nf">cabsf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="nf">cabsl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex absolute value of <code>z</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex absolute value of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cabs</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">2</span><span class="p">.</span><span class="mi">236068</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mo">000000</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="math.html#man-fabs" rel="nofollow"><code>fabs()</code></a>, <a href="stdlib.html#man-abs" rel="nofollow"><code>abs()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.16 <code>cpow()</code>, <code>cpowf()</code>, <code>cpowl()</code></h2>
+
+<p>Compute complex power</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">cpow</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span><span class="p">,</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">cpowf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">x</span><span class="p">,</span> <span class="kt">float</span> <span class="n">complex</span> <span class="n">y</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">cpowl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span><span class="p">,</span>
+                          <span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex \(x<sup>y\).</sup></p>
+
+<p>There is a branch cut for <code>x</code> along the negative real axis.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex \(x<sup>y\).</sup></p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">r</span> <span class="o">=</span> <span class="n">cpow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">r</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Result:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">129010</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mo">000000</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-csqrt" rel="nofollow"><code>csqrt()</code></a>, <a href="complex.html#man-cexp" rel="nofollow"><code>cexp()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.17 <code>csqrt()</code>, <code>csqrtf()</code>, <code>csqrtl()</code></h2>
+
+<p>Compute the complex square root</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">csqrt</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">csqrtf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">csqrtl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex square root of <code>z</code>.</p>
+
+<p>There is a branch cut along the negative real axis.</p>
+
+<p>The return value is in the right half of the complex plane and includes the imaginary axis.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex square root of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">csqrt</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">1</span><span class="p">.</span><span class="mi">272020</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">786151</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-cpow" rel="nofollow"><code>cpow()</code></a>, <a href="math.html#man-sqrt" rel="nofollow"><code>sqrt()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.18 <code>carg()</code>, <code>cargf()</code>, <code>cargl()</code></h2>
+
+<p>Compute the complex argument</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="nf">carg</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="nf">cargf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="nf">cargl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the complex argument (AKA phase angle) of <code>z</code>.</p>
+
+<p>There is a branch cut along the negative real axis.</p>
+
+<p>Returns a value in the range \([-\pi,+\pi]\).</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex argument of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">y</span> <span class="o">=</span> <span class="n">carg</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">1</span><span class="p">.</span><span class="mi">107149</span>
+</code></pre></div>
+
+<p><hr></p>
+
+<h2>4.19 <code>cimag()</code>, <code>cimagf()</code>, <code>cimagl()</code></h2>
+
+<p>Returns the imaginary part of a complex number</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="nf">cimag</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="nf">cimagf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="nf">cimagl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Returns the imaginary part of <code>z</code>.</p>
+
+<p>As a footnote, the spec points out that any complex number <code>x</code> is part of the following equivalency:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">x</span> <span class="o">==</span> <span class="n">creal</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">cimag</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>Returns the imaginary part of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cimag</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output—just the imaginary part:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">2</span><span class="p">.</span><span class="mo">000000</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-creal" rel="nofollow"><code>creal()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.20 <code>CMPLX()</code>, <code>CMPLXF()</code>, <code>CMPLXL()</code></h2>
+
+<p>Build a complex value from real and imaginary types</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">CMPLX</span><span class="p">(</span><span class="kt">double</span> <span class="n">x</span><span class="p">,</span> <span class="kt">double</span> <span class="n">y</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">CMPLXF</span><span class="p">(</span><span class="kt">float</span> <span class="n">x</span><span class="p">,</span> <span class="kt">float</span> <span class="n">y</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">CMPLXL</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">x</span><span class="p">,</span> <span class="kt">long</span> <span class="kt">double</span> <span class="n">y</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>These macros build a complex value from real and imaginary types.</p>
+
+<p>Now I know what you’re thinking. “But I can already build a complex value from real and imaginary types using the <code>I</code> macro, like in the example you’re about to give us.”</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+</code></pre></div>
+
+<p>And that’s true.</p>
+
+<p>But the reality of the matter is weird and complex.</p>
+
+<p>Maybe <code>I</code> got undefined, or maybe you redefined it.</p>
+
+<p>Or maybe <code>I</code> was defined as <code>_Complex_I</code> which doesn’t necessarily preserve the sign of a zero value.</p>
+
+<p>As the spec points out, these macros build complex numbers as if <code>_Imaginary_I</code> were defined (thus preserving your zero sign) even if it’s not. That is, they are defined equivalently to:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#define CMPLX(x, y)  ((double complex)((double)(x) + \
+                     _Imaginary_I * (double)(y)))
+</span>
+<span class="cp">#define CMPLXF(x, y) ((float complex)((float)(x) + \
+                     _Imaginary_I * (float)(y)))
+</span>
+<span class="cp">#define CMPLXL(x, y) ((long double complex)((long double)(x) + \
+                     _Imaginary_I * (long double)(y)))
+</span></code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex number for the given real <code>x</code> and imaginary <code>y</code> components.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="n">CMPLX</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>  <span class="c1">// Like 1 + 2 * I</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">x</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">1</span><span class="p">.</span><span class="mo">000000</span> <span class="o">+</span> <span class="mi">2</span><span class="p">.</span><span class="mo">000000</span><span class="n">i</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-creal" rel="nofollow"><code>creal()</code></a>, <a href="complex.html#man-cimag" rel="nofollow"><code>cimag()</code></a></p>
+
+<p><hr></p>
+
+<h2>4.21 <code>conj()</code>, <code>conjf()</code>, <code>conjl()</code></h2>
+
+<p>Compute the conjugate of a complex number</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">conj</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">conjf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">conjl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This function computes the <a href="https://en.wikipedia.org/wiki/Complex_conjugate" rel="nofollow">complex conjugate</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">¹³</a> of <code>z</code>. Apparently it does this by reversing the sign of the imaginary part, but dammit, I’m a programmer not a mathematician, Jim!</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the complex conjugate of <code>z</code></p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">conj</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">1</span><span class="p">.</span><span class="mo">000000</span> <span class="o">+</span> <span class="o">-</span><span class="mi">2</span><span class="p">.</span><span class="mo">000000</span><span class="n">i</span>
+</code></pre></div>
+
+<p><hr></p>
+
+<h2>4.22 <code>cproj()</code>, <code>cproj()</code>, <code>cproj()</code></h2>
+
+<p>Compute the projection of a complex number</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="n">complex</span> <span class="nf">cproj</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">complex</span> <span class="nf">cprojf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="nf">cprojl</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Computes the projection of <code>z</code> onto a <a href="https://en.wikipedia.org/wiki/Riemann_sphere" rel="nofollow">Riemann sphere</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">¹⁴</a>.</p>
+
+<p>Now we’re <em>really</em> outside my expertise. The spec has this to say, which I’m quoting verbatim because I’m not knowledgable enough to rewrite it sensibly. Hopefully it makes sense to anyone who would need to use this function.</p>
+
+<blockquote>
+<p><code>z</code> projects to <code>z</code> except that all complex infinities (even those with one infinite part and one <code>NaN</code> part) project to positive infinity on the real axis. If <code>z</code> has an infinite part, then <code>cproj(z)</code> is equivalent to</p>
+<div class="highlight"><pre class="highlight plaintext"><code>INFINITY + I * copysign(0.0, cimag(z))
+</code></pre></div></blockquote>
+
+<p>So there you have it.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the projection of <code>z</code> onto a Riemann sphere.</p>
+
+<h3>Example</h3>
+
+<p>Fingers crossed this is a remotely sane example…</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;math.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cproj</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">INFINITY</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">cproj</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f + %fi</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">creal</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">cimag</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">1</span><span class="p">.</span><span class="mo">000000</span> <span class="o">+</span> <span class="mi">2</span><span class="p">.</span><span class="mo">000000</span><span class="n">i</span>
+<span class="n">Result</span><span class="o">:</span> <span class="n">inf</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mo">000000</span><span class="n">i</span>
+</code></pre></div>
+
+<p><hr></p>
+
+<h2>4.23 <code>creal()</code>, <code>crealf()</code>, <code>creall()</code></h2>
+
+<p>Returns the real part of a complex number</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="nf">creal</span><span class="p">(</span><span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="nf">crealf</span><span class="p">(</span><span class="kt">float</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+
+<span class="kt">long</span> <span class="kt">double</span> <span class="nf">creall</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">complex</span> <span class="n">z</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Returns the real part of <code>z</code>.</p>
+
+<p>As a footnote, the spec points out that any complex number <code>x</code> is part of the following equivalency:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">x</span> <span class="o">==</span> <span class="n">creal</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">cimag</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>Returns the real part of <code>z</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;complex.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">double</span> <span class="n">complex</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">I</span><span class="p">;</span>
+
+    <span class="kt">double</span> <span class="n">y</span> <span class="o">=</span> <span class="n">creal</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Result: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output—just the real part:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Result:</span> <span class="mi">1</span><span class="p">.</span><span class="mo">000000</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="complex.html#man-cimag" rel="nofollow"><code>cimag()</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

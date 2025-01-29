@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/17-stdarg</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/17-stdarg"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>17 <code>&lt;stdarg.h&gt;</code> Variable Arguments</h1>
+
+<table><thead>
+<tr>
+<th>Macro</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="stdarg.html#man-va_arg" rel="nofollow"><code>va_arg()</code></a></td>
+<td>Get the next variable argument</td>
+</tr>
+<tr>
+<td><a href="stdarg.html#man-va_copy" rel="nofollow"><code>va_copy()</code></a></td>
+<td>Copy a <code>va_list</code> and the work done so far</td>
+</tr>
+<tr>
+<td><a href="stdarg.html#man-va_end" rel="nofollow"><code>va_end()</code></a></td>
+<td>Signify we’re done processing variable arguments</td>
+</tr>
+<tr>
+<td><a href="stdarg.html#man-va_start" rel="nofollow"><code>va_start()</code></a></td>
+<td>Initialize a <code>va_list</code> to start variable argument processing</td>
+</tr>
+</tbody></table>
+
+<p>This header file is what allows you to write functions that take a variable number of arguments.</p>
+
+<p>In addition to the macros, you get a new type that helps C keep track of where it is in the variable-number-of-arguments-processing: <code>va_list</code>. This type is opaque, and you’ll be passing it around to the various macros to help get at the arguments.</p>
+
+<p>Note that every variadic function requires at least one non-variable parameter. You need this to kick off processing with <code>va_start()</code>.</p>
+
+<p><hr></p>
+
+<h2>17.1 <code>va_arg()</code></h2>
+
+<p>Get the next variable argument</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+</span>
+<span class="n">type</span> <span class="nf">va_arg</span><span class="p">(</span><span class="kt">va_list</span> <span class="n">ap</span><span class="p">,</span> <span class="n">type</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If you have a variable argument list you’ve initialized with <code>va_start()</code>, pass it to this one along with the type of argument you’re trying to get, e.g.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span>   <span class="n">x</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+<span class="kt">float</span> <span class="n">y</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="kt">float</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>Evaluates to the value and type of the next variable argument.</p>
+
+<h3>Example</h3>
+
+<p>Here’s a demo that adds together an arbitrary number of integers. The first argument is the number of integers to add together. We’ll make use of that to figure out how many times we have to call <code>va_arg()</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">count</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">va_list</span> <span class="n">va</span><span class="p">;</span>
+
+    <span class="n">va_start</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>   <span class="c1">// Start with arguments after "count"</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>   <span class="c1">// Get the next int</span>
+
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">va_end</span><span class="p">(</span><span class="n">va</span><span class="p">);</span>  <span class="c1">// All done</span>
+
+    <span class="k">return</span> <span class="n">total</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">add</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">17</span><span class="p">));</span>  <span class="c1">// 6 + 2 - 4 + 17 = 21</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">44</span><span class="p">));</span>        <span class="c1">// 22 + 44 = 66</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdarg.html#man-va_start" rel="nofollow"><code>va_start()</code></a>, <a href="stdarg.html#man-va_end" rel="nofollow"><code>va_end()</code></a></p>
+
+<p><hr></p>
+
+<h2>17.2 <code>va_copy()</code></h2>
+
+<p>Copy a <code>va_list</code> and the work done so far</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">va_copy</span><span class="p">(</span><span class="kt">va_list</span> <span class="n">dest</span><span class="p">,</span> <span class="kt">va_list</span> <span class="n">src</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>The main intended use of this is to save your state partway through processing variable arguments so you can scan ahead and then rewind back to the save point.</p>
+
+<p>You pass in a <code>src</code> <code>va_list</code> and it copies it to <code>dest</code>.</p>
+
+<p>If you’ve already called this once for a particular <code>dest</code>, you can’t call it (or <code>va_start()</code>) again with the same <code>dest</code> unless you call <code>va_end()</code> on that <code>dest</code> first.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">va_copy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">);</span>
+<span class="n">va_copy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src2</span><span class="p">);</span>  <span class="c1">// BAD!</span>
+
+<span class="n">va_copy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">);</span>
+<span class="n">va_start</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">var</span><span class="p">);</span>  <span class="c1">// BAD!</span>
+
+<span class="n">va_copy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">);</span>
+<span class="n">va_end</span><span class="p">(</span><span class="n">dest</span><span class="p">);</span>
+<span class="n">va_copy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src2</span><span class="p">);</span>  <span class="c1">// OK!</span>
+
+<span class="n">va_copy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">);</span>
+<span class="n">va_end</span><span class="p">(</span><span class="n">dest</span><span class="p">);</span>
+<span class="n">va_start</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">var</span><span class="p">);</span>  <span class="c1">// OK!</span>
+</code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>Returns nothing.</p>
+
+<h3>Example</h3>
+
+<p>Here’s an example where we’re adding together all the variable arguments, but then we want to go back and add on all the numbers past the first two, for example if the arguments are:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">10</span> <span class="mi">20</span> <span class="mi">30</span> <span class="mi">40</span>
+</code></pre></div>
+
+<p>First we add them all for <code>100</code>, and then we add on everything from the third number on, so add on <code>30+40</code> for a total of <code>170</code>.</p>
+
+<p>We’ll do this by saving our place in the variable argument processing with <code>va_copy</code> and then using that later to reprocess the trailing arguments.</p>
+
+<p>(And yes, I know there’s a mathematical way to do this without all the rewinding, but I’m having an heck of a time coming up with a good example!)</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// Add all the numbers together, but then add on all the numbers</span>
+<span class="c1">// past the second one again.</span>
+<span class="kt">int</span> <span class="nf">contrived_adder</span><span class="p">(</span><span class="kt">int</span> <span class="n">count</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// OK, I'm being lazy. You got me.</span>
+
+    <span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="kt">va_list</span> <span class="n">args</span><span class="p">,</span> <span class="n">mid_args</span><span class="p">;</span>
+
+    <span class="n">va_start</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="c1">// If we're at the second number, save our place in</span>
+        <span class="c1">// mid_args:</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">va_copy</span><span class="p">(</span><span class="n">mid_args</span><span class="p">,</span> <span class="n">args</span><span class="p">);</span>
+
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">va_end</span><span class="p">(</span><span class="n">args</span><span class="p">);</span> <span class="c1">// Done with this</span>
+
+    <span class="c1">// But now let's start with mid_args and add all those on:</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span> <span class="o">-</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">mid_args</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+
+    <span class="n">va_end</span><span class="p">(</span><span class="n">mid_args</span><span class="p">);</span> <span class="c1">// Done with this, too</span>
+
+    <span class="k">return</span> <span class="n">total</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// 10+20+30 + 30 == 90</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">contrived_adder</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">));</span>
+
+    <span class="c1">// 10+20+30+40+50 + 30+40+50 == 270</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">contrived_adder</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdarg.html#man-va_start" rel="nofollow"><code>va_start()</code></a>, <a href="stdarg.html#man-va_arg" rel="nofollow"><code>va_arg()</code></a>, <a href="stdarg.html#man-va_end" rel="nofollow"><code>va_end()</code></a></p>
+
+<p><hr></p>
+
+<h2>17.3 <code>va_end()</code></h2>
+
+<p>Signify we’re done processing variable arguments</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">va_end</span><span class="p">(</span><span class="kt">va_list</span> <span class="n">ap</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>After you’ve <code>va_start()</code>ed or <code>va_copy</code>’d a new <code>va_list</code>, you <strong>must</strong> call <code>va_end()</code> with it before it goes out of scope.</p>
+
+<p>You also have to do this if you’re going to call <code>va_start()</code> or <code>va_copy()</code> <em>again</em> on a variable you’ve already done that to.</p>
+
+<p>Them’s the rules if you want to avoid undefined behavior.</p>
+
+<p>But just think of it as cleanup. You called <code>va_start()</code>, so you’ll call <code>va_end()</code> when you’re done.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns nothing.</p>
+
+<h3>Example</h3>
+
+<p>Here’s a demo that adds together an arbitrary number of integers. The first argument is the number of integers to add together. We’ll make use of that to figure out how many times we have to call <code>va_arg()</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">count</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">va_list</span> <span class="n">va</span><span class="p">;</span>
+
+    <span class="n">va_start</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>   <span class="c1">// Start with arguments after "count"</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>   <span class="c1">// Get the next int</span>
+
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">va_end</span><span class="p">(</span><span class="n">va</span><span class="p">);</span>  <span class="c1">// All done</span>
+
+    <span class="k">return</span> <span class="n">total</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">add</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">17</span><span class="p">));</span>  <span class="c1">// 6 + 2 - 4 + 17 = 21</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">44</span><span class="p">));</span>        <span class="c1">// 22 + 44 = 66</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdarg.html#man-va_start" rel="nofollow"><code>va_start()</code></a>, <a href="stdarg.html#man-va_copy" rel="nofollow"><code>va_copy()</code></a></p>
+
+<p><hr></p>
+
+<h2>17.4 <code>va_start()</code></h2>
+
+<p>Initialize a <code>va_list</code> to start variable argument processing</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">va_start</span><span class="p">(</span><span class="kt">va_list</span> <span class="n">ap</span><span class="p">,</span> <span class="n">parmN</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>You’ve declared a variable of type <code>va_list</code> to keep track of the variable argument processing… now how to initialize it so you can start calling <code>va_arg()</code> to get those arguments?</p>
+
+<p><code>va_start()</code> to the rescue!</p>
+
+<p>What you do is pass in your <code>va_list</code>, here shown as parameter <code>ap</code>. Just pass the list, not a pointer to it.</p>
+
+<p>Then for the second argument to <code>va_start()</code>, you give the name of the parameter that you want to start processing arguments <em>after</em>. This must be the parameter right before the <code>...</code> in the argument list.</p>
+
+<p>If you’ve already called <code>va_start()</code> on a particular <code>va_list</code> and you want to call <code>va_start()</code> on it again, you <strong>must</strong> call <code>va_end()</code> first!</p>
+
+<h3>Return Value</h3>
+
+<p>Returns nothing!</p>
+
+<h3>Example</h3>
+
+<p>Here’s a demo that adds together an arbitrary number of integers. The first argument is the number of integers to add together. We’ll make use of that to figure out how many times we have to call <code>va_arg()</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">count</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">va_list</span> <span class="n">va</span><span class="p">;</span>
+
+    <span class="n">va_start</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>   <span class="c1">// Start with arguments after "count"</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>   <span class="c1">// Get the next int</span>
+
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">va_end</span><span class="p">(</span><span class="n">va</span><span class="p">);</span>  <span class="c1">// All done</span>
+
+    <span class="k">return</span> <span class="n">total</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">add</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">17</span><span class="p">));</span>  <span class="c1">// 6 + 2 - 4 + 17 = 21</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">44</span><span class="p">));</span>        <span class="c1">// 22 + 44 = 66</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="stdarg.html#man-va_arg" rel="nofollow"><code>va_arg()</code></a>, <a href="stdarg.html#man-va_end" rel="nofollow"><code>va_end()</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

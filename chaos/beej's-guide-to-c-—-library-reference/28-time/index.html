@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/28-time</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/28-time"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>28 <code>&lt;time.h&gt;</code> Date and Time Functions</h1>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="time.html#man-clock" rel="nofollow"><code>clock()</code></a></td>
+<td>How much processor time has been used by this process</td>
+</tr>
+<tr>
+<td><a href="time.html#man-difftime" rel="nofollow"><code>difftime()</code></a></td>
+<td>Compute the difference between two times</td>
+</tr>
+<tr>
+<td><a href="man-mktime" rel="nofollow"><code>mktime()</code></a></td>
+<td>Convert a <code>struct tm</code> into a <code>time_t</code></td>
+</tr>
+<tr>
+<td><a href="time.html#man-time" rel="nofollow"><code>time()</code></a></td>
+<td>Get the current calendar time</td>
+</tr>
+<tr>
+<td><a href="time.html#man-timespec_get" rel="nofollow"><code>timespec_get()</code></a></td>
+<td>Get a higher resolution time, probably now</td>
+</tr>
+<tr>
+<td><a href="time.html#man-asctime" rel="nofollow"><code>asctime()</code></a></td>
+<td>Return a human-readable version of a <code>struct tm</code></td>
+</tr>
+<tr>
+<td><a href="time.html#man-ctime" rel="nofollow"><code>ctime()</code></a></td>
+<td>Return a human-readable version of a <code>time_t</code></td>
+</tr>
+<tr>
+<td><a href="time.html#man-gmtime" rel="nofollow"><code>gmtime()</code></a></td>
+<td>Convert a calendar time into a UTC broken-down time</td>
+</tr>
+<tr>
+<td><a href="time.html#man-localtime" rel="nofollow"><code>localtime()</code></a></td>
+<td>Convert a calendar time into a broken-down local time</td>
+</tr>
+<tr>
+<td><a href="time.html#man-strftime" rel="nofollow"><code>strftime()</code></a></td>
+<td>Formatted date and time output</td>
+</tr>
+</tbody></table>
+
+<p>When it comes to time and C, there are two main types to look for:</p>
+
+<ul>
+<li><p><strong><code>time_t</code></strong> holds a <em>calendar time</em>. This is an potentially opaque numeric type that represents an absolute time that can be converted to UTC<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁶⁹</a> or local time.</p></li>
+<li><p><strong><code>struct tm</code></strong> holds a <em>broken-down time</em>. This has things like the day of the week, the day of the month, the hour, the minute, the second, etc.</p></li>
+</ul>
+
+<p>On POSIX systems and Windows, <code>time_t</code> is an integer and represents the number of seconds that have elapsed since January 1, 1970 at 00:00 UTC.</p>
+
+<p>A <code>struct tm</code> contains the following fields:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">tm</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">tm_sec</span><span class="p">;</span>    <span class="c1">// seconds after the minute -- [0, 60]</span>
+    <span class="kt">int</span> <span class="n">tm_min</span><span class="p">;</span>    <span class="c1">// minutes after the hour -- [0, 59]</span>
+    <span class="kt">int</span> <span class="n">tm_hour</span><span class="p">;</span>   <span class="c1">// hours since midnight -- [0, 23]</span>
+    <span class="kt">int</span> <span class="n">tm_mday</span><span class="p">;</span>   <span class="c1">// day of the month -- [1, 31]</span>
+    <span class="kt">int</span> <span class="n">tm_mon</span><span class="p">;</span>    <span class="c1">// months since January -- [0, 11]</span>
+    <span class="kt">int</span> <span class="n">tm_year</span><span class="p">;</span>   <span class="c1">// years since 1900</span>
+    <span class="kt">int</span> <span class="n">tm_wday</span><span class="p">;</span>   <span class="c1">// days since Sunday -- [0, 6]</span>
+    <span class="kt">int</span> <span class="n">tm_yday</span><span class="p">;</span>   <span class="c1">// days since January 1 -- [0, 365]</span>
+    <span class="kt">int</span> <span class="n">tm_isdst</span><span class="p">;</span>  <span class="c1">// Daylight Saving Time flag</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>You can convert between the two with <code>mktime()</code>, <code>gmtime()</code>, and <code>localtime()</code>.</p>
+
+<p>You can print time information to strings with <code>ctime()</code>, <code>asctime()</code>, and <code>strftime()</code>.</p>
+
+<h2>28.1 Thread Safety Warning</h2>
+
+<p><code>asctime()</code>, <code>ctime()</code>: These two functions return a pointer to a <code>static</code> memory region. They both might return the same pointer. If you need thread safety, you’ll need a mutex across them. If you need both results at once, <code>strcpy()</code> one of them out.</p>
+
+<p>All these problems with <code>asctime()</code> and <code>ctime()</code> can be avoided by using the more flexible and thread-safe <code>strftime()</code> function instead.</p>
+
+<p><code>localtime()</code>, <code>gmtime()</code>: These other two functions also return a pointer to a <code>static</code> memory region. They both might return the same pointer. If you need thread safety, you’ll need a mutex across them. If you need both results at once, copy the <code>struct</code> to another.</p>
+
+<p><hr></p>
+
+<h2>28.2 <code>clock()</code></h2>
+
+<p>How much processor time has been used by this process</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">clock_t</span> <span class="nf">clock</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Your processor is juggling a lot of things right now. Just because a process has been alive for 20 minutes doesn’t mean that it used 20 minutes of “CPU time”.</p>
+
+<p>Most of the time your average process spends asleep, and that doesn’t count toward the CPU time spent.</p>
+
+<p>This function returns an opaque type representing the number of “clock ticks”<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁷⁰</a> the process has spent in operation.</p>
+
+<p>You can get the number of seconds out of that by dividing by the macro <code>CLOCKS_PER_SEC</code>. This is an integer, so you will have to cast part of the expression to a floating type to get a fractional time.</p>
+
+<p>Note that this is not the “wall clock time” of the program. If you want to get that loosely use <code>time()</code> and <code>difftime()</code> (which might only offer 1-second resolution) or <code>timespec_get()</code> (which might only also offer low resolution, but at least it <em>might</em> go to nanosecond level).</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the amount of CPU time spent by this process. This comes back in a form that can be divided by <code>CLOCKS_PER_SEC</code> to determine the time in seconds.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// Deliberately naive Fibonacci</span>
+<span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="nf">fib</span><span class="p">(</span><span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="k">return</span> <span class="n">n</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">fib</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"The 42nd Fibonacci Number is %lld</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">fib</span><span class="p">(</span><span class="mi">42</span><span class="p">));</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"CPU time: %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">clock</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">CLOCKS_PER_SEC</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output on my system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">The</span> <span class="mi">42</span><span class="n">nd</span> <span class="n">Fibonacci</span> <span class="n">Number</span> <span class="n">is</span> <span class="mi">267914296</span>
+<span class="n">CPU</span> <span class="n">time</span><span class="o">:</span> <span class="mi">1</span><span class="p">.</span><span class="mi">863078</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="time.html#man-time" rel="nofollow"><code>time()</code></a>, <a href="time.html#man-difftime" rel="nofollow"><code>difftime()</code></a>, <a href="time.html#man-timespec_get" rel="nofollow"><code>timespec_get()</code></a></p>
+
+<p><hr></p>
+
+<h2>28.3 <code>difftime()</code></h2>
+
+<p>Compute the difference between two times</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">double</span> <span class="nf">difftime</span><span class="p">(</span><span class="kt">time_t</span> <span class="n">time1</span><span class="p">,</span> <span class="kt">time_t</span> <span class="n">time0</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Since the <code>time_t</code> type is technically opaque, you can’t just straight-up subtract to get the difference between two of them<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁷¹</a>. Use this function to do it.</p>
+
+<p>There is no guarantee as to the resolution of this difference, but it’s probably to the second.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the difference between two <code>time_t</code>s in seconds.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// April 12, 1982 and change</span>
+    <span class="k">struct</span> <span class="n">tm</span> <span class="n">time_a</span> <span class="o">=</span> <span class="p">{</span> <span class="p">.</span><span class="n">tm_year</span><span class="o">=</span><span class="mi">82</span><span class="p">,</span> <span class="p">.</span><span class="n">tm_mon</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="p">.</span><span class="n">tm_mday</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+        <span class="p">.</span><span class="n">tm_hour</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="p">.</span><span class="n">tm_min</span><span class="o">=</span><span class="mo">00</span><span class="p">,</span> <span class="p">.</span><span class="n">tm_sec</span><span class="o">=</span><span class="mo">04</span><span class="p">,</span> <span class="p">.</span><span class="n">tm_isdst</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">};</span>
+
+    <span class="c1">// November 15, 2020 and change</span>
+    <span class="k">struct</span> <span class="n">tm</span> <span class="n">time_b</span> <span class="o">=</span> <span class="p">{</span> <span class="p">.</span><span class="n">tm_year</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="p">.</span><span class="n">tm_mon</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="p">.</span><span class="n">tm_mday</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+        <span class="p">.</span><span class="n">tm_hour</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="p">.</span><span class="n">tm_min</span><span class="o">=</span><span class="mi">27</span><span class="p">,</span> <span class="p">.</span><span class="n">tm_sec</span><span class="o">=</span><span class="mo">00</span><span class="p">,</span> <span class="p">.</span><span class="n">tm_isdst</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">};</span>
+
+    <span class="kt">time_t</span> <span class="n">cal_a</span> <span class="o">=</span> <span class="n">mktime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">time_a</span><span class="p">);</span>
+    <span class="kt">time_t</span> <span class="n">cal_b</span> <span class="o">=</span> <span class="n">mktime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">time_b</span><span class="p">);</span>
+
+    <span class="kt">double</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">difftime</span><span class="p">(</span><span class="n">cal_b</span><span class="p">,</span> <span class="n">cal_a</span><span class="p">);</span>
+
+    <span class="kt">double</span> <span class="n">years</span> <span class="o">=</span> <span class="n">diff</span> <span class="o">/</span> <span class="mi">60</span> <span class="o">/</span> <span class="mi">60</span> <span class="o">/</span> <span class="mi">24</span> <span class="o">/</span> <span class="mi">365</span><span class="p">.</span><span class="mi">2425</span><span class="p">;</span>  <span class="c1">// close enough</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%f seconds (%f years) between events</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="n">years</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">1217996816</span><span class="p">.</span><span class="mo">000000</span> <span class="n">seconds</span> <span class="p">(</span><span class="mi">38</span><span class="p">.</span><span class="mi">596783</span> <span class="n">years</span><span class="p">)</span> <span class="n">between</span> <span class="n">events</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="time.html#man-time" rel="nofollow"><code>time()</code></a>, <a href="time.html#man-mktime" rel="nofollow"><code>mktime()</code></a></p>
+
+<p><hr></p>
+
+<h2>28.4 <code>mktime()</code></h2>
+
+<p>Convert a <code>struct tm</code> into a <code>time_t</code></p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">time_t</span> <span class="nf">mktime</span><span class="p">(</span><span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="n">timeptr</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If you have a local date and time and want it converted to a <code>time_t</code> (so that you can <code>difftime()</code> it or whatever), you can convert it with this function.</p>
+
+<p>Basically you fill out the fields in your <code>struct tm</code> in local time and <code>mktime()</code> will convert those to the UTC <code>time_t</code> equivalent.</p>
+
+<p>A couple notes:</p>
+
+<ul>
+<li><p>Don’t bother filling out <code>tm_wday</code> or <code>tm_yday</code>. <code>mktime()</code> will fill these out for you.</p></li>
+<li><p>You can set <code>tm_isdst</code> to <code>0</code> to indicate your time isn’t Daylight Saving Time (DST), <code>1</code> to indicate it is, and <code>-1</code> to have <code>mktime()</code> fill it in according to your locale’s preference.</p></li>
+</ul>
+
+<p>If you need input in UTC, see the non-standard functions <a href="https://man.archlinux.org/man/timegm.3.en" rel="nofollow"><code>timegm()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁷²</a> for Unix-likes and <a href="https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/mkgmtime-mkgmtime32-mkgmtime64?view=msvc-160" rel="nofollow"><code>_mkgmtime()</code></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁷³</a> for Windows.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the local time in the <code>struct tm</code> as a <code>time_t</code> calendar time.</p>
+
+<p>Returns <code>(time_t)(-1)</code> on error.</p>
+
+<h3>Example</h3>
+
+<p>In the following example, we have <code>mktime()</code> tell us if that time was DST or not.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">tm</span> <span class="n">broken_down_time</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">.</span><span class="n">tm_year</span><span class="o">=</span><span class="mi">82</span><span class="p">,</span>   <span class="c1">// years since 1900</span>
+        <span class="p">.</span><span class="n">tm_mon</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>     <span class="c1">// months since January -- [0, 11]</span>
+        <span class="p">.</span><span class="n">tm_mday</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>   <span class="c1">// day of the month -- [1, 31]</span>
+        <span class="p">.</span><span class="n">tm_hour</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>    <span class="c1">// hours since midnight -- [0, 23]</span>
+        <span class="p">.</span><span class="n">tm_min</span><span class="o">=</span><span class="mo">00</span><span class="p">,</span>    <span class="c1">// minutes after the hour -- [0, 59]</span>
+        <span class="p">.</span><span class="n">tm_sec</span><span class="o">=</span><span class="mo">04</span><span class="p">,</span>    <span class="c1">// seconds after the minute -- [0, 60]</span>
+        <span class="p">.</span><span class="n">tm_isdst</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>  <span class="c1">// Daylight Saving Time flag</span>
+    <span class="p">};</span>
+
+    <span class="kt">time_t</span> <span class="n">calendar_time</span> <span class="o">=</span> <span class="n">mktime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">broken_down_time</span><span class="p">);</span>
+
+    <span class="kt">char</span> <span class="o">*</span><span class="n">days</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="s">"Sunday"</span><span class="p">,</span> <span class="s">"Monday"</span><span class="p">,</span> <span class="s">"Tuesday"</span><span class="p">,</span>
+        <span class="s">"Wednesday"</span><span class="p">,</span> <span class="s">"Furzeday"</span><span class="p">,</span> <span class="s">"Friday"</span><span class="p">,</span> <span class="s">"Saturday"</span><span class="p">};</span>
+
+    <span class="c1">// This will print what was in broken_down_time</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Local time : %s"</span><span class="p">,</span> <span class="n">asctime</span><span class="p">(</span><span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">calendar_time</span><span class="p">)));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Is DST     : %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">broken_down_time</span><span class="p">.</span><span class="n">tm_isdst</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Day of week: %s</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="n">days</span><span class="p">[</span><span class="n">broken_down_time</span><span class="p">.</span><span class="n">tm_wday</span><span class="p">]);</span>
+
+    <span class="c1">// This will print UTC for the local time, above</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"UTC        : %s"</span><span class="p">,</span> <span class="n">asctime</span><span class="p">(</span><span class="n">gmtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">calendar_time</span><span class="p">)));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output (for me in Pacific Time—UTC is 8 hours ahead):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Local</span> <span class="n">time</span> <span class="o">:</span> <span class="n">Mon</span> <span class="n">Apr</span> <span class="mi">12</span> <span class="mo">04</span><span class="o">:</span><span class="mo">00</span><span class="o">:</span><span class="mo">04</span> <span class="mi">1982</span>
+<span class="n">Is</span> <span class="n">DST</span>     <span class="o">:</span> <span class="mi">0</span>
+<span class="n">Day</span> <span class="n">of</span> <span class="n">week</span><span class="o">:</span> <span class="n">Monday</span>
+
+<span class="n">UTC</span>        <span class="o">:</span> <span class="n">Mon</span> <span class="n">Apr</span> <span class="mi">12</span> <span class="mi">12</span><span class="o">:</span><span class="mo">00</span><span class="o">:</span><span class="mo">04</span> <span class="mi">1982</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="time.html#man-localtime" rel="nofollow"><code>localtime()</code></a>, <a href="time.html#man-gmtime" rel="nofollow"><code>gmtime()</code></a></p>
+
+<p><hr></p>
+
+<h2>28.5 <code>time()</code></h2>
+
+<p>Get the current calendar time</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">time_t</span> <span class="nf">time</span><span class="p">(</span><span class="kt">time_t</span> <span class="o">*</span><span class="n">timer</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Returns the current calendar time right now. I mean, now. No, now!</p>
+
+<p>If <code>timer</code> is not <code>NULL</code>, it gets loaded with the current time, as well.</p>
+
+<p>This can be converted into a <code>struct tm</code> with <code>localtime()</code> or <code>gmtime()</code>, or printed directly with <code>ctime()</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the current calendar time. Also loads <code>timer</code> with the current time if it’s not <code>NULL</code>.</p>
+
+<p>Or returns <code>(time_t)(-1)</code> if the time isn’t available because you’ve fallen out of the space-time continuum and/or the system doesn’t support times.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">time_t</span> <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"The local time is %s"</span><span class="p">,</span> <span class="n">ctime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Example output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">The</span> <span class="n">local</span> <span class="n">time</span> <span class="n">is</span> <span class="n">Mon</span> <span class="n">Mar</span>  <span class="mi">1</span> <span class="mi">18</span><span class="o">:</span><span class="mi">45</span><span class="o">:</span><span class="mi">14</span> <span class="mi">2021</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="time.html#man-localtime" rel="nofollow"><code>localtime()</code></a>, <a href="time.html#man-gmtime" rel="nofollow"><code>gmtime()</code></a>, <a href="time.html#man-ctime" rel="nofollow"><code>ctime()</code></a></p>
+
+<p><hr></p>
+
+<h2>28.6 <code>timespec_get()</code></h2>
+
+<p>Get a higher resolution time, probably now</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">timespec_get</span><span class="p">(</span><span class="k">struct</span> <span class="n">timespec</span> <span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="kt">int</span> <span class="n">base</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This function loads the current time UTC (unless directed otherwise) into the given <code>struct timespec</code>, <code>ts</code>.</p>
+
+<p>That structure has two fields:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">timespec</span> <span class="p">{</span>
+    <span class="kt">time_t</span> <span class="n">tv_sec</span><span class="p">;</span>   <span class="c1">// Whole seconds</span>
+    <span class="kt">long</span>   <span class="n">tv_nsec</span><span class="p">;</span>  <span class="c1">// Nanoseconds, 0-999999999</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Nanoseconds are billionths of a second. You can divide by 1000000000.0 to convert to seconds.</p>
+
+<p>The <code>base</code> parameter has only one defined value, by the spec: <code>TIME_UTC</code>. So portably make it that. This will load <code>ts</code> with the current time in seconds since a system-defined <a href="https://en.wikipedia.org/wiki/Unix_time" rel="nofollow">Epoch</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁷⁴</a>, often January 1, 1970 at 00:00 UTC.</p>
+
+<p>Your implementation might define other values for <code>base</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>When <code>base</code> is <code>TIME_UTC</code>, loads <code>ts</code> with the current UTC time.</p>
+
+<p>On success, returns <code>base</code>, valid values for which will always be non-zero. On error, returns <code>0</code>.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">timespec</span> <span class="n">ts</span><span class="p">;</span>
+
+<span class="n">timespec_get</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ts</span><span class="p">,</span> <span class="n">TIME_UTC</span><span class="p">);</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%ld s, %ld ns</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ts</span><span class="p">.</span><span class="n">tv_sec</span><span class="p">,</span> <span class="n">ts</span><span class="p">.</span><span class="n">tv_nsec</span><span class="p">);</span>
+
+<span class="kt">double</span> <span class="n">float_time</span> <span class="o">=</span> <span class="n">ts</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">+</span> <span class="n">ts</span><span class="p">.</span><span class="n">tv_nsec</span><span class="o">/</span><span class="mi">1000000000</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%f seconds since epoch</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">float_time</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Example output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">1614654187</span> <span class="n">s</span><span class="p">,</span> <span class="mi">825540756</span> <span class="n">ns</span>
+<span class="mi">1614654187</span><span class="p">.</span><span class="mi">825541</span> <span class="n">seconds</span> <span class="n">since</span> <span class="n">epoch</span>
+</code></pre></div>
+
+<p>Here’s a helper function to add values to a <code>struct timespec</code> that handles negative values and nanosecond overflow.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// Add delta seconds and delta nanoseconds to ts.</span>
+<span class="c1">// Negative values are allowed. Each component is added individually.</span>
+<span class="c1">//</span>
+<span class="c1">// Subtract 1.5 seconds from the current value:</span>
+<span class="c1">//</span>
+<span class="c1">// timespec_add(&amp;ts, -1, -500000000L);</span>
+
+<span class="k">struct</span> <span class="n">timespec</span> <span class="o">*</span><span class="nf">timespec_add</span><span class="p">(</span><span class="k">struct</span> <span class="n">timespec</span> <span class="o">*</span><span class="n">ts</span><span class="p">,</span> <span class="kt">long</span> <span class="n">dsec</span><span class="p">,</span> <span class="kt">long</span> <span class="n">dnsec</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">long</span> <span class="n">sec</span> <span class="o">=</span> <span class="p">(</span><span class="kt">long</span><span class="p">)</span><span class="n">ts</span><span class="o">-&gt;</span><span class="n">tv_sec</span> <span class="o">+</span> <span class="n">dsec</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">nsec</span> <span class="o">=</span> <span class="n">ts</span><span class="o">-&gt;</span><span class="n">tv_nsec</span> <span class="o">+</span> <span class="n">dnsec</span><span class="p">;</span>
+
+    <span class="kt">ldiv_t</span> <span class="n">qr</span> <span class="o">=</span> <span class="n">ldiv</span><span class="p">(</span><span class="n">nsec</span><span class="p">,</span> <span class="mi">1000000000L</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">qr</span><span class="p">.</span><span class="n">rem</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">nsec</span> <span class="o">=</span> <span class="mi">1000000000L</span> <span class="o">+</span> <span class="n">qr</span><span class="p">.</span><span class="n">rem</span><span class="p">;</span>
+        <span class="n">sec</span> <span class="o">+=</span> <span class="n">qr</span><span class="p">.</span><span class="n">quot</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">nsec</span> <span class="o">=</span> <span class="n">qr</span><span class="p">.</span><span class="n">rem</span><span class="p">;</span>
+        <span class="n">sec</span> <span class="o">+=</span> <span class="n">qr</span><span class="p">.</span><span class="n">quot</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">ts</span><span class="o">-&gt;</span><span class="n">tv_sec</span> <span class="o">=</span> <span class="n">sec</span><span class="p">;</span>
+    <span class="n">ts</span><span class="o">-&gt;</span><span class="n">tv_nsec</span> <span class="o">=</span> <span class="n">nsec</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">ts</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>And here are some functions to convert from <code>long double</code> to <code>struct timespec</code> and back, just in case you like thinking in decimals. This is more limited in significant figures than using the integer values.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;math.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// Convert a struct timespec into a long double</span>
+<span class="kt">long</span> <span class="kt">double</span> <span class="nf">timespec_to_ld</span><span class="p">(</span><span class="k">struct</span> <span class="n">timespec</span> <span class="o">*</span><span class="n">ts</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">ts</span><span class="o">-&gt;</span><span class="n">tv_sec</span> <span class="o">+</span> <span class="n">ts</span><span class="o">-&gt;</span><span class="n">tv_nsec</span> <span class="o">/</span> <span class="mi">1000000000</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Convert a long double to a struct timespec</span>
+<span class="k">struct</span> <span class="n">timespec</span> <span class="nf">ld_to_timespec</span><span class="p">(</span><span class="kt">long</span> <span class="kt">double</span> <span class="n">t</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">long</span> <span class="kt">double</span> <span class="n">f</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">timespec</span> <span class="n">ts</span><span class="p">;</span>
+    <span class="n">ts</span><span class="p">.</span><span class="n">tv_nsec</span> <span class="o">=</span> <span class="n">modfl</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">f</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000000000L</span><span class="p">;</span>
+    <span class="n">ts</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">=</span> <span class="n">f</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">ts</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="time.html#man-time" rel="nofollow"><code>time()</code></a>, <a href="threads.html#man-mtx_timedlock" rel="nofollow"><code>mtx_timedlock()</code></a>, <a href="threads.html#man-cnd_timedwait" rel="nofollow"><code>cnd_timedwait()</code></a></p>
+
+<p><hr></p>
+
+<h2>28.7 <code>asctime()</code></h2>
+
+<p>Return a human-readable version of a <code>struct tm</code></p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="n">asctime</span><span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="n">timeptr</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This takes a time in a <code>struct tm</code> and returns a string with that date in the form:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Sun</span> <span class="n">Sep</span> <span class="mi">16</span> <span class="mo">01</span><span class="o">:</span><span class="mo">03</span><span class="o">:</span><span class="mi">52</span> <span class="mi">1973</span>
+</code></pre></div>
+
+<p>with a newline included at the end, rather unhelpfully. (<a href="time.html#man-strftime" rel="nofollow"><code>strftime()</code></a> will give you more flexibility.)</p>
+
+<p>It’s just like <code>ctime()</code>, except it takes a <code>struct tm</code> instead of a <code>time_t</code>.</p>
+
+<p><strong>WARNING</strong>: This function returns a pointer to a <code>static char*</code> region that isn’t thread-safe and might be shared with the <code>ctime()</code> function. If you need thread safety, use <code>strftime()</code> or use a mutex that covers <code>ctime()</code> and <code>asctime()</code>.</p>
+
+<p>Behavior is undefined for:</p>
+
+<ul>
+<li>  Years less than 1000</li>
+<li>  Years greater than 9999</li>
+<li>  Any members of <code>timeptr</code> are out of range</li>
+</ul>
+
+<h3>Return Value</h3>
+
+<p>Returns a pointer to the human-readable date string.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">time_t</span> <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Local: %s"</span><span class="p">,</span> <span class="n">asctime</span><span class="p">(</span><span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">)));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"UTC  : %s"</span><span class="p">,</span> <span class="n">asctime</span><span class="p">(</span><span class="n">gmtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">)));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Sample output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Local:</span> <span class="n">Mon</span> <span class="n">Mar</span>  <span class="mi">1</span> <span class="mi">21</span><span class="o">:</span><span class="mi">17</span><span class="o">:</span><span class="mi">34</span> <span class="mi">2021</span>
+<span class="n">UTC</span>  <span class="o">:</span> <span class="n">Tue</span> <span class="n">Mar</span>  <span class="mi">2</span> <span class="mo">05</span><span class="o">:</span><span class="mi">17</span><span class="o">:</span><span class="mi">34</span> <span class="mi">2021</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="time.html#man-ctime" rel="nofollow"><code>ctime()</code></a>, <a href="time.html#man-localtime" rel="nofollow"><code>localtime()</code></a>, <a href="time.html#man-gmtime" rel="nofollow"><code>gmtime()</code></a></p>
+
+<p><hr></p>
+
+<h2>28.8 <code>ctime()</code></h2>
+
+<p>Return a human-readable version of a <code>time_t</code></p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">char</span> <span class="o">*</span><span class="nf">ctime</span><span class="p">(</span><span class="k">const</span> <span class="kt">time_t</span> <span class="o">*</span><span class="n">timer</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This takes a time in a <code>time_t</code> and returns a string with the local time and date in the form:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Sun</span> <span class="n">Sep</span> <span class="mi">16</span> <span class="mo">01</span><span class="o">:</span><span class="mo">03</span><span class="o">:</span><span class="mi">52</span> <span class="mi">1973</span>
+</code></pre></div>
+
+<p>with a newline included at the end, rather unhelpfully. (<a href="time.html#man-strftime" rel="nofollow"><code>strftime()</code></a> will give you more flexibility.)</p>
+
+<p>It’s just like <code>asctime()</code>, except it takes a <code>time_t</code> instead of a <code>struct tm</code>.</p>
+
+<p><strong>WARNING</strong>: This function returns a pointer to a <code>static char*</code> region that isn’t thread-safe and might be shared with the <code>asctime()</code> function. If you need thread safety, use <code>strftime()</code> or use a mutex that covers <code>ctime()</code> and <code>asctime()</code>.</p>
+
+<p>Behavior is undefined for:</p>
+
+<ul>
+<li>  Years less than 1000</li>
+<li>  Years greater than 9999</li>
+<li>  Any members of <code>timeptr</code> are out of range</li>
+</ul>
+
+<h3>Return Value</h3>
+
+<p>A pointer to the human-readable local time and data string.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">time_t</span> <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"Local: %s"</span><span class="p">,</span> <span class="n">ctime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+</code></pre></div>
+
+<p>Sample output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Local:</span> <span class="n">Mon</span> <span class="n">Mar</span>  <span class="mi">1</span> <span class="mi">21</span><span class="o">:</span><span class="mi">32</span><span class="o">:</span><span class="mi">23</span> <span class="mi">2021</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="time.html#man-asctime" rel="nofollow"><code>asctime()</code></a></p>
+
+<p><hr></p>
+
+<h2>28.9 <code>gmtime()</code></h2>
+
+<p>Convert a calendar time into a UTC broken-down time</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="nf">gmtime</span><span class="p">(</span><span class="k">const</span> <span class="kt">time_t</span> <span class="o">*</span><span class="n">timer</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If you have a <code>time_t</code>, you can run it through this function to get a <code>struct tm</code> back full of the corresponding broken-down UTC time information.</p>
+
+<p>This is just like <code>localtime()</code>, except it does UTC instead of local time.</p>
+
+<p>Once you have that <code>struct tm</code>, you can feed it to <code>strftime()</code> to print it out.</p>
+
+<p><strong>WARNING</strong>: This function returns a pointer to a <code>static struct tm*</code> region that isn’t thread-safe and might be shared with the <code>localtime()</code> function. If you need thread safety use a mutex that covers <code>gmtime()</code> and <code>localtime()</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns a pointer to the broken-down UTC time, or <code>NULL</code> if it can’t be obtained.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">time_t</span> <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"UTC  : %s"</span><span class="p">,</span> <span class="n">asctime</span><span class="p">(</span><span class="n">gmtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">)));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Local: %s"</span><span class="p">,</span> <span class="n">asctime</span><span class="p">(</span><span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">)));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Sample output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">UTC</span>  <span class="o">:</span> <span class="n">Tue</span> <span class="n">Mar</span>  <span class="mi">2</span> <span class="mo">05</span><span class="o">:</span><span class="mi">40</span><span class="o">:</span><span class="mo">05</span> <span class="mi">2021</span>
+<span class="n">Local</span><span class="o">:</span> <span class="n">Mon</span> <span class="n">Mar</span>  <span class="mi">1</span> <span class="mi">21</span><span class="o">:</span><span class="mi">40</span><span class="o">:</span><span class="mo">05</span> <span class="mi">2021</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="time.html#man-localtime" rel="nofollow"><code>localtime()</code></a>, <a href="time.html#man-asctime" rel="nofollow"><code>asctime()</code></a>, <a href="time.html#man-strftime" rel="nofollow"><code>strftime()</code></a></p>
+
+<p><hr></p>
+
+<h2>28.10 <code>localtime()</code></h2>
+
+<p>Convert a calendar time into a broken-down local time</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="nf">localtime</span><span class="p">(</span><span class="k">const</span> <span class="kt">time_t</span> <span class="o">*</span><span class="n">timer</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If you have a <code>time_t</code>, you can run it through this function to get a <code>struct tm</code> back full of the corresponding broken-down local time information.</p>
+
+<p>This is just like <code>gmtime()</code>, except it does local time instead of UTC.</p>
+
+<p>Once you have that <code>struct tm</code>, you can feed it to <code>strftime()</code> to print it out.</p>
+
+<p><strong>WARNING</strong>: This function returns a pointer to a <code>static struct tm*</code> region that isn’t thread-safe and might be shared with the <code>gmtime()</code> function. If you need thread safety use a mutex that covers <code>gmtime()</code> and <code>localtime()</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns a pointer to the broken-down local time, or <code>NULL</code> if it can’t be obtained.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">time_t</span> <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Local: %s"</span><span class="p">,</span> <span class="n">asctime</span><span class="p">(</span><span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">)));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"UTC  : %s"</span><span class="p">,</span> <span class="n">asctime</span><span class="p">(</span><span class="n">gmtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">)));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Sample output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Local:</span> <span class="n">Mon</span> <span class="n">Mar</span>  <span class="mi">1</span> <span class="mi">21</span><span class="o">:</span><span class="mi">40</span><span class="o">:</span><span class="mo">05</span> <span class="mi">2021</span>
+<span class="n">UTC</span>  <span class="o">:</span> <span class="n">Tue</span> <span class="n">Mar</span>  <span class="mi">2</span> <span class="mo">05</span><span class="o">:</span><span class="mi">40</span><span class="o">:</span><span class="mo">05</span> <span class="mi">2021</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="time.html#man-gmtime" rel="nofollow"><code>gmtime()</code></a>, <a href="time.html#man-asctime" rel="nofollow"><code>asctime()</code></a>, <a href="time.html#man-strftime" rel="nofollow"><code>strftime()</code></a></p>
+
+<p><hr></p>
+
+<h2>28.11 <code>strftime()</code></h2>
+
+<p>Formatted date and time output</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">size_t</span> <span class="nf">strftime</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">s</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">maxsize</span><span class="p">,</span>
+                <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">format</span><span class="p">,</span>
+                <span class="k">const</span> <span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">timeptr</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is the <a href="stdio.html#man-printf" rel="nofollow"><code>sprintf()</code></a> of date and time functions. It’ll take a <code>struct tm</code> and produce a string in just about whatever form you desire, for example:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">2021</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mo">01</span>
+<span class="n">Monday</span><span class="p">,</span> <span class="n">March</span> <span class="mi">1</span> <span class="n">at</span> <span class="mi">9</span><span class="o">:</span><span class="mi">54</span> <span class="n">PM</span>
+<span class="n">It</span><span class="err">'</span><span class="n">s</span> <span class="n">Monday</span><span class="o">!</span>
+</code></pre></div>
+
+<p>It’s a super flexible version of <code>asctime()</code>. And thread-safe, besides, since it doesn’t rely on a static buffer to hold the results.</p>
+
+<p>Basically what you do is give it a destination, <code>s</code>, and its max size in bytes in <code>maxsize</code>. Also, provide a <code>format</code> string that’s analogous to <code>printf()</code>’s format string, but with different format specifiers. And lastly, a <code>struct tm</code> with the broken-down time information to use for printing.</p>
+
+<p>The <code>format</code> string works like this, for example:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="s">"It's %A, %B %d!"</span>
+</code></pre></div>
+
+<p>Which produces:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">It</span><span class="err">'</span><span class="n">s</span> <span class="n">Monday</span><span class="p">,</span> <span class="n">March</span> <span class="mi">1</span><span class="o">!</span>
+</code></pre></div>
+
+<p>The <code>%A</code> is the full day-of-week name, the <code>%B</code> is the full month name, and the <code>%d</code> is the day of the month. <code>strftime()</code> substitutes the right thing to produce the result. Brilliant!</p>
+
+<p>So what are all the format specifiers? Glad you asked!</p>
+
+<p>I’m going to be lazy and just drop this table in right from the spec.</p>
+
+<table><thead>
+<tr>
+<th>Specifier</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>%a</code></td>
+<td>Locale’s abbreviated weekday name. [<code>tm_wday</code>]</td>
+</tr>
+<tr>
+<td><code>%A</code></td>
+<td>Locale’s full weekday name. [<code>tm_wday</code>]</td>
+</tr>
+<tr>
+<td><code>%b</code></td>
+<td>Locale’s abbreviated month name. [<code>tm_mon</code>]</td>
+</tr>
+<tr>
+<td><code>%B</code></td>
+<td>Locale’s full month name. [<code>tm_mon</code>]</td>
+</tr>
+<tr>
+<td><code>%c</code></td>
+<td>Locale’s appropriate date and time representation.</td>
+</tr>
+<tr>
+<td><code>%C</code></td>
+<td>Year divided by 100 and truncated to an integer, as a decimal number (00–99). [<code>tm_year</code>]</td>
+</tr>
+<tr>
+<td><code>%d</code></td>
+<td>Day of the month as a decimal number (01–31). [<code>tm_mday</code>]</td>
+</tr>
+<tr>
+<td><code>%D</code></td>
+<td>Equivalent to <code>&quot;%m/%d/%y&quot;</code>. [<code>tm_mon</code>, <code>tm_mday</code>, <code>tm_year</code>]</td>
+</tr>
+<tr>
+<td><code>%e</code></td>
+<td>Day of the month as a decimal number (1–31); a single digit is preceded by a space. [<code>tm_mday</code>]</td>
+</tr>
+<tr>
+<td><code>%F</code></td>
+<td>Equivalent to “%Y-%m-%d” (the ISO 8601 date format). [<code>tm_year</code>, <code>tm_mon</code>, <code>tm_mday</code>]</td>
+</tr>
+<tr>
+<td><code>%g</code></td>
+<td>Last 2 digits of the week-based year (see below) as a decimal number (00–99). [<code>tm_year</code>, <code>tm_wday</code>, <code>tm_yday</code>]</td>
+</tr>
+<tr>
+<td><code>%G</code></td>
+<td>Week-based year (see below) as a decimal number (e.g., 1997). [<code>tm_year</code>, <code>tm_wday</code>, <code>tm_yday</code>]</td>
+</tr>
+<tr>
+<td><code>%h</code></td>
+<td>Equivalent to “%b”. [<code>tm_mon</code>]</td>
+</tr>
+<tr>
+<td><code>%H</code></td>
+<td>Hour (24-hour clock) as a decimal number (00–23). [<code>tm_hour</code>]</td>
+</tr>
+<tr>
+<td><code>%I</code></td>
+<td>Hour (12-hour clock) as a decimal number (01–12). [<code>tm_hour</code>]</td>
+</tr>
+<tr>
+<td><code>%j</code></td>
+<td>Day of the year as a decimal number (001–366). [<code>tm_yday</code>]</td>
+</tr>
+<tr>
+<td><code>%m</code></td>
+<td>Month as a decimal number (01–12).</td>
+</tr>
+<tr>
+<td><code>%M</code></td>
+<td>Minute as a decimal number (00–59). [<code>tm_min</code>]</td>
+</tr>
+<tr>
+<td><code>%n</code></td>
+<td>A new-line character.</td>
+</tr>
+<tr>
+<td><code>%p</code></td>
+<td>Locale’s equivalent of the AM/PM designations associated with a 12-hour clock. [<code>tm_hour</code>]</td>
+</tr>
+<tr>
+<td><code>%r</code></td>
+<td>Locale’s 12-hour clock time. [<code>tm_hour</code>, <code>tm_min</code>, <code>tm_sec</code>]</td>
+</tr>
+<tr>
+<td><code>%R</code></td>
+<td>Equivalent to <code>&quot;%H:%M&quot;</code>. [<code>tm_hour</code>, <code>tm_min</code>]</td>
+</tr>
+<tr>
+<td><code>%S</code></td>
+<td>Second as a decimal number (00–60). [<code>tm_sec</code>]</td>
+</tr>
+<tr>
+<td><code>%t</code></td>
+<td>A horizontal-tab character.</td>
+</tr>
+<tr>
+<td><code>%T</code></td>
+<td>Equivalent to <code>&quot;%H:%M:%S&quot;</code> (the ISO 8601 time format). [<code>tm_hour</code>, <code>tm_min</code>, <code>tm_sec</code>]</td>
+</tr>
+<tr>
+<td><code>%u</code></td>
+<td>ISO 8601 weekday as a decimal number (1–7), where Monday is 1. [<code>tm_wday</code>]</td>
+</tr>
+<tr>
+<td><code>%U</code></td>
+<td>Week number of the year (the first Sunday as the first day of week 1) as a decimal number (00–53). [<code>tm_year</code>, <code>tm_wday</code>, <code>tm_yday</code>]</td>
+</tr>
+<tr>
+<td><code>%V</code></td>
+<td>ISO 8601 week number (see below) as a decimal number (01–53). [<code>tm_year</code>, <code>tm_wday</code>, <code>tm_yday</code>]</td>
+</tr>
+<tr>
+<td><code>%w</code></td>
+<td>Weekday as a decimal number (0–6), where Sunday is 0.</td>
+</tr>
+<tr>
+<td><code>%W</code></td>
+<td>Week number of the year (the first Monday as the first day of week 1) as a decimal number (00–53). [<code>tm_year</code>, <code>tm_wday</code>, <code>tm_yday</code>]</td>
+</tr>
+<tr>
+<td><code>%x</code></td>
+<td>Locale’s appropriate date representation.</td>
+</tr>
+<tr>
+<td><code>%X</code></td>
+<td>Locale’s appropriate time representation.</td>
+</tr>
+<tr>
+<td><code>%y</code></td>
+<td>Last 2 digits of the year as a decimal number (00–99). [<code>tm_year</code>]</td>
+</tr>
+<tr>
+<td><code>%Y</code></td>
+<td>Year as a decimal number (e.g., 1997). [<code>tm_year</code>]</td>
+</tr>
+<tr>
+<td><code>%z</code></td>
+<td>Offset from UTC in the ISO 8601 format <code>&quot;-0430&quot;</code> (meaning 4 hours 30 minutes behind UTC, west of Greenwich), or by no characters if no time zone is determinable. [<code>tm_isdst</code>]</td>
+</tr>
+<tr>
+<td><code>%Z</code></td>
+<td>Locale’s time zone name or abbreviation, or by no characters if no time zone is determinable. [<code>tm_isdst</code>]</td>
+</tr>
+<tr>
+<td><code>%%</code></td>
+<td>A plain ol’ %</td>
+</tr>
+</tbody></table>
+
+<p>Phew. That’s love.</p>
+
+<p><code>%G</code>, <code>%g</code>, and <code>%v</code> are a little funky in that they use something called the ISO 8601 week-based year. I’d never heard of it. But, again stealing from the spec, these are the rules:</p>
+
+<blockquote>
+<p><code>%g</code>, <code>%G</code>, and <code>%V</code> give values according to the ISO 8601 week-based year. In this system, weeks begin on a Monday and week 1 of the year is the week that includes January 4th, which is also the week that includes the first Thursday of the year, and is also the first week that contains at least four days in the year. If the first Monday of January is the 2nd, 3rd, or 4th, the preceding days are part of the last week of the preceding year; thus, for Saturday 2nd January 1999, <code>%G</code> is replaced by <code>1998</code> and <code>%V</code> is replaced by <code>53</code>. If December 29th, 30th, or 31st is a Monday, it and any following days are part of week 1 of the following year. Thus, for Tuesday 30th December 1997, <code>%G</code> is replaced by <code>1998</code> and <code>%V</code> is replaced by <code>01</code>.</p>
+</blockquote>
+
+<p>Learn something new every day! If you want to know more, <a href="https://en.wikipedia.org/wiki/ISO_week_date" rel="nofollow">Wikipedia has a page on it</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">⁷⁵</a>.</p>
+
+<p>If you’re in the “C” locale, the specifiers produce the following (again, stolen from the spec):</p>
+
+<table><thead>
+<tr>
+<th>Specifier</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>%a</code></td>
+<td>The first three characters of <code>%A</code>.</td>
+</tr>
+<tr>
+<td><code>%A</code></td>
+<td>One of <code>Sunday</code>, <code>Monday</code>, … , <code>Saturday</code>.</td>
+</tr>
+<tr>
+<td><code>%b</code></td>
+<td>The first three characters of <code>%B</code>.</td>
+</tr>
+<tr>
+<td><code>%B</code></td>
+<td>One of <code>January</code>, <code>February</code>, … , <code>December</code>.</td>
+</tr>
+<tr>
+<td><code>%c</code></td>
+<td>Equivalent to <code>%a %b %e %T %Y</code>.</td>
+</tr>
+<tr>
+<td><code>%p</code></td>
+<td>One of <code>AM</code> or <code>PM</code>.</td>
+</tr>
+<tr>
+<td><code>%r</code></td>
+<td>Equivalent to <code>%I:%M:%S %p</code>.</td>
+</tr>
+<tr>
+<td><code>%x</code></td>
+<td>Equivalent to <code>%m/%d/%y</code>.</td>
+</tr>
+<tr>
+<td><code>%X</code></td>
+<td>Equivalent to <code>%T</code>.</td>
+</tr>
+<tr>
+<td><code>%Z</code></td>
+<td>Implementation-defined.</td>
+</tr>
+</tbody></table>
+
+<p>There are additional variants of the format specifiers that indicate you want to use a locale’s alternative format. These don’t exist for all locales. It’s one of the format specifies above, with either an <code>E</code> or <code>O</code> prefix:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">%</span><span class="n">Ec</span> <span class="o">%</span><span class="n">EC</span> <span class="o">%</span><span class="n">Ex</span> <span class="o">%</span><span class="n">EX</span> <span class="o">%</span><span class="n">Ey</span> <span class="o">%</span><span class="n">EY</span> <span class="o">%</span><span class="n">Od</span> <span class="o">%</span><span class="n">Oe</span> <span class="o">%</span><span class="n">OH</span> <span class="o">%</span><span class="n">OI</span>
+<span class="o">%</span><span class="n">Om</span> <span class="o">%</span><span class="n">OM</span> <span class="o">%</span><span class="n">OS</span> <span class="o">%</span><span class="n">Ou</span> <span class="o">%</span><span class="n">OU</span> <span class="o">%</span><span class="n">OV</span> <span class="o">%</span><span class="n">Ow</span> <span class="o">%</span><span class="n">OW</span> <span class="o">%</span><span class="n">Oy</span>
+</code></pre></div>
+
+<p>The <code>E</code> and <code>O</code> prefixes are ignored in the “C” locale.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the total number of bytes put into the result string, not including the NUL terminator.</p>
+
+<p>If the result doesn’t fit in the string, zero is returned and the value in <code>s</code> is indeterminate.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+    <span class="kt">time_t</span> <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="c1">// %c: print date as per current locale</span>
+    <span class="n">strftime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">s</span><span class="p">,</span> <span class="s">"%c"</span><span class="p">,</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+    <span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>   <span class="c1">// Sun Feb 28 22:29:00 2021</span>
+
+    <span class="c1">// %A: full weekday name</span>
+    <span class="c1">// %B: full month name</span>
+    <span class="c1">// %d: day of the month</span>
+    <span class="n">strftime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">s</span><span class="p">,</span> <span class="s">"%A, %B %d"</span><span class="p">,</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+    <span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>   <span class="c1">// Sunday, February 28</span>
+
+    <span class="c1">// %I: hour (12 hour clock)</span>
+    <span class="c1">// %M: minute</span>
+    <span class="c1">// %S: second</span>
+    <span class="c1">// %p: AM or PM</span>
+    <span class="n">strftime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">s</span><span class="p">,</span> <span class="s">"It's %I:%M:%S %p"</span><span class="p">,</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+    <span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>   <span class="c1">// It's 10:29:00 PM</span>
+
+    <span class="c1">// %F: ISO 8601 yyyy-mm-dd</span>
+    <span class="c1">// %T: ISO 8601 hh:mm:ss</span>
+    <span class="c1">// %z: ISO 8601 time zone offset</span>
+    <span class="n">strftime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">s</span><span class="p">,</span> <span class="s">"ISO 8601: %FT%T%z"</span><span class="p">,</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+    <span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>   <span class="c1">// ISO 8601: 2021-02-28T22:29:00-0800</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="time.html#man-ctime" rel="nofollow"><code>ctime()</code></a>, <a href="time.html#man-asctime" rel="nofollow"><code>asctime()</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

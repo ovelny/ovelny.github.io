@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/02-the-c-language</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/02-the-c-language"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>2 The C Language</h1>
+
+<p>This is just a quick overview of the fashionable and fun highlights of the syntax, keywords, and other animals in the C menagerie.</p>
+
+<h2>2.1 Background</h2>
+
+<p>Some things you’ll need to make sense of the examples, below.</p>
+
+<h3>2.1.1 Comments</h3>
+
+<p>Comments in C start with <code>//</code> and go to the end of a line.</p>
+
+<p>Multiline comments begin with <code>/*</code> and continue until a closing <code>*/</code>.</p>
+
+<h3>2.1.2 Separators</h3>
+
+<p>Expressions in C are separated by semicolons (<code>;</code>). These tend to appear at the ends of lines.</p>
+
+<h3>2.1.3 Expressions</h3>
+
+<p>If it’s not a keyword or other reserved punctuation, it tends to be an expression. Think “math including function calls”.</p>
+
+<h3>2.1.4 Statements</h3>
+
+<p>Think <code>if</code>, <code>while</code>, etc. Executable keywords.</p>
+
+<h3>2.1.5 Booleans</h3>
+
+<p>Ignoring the <code>bool</code> type, zero is false and non-zero is true.</p>
+
+<h3>2.1.6 Blocks</h3>
+
+<p>Multiple expressions and flow control keywords can be wrapped up in a block, made up of <code>{</code> followed by one or more expressions or statements, followed by <code>}</code>.</p>
+
+<h3>2.1.7 Code Examples</h3>
+
+<p>They are meant to give an idea of how to use various statements, but not be comprehensive in terms of examples.</p>
+
+<p>In the examples, below, if either an expression or statement can be used, the word <code>code</code> is inserted.</p>
+
+<h2>2.2 Operators</h2>
+
+<h3>2.2.1 Arithmetic Operators</h3>
+
+<p>The arithmetic operators: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code> (remainder).</p>
+
+<p>Division is integer if all arguments are integers. Otherwise it’s a floating result.</p>
+
+<p>You can also negate an expression by putting <code>-</code> in front of it. (You can also put a <code>+</code> in front of it—this doesn’t do anything mathematically, but it causes the Usual Arithmetic Conversions to be performed on the expression.)</p>
+
+<h3>2.2.2 Pre- and Post-Increment and -Decrement</h3>
+
+<p>The post-increment (<code>++</code>) and post-decrement (<code>--</code>) operators (after the variable) do their work <em>after</em> the rest of the expression has been evaluated.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">z</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="n">w</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">++</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">y</span><span class="o">--</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">z</span><span class="o">++</span><span class="p">);</span>
+
+<span class="n">print</span><span class="p">(</span><span class="s">"%d %d %d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">w</span><span class="p">);</span>  <span class="c1">// 11 19 31 60</span>
+</code></pre></div>
+
+<p>The pre-increment (<code>++</code>) and pre-decrement (<code>--</code>) operators (before the variable) do their work <em>before</em> the rest of the expression has been evaluated.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">z</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="n">w</span> <span class="o">=</span> <span class="p">(</span><span class="o">++</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="o">--</span><span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="o">++</span><span class="n">z</span><span class="p">);</span>
+
+<span class="n">print</span><span class="p">(</span><span class="s">"%d %d %d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">w</span><span class="p">);</span>  <span class="c1">// 11 19 31 61</span>
+</code></pre></div>
+
+<h3>2.2.3 Comparison Operators</h3>
+
+<p>All of these return a Boolean true-y or false-y value.</p>
+
+<p>Less than, greater than, and equal to are: <code>&lt;</code>, <code>&gt;</code>, <code>==</code>, respectively.</p>
+
+<p>Less than or equal to and greater than or equal to are <code>&lt;=</code> and <code>&gt;=</code>.</p>
+
+<p>Not equal to is <code>!=</code>.</p>
+
+<h3>2.2.4 Pointer Operators</h3>
+
+<p><code>*</code> in front of a pointer variable dereferences that variable.</p>
+
+<p><code>&amp;</code> in front of a variable gives the address of that variable.</p>
+
+<p><code>+</code> and <code>-</code> arithmetic operators work on pointers for pointer arithmetic.</p>
+
+<h3>2.2.5 Structure and Union Operators</h3>
+
+<p>The dot operator (<code>.</code>) can get a field value out of a <code>struct</code> or <code>union</code>.</p>
+
+<p>The arrow operator (<code>-&gt;</code>) can get a field value out of a pointer to a <code>struct</code> or <code>union</code>. These two are equivalent, assuming <code>p</code> is just such a pointer:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">).</span><span class="n">bar</span><span class="p">;</span>
+<span class="n">p</span><span class="o">-&gt;</span><span class="n">bar</span><span class="p">;</span>
+</code></pre></div>
+
+<h3>2.2.6 Array Operators</h3>
+
+<p>The square bracket operators can reference a value in an array:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">a</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="mi">99</span><span class="p">;</span>
+</code></pre></div>
+
+<p>This is syntactic sugar over pointer arithmetic and referencing. The above line is equivalent to:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="o">*</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span> <span class="o">=</span> <span class="mi">99</span><span class="p">;</span>
+</code></pre></div>
+
+<h3>2.2.7 Bitwise Operators</h3>
+
+<p>Bit shift right: <code>&gt;&gt;</code>, bit shift left: <code>&lt;&lt;</code>.</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>int i = x &lt;&lt; 3;  // left shift 3 bits
+</code></pre></div>
+
+<p>Whether or not a right shift on a signed value is sign-extended is implementation-defined.</p>
+
+<p>Bitwise AND, OR, NOT, and XOR are <code>&amp;</code>, <code>|</code>, <code>~</code>, and <code>^</code>, respectively.</p>
+
+<h3>2.2.8 Assignment Operators</h3>
+
+<p>A standalone <code>=</code> is your basic assignment.</p>
+
+<p>But there are also compound assignments that are like a shorthand version. For example, these two are basically equivalent:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">x</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+</code></pre></div>
+
+<p>There are compound assignment operators for many of the other operators.</p>
+
+<p>Arithmetic: <code>+=</code>, <code>-=</code>, <code>*=</code>, <code>/=</code>, and <code>%=</code>.</p>
+
+<p>Bitwise: <code>|=</code>, <code>&amp;=</code>, <code>~=</code>, and <code>^=</code>.</p>
+
+<h3>2.2.9 The <code>sizeof</code> Operator</h3>
+
+<p>This is a compile-time operator that gives you the size in bytes of the type of the argument. The type of the expression is used; the expression is not evaluated. <code>sizeof</code> works with any type, even user-defined composite types.</p>
+
+<p>The return type is the integer type <code>size_t</code>.</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>float f;
+size_t x = sizeof f;
+
+printf("f is %zu bytes\n", x);
+</code></pre></div>
+
+<p>You can also specify a raw type name in there by wrapping it in parentheses:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">size_t</span> <span class="n">x</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"int is %zu bytes</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>2.2.10 Type Casts</h3>
+
+<p>You can force an expression to be another type (within reason) by <em>casting</em> to that type.</p>
+
+<p>You give the new type name in parentheses.</p>
+
+<p>Here we are forcing the subexpression <code>x</code> to be type <code>float</code> just before the division<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">¹¹</a>. This causes the division, which would otherwise be an integer division, to be a floating point division.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">17</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+
+<span class="kt">float</span> <span class="n">f</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">x</span> <span class="o">/</span> <span class="n">y</span><span class="p">;</span>
+</code></pre></div>
+
+<h3>2.2.11 <code>_Alignof</code> Operator</h3>
+
+<p>You can get the byte alignment of any type with the <code>_Alignof</code> compile-time operator. If you include <code>&lt;stdalign.h&gt;</code>, you can use <code>alignof</code> instead.</p>
+
+<p>Any type can be the argument to the operator, which must be in parenthesis. Unlike <code>sizeof</code>, the argument cannot be an expression.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"Alignment of int is %zu</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">alignof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+</code></pre></div>
+
+<h3>2.2.12 Comma Operator</h3>
+
+<p>You can separate subexpressions with commas, and each will be evaluated from left to right, and the value of the entire expression will be the value of the subexpression after the last comma.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>  <span class="c1">// Silly way to assign `x = 3`</span>
+</code></pre></div>
+
+<p>Usually this is used in the various clauses in loops. For example, we can do multiple assignments in a <code>for</code> loop, and have multiple post expressions like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">,</span> <span class="n">j</span> <span class="o">+=</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span> <span class="p">...</span> <span class="p">}</span>
+</code></pre></div>
+
+<h2>2.3 Type Specifiers</h2>
+
+<p>Integer types from smallest to largest capacity: <code>char</code>, <code>short</code>, <code>int</code>, <code>long</code>, <code>long long</code>.</p>
+
+<p>Any integer type may be prefaced with <code>signed</code> (the default except for <code>char</code>) or <code>unsigned</code>.</p>
+
+<p>Whether or not <code>char</code> is signed is implementation defined.</p>
+
+<p>Floating types from least accuracy to most: <code>float</code>, <code>double</code>, <code>long double</code>.</p>
+
+<p><code>void</code> is a type representing lack of type.</p>
+
+<p><code>_Bool</code> is a Boolean type. This becomes <code>bool</code> in C23. Earlier versions of C must include <code>&lt;stdbool.h&gt;</code> to get <code>bool</code>.</p>
+
+<p><code>_Complex</code> indicates a complex floating type type, when paired with such a type. Include <code>&lt;complex.h&gt;</code> to use <code>complex</code> instead.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">complex</span> <span class="kt">float</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">.</span><span class="mi">3</span><span class="o">*</span><span class="n">I</span><span class="p">;</span>
+<span class="n">complex</span> <span class="kt">double</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">.</span><span class="mi">3</span><span class="o">*</span><span class="n">I</span><span class="p">;</span>
+</code></pre></div>
+
+<p><code>_Imaginary</code> is an optional keyword used to specify an imaginary type (the imaginary part of a complex number) when paired with a floating type. Include <code>&lt;complex.h&gt;</code> to use <code>imaginary</code> instead. Neither GCC nor clang support this.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">imaginary</span> <span class="kt">float</span> <span class="n">f</span> <span class="o">=</span> <span class="mi">2</span><span class="p">.</span><span class="mi">3</span><span class="o">*</span><span class="n">I</span><span class="p">;</span>
+</code></pre></div>
+
+<p><code>_Generic</code> is a type “switcher” that allows you to emit different code at compile time depending on the type of the data.</p>
+
+<h2>2.4 Constant Types</h2>
+
+<p>You can declare constants to be of specific types (though it might be a larger type). In the following example unqualified types, case doesn’t matter, and the <code>U</code> can come before or after the <code>L</code> or <code>LL</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">123</span>              <span class="kt">int</span> <span class="n">or</span> <span class="n">larger</span>
+<span class="mi">123L</span>             <span class="kt">long</span> <span class="kt">int</span> <span class="n">or</span> <span class="n">larger</span>
+<span class="mi">123LL</span>            <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span>
+
+<span class="mi">123U</span>             <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">or</span> <span class="n">larger</span>
+<span class="mi">123UL</span>            <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">or</span> <span class="n">larger</span>
+<span class="mi">123ULL</span>           <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span>
+
+<span class="mi">123</span><span class="p">.</span><span class="mi">4</span><span class="n">F</span>           <span class="kt">float</span>
+<span class="mi">123</span><span class="p">.</span><span class="mi">4</span>            <span class="kt">double</span>
+<span class="mi">123</span><span class="p">.</span><span class="mi">4L</span>           <span class="kt">long</span> <span class="kt">double</span>
+
+<span class="sc">'a'</span>              <span class="kt">char</span>
+<span class="s">"hello, world"</span>   <span class="kt">char</span><span class="o">*</span> <span class="p">(</span><span class="n">string</span><span class="p">)</span>
+</code></pre></div>
+
+<p>You can specify the constant in other bases as well:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">123</span>              <span class="n">decimal</span>
+<span class="mh">0x123</span>            <span class="n">hexadecimal</span>
+<span class="mo">0123</span>             <span class="n">octal</span>
+</code></pre></div>
+
+<p>You can also specify floating constants in base-10 exponential notation:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mf">1.2e3</span>            <span class="mi">1</span><span class="p">.</span><span class="mi">2</span> <span class="n">x</span> <span class="mi">10</span><span class="o">^</span><span class="mi">3</span>
+</code></pre></div>
+
+<p>And you can specify floats in hex! Except in this case the exponent is still in decimal, and the base is 2 instead of 10:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mh">0x1</span><span class="p">.</span><span class="mi">2</span><span class="n">p3</span>          <span class="mh">0x1</span><span class="p">.</span><span class="mi">2</span> <span class="n">x</span> <span class="mi">2</span><span class="o">^</span><span class="mi">3</span>
+</code></pre></div>
+
+<h2>2.5 Composite Types</h2>
+
+<h3>2.5.1 <code>struct</code> Types</h3>
+
+<p>You can build a composite type made out of other types with <code>struct</code> and then declare variables to be of that type.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">animal</span> <span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">leg_count</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">animal</span> <span class="n">a</span><span class="p">;</span>
+<span class="k">struct</span> <span class="n">animal</span> <span class="n">b</span> <span class="o">=</span> <span class="p">{</span><span class="s">"goat"</span><span class="p">,</span> <span class="mi">4</span><span class="p">};</span>
+<span class="k">struct</span> <span class="n">animal</span> <span class="n">c</span> <span class="o">=</span> <span class="p">{.</span><span class="n">name</span><span class="o">=</span><span class="s">"goat"</span><span class="p">,</span> <span class="p">.</span><span class="n">leg_count</span><span class="o">=</span><span class="mi">4</span><span class="p">};</span>
+</code></pre></div>
+
+<p>Accessing is done with the dot operator (<code>.</code>) or, if the variable is a pointer to a <code>struct</code>, the arrow operator (<code>-&gt;</code>).</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">animal</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">b</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">leg_count</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">leg_count</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>2.5.2 <code>union</code> Types</h3>
+
+<p>These are like <code>struct</code> types in usage, except that you can only use one field at a time. (The fields all use the same region of memory.)</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">union</span> <span class="n">dt</span> <span class="p">{</span>
+    <span class="kt">float</span> <span class="n">distance</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">time</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">union</span> <span class="n">dt</span> <span class="n">a</span><span class="p">;</span>
+<span class="k">union</span> <span class="n">dt</span> <span class="n">b</span> <span class="o">=</span> <span class="p">{</span><span class="mi">6</span><span class="p">};</span>            <span class="c1">// Initializes "distance", the first field</span>
+<span class="k">union</span> <span class="n">dt</span> <span class="n">c</span> <span class="o">=</span> <span class="p">{.</span><span class="n">distance</span><span class="o">=</span><span class="mi">6</span><span class="p">};</span>  <span class="c1">// Initializes "distance"</span>
+<span class="k">union</span> <span class="n">dt</span> <span class="n">d</span> <span class="o">=</span> <span class="p">{.</span><span class="n">time</span><span class="o">=</span><span class="mi">6</span><span class="p">};</span>      <span class="c1">// Initializes "time"</span>
+</code></pre></div>
+
+<p>Accessing is done with the dot operator (<code>.</code>) or, if the variable is a pointer to a <code>union</code>, the arrow operator (<code>-&gt;</code>).</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">union</span> <span class="n">dt</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">b</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">b</span><span class="p">.</span><span class="n">time</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">time</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>2.5.3 <code>enum</code> Types</h3>
+
+<p>Gives you a typed way to have named constant integer values. These can be used with <code>switch()</code>, or as an array size, or any other place constant values are needed.</p>
+
+<p>Names are conventionally capitalized.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">enum</span> <span class="n">animal</span> <span class="p">{</span>
+    <span class="n">ANTELOPE</span><span class="p">,</span>
+    <span class="n">BADGER</span><span class="p">,</span>
+    <span class="n">CAT</span><span class="p">,</span>
+    <span class="n">DOG</span><span class="p">,</span>
+    <span class="n">ELEPHANT</span><span class="p">,</span>
+    <span class="n">FISH</span>
+<span class="p">};</span>
+
+<span class="k">enum</span> <span class="n">animal</span> <span class="n">a</span> <span class="o">=</span> <span class="n">CAT</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="n">CAT</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"The animal is a cat.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+</code></pre></div>
+
+<p>The names have numeric values starting with zero and counting up. (In the example above, <code>DOG</code> would be <code>3</code>.)</p>
+
+<p>The numeric value can be overridden by specifying an integer exactly. Subsequent values increment from the specified one.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">enum</span> <span class="n">animal</span> <span class="p">{</span>
+    <span class="n">ANTELOPE</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="n">BADGER</span><span class="p">,</span>         <span class="c1">// Will be 5</span>
+    <span class="n">CAT</span><span class="p">,</span>            <span class="c1">// Will be 6</span>
+    <span class="n">DOG</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="n">ELEPHANT</span><span class="p">,</span>       <span class="c1">// Will be 4</span>
+    <span class="n">FISH</span>            <span class="c1">// Will be 5</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>As above, duplicate values are not illegal, but might be of marginal usefulness.</p>
+
+<h2>2.6 Initializers</h2>
+
+<p>You can do this when the variable is defined, but not elsewhere.</p>
+
+<p>Initializing basic types:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="mi">2</span><span class="p">;</span>
+<span class="kt">char</span> <span class="n">c</span> <span class="o">=</span> <span class="sc">'a'</span><span class="p">;</span>
+<span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Initializing array types:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">a</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">};</span>
+<span class="kt">int</span> <span class="n">a</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">};</span>   <span class="c1">// Same as a[3]</span>
+
+<span class="kt">int</span> <span class="n">a</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">};</span>   <span class="c1">// Same as {1, 2, 0}</span>
+<span class="kt">int</span> <span class="n">a</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">};</span>      <span class="c1">// Same as {1, 0, 0}</span>
+<span class="kt">int</span> <span class="n">a</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>      <span class="c1">// Same as {0, 0, 0}</span>
+</code></pre></div>
+
+<p>Initializing pointer types:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">q</span><span class="p">;</span>
+<span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">q</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Initializing <code>struct</code>s:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">s</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">s</span> <span class="n">x0</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">.</span><span class="mi">2</span><span class="p">};</span> <span class="c1">// Initialize fields in order</span>
+
+<span class="k">struct</span> <span class="n">s</span> <span class="n">x0</span> <span class="o">=</span> <span class="p">{.</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="p">.</span><span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">.</span><span class="mi">2</span><span class="p">};</span> <span class="c1">// Initialize fields by name</span>
+<span class="k">struct</span> <span class="n">s</span> <span class="n">x0</span> <span class="o">=</span> <span class="p">{.</span><span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">.</span><span class="mi">2</span><span class="p">,</span> <span class="p">.</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">};</span> <span class="c1">// Same thing</span>
+
+<span class="k">struct</span> <span class="n">s</span> <span class="n">x0</span> <span class="o">=</span> <span class="p">{.</span><span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">.</span><span class="mi">2</span><span class="p">};</span> <span class="c1">// All other fields initialized to 0</span>
+<span class="k">struct</span> <span class="n">s</span> <span class="n">x0</span> <span class="o">=</span> <span class="p">{.</span><span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">.</span><span class="mi">2</span><span class="p">,</span> <span class="p">.</span><span class="n">a</span><span class="o">-=</span><span class="mi">0</span><span class="p">};</span>  <span class="c1">// Same thing</span>
+</code></pre></div>
+
+<p>Initializing <code>union</code>s:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">union</span> <span class="n">u</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">union</span> <span class="n">u</span> <span class="n">x0</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">};</span>  <span class="c1">// Initialize the first field (a)</span>
+
+<span class="k">union</span> <span class="n">u</span> <span class="n">x0</span> <span class="o">=</span> <span class="p">{.</span><span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">};</span>  <span class="c1">// Initialize fields by name</span>
+<span class="k">union</span> <span class="n">u</span> <span class="n">x0</span> <span class="o">=</span> <span class="p">{.</span><span class="n">b</span><span class="o">=</span><span class="mi">2</span><span class="p">.</span><span class="mi">2</span><span class="p">};</span>
+
+<span class="c1">//union u x0 = {1, 2};       // ILLEGAL</span>
+<span class="c1">//union u x0 = {.a1, ,b=2};  // ILLEGAL</span>
+</code></pre></div>
+
+<h2>2.7 Compound Literals</h2>
+
+<p>You can declare “unnamed” objects in C. This is often useful for passing a <code>struct</code> to a function that otherwise doesn’t need a name.</p>
+
+<p>You use the type name in parens followed by an initializer to make the object.</p>
+
+<p>Here’s an example of passing a compound literal to a function. Note that there’s no <code>struct s</code> variable in <code>main()</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="k">struct</span> <span class="n">s</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="k">struct</span> <span class="n">s</span> <span class="n">x</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">x</span><span class="p">.</span><span class="n">a</span> <span class="o">+</span> <span class="n">x</span><span class="p">.</span><span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">t</span> <span class="o">=</span> <span class="n">add</span><span class="p">((</span><span class="k">struct</span> <span class="n">s</span><span class="p">){.</span><span class="n">a</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="p">.</span><span class="n">b</span><span class="o">=</span><span class="mi">4</span><span class="p">});</span>  <span class="c1">// &lt;-- Here</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">t</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Compound literals have the lifetime of their scope.</p>
+
+<p>You can also pass a pointer to a compound literal by taking its address:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">foo</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="k">struct</span> <span class="n">s</span><span class="p">){</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">});</span>
+</code></pre></div>
+
+<h2>2.8 Type Aliases</h2>
+
+<p>You can set up a type alias for convenience or abstraction.</p>
+
+<p>Here we’ll make a new type called <code>time_counter</code> that is just an <code>int</code>. It can only be used exactly like an <code>int</code>. It’s just an alias for an <code>int</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">typedef</span> <span class="kt">int</span> <span class="n">time_counter</span><span class="p">;</span>
+
+<span class="n">time_counter</span> <span class="n">t</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+</code></pre></div>
+
+<p>Also works with <code>struct</code>s or <code>union</code>s:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">foo</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">bar</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">baz</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">foo</span> <span class="n">funtype</span><span class="p">;</span>
+
+<span class="n">funtype</span> <span class="n">f</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">};</span> <span class="c1">// "funtype" is an alias for "struct foo";</span>
+</code></pre></div>
+
+<p>It also works inline, and with named or unnamed <code>struct</code>s or <code>union</code>s:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">bar</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">baz</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">funtype</span><span class="p">;</span>
+
+<span class="n">funtype</span> <span class="n">f</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">};</span> <span class="c1">// "funtype" is an alias for the unnamed struct</span>
+</code></pre></div>
+
+<h2>2.9 Additional Type-Related Specifiers</h2>
+
+<p>You can give the compiler more hints about what qualities a type should have using these specifiers and qualifiers.</p>
+
+<h3>2.9.1 Storage Class Specifiers</h3>
+
+<p>These can be placed before a type to provide more guidance about how the type is used.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">auto</span> <span class="kt">int</span> <span class="n">a</span>
+<span class="k">register</span> <span class="kt">int</span> <span class="n">a</span>
+<span class="k">static</span> <span class="kt">int</span> <span class="n">a</span>
+<span class="k">extern</span> <span class="kt">int</span> <span class="n">a</span>
+<span class="n">thread_local</span> <span class="kt">int</span> <span class="n">a</span>
+</code></pre></div>
+
+<p><code>auto</code> is the default, so it’s basically never used. Indicates automatic storage duration (things like local variables get freed automatically when they fall out of scope). In C23 this keyword changes to indicate type inference like C++.</p>
+
+<p><code>register</code> indicates that accessing this variable should be as quick as possible. Restricts some usage of the variable giving the compiler a chance to optimize. Rare in daily use.</p>
+
+<p><code>static</code> at function scope indicates that this variable’s value should persist from call to call. At file scope indicates that this variable should not be visible outside of this source file.</p>
+
+<p><code>extern</code> indicates that this variable refers to one declared in another source file.</p>
+
+<p><code>_Thread_local</code> means that every thread gets its own copy of this variable. You can use <code>thread_local</code> if you include <code>&lt;threads.h&gt;</code>.</p>
+
+<h3>2.9.2 Type Qualifiers</h3>
+
+<p>These can be placed before a type to provide more guidance about how the type is used.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">const</span> <span class="kt">int</span> <span class="n">a</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="o">*</span><span class="n">p</span>
+<span class="kt">int</span> <span class="o">*</span> <span class="k">const</span> <span class="n">p</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="o">*</span> <span class="k">const</span> <span class="n">p</span>
+<span class="kt">int</span> <span class="o">*</span> <span class="kr">restrict</span> <span class="n">p</span>
+<span class="k">volatile</span> <span class="kt">int</span> <span class="n">a</span>
+<span class="n">atomic</span> <span class="kt">int</span> <span class="n">a</span>
+</code></pre></div>
+
+<p><code>const</code> means the value can’t be modified. You can use it with pointers, as well:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">const</span> <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>        <span class="c1">// Can't modify "a"</span>
+
+<span class="k">const</span> <span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">b</span>        <span class="c1">// Can't modify the thing "p" points to ("b")</span>
+<span class="kt">int</span> <span class="o">*</span><span class="k">const</span> <span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">b</span>        <span class="c1">// Can't modify "p"</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="o">*</span><span class="k">const</span> <span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">b</span>  <span class="c1">// Can't modify "p" or the thing it points to</span>
+</code></pre></div>
+
+<p><code>restrict</code> on a pointer means that there will only be one pointer to the item in question, freeing the compiler to make some optimizations.</p>
+
+<p><code>volatile</code> indicates that the value in a variable might change at any time and should be loaded from memory instead of being kept in a register. Usually used with memory-mapped hardware.</p>
+
+<p><code>_Atomic</code> (or <code>atomic</code> if you include <code>&lt;stdatomic.h&gt;</code>) tells the compiler that reads or writes to this type should happen atomically. (This might be accomplished with a lock depending on the platform and type.)</p>
+
+<h3>2.9.3 Function Specifiers</h3>
+
+<p>These are used on functions to provide additional guidance for the compiler.</p>
+
+<p><code>_Noreturn</code> indicates that a function will never return. It can only run forever or exit the program entirely. If you include <code>&lt;stdnoreturn.h&gt;</code>, you can use <code>noreturn</code> instead.</p>
+
+<p><code>inline</code> indicates that calls to this function should be as fast as possible. The intention here is that the code of the function be moved <em>inline</em> to remove the overhead of the call and return. The compiler regards <code>inline</code> as a suggestion, not a requirement.</p>
+
+<h3>2.9.4 Alignment Specifier</h3>
+
+<p>You can force the alignment of a variable with memory with <code>_Alignas</code>. If you include <code>&lt;stdalign.h&gt;</code> you can use <code>alignas</code> instead.</p>
+
+<p><code>alignas(0)</code> has no effect.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">alignas</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span> <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>    <span class="c1">// 16-byte alignment</span>
+<span class="n">alignas</span><span class="p">(</span><span class="kt">long</span><span class="p">)</span> <span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">34</span><span class="p">;</span>  <span class="c1">// Same alignment as "long"</span>
+</code></pre></div>
+
+<h2>2.10 <code>if</code> Statement</h2>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">if</span> <span class="p">(</span><span class="n">boolean_expression</span><span class="p">)</span> <span class="n">code</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">boolean_expression</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">boolean_expression</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">else</span>
+    <span class="n">code</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">boolean_expression</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">{</span>
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">code</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>2.11 <code>for</code> Statement</h2>
+
+<p>Classic <code>for</code>-loop.</p>
+
+<p>The bit in parens comes in three parts separated by semicolons:</p>
+
+<ul>
+<li>  Initialization, executed once.</li>
+<li>  Block entry condition, evaluated every time before entering the loop body.</li>
+<li>  Post expression, evaluated every time after the loop body.</li>
+</ul>
+
+<p>For example, initialize <code>i</code> to <code>0</code>, enter the loop body while <code>i &lt; 10</code>, and then increment <code>i</code> after each loop iteration:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>You can declare loop-local variables by specifying their type:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>You can separate parts of the expressions with the comma operator:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">,</span> <span class="n">j</span> <span class="o">*=</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>2.12 <code>while</code> Statement</h2>
+
+<p>This loop won’t enter if the Boolean expression is false. The continuation test happens before the loop.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">while</span> <span class="p">(</span><span class="n">boolean_expression</span><span class="p">)</span> <span class="n">code</span><span class="p">;</span>
+
+<span class="k">while</span> <span class="p">(</span><span class="n">boolean_expression</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>2.13 <code>do</code>-<code>while</code> Statement</h2>
+
+<p>This loop will run at least once even if the Boolean expression is false. The continuation test doesn’t happen until after the loop.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">do</span> <span class="n">code</span> <span class="nf">while</span> <span class="p">(</span><span class="n">boolean_expression</span><span class="p">);</span>
+
+<span class="k">do</span> <span class="p">{</span>
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+<span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">boolean_expression</span><span class="p">);</span>
+</code></pre></div>
+
+<h2>2.14 <code>switch</code> Statement</h2>
+
+<p>Performs actions based on the value of an expression. The cases that it is compared against must be constant values.</p>
+
+<p>If the optional <code>default</code> is present, that code is executed if none of the cases match. Braces are not required around the cases.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">switch</span> <span class="p">(</span><span class="n">expression</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="n">constant</span><span class="p">:</span>
+        <span class="n">code</span><span class="p">;</span>
+        <span class="n">code</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+
+    <span class="k">case</span> <span class="n">constant</span><span class="p">:</span>
+        <span class="n">code</span><span class="p">;</span>
+        <span class="n">code</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+
+    <span class="nl">default:</span>
+        <span class="n">code</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The final <code>break</code> in the <code>switch</code> is unnecessary if there are no cases after it.</p>
+
+<p>If the <code>break</code> isn’t present, the <code>case</code> falls through to the next one. It’s nice to put a comment to that effect so other devs don’t hate you.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">switch</span> <span class="p">(</span><span class="n">expression</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="n">constant</span><span class="p">:</span>
+        <span class="n">code</span><span class="p">;</span>
+        <span class="n">code</span><span class="p">;</span>
+        <span class="c1">// fall through!</span>
+
+    <span class="k">case</span> <span class="n">constant</span><span class="p">:</span>
+        <span class="n">code</span><span class="p">;</span>
+        <span class="k">break</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>2.15 <code>break</code> Statement</h2>
+
+<p>This breaks out of a <code>switch</code> case, but it also can break out of any loop.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">while</span> <span class="p">(</span><span class="n">boolean_expression</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">code</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">boolean_expression</span><span class="p">)</span>
+        <span class="k">break</span><span class="p">;</span>
+
+    <span class="n">code</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>2.16 <code>continue</code> Statement</h2>
+
+<p>This can be used to short-circuit a loop and go to the next continuation condition test without completing the body of the loop.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">while</span> <span class="p">(</span><span class="n">boolean_expression</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">boolean_expression_2</span><span class="p">)</span>
+        <span class="k">continue</span><span class="p">;</span>
+
+    <span class="c1">// If boolean_expression_2, code down here will be skipped:</span>
+
+    <span class="n">code</span><span class="p">;</span>
+    <span class="n">code</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>2.17 <code>goto</code> Statement</h2>
+
+<p>You can just jump anywhere within a function with <code>goto</code>. (You can’t <code>goto</code> between functions, only within the same function as the <code>goto</code>.)</p>
+
+<p>The destination of the <code>goto</code> is a <em>label</em>, which is an identifier followed by a colon (<code>:</code>). Labels are typically left-justified all the way to the margin to make them visually stand out.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="p">{</span>
+    <span class="c1">// Abusive demo code that should be a while loop</span>
+
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="nl">loop:</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="o">++</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="k">goto</span> <span class="n">loop</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>2.18 <code>return</code> Statement</h2>
+
+<p>This is how you get back from a function. You can <code>return</code> multiple times or just once.</p>
+
+<p>If a function with <code>void</code> return type falls off the end, the <code>return</code> is implicit.</p>
+
+<p>If the return type is not <code>void</code>, the <code>return</code> statement must specify a return value of the same type.</p>
+
+<p>Parentheses around the return value are not necessary (as it’s a statement, not a function).</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">increment</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>2.19 <code>_Static_assert</code> Statement</h2>
+
+<p>This is a way to prevent <em>compilation</em> of a program if a certain constant condition is not met.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">_Static_assert</span><span class="p">(</span><span class="n">__STDC_VERSION__</span> <span class="o">&gt;=</span> <span class="mi">201112L</span><span class="p">,</span> <span class="s">"You need at least C11!"</span><span class="p">)</span>
+</code></pre></div>
+
+<h2>2.20 Functions</h2>
+
+<p>You need to specify the return type and parameter types for the function, and the body goes in a block afterward.</p>
+
+<p>Variables in the function are local to that function.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// Function that adds two numbers</span>
+
+<span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="n">sum</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Functions that return nothing should be return type <code>void</code>. Functions that accept no parameters should have <code>void</code> as the parameter list.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// All side effects, all the time!</span>
+
+<span class="kt">void</span> <span class="nf">foo</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">some_global</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Here we go!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>2.20.1 <code>main()</code> Function</h3>
+
+<p>This is the function that runs when you first start the program. It will be one of these forms:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+</code></pre></div>
+
+<p>The first form ignores all command line parameters.</p>
+
+<p>The second form stores the count of the command line parameters in <code>argc</code>, and stores the parameters themselves as an array of strings in <code>argv</code>. The first of these, <code>argv[0]</code>, is typically the name of the executable. The last <code>argv</code> pointer has the value <code>NULL</code>.</p>
+
+<p>The return values usually show up as exit status codes in the OS. If there is no <code>return</code>, falling off the end of <code>main()</code> is an implied <code>return 0</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-%E2%80%94-library-reference/99-footnotes/" rel="nofollow">¹²</a>.</p>
+
+<h3>2.20.2 Variadic Functions</h3>
+
+<p>Some functions can take a variable number of arguments. Every function must have at least one argument. The remaining arguments are specified by <code>...</code> and can be read with the <code>va_start()</code>, <code>va_arg()</code>, and <code>va_end()</code> macros.</p>
+
+<p>Here’s an example that adds up a variable number of integer values.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">count</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">va_list</span> <span class="n">va</span><span class="p">;</span>
+
+    <span class="n">va_start</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>   <span class="c1">// Start with arguments after "count"</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>   <span class="c1">// Get the next int</span>
+
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">va_end</span><span class="p">(</span><span class="n">va</span><span class="p">);</span>  <span class="c1">// All done</span>
+
+    <span class="k">return</span> <span class="n">total</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

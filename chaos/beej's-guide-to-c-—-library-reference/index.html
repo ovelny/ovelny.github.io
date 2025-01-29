@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - Beej's guide to C — library reference</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - Beej's guide to C — library reference"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+
+    <h2>Beej's guide to C — library reference</h2>
+    <ul>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/00-index/>00 index</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/01-foreword/>01 foreword</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/02-the-c-language/>02 the c language</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/03-assert/>03 assert</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/04-complex/>04 complex</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/05-ctype/>05 ctype</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/06-errno/>06 errno</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/07-fenv/>07 fenv</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/08-float/>08 float</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/09-inttypes/>09 inttypes</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/10-iso646/>10 iso646</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/11-limits/>11 limits</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/12-locale/>12 locale</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/13-math/>13 math</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/14-setjmp/>14 setjmp</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/15-signal/>15 signal</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/16-stdalign/>16 stdalign</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/17-stdarg/>17 stdarg</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/18-stdatomic/>18 stdatomic</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/19-stdbool/>19 stdbool</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/20-stddef/>20 stddef</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/21-stdint/>21 stdint</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/22-stdio/>22 stdio</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/23-stdlib/>23 stdlib</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/24-stdnoreturn/>24 stdnoreturn</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/25-stringref/>25 stringref</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/26-tgmath/>26 tgmath</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/27-threads/>27 threads</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/28-time/>28 time</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/29-uchar/>29 uchar</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/30-wchar/>30 wchar</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/31-wctype/>31 wctype</a>
+            </li>
+        
+            <li>
+                
+                
+                <a href=https://ovelny.sh/chaos/beej's-guide-to-c-—-library-reference/99-footnotes/>99 footnotes</a>
+            </li>
+        
+    </ul>
+
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

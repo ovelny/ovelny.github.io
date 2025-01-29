@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/39-multithreading</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/39-multithreading"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>39 Multithreading</h1>
+
+<p>C11 introduced, formally, multithreading to the C language. It’s very eerily similar to <a href="https://en.wikipedia.org/wiki/POSIX_Threads" rel="nofollow">POSIX threads</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁵</a>, if you’ve ever used those.</p>
+
+<p>And if you’ve not, no worries. We’ll talk it through.</p>
+
+<p>Do note, however, that I’m not intending this to be a full-blown classic multithreading how-to<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁶</a>; you’ll have to pick up a different very thick book for that, specifically. Sorry!</p>
+
+<p>Threading is an optional feature. If a C11+ compiler defines <code>__STDC_NO_THREADS__</code>, threads will <strong>not</strong> be present in the library. Why they decided to go with a negative sense in that macro is beyond me, but there we are.</p>
+
+<p>You can test for it like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#ifdef __STDC_NO_THREADS__
+#error I need threads to build this program!
+#endif
+</span></code></pre></div>
+
+<p>Also, you might need to specify certain linker options when building. In the case of Unix-likes, try appending a <code>-lpthreads</code> to the end of the command line to link the <code>pthreads</code> library<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁷</a>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">gcc</span> <span class="o">-</span><span class="n">std</span><span class="o">=</span><span class="n">c11</span> <span class="o">-</span><span class="n">o</span> <span class="n">foo</span> <span class="n">foo</span><span class="p">.</span><span class="n">c</span> <span class="o">-</span><span class="n">lpthreads</span>
+</code></pre></div>
+
+<p>If you’re getting linker errors on your system, it could be because the appropriate library wasn’t included.</p>
+
+<h2>39.1 Background</h2>
+
+<p>Threads are a way to have all those shiny CPU cores you paid for do work for you in the same program.</p>
+
+<p>Normally, a C program just runs on a single CPU core. But if you know how to split up the work, you can give pieces of it to a number of threads and have them do the work simultaneously.</p>
+
+<p>Though the spec doesn’t say it, on your system it’s very likely that C (or the OS at its behest) will attempt to balance the threads over all your CPU cores.</p>
+
+<p>And if you have more threads than cores, that’s OK. You just won’t realize all those gains if they’re all trying to compete for CPU time.</p>
+
+<h2>39.2 Things You Can Do</h2>
+
+<p>You can create a thread. It will begin running the function you specify. The parent thread that spawned it will also continue to run.</p>
+
+<p>And you can wait for the thread to complete. This is called <em>joining</em>.</p>
+
+<p>Or if you don’t care when the thread completes and don’t want to wait, you can <em>detach it</em>.</p>
+
+<p>A thread can explicitly <em>exit</em>, or it can implicitly call it quits by returning from its main function.</p>
+
+<p>A thread can also <em>sleep</em> for a period of time, doing nothing while other threads run.</p>
+
+<p>The <code>main()</code> program is a thread, as well.</p>
+
+<p>Additionally, we have thread local storage, mutexes, and conditional variables. But more on those later. Let’s just look at the basics for now.</p>
+
+<h2>39.3 Data Races and the Standard Library</h2>
+
+<p>Some of the functions in the standard library (e.g. <code>asctime()</code> and <code>strtok()</code>) return or use <code>static</code> data elements that aren’t threadsafe. But in general unless it’s said otherwise, the standard library makes an effort to be so<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁸</a>.</p>
+
+<p>But keep an eye out. If a standard library function is maintaining state between calls in a variable you don’t own, or if a function is returning a pointer to a thing that you didn’t pass in, it’s not threadsafe.</p>
+
+<h2>39.4 Creating and Waiting for Threads</h2>
+
+<p>Let’s hack something up!</p>
+
+<p>We’ll make some threads (create) and wait for them to complete (join).</p>
+
+<p>We have a tiny bit to understand first, though.</p>
+
+<p>Every single thread is identified by an opaque variable of type <code>thrd_t</code>. It’s a unique identifier per thread in your program. When you create a thread, it’s given a new ID.</p>
+
+<p>Also when you make the thread, you have to give it a pointer to a function to run, and a pointer to an argument to pass to it (or <code>NULL</code> if you don’t have anything to pass).</p>
+
+<p>The thread will begin execution on the function you specify.</p>
+
+<p>When you want to wait for a thread to complete, you have to specify its thread ID so C knows which one to wait for.</p>
+
+<p>So the basic idea is:</p>
+
+<ol>
+<li> Write a function to act as the thread’s “<code>main</code>”. It’s not <code>main()</code>-proper, but analogous to it. The thread will start running there.</li>
+<li> From the main thread, launch a new thread with <code>thrd_create()</code>, and pass it a pointer to the function to run.</li>
+<li> In that function, have the thread do whatever it has to do.</li>
+<li> Meantimes, the main thread can continue doing whatever <em>it</em> has to do.</li>
+<li> When the main thread decides to, it can wait for the child thread to complete by calling <code>thrd_join()</code>. Generally you <strong>must</strong> <code>thrd_join()</code> the thread to clean up after it or else you’ll leak memory<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁹</a></li>
+</ol>
+
+<p><code>thrd_create()</code> takes a pointer to the function to run, and it’s of type <code>thrd_start_t</code>, which is <code>int (*)(void *)</code>. That’s Greek for “a pointer to a function that takes an <code>void*</code> as an argument, and returns an <code>int</code>.”</p>
+
+<p>Let’s make a thread! We’ll launch it from the main thread with <code>thrd_create()</code> to run a function, do some other things, then wait for it to complete with <code>thrd_join()</code>. I’ve named the thread’s main function <code>run()</code>, but you can name it anything as long as the types match <code>thrd_start_t</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// This is the function the thread will run. It can be called anything.</span>
+<span class="c1">//</span>
+<span class="c1">// arg is the argument pointer passed to `thrd_create()`.</span>
+<span class="c1">//</span>
+<span class="c1">// The parent thread will get the return value back from `thrd_join()`'</span>
+<span class="c1">// later.</span>
+
+<span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="o">*</span><span class="n">a</span> <span class="o">=</span> <span class="n">arg</span><span class="p">;</span>  <span class="c1">// We'll pass in an int* from thrd_create()</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"THREAD: Running thread with arg %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">12</span><span class="p">;</span>  <span class="c1">// Value to be picked up by thrd_join() (chose 12 at random)</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_t</span> <span class="n">t</span><span class="p">;</span>  <span class="c1">// t will hold the thread ID</span>
+    <span class="kt">int</span> <span class="n">arg</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Launching a thread</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="c1">// Launch a thread to the run() function, passing a pointer to 3490</span>
+    <span class="c1">// as an argument. Also stored the thread ID in t:</span>
+
+    <span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">arg</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Doing other things while the thread runs</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Waiting for thread to complete...</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">res</span><span class="p">;</span>  <span class="c1">// Holds return value from the thread exit</span>
+
+    <span class="c1">// Wait here for the thread to complete; store the return value</span>
+    <span class="c1">// in res:</span>
+
+    <span class="n">thrd_join</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">res</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread exited with return value %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>See how we did the <code>thrd_create()</code> there to call the <code>run()</code> function? Then we did other things in <code>main()</code> and then stopped and waited for the thread to complete with <code>thrd_join()</code>.</p>
+
+<p>Sample output (yours might vary):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Launching</span> <span class="n">a</span> <span class="kr">thread</span>
+<span class="n">Doing</span> <span class="n">other</span> <span class="n">things</span> <span class="k">while</span> <span class="n">the</span> <span class="kr">thread</span> <span class="n">runs</span>
+<span class="n">Waiting</span> <span class="k">for</span> <span class="kr">thread</span> <span class="n">to</span> <span class="n">complete</span><span class="p">...</span>
+<span class="n">THREAD</span><span class="o">:</span> <span class="n">Running</span> <span class="kr">thread</span> <span class="n">with</span> <span class="n">arg</span> <span class="mi">3490</span>
+<span class="n">Thread</span> <span class="n">exited</span> <span class="n">with</span> <span class="k">return</span> <span class="n">value</span> <span class="mi">12</span>
+</code></pre></div>
+
+<p>The <code>arg</code> that you pass to the function has to have a lifetime long enough so that the thread can pick it up before it goes away. Also, it needs to not be overwritten by the main thread before the new thread can use it.</p>
+
+<p>Let’s look at an example that launches 5 threads. One thing to note here is how we use an array of <code>thrd_t</code>s to keep track of all the thread IDs.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"THREAD %d: running!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">i</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cp">#define THREAD_COUNT 5
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_t</span> <span class="n">t</span><span class="p">[</span><span class="n">THREAD_COUNT</span><span class="p">];</span>
+
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Launching threads...</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">THREAD_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+
+        <span class="c1">// NOTE! In the following line, we pass a pointer to i, </span>
+        <span class="c1">// but each thread sees the same pointer. So they'll</span>
+        <span class="c1">// print out weird things as i changes value here in</span>
+        <span class="c1">// the main thread! (More in the text, below.)</span>
+
+        <span class="n">thrd_create</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">i</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Doing other things while the thread runs...</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Waiting for thread to complete...</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">THREAD_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">res</span><span class="p">;</span>
+        <span class="n">thrd_join</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">res</span><span class="p">);</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %d complete!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">res</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"All threads complete!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>When I run the threads, I count <code>i</code> up from 0 to 4. And pass a pointer to it to <code>thrd_create()</code>. This pointer ends up in the <code>run()</code> routine where we make a copy of it.</p>
+
+<p>Simple enough? Here’s the output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Launching</span> <span class="n">threads</span><span class="p">...</span>
+<span class="n">THREAD</span> <span class="mi">2</span><span class="o">:</span> <span class="n">running</span><span class="o">!</span>
+<span class="n">THREAD</span> <span class="mi">3</span><span class="o">:</span> <span class="n">running</span><span class="o">!</span>
+<span class="n">THREAD</span> <span class="mi">4</span><span class="o">:</span> <span class="n">running</span><span class="o">!</span>
+<span class="n">THREAD</span> <span class="mi">2</span><span class="o">:</span> <span class="n">running</span><span class="o">!</span>
+<span class="n">Doing</span> <span class="n">other</span> <span class="n">things</span> <span class="k">while</span> <span class="n">the</span> <span class="kr">thread</span> <span class="n">runs</span><span class="p">...</span>
+<span class="n">Waiting</span> <span class="k">for</span> <span class="kr">thread</span> <span class="n">to</span> <span class="n">complete</span><span class="p">...</span>
+<span class="n">Thread</span> <span class="mi">2</span> <span class="n">complete</span><span class="o">!</span>
+<span class="n">Thread</span> <span class="mi">2</span> <span class="n">complete</span><span class="o">!</span>
+<span class="n">THREAD</span> <span class="mi">5</span><span class="o">:</span> <span class="n">running</span><span class="o">!</span>
+<span class="n">Thread</span> <span class="mi">3</span> <span class="n">complete</span><span class="o">!</span>
+<span class="n">Thread</span> <span class="mi">4</span> <span class="n">complete</span><span class="o">!</span>
+<span class="n">Thread</span> <span class="mi">5</span> <span class="n">complete</span><span class="o">!</span>
+<span class="n">All</span> <span class="n">threads</span> <span class="n">complete</span><span class="o">!</span>
+</code></pre></div>
+
+<p>Whaaa—? Where’s <code>THREAD 0</code>? And why do we have a <code>THREAD 5</code> when clearly <code>i</code> is never more than <code>4</code> when we call <code>thrd_create()</code>? And two <code>THREAD 2</code>s? Madness!</p>
+
+<p>This is getting into the fun land of <em>race conditions</em>. The main thread is modifying <code>i</code> before the thread has a chance to copy it. Indeed, <code>i</code> makes it all the way to <code>5</code> and ends the loop before the last thread gets a chance to copy it.</p>
+
+<p>We’ve got to have a per-thread variable that we can refer to so we can pass it in as the <code>arg</code>.</p>
+
+<p>We could have a big array of them. Or we could <code>malloc()</code> space (and free it somewhere—maybe in the thread itself.)</p>
+
+<p>Let’s give that a shot:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>  <span class="c1">// Copy the arg</span>
+
+    <span class="n">free</span><span class="p">(</span><span class="n">arg</span><span class="p">);</span>  <span class="c1">// Done with this</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"THREAD %d: running!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">i</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cp">#define THREAD_COUNT 5
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_t</span> <span class="n">t</span><span class="p">[</span><span class="n">THREAD_COUNT</span><span class="p">];</span>
+
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Launching threads...</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">THREAD_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+
+        <span class="c1">// Get some space for a per-thread argument:</span>
+
+        <span class="kt">int</span> <span class="o">*</span><span class="n">arg</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span> <span class="o">*</span><span class="n">arg</span><span class="p">);</span>
+        <span class="o">*</span><span class="n">arg</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+
+        <span class="n">thrd_create</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">arg</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// ...</span>
+</code></pre></div>
+
+<p>Notice on lines 27-30 we <code>malloc()</code> space for an <code>int</code> and copy the value of <code>i</code> into it. Each new thread gets its own freshly-<code>malloc()</code>d variable and we pass a pointer to that to the <code>run()</code> function.</p>
+
+<p>Once <code>run()</code> makes its own copy of the <code>arg</code> on line 7, it <code>free()</code>s the <code>malloc()</code>d <code>int</code>. And now that it has its own copy, it can do with it what it pleases.</p>
+
+<p>And a run shows the result:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Launching</span> <span class="n">threads</span><span class="p">...</span>
+<span class="n">THREAD</span> <span class="mi">0</span><span class="o">:</span> <span class="n">running</span><span class="o">!</span>
+<span class="n">THREAD</span> <span class="mi">1</span><span class="o">:</span> <span class="n">running</span><span class="o">!</span>
+<span class="n">THREAD</span> <span class="mi">2</span><span class="o">:</span> <span class="n">running</span><span class="o">!</span>
+<span class="n">THREAD</span> <span class="mi">3</span><span class="o">:</span> <span class="n">running</span><span class="o">!</span>
+<span class="n">Doing</span> <span class="n">other</span> <span class="n">things</span> <span class="k">while</span> <span class="n">the</span> <span class="kr">thread</span> <span class="n">runs</span><span class="p">...</span>
+<span class="n">Waiting</span> <span class="k">for</span> <span class="kr">thread</span> <span class="n">to</span> <span class="n">complete</span><span class="p">...</span>
+<span class="n">Thread</span> <span class="mi">0</span> <span class="n">complete</span><span class="o">!</span>
+<span class="n">Thread</span> <span class="mi">1</span> <span class="n">complete</span><span class="o">!</span>
+<span class="n">Thread</span> <span class="mi">2</span> <span class="n">complete</span><span class="o">!</span>
+<span class="n">Thread</span> <span class="mi">3</span> <span class="n">complete</span><span class="o">!</span>
+<span class="n">THREAD</span> <span class="mi">4</span><span class="o">:</span> <span class="n">running</span><span class="o">!</span>
+<span class="n">Thread</span> <span class="mi">4</span> <span class="n">complete</span><span class="o">!</span>
+<span class="n">All</span> <span class="n">threads</span> <span class="n">complete</span><span class="o">!</span>
+</code></pre></div>
+
+<p>There we go! Threads 0-4 all in effect!</p>
+
+<p>Your run might vary—how the threads get scheduled to run is beyond the C spec. We see in the above example that thread 4 didn’t even begin until threads 0-1 had completed. Indeed, if I run this again, I likely get different output. We cannot guarantee a thread execution order.</p>
+
+<h2>39.5 Detaching Threads</h2>
+
+<p>If you want to fire-and-forget a thread (i.e. so you don’t have to <code>thrd_join()</code> it later), you can do that with <code>thrd_detach()</code>.</p>
+
+<p>This removes the parent thread’s ability to get the return value from the child thread, but if you don’t care about that and just want threads to clean up nicely on their own, this is the way to go.</p>
+
+<p>Basically we’re going to do this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="n">thrd_detach</span><span class="p">(</span><span class="n">t</span><span class="p">);</span>
+</code></pre></div>
+
+<p>where the <code>thrd_detach()</code> call is the parent thread saying, “Hey, I’m not going to wait for this child thread to complete with <code>thrd_join()</code>. So go ahead and clean it up on your own when it completes.”</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+
+    <span class="c1">//printf("Thread running! %lu\n", thrd_current()); // non-portable!</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread running!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cp">#define THREAD_COUNT 10
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_t</span> <span class="n">t</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">THREAD_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+        <span class="n">thrd_detach</span><span class="p">(</span><span class="n">t</span><span class="p">);</span>               <span class="c1">// &lt;-- DETACH!</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Sleep for a second to let all the threads finish</span>
+    <span class="n">thrd_sleep</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="k">struct</span> <span class="n">timespec</span><span class="p">){.</span><span class="n">tv_sec</span><span class="o">=</span><span class="mi">1</span><span class="p">},</span> <span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Note that in this code, we put the main thread to sleep for 1 second with <code>thrd_sleep()</code>—more on that later.</p>
+
+<p>Also in the <code>run()</code> function, I have a commented-out line in there that prints out the thread ID as an <code>unsigned long</code>. This is non-portable, because the spec doesn’t say what type a <code>thrd_t</code> is under the hood—it could be a <code>struct</code> for all we know. But that line works on my system.</p>
+
+<p>Something interesting I saw when I ran the code, above, and printed out the thread IDs was that some threads had duplicate IDs! This seems like it should be impossible, but C is allowed to <em>reuse</em> thread IDs after the corresponding thread has exited. So what I was seeing was that some threads completed their run before other threads were launched.</p>
+
+<h2>39.6 Thread Local Data</h2>
+
+<p>Threads are interesting because they don’t have their own memory beyond local variables. If you want a <code>static</code> variable or file scope variable, all threads will see that same variable.</p>
+
+<p>This can lead to race conditions, where you get <em>Weird Things</em>™ happening.</p>
+
+<p>Check out this example. We have a <code>static</code> variable <code>foo</code> in block scope in <code>run()</code>. This variable will be visible to all threads that pass through the <code>run()</code> function. And the various threads can effectively step on each others toes.</p>
+
+<p>Each thread copies <code>foo</code> into a local variable <code>x</code> (which is not shared between threads—all the threads have their own call stacks). So they <em>should</em> be the same, right?</p>
+
+<p>And the first time we print them, they are<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁰</a>. But then right after that, we check to make sure they’re still the same.</p>
+
+<p>And they <em>usually</em> are. But not always!</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>  <span class="c1">// Thread number for humans to differentiate</span>
+
+    <span class="n">free</span><span class="p">(</span><span class="n">arg</span><span class="p">);</span>
+
+    <span class="k">static</span> <span class="kt">int</span> <span class="n">foo</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>  <span class="c1">// Static value shared between threads</span>
+
+    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">foo</span><span class="p">;</span>  <span class="c1">// Automatic local variable--each thread has its own</span>
+
+    <span class="c1">// We just assigned x from foo, so they'd better be equal here.</span>
+    <span class="c1">// (In all my test runs, they were, but even this isn't guaranteed!)</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %d: x = %d, foo = %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">foo</span><span class="p">);</span>
+
+    <span class="c1">// And they should be equal here, but they're not always!</span>
+    <span class="c1">// (Sometimes they were, sometimes they weren't!)</span>
+
+    <span class="c1">// What happens is another thread gets in and increments foo</span>
+    <span class="c1">// right now, but this thread's x remains what it was before!</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">!=</span> <span class="n">foo</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Thread %d: Craziness! x != foo! %d != %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">foo</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">foo</span><span class="o">++</span><span class="p">;</span>  <span class="c1">// Increment shared value</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cp">#define THREAD_COUNT 5
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_t</span> <span class="n">t</span><span class="p">[</span><span class="n">THREAD_COUNT</span><span class="p">];</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">THREAD_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="o">*</span><span class="n">n</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span> <span class="o">*</span><span class="n">n</span><span class="p">);</span>  <span class="c1">// Holds a thread serial number</span>
+        <span class="o">*</span><span class="n">n</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+        <span class="n">thrd_create</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">THREAD_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">thrd_join</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Here’s an example output (though this varies from run to run):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Thread</span> <span class="mi">0</span><span class="o">:</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">foo</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">foo</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">Craziness</span><span class="o">!</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">foo</span><span class="o">!</span> <span class="mi">10</span> <span class="o">!=</span> <span class="mi">11</span>
+<span class="n">Thread</span> <span class="mi">2</span><span class="o">:</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span> <span class="n">foo</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">Thread</span> <span class="mi">4</span><span class="o">:</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">13</span><span class="p">,</span> <span class="n">foo</span> <span class="o">=</span> <span class="mi">13</span>
+<span class="n">Thread</span> <span class="mi">3</span><span class="o">:</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span> <span class="n">foo</span> <span class="o">=</span> <span class="mi">14</span>
+</code></pre></div>
+
+<p>In thread 1, between the two <code>printf()</code>s, the value of <code>foo</code> somehow changed from <code>10</code> to <code>11</code>, even though clearly there’s no increment between the <code>printf()</code>s!</p>
+
+<p>It was another thread that got in there (probably thread 0, from the look of it) and incremented the value of <code>foo</code> behind thread 1’s back!</p>
+
+<p>Let’s solve this problem two different ways. (If you want all the threads to share the variable <em>and</em> not step on each other’s toes, you’ll have to read on to the <a href="multithreading.html#mutex" rel="nofollow">mutex</a> section.)</p>
+
+<h3>39.6.1 <code>_Thread_local</code> Storage-Class</h3>
+
+<p>First things first, let’s just look at the easy way around this: the <code>_Thread_local</code> storage-class.</p>
+
+<p>Basically we’re just going to slap this on the front of our block scope <code>static</code> variable and things will work! It tells C that every thread should have its own version of this variable, so none of them step on each other’s toes.</p>
+
+<p>The <code>&lt;threads.h&gt;</code> header defines <code>thread_local</code> as an alias to <code>_Thread_local</code> so your code doesn’t have to look so ugly.</p>
+
+<p>Let’s take the previous example and make <code>foo</code> into a <code>thread_local</code> variable so that we don’t share that data.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>  <span class="c1">// Thread number for humans to differentiate</span>
+
+    <span class="n">free</span><span class="p">(</span><span class="n">arg</span><span class="p">);</span>
+
+    <span class="n">thread_local</span> <span class="k">static</span> <span class="kt">int</span> <span class="n">foo</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>  <span class="c1">// &lt;-- No longer shared!!</span>
+</code></pre></div>
+
+<p>And running we get:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Thread</span> <span class="mi">0</span><span class="o">:</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">foo</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">Thread</span> <span class="mi">1</span><span class="o">:</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">foo</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">Thread</span> <span class="mi">2</span><span class="o">:</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">foo</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">Thread</span> <span class="mi">4</span><span class="o">:</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">foo</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">Thread</span> <span class="mi">3</span><span class="o">:</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">foo</span> <span class="o">=</span> <span class="mi">10</span>
+</code></pre></div>
+
+<p>No more weird problems!</p>
+
+<p>One thing: if a <code>thread_local</code> variable is block scope, it <strong>must</strong> be <code>static</code>. Them’s the rules. (But this is OK because non-<code>static</code> variables are per-thread already since each thread has it’s own non-<code>static</code> variables.)</p>
+
+<p>A bit of a lie there: block scope <code>thread_local</code> variables can also be <code>extern</code>.</p>
+
+<h3>39.6.2 Another Option: Thread-Specific Storage</h3>
+
+<p>Thread-specific storage (TSS) is another way of getting per-thread data.</p>
+
+<p>One additional feature is that these functions allow you to specify a destructor that will be called on the data when the TSS variable is deleted. Commonly this destructor is <code>free()</code> to automatically clean up <code>malloc()</code>d per-thread data. Or <code>NULL</code> if you don’t need to destroy anything.</p>
+
+<p>The destructor is type <code>tss_dtor_t</code> which is a pointer to a function that returns <code>void</code> and takes a <code>void*</code> as an argument (the <code>void*</code> points to the data stored in the variable). In other words, it’s a <code>void (*)(void*)</code>, if that clears it up. Which I admit it probably doesn’t. Check out the example, below.</p>
+
+<p>Generally, <code>thread_local</code> is probably your go-to, but if you like the destructor idea, then you can make use of that.</p>
+
+<p>The usage is a bit weird in that we need a variable of type <code>tss_t</code> to be alive to represent the value on a per thread basis. Then we initialize it with <code>tss_create()</code>. Eventually we get rid of it with <code>tss_delete()</code>. Note that calling <code>tss_delete()</code> doesn’t run all the destructors—it’s <code>thrd_exit()</code> (or returning from the run function) that does that. <code>tss_delete()</code> just releases any memory allocated by <code>tss_create()</code>.</p>
+
+<p>In the middle, threads can call <code>tss_set()</code> and <code>tss_get()</code> to set and get the value.</p>
+
+<p>In the following code, we set up the TSS variable before creating the threads, then clean up after the threads.</p>
+
+<p>In the <code>run()</code> function, the threads <code>malloc()</code> some space for a string and store that pointer in the TSS variable.</p>
+
+<p>When the thread exits, the destructor function (<code>free()</code> in this case) is called for <em>all</em> the threads.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+</span>
+<span class="n">tss_t</span> <span class="n">str</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">some_function</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Retrieve the per-thread value of this string</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">tss_string</span> <span class="o">=</span> <span class="n">tss_get</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+
+    <span class="c1">// And print it</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"TSS string: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">tss_string</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">serial</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>  <span class="c1">// Get this thread's serial number</span>
+    <span class="n">free</span><span class="p">(</span><span class="n">arg</span><span class="p">);</span>
+
+    <span class="c1">// malloc() space to hold the data for this thread</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="mi">64</span><span class="p">);</span>
+    <span class="n">sprintf</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="s">"thread %d! :)"</span><span class="p">,</span> <span class="n">serial</span><span class="p">);</span>  <span class="c1">// Happy little string</span>
+
+    <span class="c1">// Set this TSS variable to point at the string</span>
+    <span class="n">tss_set</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+
+    <span class="c1">// Call a function that will get the variable</span>
+    <span class="n">some_function</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>   <span class="c1">// Equivalent to thrd_exit(0)</span>
+<span class="p">}</span>
+
+<span class="cp">#define THREAD_COUNT 15
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_t</span> <span class="n">t</span><span class="p">[</span><span class="n">THREAD_COUNT</span><span class="p">];</span>
+
+    <span class="c1">// Make a new TSS variable, the free() function is the destructor</span>
+    <span class="n">tss_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">str</span><span class="p">,</span> <span class="n">free</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">THREAD_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="o">*</span><span class="n">n</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span> <span class="o">*</span><span class="n">n</span><span class="p">);</span>  <span class="c1">// Holds a thread serial number</span>
+        <span class="o">*</span><span class="n">n</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+        <span class="n">thrd_create</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">THREAD_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">thrd_join</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// All threads are done, so we're done with this</span>
+    <span class="n">tss_delete</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Again, this is kind of a painful way of doing things compared to <code>thread_local</code>, so unless you really need that destructor functionality, I’d use that instead.</p>
+
+<h2>39.7 Mutexes</h2>
+
+<p>If you want to only allow a single thread into a critical section of code at a time, you can protect that section with a mutex<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰¹</a>.</p>
+
+<p>For example, if we had a <code>static</code> variable and we wanted to be able to get and set it in two operations without another thread jumping in the middle and corrupting it, we could use a mutex for that.</p>
+
+<p>You can acquire a mutex or release it. If you attempt to acquire the mutex and succeed, you may continue execution. If you attempt and fail (because someone else holds it), you will <em>block</em><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰²</a> until the mutex is released.</p>
+
+<p>If multiple threads are blocked waiting for a mutex to be released, one of them will be chosen to run (at random, from our perspective), and the others will continue to sleep.</p>
+
+<p>The gameplan is that first we’ll initialize a mutex variable to make it ready to use with <code>mtx_init()</code>.</p>
+
+<p>Then subsequent threads can call <code>mtx_lock()</code> and <code>mtx_unlock()</code> to get and release the mutex.</p>
+
+<p>When we’re completely done with the mutex, we can destroy it with <code>mtx_destroy()</code>, the logical opposite of <code>mtx_init()</code>.</p>
+
+<p>First, let’s look at some code that does <em>not</em> use a mutex, and endeavors to print out a shared (<code>static</code>) serial number and then increment it. Because we’re not using a mutex over the getting of the value (to print it) and the setting (to increment it), threads might get in each other’s way in that critical section.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+
+    <span class="k">static</span> <span class="kt">int</span> <span class="n">serial</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>   <span class="c1">// Shared static variable!</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread running! %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">serial</span><span class="p">);</span>
+
+    <span class="n">serial</span><span class="o">++</span><span class="p">;</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cp">#define THREAD_COUNT 10
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_t</span> <span class="n">t</span><span class="p">[</span><span class="n">THREAD_COUNT</span><span class="p">];</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">THREAD_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">thrd_create</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">THREAD_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">thrd_join</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>When I run this, I get something that looks like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">0</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">0</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">0</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">3</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">4</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">5</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">6</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">7</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">8</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">9</span>
+</code></pre></div>
+
+<p>Clearly multiple threads are getting in there and running the <code>printf()</code> before anyone gets a change to update the <code>serial</code> variable.</p>
+
+<p>What we want to do is wrap the getting of the variable and setting of it into a single mutex-protected stretch of code.</p>
+
+<p>We’ll add a new variable to represent the mutex of type <code>mtx_t</code> in file scope, initialize it, and then the threads can lock and unlock it in the <code>run()</code> function.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+</span>
+<span class="n">mtx_t</span> <span class="n">serial_mtx</span><span class="p">;</span>     <span class="c1">// &lt;-- MUTEX VARIABLE</span>
+
+<span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+
+    <span class="k">static</span> <span class="kt">int</span> <span class="n">serial</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>   <span class="c1">// Shared static variable!</span>
+
+    <span class="c1">// Acquire the mutex--all threads will block on this call until</span>
+    <span class="c1">// they get the lock:</span>
+
+    <span class="n">mtx_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">serial_mtx</span><span class="p">);</span>           <span class="c1">// &lt;-- ACQUIRE MUTEX</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Thread running! %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">serial</span><span class="p">);</span>
+
+    <span class="n">serial</span><span class="o">++</span><span class="p">;</span>
+
+    <span class="c1">// Done getting and setting the data, so free the lock. This will</span>
+    <span class="c1">// unblock threads on the mtx_lock() call:</span>
+
+    <span class="n">mtx_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">serial_mtx</span><span class="p">);</span>         <span class="c1">// &lt;-- RELEASE MUTEX</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cp">#define THREAD_COUNT 10
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_t</span> <span class="n">t</span><span class="p">[</span><span class="n">THREAD_COUNT</span><span class="p">];</span>
+
+    <span class="c1">// Initialize the mutex variable, indicating this is a normal</span>
+    <span class="c1">// no-frills, mutex:</span>
+
+    <span class="n">mtx_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">serial_mtx</span><span class="p">,</span> <span class="n">mtx_plain</span><span class="p">);</span>        <span class="c1">// &lt;-- CREATE MUTEX</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">THREAD_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">thrd_create</span><span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">THREAD_COUNT</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">thrd_join</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Done with the mutex, destroy it:</span>
+
+    <span class="n">mtx_destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">serial_mtx</span><span class="p">);</span>                <span class="c1">// &lt;-- DESTROY MUTEX</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>See how on lines 38 and 50 of <code>main()</code> we initialize and destroy the mutex.</p>
+
+<p>But each individual thread acquires the mutex on line 15 and releases it on line 24.</p>
+
+<p>In between the <code>mtx_lock()</code> and <code>mtx_unlock()</code> is the <em>critical section</em>, the area of code where we don’t want multiple threads mucking about at the same time.</p>
+
+<p>And now we get proper output!</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">0</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">1</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">2</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">3</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">4</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">5</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">6</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">7</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">8</span>
+<span class="n">Thread</span> <span class="n">running</span><span class="o">!</span> <span class="mi">9</span>
+</code></pre></div>
+
+<p>If you need multiple mutexes, no problem: just have multiple mutex variables.</p>
+
+<p>And always remember the Number One Rule of Multiple Mutexes: <em>Unlock mutexes in the opposite order in which you lock them!</em></p>
+
+<h3>39.7.1 Different Mutex Types</h3>
+
+<p>As hinted earlier, we have a few mutex types that you can create with <code>mtx_init()</code>. (Some of these types are the result of a bitwise-OR operation, as noted in the table.)</p>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>mtx_plain</code></td>
+<td>Regular ol’ mutex</td>
+</tr>
+<tr>
+<td><code>mtx_timed</code></td>
+<td>Mutex that supports timeouts</td>
+</tr>
+<tr>
+<td>`mtx_plain</td>
+<td>mtx_recursive`</td>
+</tr>
+<tr>
+<td>`mtx_timed</td>
+<td>mtx_recursive`</td>
+</tr>
+</tbody></table>
+
+<p>“Recursive” means that the holder of a lock can call <code>mtx_lock()</code> multiple times on the same lock. (They have to unlock it an equal number of times before anyone else can take the mutex.) This might ease coding from time to time, especially if you call a function that needs to lock the mutex when you already hold the mutex.</p>
+
+<p>And the timeout gives a thread a chance to <em>try</em> to get the lock for a while, but then bail out if it can’t get it in that timeframe.</p>
+
+<p>For a timeout mutex, be sure to create it with <code>mtx_timed</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">mtx_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">serial_mtx</span><span class="p">,</span> <span class="n">mtx_timed</span><span class="p">);</span>
+</code></pre></div>
+
+<p>And then when you wait for it, you have to specify a time in UTC when it will unlock<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰³</a>.</p>
+
+<p>The function <code>timespec_get()</code> from <code>&lt;time.h&gt;</code> can be of assistance here. It’ll get you the current time in UTC in a <code>struct timespec</code> which is just what we need. In fact, it seems to exist merely for this purpose.</p>
+
+<p>It has two fields: <code>tv_sec</code> has the current time in seconds since epoch, and <code>tv_nsec</code> has the nanoseconds (billionths of a second) as the “fractional” part.</p>
+
+<p>So you can load that up with the current time, and then add to it to get a specific timeout.</p>
+
+<p>Then call <code>mtx_timedlock()</code> instead of <code>mtx_lock()</code>. If it returns the value <code>thrd_timedout</code>, it timed out.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">timespec</span> <span class="n">timeout</span><span class="p">;</span>
+
+<span class="n">timespec_get</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timeout</span><span class="p">,</span> <span class="n">TIME_UTC</span><span class="p">);</span>  <span class="c1">// Get current time</span>
+<span class="n">timeout</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>               <span class="c1">// Timeout 1 second after now</span>
+
+<span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">mtx_timedlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">serial_mtx</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">timeout</span><span class="p">));</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="n">thrd_timedout</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Mutex lock timed out!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Other than that, timed locks are the same as regular locks.</p>
+
+<h2>39.8 Condition Variables</h2>
+
+<p>Condition Variables are the last piece of the puzzle we need to make performant multithreaded applications and to compose more complex multithreaded structures.</p>
+
+<p>A condition variable provides a way for threads to go to sleep until some event on another thread occurs.</p>
+
+<p>In other words, we might have a number of threads that are rearing to go, but they have to wait until some event is true before they continue. Basically they’re being told “wait for it!” until they get notified.</p>
+
+<p>And this works hand-in-hand with mutexes since what we’re going to wait on generally depends on the value of some data, and that data generally needs to be protected by a mutex.</p>
+
+<p>It’s important to note that the condition variable itself isn’t the holder of any particular data from our perspective. It’s merely the variable by which C keeps track of the waiting/not-waiting status of a particular thread or group of threads.</p>
+
+<p>Let’s write a contrived program that reads in groups of 5 numbers from the main thread one at a time. Then, when 5 numbers have been entered, the child thread wakes up, sums up those 5 numbers, and prints the result.</p>
+
+<p>The numbers will be stored in a global, shared array, as will the index into the array of the about-to-be-entered number.</p>
+
+<p>Since these are shared values, we at least have to hide them behind a mutex for both the main and child threads. (The main will be writing data to them and the child will be reading data from them.)</p>
+
+<p>But that’s not enough. The child thread needs to block (“sleep”) until 5 numbers have been read into the array. And then the parent thread needs to wake up the child thread so it can do its work.</p>
+
+<p>And when it wakes up, it needs to be holding that mutex. And it will! When a thread waits on a condition variable, it also acquires a mutex when it wakes up.</p>
+
+<p>All this takes place around an additional variable of type <code>cnd_t</code> that is the <em>condition variable</em>. We create this variable with the <code>cnd_init()</code> function and destroy it when we’re done with it with the <code>cnd_destroy()</code> function.</p>
+
+<p>But how’s this all work? Let’s look at the outline of what the child thread will do:</p>
+
+<ol>
+<li> Lock the mutex with <code>mtx_lock()</code></li>
+<li> If we haven’t entered all the numbers, wait on the condition variable with <code>cnd_wait()</code></li>
+<li> Do the work that needs doing</li>
+<li> Unlock the mutex with <code>mtx_unlock()</code></li>
+</ol>
+
+<p>Meanwhile the main thread will be doing this:</p>
+
+<ol>
+<li> Lock the mutex with <code>mtx_lock()</code></li>
+<li> Store the recently-read number into the array</li>
+<li> If the array is full, signal the child to wake up with <code>cnd_signal()</code></li>
+<li> Unlock the mutex with <code>mtx_unlock()</code></li>
+</ol>
+
+<p>If you didn’t skim that too hard (it’s OK—I’m not offended), you might notice something weird: how can the main thread hold the mutex lock and signal the child, if the child has to hold the mutex lock to wait for the signal? They can’t both hold the lock!</p>
+
+<p>And indeed they don’t! There’s some behind-the-scenes magic with condition variables: when you <code>cnd_wait()</code>, it releases the mutex that you specify and the thread goes to sleep. And when someone signals that thread to wake up, it reacquires the lock as if nothing had happened.</p>
+
+<p>It’s a little different on the <code>cnd_signal()</code> side of things. This doesn’t do anything with the mutex. The signaling thread still must manually release the mutex before the waiting threads can wake up.</p>
+
+<p>One more thing on the <code>cnd_wait()</code>. You’ll probably be calling <code>cnd_wait()</code> if some condition<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁴</a> is not yet met (e.g. in this case, if not all the numbers have yet been entered). Here’s the deal: this condition should be in a <code>while</code> loop, not an <code>if</code> statement. Why?</p>
+
+<p>It’s because of a mysterious phenomenon called a <em>spurious wakeup</em>. Sometimes, in some implementations, a thread can be woken up out of a <code>cnd_wait()</code> sleep for seemingly <em>no reason</em>. <em>[X-Files music]</em><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁵</a>. And so we have to check to see that the condition we need is still actually met when we wake up. And if it’s not, back to sleep with us!</p>
+
+<p>So let’s do this thing! Starting with the main thread:</p>
+
+<ul>
+<li><p>The main thread will set up the mutex and condition variable, and will launch the child thread.</p></li>
+<li><p>Then it will, in an infinite loop, get numbers as input from the console.</p></li>
+<li><p>It will also acquire the mutex to store the inputted number into a global array.</p></li>
+<li><p>When the array has 5 numbers in it, the main thread will signal the child thread that it’s time to wake up and do its work.</p></li>
+<li><p>Then the main thread will unlock the mutex and go back to reading the next number from the console.</p></li>
+</ul>
+
+<p>Meanwhile, the child thread has been up to its own shenanigans:</p>
+
+<ul>
+<li><p>The child thread grabs the mutex</p></li>
+<li><p>While the condition is not met (i.e. while the shared array doesn’t yet have 5 numbers in it), the child thread sleeps by waiting on the condition variable. When it waits, it implicitly unlocks the mutex.</p></li>
+<li><p>Once the main thread signals the child thread to wake up, it wakes up to do the work and gets the mutex lock back.</p></li>
+<li><p>The child thread sums the numbers and resets the variable that is the index into the array.</p></li>
+<li><p>It then releases the mutex and runs again in an infinite loop.</p></li>
+</ul>
+
+<p>And here’s the code! Give it some study so you can see where all the above pieces are being handled:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;threads.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define VALUE_COUNT_MAX 5
+</span>
+<span class="kt">int</span> <span class="n">value</span><span class="p">[</span><span class="n">VALUE_COUNT_MAX</span><span class="p">];</span>  <span class="c1">// Shared global</span>
+<span class="kt">int</span> <span class="n">value_count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>   <span class="c1">// Shared global, too</span>
+
+<span class="n">mtx_t</span> <span class="n">value_mtx</span><span class="p">;</span>   <span class="c1">// Mutex around value</span>
+<span class="n">cnd_t</span> <span class="n">value_cnd</span><span class="p">;</span>   <span class="c1">// Condition variable on value</span>
+
+<span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(;;)</span> <span class="p">{</span>
+        <span class="n">mtx_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value_mtx</span><span class="p">);</span>      <span class="c1">// &lt;-- GRAB THE MUTEX</span>
+
+        <span class="k">while</span> <span class="p">(</span><span class="n">value_count</span> <span class="o">&lt;</span> <span class="n">VALUE_COUNT_MAX</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Thread: is waiting</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="n">cnd_wait</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value_cnd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">value_mtx</span><span class="p">);</span>  <span class="c1">// &lt;-- CONDITION WAIT</span>
+        <span class="p">}</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Thread: is awake!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+        <span class="kt">int</span> <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+        <span class="c1">// Add everything up</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">VALUE_COUNT_MAX</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">t</span> <span class="o">+=</span> <span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Thread: total is %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">t</span><span class="p">);</span>
+
+        <span class="c1">// Reset input index for main thread</span>
+        <span class="n">value_count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+        <span class="n">mtx_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value_mtx</span><span class="p">);</span>   <span class="c1">// &lt;-- MUTEX UNLOCK</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">thrd_t</span> <span class="n">t</span><span class="p">;</span>
+
+    <span class="c1">// Spawn a new thread</span>
+
+    <span class="n">thrd_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+    <span class="n">thrd_detach</span><span class="p">(</span><span class="n">t</span><span class="p">);</span>
+
+    <span class="c1">// Set up the mutex and condition variable</span>
+
+    <span class="n">mtx_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value_mtx</span><span class="p">,</span> <span class="n">mtx_plain</span><span class="p">);</span>
+    <span class="n">cnd_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value_cnd</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="p">(;;)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">n</span><span class="p">;</span>
+
+        <span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">n</span><span class="p">);</span>
+
+        <span class="n">mtx_lock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value_mtx</span><span class="p">);</span>    <span class="c1">// &lt;-- LOCK MUTEX</span>
+
+        <span class="n">value</span><span class="p">[</span><span class="n">value_count</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">n</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">value_count</span> <span class="o">==</span> <span class="n">VALUE_COUNT_MAX</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Main: signaling thread</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+            <span class="n">cnd_signal</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value_cnd</span><span class="p">);</span>  <span class="c1">// &lt;-- SIGNAL CONDITION</span>
+        <span class="p">}</span>
+
+        <span class="n">mtx_unlock</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value_mtx</span><span class="p">);</span>  <span class="c1">// &lt;-- UNLOCK MUTEX</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Clean up (I know that's an infinite loop above here, but I</span>
+    <span class="c1">// want to at least pretend to be proper):</span>
+
+    <span class="n">mtx_destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value_mtx</span><span class="p">);</span>
+    <span class="n">cnd_destroy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value_cnd</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>And here’s some sample output (individual numbers on lines are my input):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Thread:</span> <span class="n">is</span> <span class="n">waiting</span>
+<span class="mi">1</span>
+<span class="mi">1</span>
+<span class="mi">1</span>
+<span class="mi">1</span>
+<span class="mi">1</span>
+<span class="n">Main</span><span class="o">:</span> <span class="n">signaling</span> <span class="kr">thread</span>
+<span class="n">Thread</span><span class="o">:</span> <span class="n">is</span> <span class="n">awake</span><span class="o">!</span>
+<span class="n">Thread</span><span class="o">:</span> <span class="n">total</span> <span class="n">is</span> <span class="mi">5</span>
+<span class="n">Thread</span><span class="o">:</span> <span class="n">is</span> <span class="n">waiting</span>
+<span class="mi">2</span>
+<span class="mi">8</span>
+<span class="mi">5</span>
+<span class="mi">9</span>
+<span class="mi">0</span>
+<span class="n">Main</span><span class="o">:</span> <span class="n">signaling</span> <span class="kr">thread</span>
+<span class="n">Thread</span><span class="o">:</span> <span class="n">is</span> <span class="n">awake</span><span class="o">!</span>
+<span class="n">Thread</span><span class="o">:</span> <span class="n">total</span> <span class="n">is</span> <span class="mi">24</span>
+<span class="n">Thread</span><span class="o">:</span> <span class="n">is</span> <span class="n">waiting</span>
+</code></pre></div>
+
+<p>It’s a common use of condition variables in producer-consumer situations like this. If we didn’t have a way to put the child thread to sleep while it waited for some condition to be met, it would be force to poll which is a big waste of CPU.</p>
+
+<h3>39.8.1 Timed Condition Wait</h3>
+
+<p>There’s a variant of <code>cnd_wait()</code> that allows you to specify a timeout so you can stop waiting.</p>
+
+<p>Since the child thread must relock the mutex, this doesn’t necessarily mean that you’ll be popping back to life the instant the timeout occurs; you still must wait for any other threads to release the mutex.</p>
+
+<p>But it does mean that you won’t be waiting until the <code>cnd_signal()</code> happens.</p>
+
+<p>To make this work, call <code>cnd_timedwait()</code> instead of <code>cnd_wait()</code>. If it returns the value <code>thrd_timedout</code>, it timed out.</p>
+
+<p>The timestamp is an absolute time in UTC, not a time-from-now. Thankfully the <code>timespec_get()</code> function in <code>&lt;time.h&gt;</code> seems custom-made for exactly this case.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">timespec</span> <span class="n">timeout</span><span class="p">;</span>
+
+<span class="n">timespec_get</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timeout</span><span class="p">,</span> <span class="n">TIME_UTC</span><span class="p">);</span>  <span class="c1">// Get current time</span>
+<span class="n">timeout</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>               <span class="c1">// Timeout 1 second after now</span>
+
+<span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">cnd_timedwait</span><span class="p">(</span><span class="o">&amp;</span><span class="n">condition</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mutex</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">timeout</span><span class="p">));</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="n">thrd_timedout</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Condition variable timed out!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>39.8.2 Broadcast: Wake Up All Waiting Threads</h3>
+
+<p><code>cnd_signal()</code> function]] <code>cnd_signal()</code> only wakes up one thread to continue working. Depending on how you have your logic done, it might make sense to wake up more than one thread to continue once the condition is met.</p>
+
+<p>Of course only one of them can grab the mutex, but if you have a situation where:</p>
+
+<ul>
+<li><p>The newly-awoken thread is responsible for waking up the next one, and—</p></li>
+<li><p>There’s a chance the spurious-wakeup loop condition will prevent it from doing so, then—</p></li>
+</ul>
+
+<p>you’ll want to broadcast the wake up so that you’re sure to get at least one of the threads out of that loop to launch the next one.</p>
+
+<p>How, you ask?</p>
+
+<p>Simply use <code>cnd_broadcast()</code> instead of <code>cnd_signal()</code>. Exact same usage, except <code>cnd_broadcast()</code> wakes up <strong>all</strong> the sleeping threads that were waiting on that condition variable.</p>
+
+<h2>39.9 Running a Function One Time</h2>
+
+<p>Let’s say you have a function that <em>could</em> be run by many threads, but you don’t know when, and it’s not work trying to write all that logic.</p>
+
+<p>There’s a way around it: use <code>call_once()</code>. Tons of threads could try to run the function, but only the first one counts<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">²⁰⁶</a></p>
+
+<p>To work with this, you need a special flag variable you declare to keep track of whether or not the thing’s been run. And you need a function to run, which takes no parameters and returns no value.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">once_flag</span> <span class="n">of</span> <span class="o">=</span> <span class="n">ONCE_FLAG_INIT</span><span class="p">;</span>  <span class="c1">// Initialize it like this</span>
+
+<span class="kt">void</span> <span class="nf">run_once_function</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"I'll only run once!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">run</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">arg</span><span class="p">;</span>
+
+    <span class="n">call_once</span><span class="p">(</span><span class="o">&amp;</span><span class="n">of</span><span class="p">,</span> <span class="n">run_once_function</span><span class="p">);</span>
+
+    <span class="c1">// ...</span>
+</code></pre></div>
+
+<p>In this example, no matter how many threads get to the <code>run()</code> function, the <code>run_once_function()</code> will only be called a single time.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

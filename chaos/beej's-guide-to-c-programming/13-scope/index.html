@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/13-scope</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/13-scope"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>13 Scope</h1>
+
+<p>Scope is all about what variables are visible in what contexts.</p>
+
+<h2>13.1 Block Scope</h2>
+
+<p>This is the scope of almost all the variables devs define. It includes what other languages might call “function scope”, i.e. variables that are declared inside functions.</p>
+
+<p>The basic rule is that if you’ve declared a variable in a block delimited by squirrelly braces, the scope of that variable is that block.</p>
+
+<p>If there’s a block inside a block, then variables declared in the <em>inner</em> block are local to that block, and cannot be seen in the outer scope.</p>
+
+<p>Once a variable’s scope ends, that variable can no longer be referenced, and you can consider its value to be gone into the great <a href="https://en.wikipedia.org/wiki/Bit_bucket" rel="nofollow">bit bucket</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">⁹⁰</a> in the sky.</p>
+
+<p>An example with nested scope:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>         <span class="c1">// Local to outer block, but visible in inner block</span>
+
+    <span class="k">if</span>  <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">12</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">99</span><span class="p">;</span>     <span class="c1">// Local to inner block, not visible in outer block</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>  <span class="c1">// OK: "12 99"</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>  <span class="c1">// OK, we're still in a's scope</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>  <span class="c1">// ILLEGAL, out of b's scope</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>13.1.1 Where To Define Variables</h3>
+
+<p>Another fun fact is that you can define variables anywhere in the block, within reason—they have the scope of that block, but cannot be used before they are defined.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>     <span class="c1">// OK: "0"</span>
+
+    <span class="c1">//printf("%d\n", j);   // ILLEGAL--can't use j before it's defined</span>
+
+    <span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">);</span>   <span class="c1">// OK: "0 5"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Historically, C required all the variables be defined before any code in the block, but this is no longer the case in the C99 standard.</p>
+
+<h3>13.1.2 Variable Hiding</h3>
+
+<p>If you have a variable named the same thing at an inner scope as one at an outer scope, the one at the inner scope takes precedence as long as you’re running in the inner scope. That is, it <em>hides</em> the one at outer scope for the duration of its lifetime.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>  <span class="c1">// Inner scope i, 20 (outer i is hidden)</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>  <span class="c1">// Outer scope i, 10</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>You might have noticed in that example that I just threw a block in there at line 7, not so much as a <code>for</code> or <code>if</code> statement to kick it off! This is perfectly legal. Sometimes a dev will want to group a bunch of local variables together for a quick computation and will do this, but it’s rare to see.</p>
+
+<h2>13.2 File Scope</h2>
+
+<p>If you define a variable outside of a block, that variable has <em>file scope</em>. It’s visible in all functions in the file that come after it, and shared between them. (An exception is if a block defines a variable of the same name, it would hide the one at file scope.)</p>
+
+<p>This is closest to what you would consider to be “global” scope in another language.</p>
+
+<p>For example:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="n">shared</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>    <span class="c1">// File scope! Visible to the whole file after this!</span>
+
+<span class="kt">void</span> <span class="nf">func1</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">shared</span> <span class="o">+=</span> <span class="mi">100</span><span class="p">;</span>  <span class="c1">// Now shared holds 110</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">func2</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">shared</span><span class="p">);</span>  <span class="c1">// Prints "110"</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">func1</span><span class="p">();</span>
+    <span class="n">func2</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Note that if <code>shared</code> were declared at the bottom of the file, it wouldn’t compile. It has to be declared <em>before</em> any functions use it.</p>
+
+<p>There are ways to further modify items at file scope, namely with <a href="types-iv-qualifiers-and-specifiers.html#static" rel="nofollow">static</a> and <a href="types-iv-qualifiers-and-specifiers.html#extern" rel="nofollow">extern</a>, but we’ll talk more about those later.</p>
+
+<h2>13.3 <code>for</code>-loop Scope</h2>
+
+<p>I really don’t know what to call this, as C11 §6.8.5.3¶1 doesn’t give it a proper name. We’ve done it already a few times in this guide, as well. It’s when you declare a variable inside the first clause of a <code>for</code>-loop:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>  <span class="c1">// ILLEGAL--i is only in scope for the for-loop</span>
+</code></pre></div>
+
+<p>In that example, <code>i</code>’s lifetime begins the moment it is defined, and continues for the duration of the loop.</p>
+
+<p>If the loop body is enclosed in a block, the variables defined in the <code>for</code>-loop are visible from that inner scope.</p>
+
+<p>Unless, of course, that inner scope hides them. This crazy example prints <code>999</code> five times:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">999</span><span class="p">;</span>  <span class="c1">// Hides the i in the for-loop scope</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>13.4 A Note on Function Scope</h2>
+
+<p>The C spec does refer to <em>function scope</em>, but it’s used exclusively with <em>labels</em>, something we haven’t discussed yet. More on that another day.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

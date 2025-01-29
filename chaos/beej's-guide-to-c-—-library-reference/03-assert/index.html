@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/03-assert</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/03-assert"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>3 <code>&lt;assert.h&gt;</code> Runtime and Compile-time Diagnostics</h1>
+
+<table><thead>
+<tr>
+<th>Macro</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>assert()</code></td>
+<td>Runtime assertion</td>
+</tr>
+<tr>
+<td><code>static_assert()</code></td>
+<td>Compile-time assertion</td>
+</tr>
+</tbody></table>
+
+<p>This functionality has to do with things that Should Never Happen™. If you have something that should never be true and you want your program to bomb out because it happened, this is the header file for you.</p>
+
+<p>There are two types of assertions: compile-time assertions (called “static assertions”) and runtime assertions. If the assertion <em>fails</em> (i.e. the thing that you need to be true is not true) then the program will bomb out either at compile-time or runtime.</p>
+
+<h2>3.1 Macros</h2>
+
+<p>If you define the macro <code>NDEBUG</code> <strong>before</strong> you include <code>&lt;assert.h&gt;</code>, then the <code>assert()</code> macro will have no effect. You can define <code>NDEBUG</code> to be anything, but <code>1</code> seems like a good value.</p>
+
+<p>Since <code>assert()</code> causes your program to bomb out at runtime, you might not desire this behavior when you go into production. Defining <code>NDEBUG</code> causes <code>assert()</code> to be ignored.</p>
+
+<p><code>NDEBUG</code> has no effect on <code>static_assert()</code>.</p>
+
+<p><hr></p>
+
+<h2>3.2 <code>assert()</code></h2>
+
+<p>Bomb out at runtime if a condition fails</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">assert</span><span class="p">(</span><span class="n">scalar</span> <span class="n">expression</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>You pass in an expression to this macro. If it evaluates to false, the program will crash with an assertion failure (by calling the <code>abort()</code> function).</p>
+
+<p>Basically, you’re saying, “Hey, I’m assuming this condition is true, and if it’s not, I don’t want to continue running.”</p>
+
+<p>This is used while debugging to make sure no unexpected conditions arise. And if you find during development that the condition does arise, maybe you should modify the code to handle it before going to production.</p>
+
+<p>If you’ve defined the macro <code>NDEBUG</code> to any value before <code>&lt;assert.h&gt;</code> was included, the <code>assert()</code> macro is ignored. This is a good idea before production.</p>
+
+<p>Unlike <code>static_assert()</code>, this macro doesn’t allow you to print an arbitrary message. If you want to do this, you can roll your own assert as a preprocessor macro:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#define ASSERT(c, m) \
+do { \
+    if (!(c)) { \
+        fprintf(stderr, __FILE__ ":%d: assertion %s failed: %s\n", \
+                        __LINE__, #c, m); \
+        exit(1); \
+    } \
+} while(0)
+</span></code></pre></div>
+
+<h3>Return Value</h3>
+
+<p>This macro doesn’t return (since it calls <code>abort()</code> which never returns).</p>
+
+<p>If <code>NDEBUG</code> is set, the macro evaluates to <code>((void)0)</code>, which does nothing.</p>
+
+<h3>Example</h3>
+
+<p>Here’s a function that divides the size of our goat herd. But we’re assuming we’ll never get a <code>0</code> passed to us.</p>
+
+<p>So we assert that <code>amount != 0</code>… and if it is, the program aborts/</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">//#define NDEBUG 1   // uncomment this to disable the assert</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="n">goat_count</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">divide_goat_herd_by</span><span class="p">(</span><span class="kt">int</span> <span class="n">amount</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">assert</span><span class="p">(</span><span class="n">amount</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">);</span>
+
+    <span class="n">goat_count</span> <span class="o">/=</span> <span class="n">amount</span><span class="p">;</span>
+<span class="p">}</span>  
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">divide_goat_herd_by</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>  <span class="c1">// OK</span>
+
+    <span class="n">divide_goat_herd_by</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>  <span class="c1">// Causes the assert to fire</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>When I run this and pass <code>0</code> to the function, I get the following on my system (the exact output may vary):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">assert:</span> <span class="n">assert</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">10</span><span class="o">:</span> <span class="n">divide_goat_herd_by</span><span class="o">:</span> <span class="n">Assertion</span> <span class="err">`</span><span class="n">amount</span> <span class="o">!=</span> <span class="mi">0</span><span class="err">'</span> <span class="n">failed</span><span class="p">.</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="assert.html#man-static_assert" rel="nofollow"><code>static_assert()</code></a>, <a href="stdlib.html#man-abort" rel="nofollow"><code>abort()</code></a></p>
+
+<p><hr></p>
+
+<h2>3.3 <code>static_assert()</code></h2>
+
+<p>Bomb out at compile-time if a condition fails</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp">
+</span>
+<span class="n">static_assert</span><span class="p">(</span><span class="n">constant</span><span class="o">-</span><span class="n">expression</span><span class="p">,</span> <span class="n">string</span><span class="o">-</span><span class="n">literal</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This macro prevents your program from even compiling if a condition isn’t true.</p>
+
+<p>And it prints the string literal you give it.</p>
+
+<p>Basically if <code>constant-expression</code> is false, then compilation will cease and the <code>string-literal</code> will be printed.</p>
+
+<p>The constant expression must be truly constant–just values, no variables. And the same is true for the string literal: no variables, just a literal string in double quotes. (It has to be this way since the program’s not running at this point.)</p>
+
+<h3>Return Value</h3>
+
+<p>Not applicable, as this is a compile-time feature.</p>
+
+<h3>Example</h3>
+
+<p>Here’s a partial example with an algorithm that presumably has poor performance or memory issues if the size of the local array is too large. We prevent that eventuality at compile-time by catching it with the <code>static_assert()</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define ARRAY_SIZE 16
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">static_assert</span><span class="p">(</span><span class="n">ARRAY_SIZE</span> <span class="o">&gt;</span> <span class="mi">32</span><span class="p">,</span> <span class="s">"ARRAY_SIZE too small"</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">a</span><span class="p">[</span><span class="n">ARRAY_SIZE</span><span class="p">];</span>
+
+    <span class="n">a</span><span class="p">[</span><span class="mi">32</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">[</span><span class="mi">32</span><span class="p">]);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>On my system, when I try to compile it, this prints (your output may vary):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">In</span> <span class="n">file</span> <span class="n">included</span> <span class="n">from</span> <span class="n">static_assert</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">2</span><span class="o">:</span>
+<span class="n">static_assert</span><span class="p">.</span><span class="n">c</span><span class="o">:</span> <span class="n">In</span> <span class="n">function</span> <span class="err">‘</span><span class="n">main</span><span class="err">’</span><span class="o">:</span>
+<span class="n">static_assert</span><span class="p">.</span><span class="n">c</span><span class="o">:</span><span class="mi">8</span><span class="o">:</span><span class="mi">5</span><span class="o">:</span> <span class="n">error</span><span class="o">:</span> <span class="k">static</span> <span class="n">assertion</span> <span class="n">failed</span><span class="o">:</span> <span class="s">"ARRAY_SIZE too small"</span>
+    <span class="mi">8</span> <span class="o">|</span>     <span class="n">static_assert</span><span class="p">(</span><span class="n">ARRAY_SIZE</span> <span class="o">&gt;</span> <span class="mi">32</span><span class="p">,</span> <span class="s">"ARRAY_SIZE too small"</span><span class="p">);</span>
+      <span class="o">|</span>     <span class="o">^~~~~~~~~~~~~</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="assert.html#man-assert" rel="nofollow"><code>assert()</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

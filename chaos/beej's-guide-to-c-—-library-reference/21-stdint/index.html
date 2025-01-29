@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/21-stdint</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/21-stdint"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>21 <code>&lt;stdint.h&gt;</code> More Integer Types</h1>
+
+<p>This header gives us access to (potentially) types of a fixed number of bits, or, at the very least, types that are at least that many bits.</p>
+
+<p>It also gives us handy macros to use.</p>
+
+<h2>21.1 Specific-Width Integers</h2>
+
+<p>There are three main classes of types defined here, signed and unsigned:</p>
+
+<ul>
+<li>  Integers of exactly a certain size (<code>int</code><em>N</em><code>_t</code>, <code>uint</code><em>N</em><code>_t</code>)</li>
+<li>  Integers that are at least a certain size (<code>int_least</code><em>N</em><code>_t</code>, <code>uint_least</code><em>N</em><code>_t</code>)</li>
+<li>  Integers that are at least a certain size and are as fast as possible (<code>int_fast</code><em>N</em><code>_t</code>, <code>uint_fast</code><em>N</em><code>_t</code>)</li>
+</ul>
+
+<p>Where the <em>N</em> occurs, you substitute the number of bits, commonly multiples of 8, e.g. <code>uint16_t</code>.</p>
+
+<p>The following types are guaranteed to be defined:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int_least8_t</span>      <span class="kt">uint_least8_t</span>
+<span class="kt">int_least16_t</span>     <span class="kt">uint_least16_t</span>
+<span class="kt">int_least32_t</span>     <span class="kt">uint_least32_t</span>
+<span class="kt">int_least64_t</span>     <span class="kt">uint_least64_t</span>
+
+<span class="kt">int_fast8_t</span>       <span class="kt">uint_fast8_t</span>
+<span class="kt">int_fast16_t</span>      <span class="kt">uint_fast16_t</span>
+<span class="kt">int_fast32_t</span>      <span class="kt">uint_fast32_t</span>
+<span class="kt">int_fast64_t</span>      <span class="kt">uint_fast64_t</span>
+</code></pre></div>
+
+<p>Everything else is optional, but you’ll probably also have the following, which are required when a system has integers of these sizes with no padding and two’s-complement representation… which is the case for Macs and PCs and a lot of other systems. In short, you very likely have these:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int8_t</span>      <span class="kt">uint8_t</span>
+<span class="kt">int16_t</span>     <span class="kt">uint16_t</span>
+<span class="kt">int32_t</span>     <span class="kt">uint32_t</span>
+<span class="kt">int64_t</span>     <span class="kt">uint64_t</span>
+</code></pre></div>
+
+<p>Other numbers of bits can also be supported by an implementation if it wants to go all crazy with it.</p>
+
+<p>Examples:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdint.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int16_t</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">32</span><span class="p">;</span>
+    <span class="kt">int_fast32_t</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+
+    <span class="c1">// ...</span>
+</code></pre></div>
+
+<h2>21.2 Other Integer Types</h2>
+
+<p>There are a couple optional types that are integers capable of holding pointer types.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">intptr_t</span>
+<span class="kt">uintptr_t</span>
+</code></pre></div>
+
+<p>You can convert a <code>void*</code> to one of these types, and back again. And the <code>void*</code>s will compare equal.</p>
+
+<p>The use case is any place you need an integer that represents a pointer for some reason.</p>
+
+<p>Also, there are a couple types that are just there to be the biggest possible integers your system supports:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">intmax_t</span>
+<span class="kt">uintmax_t</span>
+</code></pre></div>
+
+<p>Fun fact: you can print these types with the <code>&quot;%jd&quot;</code> and <code>&quot;%ju&quot;</code> <a href="stdio.html#man-printf" rel="nofollow"><code>printf()</code></a> format specifiers.</p>
+
+<p>There are also a bunch of macros in <code>&lt;inttypes.h&gt;</code>(#inttypes) that you can use to print any of the types mentioned, above.</p>
+
+<h2>21.3 Macros</h2>
+
+<p>The following macros define the minimum and maximum values for these types:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">INT8_MAX</span>           <span class="n">INT8_MIN</span>           <span class="n">UINT8_MAX</span>
+<span class="n">INT16_MAX</span>          <span class="n">INT16_MIN</span>          <span class="n">UINT16_MAX</span>
+<span class="n">INT32_MAX</span>          <span class="n">INT32_MIN</span>          <span class="n">UINT32_MAX</span>
+<span class="n">INT64_MAX</span>          <span class="n">INT64_MIN</span>          <span class="n">UINT64_MAX</span>
+
+<span class="n">INT_LEAST8_MAX</span>     <span class="n">INT_LEAST8_MIN</span>     <span class="n">UINT_LEAST8_MAX</span>
+<span class="n">INT_LEAST16_MAX</span>    <span class="n">INT_LEAST16_MIN</span>    <span class="n">UINT_LEAST16_MAX</span>
+<span class="n">INT_LEAST32_MAX</span>    <span class="n">INT_LEAST32_MIN</span>    <span class="n">UINT_LEAST32_MAX</span>
+<span class="n">INT_LEAST64_MAX</span>    <span class="n">INT_LEAST64_MIN</span>    <span class="n">UINT_LEAST64_MAX</span>
+
+<span class="n">INT_FAST8_MAX</span>      <span class="n">INT_FAST8_MIN</span>      <span class="n">UINT_FAST8_MAX</span>
+<span class="n">INT_FAST16_MAX</span>     <span class="n">INT_FAST16_MIN</span>     <span class="n">UINT_FAST16_MAX</span>
+<span class="n">INT_FAST32_MAX</span>     <span class="n">INT_FAST32_MIN</span>     <span class="n">UINT_FAST32_MAX</span>
+<span class="n">INT_FAST64_MAX</span>     <span class="n">INT_FAST64_MIN</span>     <span class="n">UINT_FAST64_MAX</span>
+
+<span class="n">INTMAX_MAX</span>         <span class="n">INTMAX_MIN</span>         <span class="n">UINTMAX_MAX</span>
+
+<span class="n">INTPTR_MAX</span>         <span class="n">INTPTR_MIN</span>         <span class="n">UINTPTR_MAX</span>
+</code></pre></div>
+
+<p>For the exact-bit-size signed types, the minimum is exactly \(-(2<sup>{N-1})\)</sup> and the maximum is exactly \(2<sup>{N-1}-1\).</sup> And for the exact-bit-size unsigned types, the max is exactly \(2<sup>N-1\).</sup></p>
+
+<p>For the signed “least” and “fast” variants, the magnitude and sign of the minimum is at least \(-(2<sup>{N-1}-1)\)</sup> and the maximum is at least \(2<sup>{N-1}-1\).</sup> And for unsigned it’s at least \(2<sup>N-1\).</sup></p>
+
+<p><code>INTMAX_MAX</code> is at least \(2<sup>{63}-1\),</sup> <code>INTMAX_MIN</code> is at least \(-(2<sup>{63}-1)\)</sup> in sign and magnitude. And <code>UINTMAX_MAX</code> is at least \(2<sup>{64}-1\).</sup></p>
+
+<p>Finally, <code>INTPTR_MAX</code> is at least \(2<sup>{15}-1\),</sup> <code>INTPTR_MIN</code> is at least \(-(2<sup>{15}-1)\)</sup> in sign and magnitude. And <code>UINTPTR_MAX</code> is at least \(2<sup>{16}-1\).</sup></p>
+
+<h2>21.4 Other Limits</h2>
+
+<p>There are a bunch of types in <code>&lt;inttypes.h&gt;</code>(#inttypes) that have their limits defined here. (<code>&lt;inttypes.h&gt;</code> includes <code>&lt;stdint.h&gt;</code>.)</p>
+
+<table><thead>
+<tr>
+<th>Macro</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>PTRDIFF_MIN</code></td>
+<td>Minimum <code>ptrdiff_t</code> value</td>
+</tr>
+<tr>
+<td><code>PTRDIFF_MAX</code></td>
+<td>Maximum <code>ptrdiff_t</code> value</td>
+</tr>
+<tr>
+<td><code>SIG_ATOMIC_MIN</code></td>
+<td>Minimum <code>sig_atomic_t</code> value</td>
+</tr>
+<tr>
+<td><code>SIG_ATOMIC_MAX</code></td>
+<td>Maximum <code>sig_atomic_t</code> value</td>
+</tr>
+<tr>
+<td><code>SIZE_MAX</code></td>
+<td>Maximum <code>size_t</code> value</td>
+</tr>
+<tr>
+<td><code>WCHAR_MIN</code></td>
+<td>Minimum <code>wchar_t</code> value</td>
+</tr>
+<tr>
+<td><code>WCHAR_MAX</code></td>
+<td>Maximum <code>wchar_t</code> value</td>
+</tr>
+<tr>
+<td><code>WINT_MIN</code></td>
+<td>Minimum <code>wint_t</code> value</td>
+</tr>
+<tr>
+<td><code>WINT_MAX</code></td>
+<td>Maximum <code>wint_t</code> value</td>
+</tr>
+</tbody></table>
+
+<p>The spec says that <code>PTRDIFF_MIN</code> will be at least -65535 in magnitude. And <code>PTRDIFF_MAX</code> and <code>SIZE_MAX</code> will be at least 65535.</p>
+
+<p><code>SIG_ATOMIC_MIN</code> and <code>MAX</code> will be either -127 and 127 (if it’s signed) or 0 and 255 (if it’s unsigned).</p>
+
+<p>Same for <code>WCHAR_MIN</code> and <code>MAX</code>.</p>
+
+<p><code>WINT_MIN</code> and <code>MAX</code> will be either -32767 and 32767 (if it’s signed) or 0 and 65535 (if it’s unsigned).</p>
+
+<h2>21.5 Macros for Declaring Constants</h2>
+
+<p>If you recall, you can specify a type for integer constants:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+<span class="kt">long</span> <span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">12L</span><span class="p">;</span>
+<span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="kt">int</span> <span class="n">z</span> <span class="o">=</span> <span class="mi">12ULL</span><span class="p">;</span>
+</code></pre></div>
+
+<p>You can use the macros <code>INT</code><em>N</em><code>_C()</code> and <code>UINT</code><em>N</em><code>()</code> where <em>N</em> is <code>8</code>, <code>16</code>, <code>32</code> or <code>64</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">uint_least16_t</span> <span class="n">x</span> <span class="o">=</span> <span class="n">INT16_C</span><span class="p">(</span><span class="mi">3490</span><span class="p">);</span>
+<span class="kt">uint_least64_t</span> <span class="n">y</span> <span class="o">=</span> <span class="n">INT64_C</span><span class="p">(</span><span class="mi">1122334455</span><span class="p">);</span>
+</code></pre></div>
+
+<p>A variant on these is <code>INTMAX_C()</code> and <code>UINTMAX_C()</code>. They will make a constant suitable for storing in an <code>intmax_t</code> or <code>uintmax_t</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">intmax_t</span> <span class="n">x</span> <span class="o">=</span> <span class="n">INTMAX_C</span><span class="p">(</span><span class="mi">3490</span><span class="p">);</span>
+<span class="kt">uintmax_t</span> <span class="n">x</span> <span class="o">=</span> <span class="n">UINTMAX_C</span><span class="p">(</span><span class="mi">1122334455</span><span class="p">);</span>
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/32-types-part-v-compound-literals-and-generic-selections</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/32-types-part-v-compound-literals-and-generic-selections"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>32 Types Part V: Compound Literals and Generic Selections</h1>
+
+<p>This is the final chapter for types! We’re going to talk about two things:</p>
+
+<ul>
+<li>  How to have “anonymous” unnamed objects and how that’s useful.</li>
+<li>  How to generate type-dependent code.</li>
+</ul>
+
+<p>They’re not particularly related, but don’t really each warrant their own chapters. So I crammed them in here like a rebel!</p>
+
+<h2>32.1 Compound Literals</h2>
+
+<p>This is a neat feature of the language that allows you to create an object of some type on the fly without ever assigning it to a variable. You can make simple types, arrays, <code>struct</code>s, you name it.</p>
+
+<p>One of the main uses for this is passing complex arguments to functions when you don’t want to make a temporary variable to hold the value.</p>
+
+<p>The way you create a compound literal is to put the type name in parentheses, and then put an initializer list after. For example, an unnamed array of <code>int</code>s, might look like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="p">(</span><span class="kt">int</span> <span class="p">[]){</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">}</span>
+</code></pre></div>
+
+<p>Now, that line of code doesn’t do anything on its own. It creates an unnamed array of 4 <code>int</code>s, and then throws them away without using them.</p>
+
+<p>We could use a pointer to store a reference to the array…</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span> <span class="p">[]){</span><span class="mi">1</span> <span class="p">,</span><span class="mi">2</span> <span class="p">,</span><span class="mi">3</span> <span class="p">,</span><span class="mi">4</span><span class="p">};</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>  <span class="c1">// 2</span>
+</code></pre></div>
+
+<p>But that seems a little like a long-winded way to have an array. I mean, we could have just done this<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁷</a>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">p</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">};</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>  <span class="c1">// 2</span>
+</code></pre></div>
+
+<p>So let’s take a look at a more useful example.</p>
+
+<h3>32.1.1 Passing Unnamed Objects to Functions</h3>
+
+<p>Let’s say we have a function to sum an array of <code>int</code>s:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">sum</span><span class="p">(</span><span class="kt">int</span> <span class="n">p</span><span class="p">[],</span> <span class="kt">int</span> <span class="n">count</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+    <span class="k">return</span> <span class="n">total</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>If we wanted to call it, we’d normally have to do something like this, declaring an array and storing values in it to pass to the function:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">a</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">};</span>
+
+<span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">sum</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>
+</code></pre></div>
+
+<p>But unnamed objects give us a way to skip the variable by passing it directly in (parameter names listed above). Check it out—we’re going to replace the variable <code>a</code> with an unnamed array that we pass in as the first argument:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">//                   p[]         count</span>
+<span class="c1">//           |-----------------|  |</span>
+<span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">sum</span><span class="p">((</span><span class="kt">int</span> <span class="p">[]){</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">},</span> <span class="mi">4</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Pretty slick!</p>
+
+<h3>32.1.2 Unnamed <code>struct</code>s</h3>
+
+<p>We can do something similar with <code>struct</code>s.</p>
+
+<p>First, let’s do things without unnamed objects. We’ll define a <code>struct</code> to hold some <code>x</code>/<code>y</code> coordinates. Then we’ll define one, passing in values into its initializer. Finally, we’ll pass it to a function to print the values:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="k">struct</span> <span class="n">coord</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">void</span> <span class="nf">print_coord</span><span class="p">(</span><span class="k">struct</span> <span class="n">coord</span> <span class="n">c</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d, %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="p">.</span><span class="n">y</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">coord</span> <span class="n">t</span> <span class="o">=</span> <span class="p">{.</span><span class="n">x</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="p">.</span><span class="n">y</span><span class="o">=</span><span class="mi">20</span><span class="p">};</span>
+
+    <span class="n">print_coord</span><span class="p">(</span><span class="n">t</span><span class="p">);</span>   <span class="c1">// prints "10, 20"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Straightforward enough?</p>
+
+<p>Let’s modify it to use an unnamed object instead of the variable <code>t</code> we’re passing to <code>print_coord()</code>.</p>
+
+<p>We’ll just take <code>t</code> out of there and replace it with an unnamed <code>struct</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="c1">//struct coord t = {.x=10, .y=20};</span>
+
+    <span class="n">print_coord</span><span class="p">((</span><span class="k">struct</span> <span class="n">coord</span><span class="p">){.</span><span class="n">x</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="p">.</span><span class="n">y</span><span class="o">=</span><span class="mi">20</span><span class="p">});</span>   <span class="c1">// prints "10, 20"</span>
+</code></pre></div>
+
+<p>Still works!</p>
+
+<h3>32.1.3 Pointers to Unnamed Objects</h3>
+
+<p>You might have noticed in the last example that even through we were using a <code>struct</code>, we were passing a copy of the <code>struct</code> to <code>print_coord()</code> as opposed to passing a pointer to the <code>struct</code>.</p>
+
+<p>Turns out, we can just take the address of an unnamed object with <code>&amp;</code> like always.</p>
+
+<p>This is because, in general, if an operator would have worked on a variable of that type, you can use that operator on an unnamed object of that type.</p>
+
+<p>Let’s modify the above code so that we pass a pointer to an unnamed object</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="k">struct</span> <span class="n">coord</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">void</span> <span class="nf">print_coord</span><span class="p">(</span><span class="k">struct</span> <span class="n">coord</span> <span class="o">*</span><span class="n">c</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d, %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">c</span><span class="o">-&gt;</span><span class="n">x</span><span class="p">,</span> <span class="n">c</span><span class="o">-&gt;</span><span class="n">y</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">//     Note the &amp;</span>
+    <span class="c1">//          |</span>
+    <span class="n">print_coord</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="k">struct</span> <span class="n">coord</span><span class="p">){.</span><span class="n">x</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="p">.</span><span class="n">y</span><span class="o">=</span><span class="mi">20</span><span class="p">});</span>   <span class="c1">// prints "10, 20"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Additionally, this can be a nice way to pass even pointers to simple objects:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// Pass a pointer to an int with value 3490</span>
+<span class="n">foo</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="kt">int</span><span class="p">){</span><span class="mi">3490</span><span class="p">});</span>
+</code></pre></div>
+
+<p>Easy as that.</p>
+
+<h3>32.1.4 Unnamed Objects and Scope</h3>
+
+<p>The lifetime of an unnamed object ends at the end of its scope. The biggest way this could bite you is if you make a new unnamed object, get a pointer to it, and then leave the object’s scope. In that case, the pointer will refer to a dead object.</p>
+
+<p>So this is undefined behavior:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+
+<span class="p">{</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="p">(</span><span class="kt">int</span><span class="p">){</span><span class="mi">10</span><span class="p">};</span>
+<span class="p">}</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">);</span>  <span class="c1">// INVALID: The (int){10} fell out of scope</span>
+</code></pre></div>
+
+<p>Likewise, you can’t return a pointer to an unnamed object from a function. The object is deallocated when it falls out of scope:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="o">*</span><span class="nf">get3490</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// Don't do this</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="p">(</span><span class="kt">int</span><span class="p">){</span><span class="mi">3490</span><span class="p">};</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">get3490</span><span class="p">());</span>  <span class="c1">// INVALID: (int){3490} fell out of scope</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Just think of their scope like that of an ordinary local variable. You can’t return a pointer to a local variable, either.</p>
+
+<h3>32.1.5 Silly Unnamed Object Example</h3>
+
+<p>You can put any type in there and make an unnamed object.</p>
+
+<p>For example, these are effectively equivalent:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">3490</span><span class="p">;</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>               <span class="c1">// 3490 (variable)</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mi">3490</span><span class="p">);</span>            <span class="c1">// 3490 (constant)</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">){</span><span class="mi">3490</span><span class="p">});</span>     <span class="c1">// 3490 (unnamed object)</span>
+</code></pre></div>
+
+<p>That last one is unnamed, but it’s silly. Might as well do the simple one on the line before.</p>
+
+<p>But hopefully that provides a little more clarity on the syntax.</p>
+
+<h2>32.2 Generic Selections</h2>
+
+<p>This is an expression that allows you to select different pieces of code depending on the <em>type</em> of the first argument to the expression.</p>
+
+<p>We’ll look at an example in just a second, but it’s important to know this is processed at compile time, <em>not at runtime</em>. There’s no runtime analysis going on here.</p>
+
+<p>The expression begins with <code>_Generic</code>, works kinda like a <code>switch</code>, and it takes at least two arguments.</p>
+
+<p>The first argument is an expression (or variable<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁷⁸</a>) that has a <em>type</em>. All expressions have a type. The remaining arguments to <code>_Generic</code> are the cases of what to substitute in for the result of the expression if the first argument is that type.</p>
+
+<p>Wat?</p>
+
+<p>Let’s try it out and see.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">f</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="k">_Generic</span><span class="p">(</span><span class="n">i</span><span class="p">,</span>
+                    <span class="nl">int:</span> <span class="s">"that variable is an int"</span><span class="p">,</span>
+                    <span class="nl">float:</span> <span class="s">"that variable is a float"</span><span class="p">,</span>
+                    <span class="nl">default:</span> <span class="s">"that variable is some type"</span>
+                <span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Check out the <code>_Generic</code> expression starting on line 9.</p>
+
+<p>When the compiler sees it, it looks at the type of the first argument. (In this example, the type of the variable <code>i</code>.) It then looks through the cases for something of that type. And then it substitutes the argument in place of the entire <code>_Generic</code> expression.</p>
+
+<p>In this case, <code>i</code> is an <code>int</code>, so it matches that case. Then the string is substituted in for the expression. So the line turns into this when the compiler sees it:</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"that variable is an int"</span><span class="p">;</span>
+</code></pre></div>
+
+<p>If the compiler can’t find a type match in the <code>_Generic</code>, it looks for the optional <code>default</code> case and uses that.</p>
+
+<p>If it can’t find a type match and there’s no <code>default</code>, you’ll get a compile error. The first expression <strong>must</strong> match one of the types or <code>default</code>.</p>
+
+<p>Because it’s inconvenient to write <code>_Generic</code> over and over, it’s often used to make the body of a macro that can be easily repeatedly reused.</p>
+
+<p>Let’s make a macro <code>TYPESTR(x)</code> that takes an argument and returns a string with the type of the argument.</p>
+
+<p>So <code>TYPESTR(1)</code> will return the string <code>&quot;int&quot;</code>, for example.</p>
+
+<p>Here we go:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#define TYPESTR(x) _Generic((x), \
+                        int: "int", \
+                        long: "long", \
+                        float: "float", \
+                        double: "double", \
+                        default: "something else")
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">l</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">f</span><span class="p">;</span>
+    <span class="kt">double</span> <span class="n">d</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"i is type %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">TYPESTR</span><span class="p">(</span><span class="n">i</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"l is type %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">TYPESTR</span><span class="p">(</span><span class="n">l</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"f is type %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">TYPESTR</span><span class="p">(</span><span class="n">f</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"d is type %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">TYPESTR</span><span class="p">(</span><span class="n">d</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"c is type %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">TYPESTR</span><span class="p">(</span><span class="n">c</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>This outputs:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">i</span> <span class="n">is</span> <span class="n">type</span> <span class="kt">int</span>
+<span class="n">l</span> <span class="n">is</span> <span class="n">type</span> <span class="kt">long</span>
+<span class="n">f</span> <span class="n">is</span> <span class="n">type</span> <span class="kt">float</span>
+<span class="n">d</span> <span class="n">is</span> <span class="n">type</span> <span class="kt">double</span>
+<span class="n">c</span> <span class="n">is</span> <span class="n">type</span> <span class="n">something</span> <span class="k">else</span>
+</code></pre></div>
+
+<p>Which should be no surprise, because, like we said, that code in <code>main()</code> is replaced with the following when it is compiled:</p>
+
+<div class="highlight"><pre class="highlight c"><code>    <span class="n">printf</span><span class="p">(</span><span class="s">"i is type %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="s">"int"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"l is type %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="s">"long"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"f is type %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="s">"float"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"d is type %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="s">"double"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"c is type %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="s">"something else"</span><span class="p">);</span>
+</code></pre></div>
+
+<p>And that’s exactly the output we see.</p>
+
+<p>Let’s do one more. I’ve included some macros here so that when you run:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Foo!"</span><span class="p">;</span>
+
+<span class="n">PRINT_VAL</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="n">PRINT_VAL</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+</code></pre></div>
+
+<p>you get the output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">i</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Foo</span><span class="o">!</span>
+</code></pre></div>
+
+<p>We’ll have to make use of some macro magic to do that.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// Macro that gives back a format specifier for a type</span>
+<span class="cp">#define FMTSPEC(x) _Generic((x), \
+                        int: "%d", \
+                        long: "%ld", \
+                        float: "%f", \
+                        double: "%f", \
+                        char *: "%s")
+</span>                        <span class="c1">// TODO: add more types</span>
+
+<span class="c1">// Macro that prints a variable in the form "name = value"</span>
+<span class="cp">#define PRINT_VAL(x) do { \
+    char fmt[512]; \
+    snprintf(fmt, sizeof fmt, #x " = %s\n", FMTSPEC(x)); \
+    printf(fmt, (x)); \
+} while(0)
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">f</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14159</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="p">;</span>
+
+    <span class="n">PRINT_VAL</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+    <span class="n">PRINT_VAL</span><span class="p">(</span><span class="n">f</span><span class="p">);</span>
+    <span class="n">PRINT_VAL</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>for the output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">i</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">f</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">141590</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">Hello</span><span class="p">,</span> <span class="n">world</span><span class="o">!</span>
+</code></pre></div>
+
+<p>We could have crammed that all in one big macro, but I broke it into two to prevent eye bleeding.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

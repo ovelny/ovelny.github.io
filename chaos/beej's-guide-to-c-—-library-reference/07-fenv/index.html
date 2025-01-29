@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-—-library-reference/07-fenv</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-—-library-reference/07-fenv"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>7 <code>&lt;fenv.h&gt;</code> Floating Point Exceptions and Environment</h1>
+
+<table><thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><a href="fenv.html#man-feclearexcept" rel="nofollow"><code>feclearexcept()</code></a></td>
+<td>Clear floating point exceptions</td>
+</tr>
+<tr>
+<td><a href="fenv.html#man-fegetexceptflag" rel="nofollow"><code>fegetexceptflag()</code></a></td>
+<td>Save the floating point exception flags</td>
+</tr>
+<tr>
+<td><a href="fenv.html#man-fegetexceptflag" rel="nofollow"><code>fesetexceptflag()</code></a></td>
+<td>Restore the floating point exception flags</td>
+</tr>
+<tr>
+<td><a href="fenv.html#man-feraiseexcept" rel="nofollow"><code>feraiseexcept()</code></a></td>
+<td>Raise a floating point exception through software</td>
+</tr>
+<tr>
+<td><a href="fenv.html#man-fetestexcept" rel="nofollow"><code>fetestexcept()</code></a></td>
+<td>Test to see if an exception has occurred</td>
+</tr>
+<tr>
+<td><a href="fenv.html#man-fegetround" rel="nofollow"><code>fegetround()</code></a></td>
+<td>Get the rounding direction</td>
+</tr>
+<tr>
+<td><a href="fenv.html#man-fegetround" rel="nofollow"><code>fesetround()</code></a></td>
+<td>Set the rounding direction</td>
+</tr>
+<tr>
+<td><a href="fenv.html#man-fegetenv" rel="nofollow"><code>fegetenv()</code></a></td>
+<td>Save the entire floating point environment</td>
+</tr>
+<tr>
+<td><a href="fenv.html#man-fegetenv" rel="nofollow"><code>fesetenv()</code></a></td>
+<td>Restore the entire floating point environment</td>
+</tr>
+<tr>
+<td><a href="fenv.html#man-feholdexcept" rel="nofollow"><code>feholdexcept()</code></a></td>
+<td>Save floating point state and install non-stop mode</td>
+</tr>
+<tr>
+<td><a href="fenv.html#man-feupdateenv" rel="nofollow"><code>feupdateenv()</code></a></td>
+<td>Restore floating point environment and apply recent exceptions</td>
+</tr>
+</tbody></table>
+
+<h2>7.1 Types and Macros</h2>
+
+<p>There are two types defined in this header:</p>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>fenv_t</code></td>
+<td>The entire floating point environment</td>
+</tr>
+<tr>
+<td><code>fexcept_t</code></td>
+<td>A set of floating point exceptions</td>
+</tr>
+</tbody></table>
+
+<p>The “environment” can be thought of as the status at this moment of the floating point processing system: this includes the exceptions, rounding, etc. It’s an opaque type, so you won’t be able to access it directly, and it must be done through the proper functions.</p>
+
+<p>If the functions in question exist on your system (they might not be!), then you’ll also have these macros defined to represent different exceptions:</p>
+
+<table><thead>
+<tr>
+<th>Macro</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>FE_DIVBYZERO</code></td>
+<td>Division by zero</td>
+</tr>
+<tr>
+<td><code>FE_INEXACT</code></td>
+<td>Result was not exact, was rounded</td>
+</tr>
+<tr>
+<td><code>FE_INVALID</code></td>
+<td>Domain error</td>
+</tr>
+<tr>
+<td><code>FE_OVERFLOW</code></td>
+<td>Numeric overflow</td>
+</tr>
+<tr>
+<td><code>FE_UNDERFLOW</code></td>
+<td>Numeric underflow</td>
+</tr>
+<tr>
+<td><code>FE_ALL_EXCEPT</code></td>
+<td>All of the above combined</td>
+</tr>
+</tbody></table>
+
+<p>The idea is that you can bitwise-OR these together to represent multiple exceptions, e.g. <code>FE_INVALID|FE_OVERFLOW</code>.</p>
+
+<p>The functions, below, that have an <code>excepts</code> parameter will take these values.</p>
+
+<p>See <a href="math.html#math" rel="nofollow"><code>&lt;math.h&gt;</code></a> for which functions raise which exceptions and when.</p>
+
+<h2>7.2 Pragmas</h2>
+
+<p>Normally C is free to optimize all kinds of stuff that might cause the flags to not look like you might expect. So if you’re going to use this stuff, be sure to set this pragma:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#pragma STDC FENV_ACCESS ON
+</span></code></pre></div>
+
+<p>If you do this at global scope, it remains in effect until you turn it off:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#pragma STDC FENV_ACCESS OFF
+</span></code></pre></div>
+
+<p>If you do it in block scope, it has to come before any statements or declarations. In this case, it has effect until the block ends (or until it is explicitly turned off.)</p>
+
+<p><strong>A caveat</strong>: this program isn’t supported on either of the compilers I have (gcc and clang) as of this writing, so though I have built the code, below, it’s not particularly well-tested.</p>
+
+<p><hr></p>
+
+<h2>7.3 <code>feclearexcept()</code></h2>
+
+<p>Clear floating point exceptions</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">feclearexcept</span><span class="p">(</span><span class="kt">int</span> <span class="n">excepts</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>If a floating point exception has occurred, this function can clear it.</p>
+
+<p>Set <code>excepts</code> to a bitwise-OR list of exceptions to clear.</p>
+
+<p>Passing <code>0</code> has no effect.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns <code>0</code> on success and non-zero on failure.</p>
+
+<h3>Example</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;math.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cp">#pragma STDC FENV_ACCESS ON 
+</span>
+    <span class="kt">double</span> <span class="n">f</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+
+    <span class="kt">int</span> <span class="n">r</span> <span class="o">=</span> <span class="n">feclearexcept</span><span class="p">(</span><span class="n">FE_INVALID</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="fenv.html#man-feraiseexcept" rel="nofollow"><code>feraiseexcept()</code></a>, <a href="fenv.html#man-fetestexcept" rel="nofollow"><code>fetestexcept()</code></a></p>
+
+<p><hr></p>
+
+<h2>7.4 <code>fegetexceptflag()</code> <code>fesetexceptflag()</code></h2>
+
+<p>Save or restore the floating point exception flags</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">fegetexceptflag</span><span class="p">(</span><span class="n">fexcept_t</span> <span class="o">*</span><span class="n">flagp</span><span class="p">,</span> <span class="kt">int</span> <span class="n">excepts</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">fesetexceptflag</span><span class="p">(</span><span class="n">fexcept_t</span> <span class="o">*</span><span class="n">flagp</span><span class="p">,</span> <span class="kt">int</span> <span class="n">excepts</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Use these functions to save or restore the current floating point environment in a variable.</p>
+
+<p>Set <code>excepts</code> to the set of exceptions you want to save or restore the state of. Setting it to <code>FE_ALL_EXCEPT</code> will save or restore the entire state.</p>
+
+<p>Note that <code>fexcept_t</code> is an opaque type—you don’t know what’s in it.</p>
+
+<p><code>excepts</code> can be set to zero for no effect.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns <code>0</code> on success or if <code>excepts</code> is zero.</p>
+
+<p>Returns non-zero on failure.</p>
+
+<h3>Example</h3>
+
+<p>This program saves the state (before any error has happened), then deliberately causes a domain error by trying to take \(\sqrt{-1}\).</p>
+
+<p>After that, it restores the floating point state to before the error had occurred, thereby clearing it.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;math.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cp">#pragma STDC FENV_ACCESS ON 
+</span>
+    <span class="n">fexcept_t</span> <span class="n">flag</span><span class="p">;</span>
+
+    <span class="n">fegetexceptflag</span><span class="p">(</span><span class="o">&amp;</span><span class="n">flag</span><span class="p">,</span> <span class="n">FE_ALL_EXCEPT</span><span class="p">);</span>  <span class="c1">// Save state</span>
+
+    <span class="kt">double</span> <span class="n">f</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>                    <span class="c1">// I imagine this won't work</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">f</span><span class="p">);</span>                      <span class="c1">// "nan"</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">fetestexcept</span><span class="p">(</span><span class="n">FE_INVALID</span><span class="p">))</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"1: Domain error</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>        <span class="c1">// This prints!</span>
+    <span class="k">else</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"1: No domain error</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="n">fesetexceptflag</span><span class="p">(</span><span class="o">&amp;</span><span class="n">flag</span><span class="p">,</span> <span class="n">FE_ALL_EXCEPT</span><span class="p">);</span>  <span class="c1">// Restore to before error</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">fetestexcept</span><span class="p">(</span><span class="n">FE_INVALID</span><span class="p">))</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"2: Domain error</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"2: No domain error</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>     <span class="c1">// This prints!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><hr></p>
+
+<h2>7.5 <code>feraiseexcept()</code></h2>
+
+<p>Raise a floating point exception through software</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">feraiseexcept</span><span class="p">(</span><span class="kt">int</span> <span class="n">excepts</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This attempts to raise a floating point exception as if it had happened.</p>
+
+<p>You can specify multiple exceptions to raise.</p>
+
+<p>If either <code>FE_UNDERFLOW</code> or <code>FE_OVERFLOW</code> is raised, C <em>might</em> also raise <code>FE_INEXACT</code>.</p>
+
+<p>If either <code>FE_UNDERFLOW</code> or <code>FE_OVERFLOW</code> is raised at the same time as <code>FE_INEXACT</code>, then <code>FE_UNDERFLOW</code> or <code>FE_OVERFLOW</code> will be raised <em>before</em> <code>FE_INEXACT</code> behind the scenes.</p>
+
+<p>The order the other exceptions are raised is undefined.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns <code>0</code> if all the exceptions were raised or if <code>excepts</code> is <code>0</code>.</p>
+
+<p>Returns non-zero otherwise.</p>
+
+<h3>Example</h3>
+
+<p>This code deliberately raises a division-by-zero exception and then detects it.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;math.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cp">#pragma STDC FENV_ACCESS ON 
+</span>
+    <span class="n">feraiseexcept</span><span class="p">(</span><span class="n">FE_DIVBYZERO</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">fetestexcept</span><span class="p">(</span><span class="n">FE_DIVBYZERO</span><span class="p">)</span> <span class="o">==</span> <span class="n">FE_DIVBYZERO</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Detected division by zero</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// This prints!!</span>
+    <span class="k">else</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"This is fine.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="fenv.html#man-feclearexcept" rel="nofollow"><code>feclearexcept()</code></a>, <a href="fenv.html#man-fetestexcept" rel="nofollow"><code>fetestexcept()</code></a></p>
+
+<p><hr></p>
+
+<h2>7.6 <code>fetestexcept()</code></h2>
+
+<p>Test to see if an exception has occurred</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">fetestexcept</span><span class="p">(</span><span class="kt">int</span> <span class="n">excepts</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Put the exceptions you want to test in <code>excepts</code>, bitwise-ORing them together.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns the bitwise-OR of the exceptions that have been raised.</p>
+
+<h3>Example</h3>
+
+<p>This code deliberately raises a division-by-zero exception and then detects it.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;math.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cp">#pragma STDC FENV_ACCESS ON 
+</span>
+    <span class="n">feraiseexcept</span><span class="p">(</span><span class="n">FE_DIVBYZERO</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">fetestexcept</span><span class="p">(</span><span class="n">FE_DIVBYZERO</span><span class="p">)</span> <span class="o">==</span> <span class="n">FE_DIVBYZERO</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Detected division by zero</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>  <span class="c1">// This prints!!</span>
+    <span class="k">else</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"This is fine.</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="fenv.html#man-feclearexcept" rel="nofollow"><code>feclearexcept()</code></a>, <a href="fenv.html#man-feraiseexcept" rel="nofollow"><code>feraiseexcept()</code></a></p>
+
+<p><hr></p>
+
+<h2>7.7 <code>fegetround()</code> <code>fesetround()</code></h2>
+
+<p>Get or set the rounding direction</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">fegetround</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">fesetround</span><span class="p">(</span><span class="kt">int</span> <span class="n">round</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>Use these to get or set the rounding direction used by a variety of math functions.</p>
+
+<p>Basically when a function “rounds” a number, it wants to know how to do it. By default, it does it how we tend to expect: if the fractional part is less than 0.5, it rounds down closer to zero, otherwise up farther from zero.</p>
+
+<table><thead>
+<tr>
+<th>Macro</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>FE_TONEAREST</code></td>
+<td>Round to the nearest whole number, the default</td>
+</tr>
+<tr>
+<td><code>FE_TOWARDZERO</code></td>
+<td>Round toward zero always</td>
+</tr>
+<tr>
+<td><code>FE_DOWNWARD</code></td>
+<td>Round toward the next lesser whole number</td>
+</tr>
+<tr>
+<td><code>FE_UPWARD</code></td>
+<td>Round toward the next greater whole number</td>
+</tr>
+</tbody></table>
+
+<p>Some implementations don’t support rounding. If it does, the above macros will be defined.</p>
+
+<p>Note that the <code>round()</code> function is always “to-nearest” and doesn’t pay attention to the rounding mode.</p>
+
+<h3>Return Value</h3>
+
+<p><code>fegetround()</code> returns the current rounding direction, or a negative value on error.</p>
+
+<p><code>fesetround()</code> returns zero on success, or non-zero on failure.</p>
+
+<h3>Example</h3>
+
+<p>This rounds some numbers</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;math.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="c1">// Helper function to print the rounding mode</span>
+<span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="nf">rounding_mode_str</span><span class="p">(</span><span class="kt">int</span> <span class="n">mode</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">switch</span> <span class="p">(</span><span class="n">mode</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">FE_TONEAREST</span><span class="p">:</span>  <span class="k">return</span> <span class="s">"FE_TONEAREST"</span><span class="p">;</span>
+        <span class="k">case</span> <span class="n">FE_TOWARDZERO</span><span class="p">:</span> <span class="k">return</span> <span class="s">"FE_TOWARDZERO"</span><span class="p">;</span>
+        <span class="k">case</span> <span class="n">FE_DOWNWARD</span><span class="p">:</span>   <span class="k">return</span> <span class="s">"FE_DOWNWARD"</span><span class="p">;</span>
+        <span class="k">case</span> <span class="n">FE_UPWARD</span><span class="p">:</span>     <span class="k">return</span> <span class="s">"FE_UPWARD"</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="s">"Unknown"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cp">#pragma STDC FENV_ACCESS ON 
+</span>
+    <span class="kt">int</span> <span class="n">rm</span><span class="p">;</span>
+
+    <span class="n">rm</span> <span class="o">=</span> <span class="n">fegetround</span><span class="p">();</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rounding_mode_str</span><span class="p">(</span><span class="n">rm</span><span class="p">));</span>    <span class="c1">// Print current mode</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%f %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rint</span><span class="p">(</span><span class="mi">2</span><span class="p">.</span><span class="mi">1</span><span class="p">),</span> <span class="n">rint</span><span class="p">(</span><span class="mi">2</span><span class="p">.</span><span class="mi">7</span><span class="p">));</span>  <span class="c1">// Try rounding</span>
+
+    <span class="n">fesetround</span><span class="p">(</span><span class="n">FE_TOWARDZERO</span><span class="p">);</span>                <span class="c1">// Set the mode</span>
+
+    <span class="n">rm</span> <span class="o">=</span> <span class="n">fegetround</span><span class="p">();</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rounding_mode_str</span><span class="p">(</span><span class="n">rm</span><span class="p">));</span>    <span class="c1">// Print it</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%f %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">rint</span><span class="p">(</span><span class="mi">2</span><span class="p">.</span><span class="mi">1</span><span class="p">),</span> <span class="n">rint</span><span class="p">(</span><span class="mi">2</span><span class="p">.</span><span class="mi">7</span><span class="p">));</span>  <span class="c1">// Try it now!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">FE_TONEAREST</span>
+<span class="mi">2</span><span class="p">.</span><span class="mo">000000</span> <span class="mi">3</span><span class="p">.</span><span class="mo">000000</span>
+<span class="n">FE_TOWARDZERO</span>
+<span class="mi">2</span><span class="p">.</span><span class="mo">000000</span> <span class="mi">2</span><span class="p">.</span><span class="mo">000000</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="math.html#man-nearbyint" rel="nofollow"><code>nearbyint()</code></a>, <a href="math.html#man-nearbyint" rel="nofollow"><code>nearbyintf()</code></a>, <a href="math.html#man-nearbyint" rel="nofollow"><code>nearbyintl()</code></a>, <a href="math.html#man-rint" rel="nofollow"><code>rint()</code></a>, <a href="math.html#man-rint" rel="nofollow"><code>rintf()</code></a>, <a href="math.html#man-rint" rel="nofollow"><code>rintl()</code></a>, <a href="math.html#man-lrint" rel="nofollow"><code>lrint()</code></a>, <a href="math.html#man-lrint" rel="nofollow"><code>lrintf()</code></a>, <a href="math.html#man-lrint" rel="nofollow"><code>lrintl()</code></a>, <a href="math.html#man-lrint" rel="nofollow"><code>llrint()</code></a>, <a href="math.html#man-lrint" rel="nofollow"><code>llrintf()</code></a>, <a href="math.html#man-lrint" rel="nofollow"><code>llrintl()</code></a></p>
+
+<p><hr></p>
+
+<h2>7.8 <code>fegetenv()</code> <code>fesetenv()</code></h2>
+
+<p>Save or restore the entire floating point environment</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">fegetenv</span><span class="p">(</span><span class="n">fenv_t</span> <span class="o">*</span><span class="n">envp</span><span class="p">);</span>
+<span class="kt">int</span> <span class="nf">fesetenv</span><span class="p">(</span><span class="k">const</span> <span class="n">fenv_t</span> <span class="o">*</span><span class="n">envp</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>You can save the environment (exceptions, rounding direction, etc.) by calling <code>fegetenv()</code> and restore it with <code>fesetenv()</code>.</p>
+
+<p>Use this if you want to restore the state after a function call, i.e. hide from the caller that some floating point exceptions or changes occurred.</p>
+
+<h3>Return Value</h3>
+
+<p><code>fegetenv()</code> and <code>fesetenv()</code> return <code>0</code> on success, and non-zero otherwise.</p>
+
+<h3>Example</h3>
+
+<p>This example saves the environment, messes with the rounding and exceptions, then restores it. After the environment is restored, we see that the rounding is back to default and the exception is cleared.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;math.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">show_status</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Rounding is FE_TOWARDZERO: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+           <span class="n">fegetround</span><span class="p">()</span> <span class="o">==</span> <span class="n">FE_TOWARDZERO</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FE_DIVBYZERO is set: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+           <span class="n">fetestexcept</span><span class="p">(</span><span class="n">FE_DIVBYZERO</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cp">#pragma STDC FENV_ACCESS ON 
+</span>
+    <span class="n">fenv_t</span> <span class="n">env</span><span class="p">;</span>
+
+    <span class="n">fegetenv</span><span class="p">(</span><span class="o">&amp;</span><span class="n">env</span><span class="p">);</span>  <span class="c1">// Save the environment</span>
+
+    <span class="n">fesetround</span><span class="p">(</span><span class="n">FE_TOWARDZERO</span><span class="p">);</span>    <span class="c1">// Change rounding</span>
+    <span class="n">feraiseexcept</span><span class="p">(</span><span class="n">FE_DIVBYZERO</span><span class="p">);</span>  <span class="c1">// Raise an exception</span>
+
+    <span class="n">show_status</span><span class="p">();</span>
+
+    <span class="n">fesetenv</span><span class="p">(</span><span class="o">&amp;</span><span class="n">env</span><span class="p">);</span>  <span class="c1">// Restore the environment</span>
+
+    <span class="n">show_status</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Rounding</span> <span class="n">is</span> <span class="n">FE_TOWARDZERO</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">FE_DIVBYZERO</span> <span class="n">is</span> <span class="n">set</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">Rounding</span> <span class="n">is</span> <span class="n">FE_TOWARDZERO</span><span class="o">:</span> <span class="mi">0</span>
+<span class="n">FE_DIVBYZERO</span> <span class="n">is</span> <span class="n">set</span><span class="o">:</span> <span class="mi">0</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="fenv.html#man-feholdexcept" rel="nofollow"><code>feholdexcept()</code></a>, <a href="fenv.html#man-feupdateenv" rel="nofollow"><code>feupdateenv()</code></a></p>
+
+<p><hr></p>
+
+<h2>7.9 <code>feholdexcept()</code></h2>
+
+<p>Save floating point state and install non-stop mode</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">feholdexcept</span><span class="p">(</span><span class="n">fenv_t</span> <span class="o">*</span><span class="n">envp</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is just like <code>fegetenv()</code> except that it updates the current environment to be in <em>non-stop</em> mode, namely it won’t halt on any exceptions.</p>
+
+<p>It remains in this state until you restore the state with <code>fesetenv()</code> or <code>feupdateenv()</code>.</p>
+
+<h3>Return Value</h3>
+
+<h3>Example</h3>
+
+<p>This example saves the environment and goes into non-stop mode, messes with the rounding and exceptions, then restores it. After the environment is restored, we see that the rounding is back to default and the exception is cleared. We’ll also be out of non-stop mode.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;math.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">show_status</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Rounding is FE_TOWARDZERO: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+           <span class="n">fegetround</span><span class="p">()</span> <span class="o">==</span> <span class="n">FE_TOWARDZERO</span><span class="p">);</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FE_DIVBYZERO is set: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+           <span class="n">fetestexcept</span><span class="p">(</span><span class="n">FE_DIVBYZERO</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cp">#pragma STDC FENV_ACCESS ON 
+</span>
+    <span class="n">fenv_t</span> <span class="n">env</span><span class="p">;</span>
+
+    <span class="c1">// Save the environment and don't stop on exceptions</span>
+    <span class="n">feholdexcept</span><span class="p">(</span><span class="o">&amp;</span><span class="n">env</span><span class="p">);</span>
+
+    <span class="n">fesetround</span><span class="p">(</span><span class="n">FE_TOWARDZERO</span><span class="p">);</span>    <span class="c1">// Change rounding</span>
+    <span class="n">feraiseexcept</span><span class="p">(</span><span class="n">FE_DIVBYZERO</span><span class="p">);</span>  <span class="c1">// Raise an exception</span>
+
+    <span class="n">show_status</span><span class="p">();</span>
+
+    <span class="n">fesetenv</span><span class="p">(</span><span class="o">&amp;</span><span class="n">env</span><span class="p">);</span>  <span class="c1">// Restore the environment</span>
+
+    <span class="n">show_status</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="fenv.html#man-fegetenv" rel="nofollow"><code>fegetenv()</code></a>, <a href="fenv.html#man-fegetenv" rel="nofollow"><code>fesetenv()</code></a>, <a href="fenv.html#man-feupdateenv" rel="nofollow"><code>feupdateenv()</code></a></p>
+
+<p><hr></p>
+
+<h2>7.10 <code>feupdateenv()</code></h2>
+
+<p>Restore floating point environment and apply recent exceptions</p>
+
+<h3>Synopsis</h3>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">feupdateenv</span><span class="p">(</span><span class="k">const</span> <span class="n">fenv_t</span> <span class="o">*</span><span class="n">envp</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Description</h3>
+
+<p>This is like <code>fesetenv()</code> except that it modifies the passed-in environment so that it is updated with exceptions that have happened in the meantime.</p>
+
+<p>So let’s say you had a function that might raise exceptions, but you wanted to hide those in the caller. One option might be to:</p>
+
+<ol>
+<li> Save the environment with <code>fegetenv()</code> or <code>feholdexcept()</code>.</li>
+<li> Do whatever you do that might raise exceptions.</li>
+<li> Restore the environment with <code>fesetenv()</code>, thereby hiding the exceptions that happened in step 2.</li>
+</ol>
+
+<p>But that hides <em>all</em> exceptions. What if you just wanted to hide some of them? You could use <code>feupdateenv()</code> like this:</p>
+
+<ol>
+<li> Save the environment with <code>fegetenv()</code> or <code>feholdexcept()</code>.</li>
+<li> Do whatever you do that might raise exceptions.</li>
+<li> Call <code>feclearexcept()</code> to clear the exceptions you want to hide from the caller.</li>
+<li> Call <code>feupdateenv()</code> to restore the previous environment and update it with the other exceptions that have occurred.</li>
+</ol>
+
+<p>So it’s like a more capable way of restoring the environment than simply <code>fegetenv()</code>/<code>fesetenv()</code>.</p>
+
+<h3>Return Value</h3>
+
+<p>Returns <code>0</code> on success, non-zero otherwise.</p>
+
+<h3>Example</h3>
+
+<p>This program saves state, raises some exceptions, then clears one of the exceptions, then restores and updates the state.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;math.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;fenv.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">show_status</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FE_DIVBYZERO: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">fetestexcept</span><span class="p">(</span><span class="n">FE_DIVBYZERO</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FE_INVALID  : %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">fetestexcept</span><span class="p">(</span><span class="n">FE_INVALID</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"FE_OVERFLOW : %d</span><span class="se">\n\n</span><span class="s">"</span><span class="p">,</span> <span class="n">fetestexcept</span><span class="p">(</span><span class="n">FE_OVERFLOW</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="cp">#pragma STDC FENV_ACCESS ON 
+</span>
+    <span class="n">fenv_t</span> <span class="n">env</span><span class="p">;</span>
+
+    <span class="n">feholdexcept</span><span class="p">(</span><span class="o">&amp;</span><span class="n">env</span><span class="p">);</span>  <span class="c1">// Save the environment</span>
+
+    <span class="c1">// Pretend some bad math happened here:</span>
+    <span class="n">feraiseexcept</span><span class="p">(</span><span class="n">FE_DIVBYZERO</span><span class="p">);</span>  <span class="c1">// Raise an exception</span>
+    <span class="n">feraiseexcept</span><span class="p">(</span><span class="n">FE_INVALID</span><span class="p">);</span>    <span class="c1">// Raise an exception</span>
+    <span class="n">feraiseexcept</span><span class="p">(</span><span class="n">FE_OVERFLOW</span><span class="p">);</span>   <span class="c1">// Raise an exception</span>
+
+    <span class="n">show_status</span><span class="p">();</span>
+
+    <span class="n">feclearexcept</span><span class="p">(</span><span class="n">FE_INVALID</span><span class="p">);</span>
+
+    <span class="n">feupdateenv</span><span class="p">(</span><span class="o">&amp;</span><span class="n">env</span><span class="p">);</span>  <span class="c1">// Restore the environment</span>
+
+    <span class="n">show_status</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>In the output, at first we have no exceptions. Then we have the three we raised. Then after we restore/update the environment, we see the one we cleared (<code>FE_INVALID</code>) hasn’t been applied:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">FE_DIVBYZERO:</span> <span class="mi">0</span>
+<span class="n">FE_INVALID</span>  <span class="o">:</span> <span class="mi">0</span>
+<span class="n">FE_OVERFLOW</span> <span class="o">:</span> <span class="mi">0</span>
+
+<span class="n">FE_DIVBYZERO</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">FE_INVALID</span>  <span class="o">:</span> <span class="mi">1</span>
+<span class="n">FE_OVERFLOW</span> <span class="o">:</span> <span class="mi">1</span>
+
+<span class="n">FE_DIVBYZERO</span><span class="o">:</span> <span class="mi">1</span>
+<span class="n">FE_INVALID</span>  <span class="o">:</span> <span class="mi">0</span>
+<span class="n">FE_OVERFLOW</span> <span class="o">:</span> <span class="mi">1</span>
+</code></pre></div>
+
+<h3>See Also</h3>
+
+<p><a href="fenv.html#man-fegetenv" rel="nofollow"><code>fegetenv()</code></a>, <a href="fenv.html#man-fegetenv" rel="nofollow"><code>fesetenv()</code></a>, <a href="fenv.html#man-feholdexcept" rel="nofollow"><code>feholdexcept()</code></a>, <a href="fenv.html#man-feclearexcept" rel="nofollow"><code>feclearexcept()</code></a></p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

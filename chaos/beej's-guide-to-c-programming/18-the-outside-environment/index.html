@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/18-the-outside-environment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/18-the-outside-environment"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>18 The Outside Environment</h1>
+
+<p>When you run a program, it’s actually you talking to the shell, saying, “Hey, please run this thing.” And the shell says, “Sure,” and then tells the operating system, “Hey, could you please make a new process and run this thing?” And if all goes well, the OS complies and your program runs.</p>
+
+<p>But there’s a whole world outside your program in the shell that can be interacted with from within C. We’ll look at a few of those in this chapter.</p>
+
+<h2>18.1 Command Line Arguments</h2>
+
+<p>Many command line utilities accept <em>command line arguments</em>. For example, if we want to see all files that end in <code>.txt</code>, we can type something like this on a Unix-like system:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">ls</span> <span class="o">*</span><span class="p">.</span><span class="n">txt</span>
+</code></pre></div>
+
+<p>(or <code>dir</code> instead of <code>ls</code> on a Windows system).</p>
+
+<p>In this case, the command is <code>ls</code>, but it arguments are all all files that end with <code>.txt</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹⁸</a>.</p>
+
+<p>So how can we see what is passed into program from the command line?</p>
+
+<p>Say we have a program called <code>add</code> that adds all numbers passed on the command line and prints the result:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="p">.</span><span class="o">/</span><span class="n">add</span> <span class="mi">10</span> <span class="mi">30</span> <span class="mi">5</span>
+<span class="mi">45</span>
+</code></pre></div>
+
+<p>That’s gonna pay the bills for sure!</p>
+
+<p>But seriously, this is a great tool for seeing how to get those arguments from the command line and break them down.</p>
+
+<p>First, let’s see how to get them at all. For this, we’re going to need a new <code>main()</code>!</p>
+
+<p>Here’s a program that prints out all the command line arguments. For example, if we name the executable <code>foo</code>, we can run it like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="p">.</span><span class="o">/</span><span class="n">foo</span> <span class="n">i</span> <span class="n">like</span> <span class="n">turtles</span>
+</code></pre></div>
+
+<p>and we’ll see this output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">arg</span> <span class="mi">0</span><span class="o">:</span> <span class="p">.</span><span class="o">/</span><span class="n">foo</span>
+<span class="n">arg</span> <span class="mi">1</span><span class="o">:</span> <span class="n">i</span>
+<span class="n">arg</span> <span class="mi">2</span><span class="o">:</span> <span class="n">like</span>
+<span class="n">arg</span> <span class="mi">3</span><span class="o">:</span> <span class="n">turtles</span>
+</code></pre></div>
+
+<p>It’s a little weird, because the zeroth argument is the name of the executable, itself. But that’s just something to get used to. The arguments themselves follow directly.</p>
+
+<p>Source:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">argc</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"arg %d: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Whoa! What’s going on with the <code>main()</code> function signature? What’s <code>argc</code> and <code>argv</code><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹⁹</a> (pronounced <em>arg-cee</em> and <em>arg-vee</em>)?</p>
+
+<p>Let’s start with the easy one first: <code>argc</code>. This is the <em>argument count</em>, including the program name, itself. If you think of all the arguments as an array of strings, which is exactly what they are, then you can think of <code>argc</code> as the length of that array, which is exactly what it is.</p>
+
+<p>And so what we’re doing in that loop is going through all the <code>argv</code>s and printing them out one at a time, so for a given input:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="p">.</span><span class="o">/</span><span class="n">foo</span> <span class="n">i</span> <span class="n">like</span> <span class="n">turtles</span>
+</code></pre></div>
+
+<p>we get a corresponding output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">arg</span> <span class="mi">0</span><span class="o">:</span> <span class="p">.</span><span class="o">/</span><span class="n">foo</span>
+<span class="n">arg</span> <span class="mi">1</span><span class="o">:</span> <span class="n">i</span>
+<span class="n">arg</span> <span class="mi">2</span><span class="o">:</span> <span class="n">like</span>
+<span class="n">arg</span> <span class="mi">3</span><span class="o">:</span> <span class="n">turtles</span>
+</code></pre></div>
+
+<p>With that in mind, we should be good to go with our adder program.</p>
+
+<p>Our plan:</p>
+
+<ul>
+<li>  Look at all the command line arguments (past <code>argv[0]</code>, the program name)</li>
+<li>  Convert them to integers</li>
+<li>  Add them to a running total</li>
+<li>  Print the result</li>
+</ul>
+
+<p>Let’s get to it!</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">argc</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>  <span class="c1">// Start at 1, the first argument</span>
+        <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>    <span class="c1">// Use strtol() for better error handling</span>
+
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">value</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">total</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Sample runs:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">add</span>
+<span class="mi">0</span>
+<span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">add</span> <span class="mi">1</span>
+<span class="mi">1</span>
+<span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">add</span> <span class="mi">1</span> <span class="mi">2</span>
+<span class="mi">3</span>
+<span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">add</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span>
+<span class="mi">6</span>
+<span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">add</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span>
+<span class="mi">10</span>
+</code></pre></div>
+
+<p>Of course, it might puke if you pass in a non-integer, but hardening against that is left as an exercise to the reader.</p>
+
+<h3>18.1.1 The Last <code>argv</code> is <code>NULL</code></h3>
+
+<p>One bit of fun trivia about <code>argv</code> is that after the last string is a pointer to <code>NULL</code>.</p>
+
+<p>That is:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">argv</span><span class="p">[</span><span class="n">argc</span><span class="p">]</span> <span class="o">==</span> <span class="nb">NULL</span>
+</code></pre></div>
+
+<p>is always true!</p>
+
+<p>This might seem pointless, but it turns out to be useful in a couple places; we’ll take a look at one of those right now.</p>
+
+<h3>18.1.2 The Alternate: <code>char **argv</code></h3>
+
+<p>Remember that when you call a function, C doesn’t differentiate between array notation and pointer notation in the function signature.</p>
+
+<p>That is, these are the same:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="n">foo</span><span class="p">(</span><span class="kt">char</span> <span class="n">a</span><span class="p">[])</span>
+<span class="kt">void</span> <span class="n">foo</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">a</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Now, it’s been convenient to think of <code>argv</code> as an array of strings, i.e. an array of <code>char*</code>s, so this made sense:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+</code></pre></div>
+
+<p>but because of the equivalence, you could also write:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Yeah, that’s a pointer to a pointer, all right! If it makes it easier, think of it as a pointer to a string. But really, it’s a pointer to a value that points to a <code>char</code>.</p>
+
+<p>Also recall that these are equivalent:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">argv</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="o">*</span><span class="p">(</span><span class="n">argv</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+</code></pre></div>
+
+<p>which means you can do pointer arithmetic on <code>argv</code>.</p>
+
+<p>So an alternate way to consume the command line arguments might be to just walk along the <code>argv</code> array by bumping up a pointer until we hit that <code>NULL</code> at the end.</p>
+
+<p>Let’s modify our adder to do that:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="c1">// Cute trick to get the compiler to stop warning about the</span>
+    <span class="c1">// unused variable argc:</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">argc</span><span class="p">;</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">char</span> <span class="o">**</span><span class="n">p</span> <span class="o">=</span> <span class="n">argv</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="o">*</span><span class="n">p</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">p</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="n">atoi</span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="p">);</span>  <span class="c1">// Use strtol() for better error handling</span>
+
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">value</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">total</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Personally, I use array notation to access <code>argv</code>, but have seen this style floating around, as well.</p>
+
+<h3>18.1.3 Fun Facts</h3>
+
+<p>Just a few more things about <code>argc</code> and <code>argv</code>.</p>
+
+<ul>
+<li><p>Some environments might not set <code>argv[0]</code> to the program name. If it’s not available, <code>argv[0]</code> will be an empty string. I’ve never seen this happen.</p></li>
+<li><p>The spec is actually pretty liberal with what an implementation can do with <code>argv</code> and where those values come from. But every system I’ve been on works the same way, as we’ve discussed in this section.</p></li>
+<li><p>You can modify <code>argc</code>, <code>argv</code>, or any of the strings that <code>argv</code> points to. (Just don’t make those strings longer than they already are!)</p></li>
+<li><p>On some Unix-like systems, modifying the string <code>argv[0]</code> results in the output of <code>ps</code> changing<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁰</a>.</p>
+
+<p>Normally, if you have a program called <code>foo</code> that you’ve run with <code>./foo</code>, you might see this in the output of <code>ps</code>:</p>
+<div class="highlight"><pre class="highlight c"><code> <span class="mi">4078</span> <span class="n">tty1</span>     <span class="n">S</span>      <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="p">.</span><span class="o">/</span><span class="n">foo</span>
+</code></pre></div>
+<p>But if you modify <code>argv[0]</code> like so, being careful that the new string <code>&quot;Hi!  &quot;</code> is the same length as the old one <code>&quot;./foo&quot;</code>:</p>
+<div class="highlight"><pre class="highlight c"><code><span class="n">strcpy</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">"Hi!  "</span><span class="p">);</span>
+</code></pre></div>
+<p>and then run <code>ps</code> while the program <code>./foo</code> is still executing, we’ll see this instead:</p>
+<div class="highlight"><pre class="highlight c"><code> <span class="mi">4079</span> <span class="n">tty1</span>     <span class="n">S</span>      <span class="mi">0</span><span class="o">:</span><span class="mo">00</span> <span class="n">Hi</span><span class="o">!</span>  
+</code></pre></div>
+<p>This behavior is not in the spec and is highly system-dependent.</p></li>
+</ul>
+
+<h2>18.2 Exit Status</h2>
+
+<p>Did you notice that the function signatures for <code>main()</code> have it returning type <code>int</code>? What’s that all about? It has to do with a thing called the <em>exit status</em>, which is an integer that can be returned to the program that launched yours to let it know how things went.</p>
+
+<p>Now, there are a number of ways a program can exit in C, including <code>return</code>ing from <code>main()</code>, or calling one of the <code>exit()</code> variants.</p>
+
+<p>All of these methods accept an <code>int</code> as an argument.</p>
+
+<p>Side note: did you see that in basically all my examples, even though <code>main()</code> is supposed to return an <code>int</code>, I don’t actually <code>return</code> anything? In any other function, this would be illegal, but there’s a special case in C: if execution reaches the end of <code>main()</code> without finding a <code>return</code>, it automatically does a <code>return 0</code>.</p>
+
+<p>But what does the <code>0</code> mean? What other numbers can we put there? And how are they used?</p>
+
+<p>The spec is both clear and vague on the matter, as is common. Clear because it spells out what you can do, but vague in that it doesn’t particularly limit it, either.</p>
+
+<p>Nothing for it but to <em>forge ahead</em> and figure it out!</p>
+
+<p>Let’s get <a href="https://en.wikipedia.org/wiki/Inception" rel="nofollow">Inception</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²¹</a> for a second: turns out that when you run your program, <em>you’re running it from another program</em>.</p>
+
+<p>Usually this other program is some kind of <a href="https://en.wikipedia.org/wiki/Shell_(computing)" rel="nofollow">shell</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²²</a> that doesn’t do much on its own except launch other programs.</p>
+
+<p>But this is a multi-phase process, especially visible in command-line shells:</p>
+
+<ol>
+<li> The shell launches your program</li>
+<li> The shell typically goes to sleep (for command-line shells)</li>
+<li> Your program runs</li>
+<li> Your program terminates</li>
+<li> The shell wakes up and waits for another command</li>
+</ol>
+
+<p>Now, there’s a little piece of communication that takes place between steps 4 and 5: the program can return a <em>status value</em> that the shell can interrogate. Typically, this value is used to indicate the success or failure of your program, and, if a failure, what type of failure.</p>
+
+<p>This value is what we’ve been <code>return</code>ing from <code>main()</code>. That’s the status.</p>
+
+<p>Now, the C spec allows for two different status values, which have macro names defined in <code>&lt;stdlib.h&gt;</code>:</p>
+
+<table><thead>
+<tr>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>EXIT_SUCCESS</code> or <code>0</code></td>
+<td>Program terminated successfully.</td>
+</tr>
+<tr>
+<td><code>EXIT_FAILURE</code></td>
+<td>Program terminated with an error.</td>
+</tr>
+</tbody></table>
+
+<p>Let’s write a short program that multiplies two numbers from the command line. We’ll require that you specify exactly two values. If you don’t, we’ll print an error message, and exit with an error status.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"usage: mult x y</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>   <span class="c1">// Indicate to shell that it didn't work</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">atoi</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">atoi</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]));</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>  <span class="c1">// same as EXIT_SUCCESS, everything was good.</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Now if we try to run this, we get the expected effect until we specify exactly the right number of command-line arguments:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">mult</span>
+<span class="n">usage</span><span class="o">:</span> <span class="n">mult</span> <span class="n">x</span> <span class="n">y</span>
+
+<span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">mult</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span>
+<span class="n">usage</span><span class="o">:</span> <span class="n">mult</span> <span class="n">x</span> <span class="n">y</span>
+
+<span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">mult</span> <span class="mi">3</span> <span class="mi">4</span>
+<span class="mi">12</span>
+</code></pre></div>
+
+<p>But that doesn’t really show the exit status that we returned, does it? We can get the shell to print it out, though. Assuming you’re running Bash or another POSIX shell, you can use <code>echo $?</code> to see it<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²³</a>.</p>
+
+<p>Let’s try:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">mult</span>
+<span class="n">usage</span><span class="o">:</span> <span class="n">mult</span> <span class="n">x</span> <span class="n">y</span>
+<span class="err">$</span> <span class="n">echo</span> <span class="err">$</span><span class="o">?</span>
+<span class="mi">1</span>
+
+<span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">mult</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span>
+<span class="n">usage</span><span class="o">:</span> <span class="n">mult</span> <span class="n">x</span> <span class="n">y</span>
+<span class="err">$</span> <span class="n">echo</span> <span class="err">$</span><span class="o">?</span>
+<span class="mi">1</span>
+
+<span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">mult</span> <span class="mi">3</span> <span class="mi">4</span>
+<span class="mi">12</span>
+<span class="err">$</span> <span class="n">echo</span> <span class="err">$</span><span class="o">?</span>
+<span class="mi">0</span>
+</code></pre></div>
+
+<p>Interesting! We see that on my system, <code>EXIT_FAILURE</code> is <code>1</code>. The spec doesn’t spell this out, so it could be any number. But try it; it’s probably <code>1</code> on your system, too.</p>
+
+<h3>18.2.1 Other Exit Status Values</h3>
+
+<p>The status <code>0</code> most definitely means success, but what about all the other integers, even negative ones?</p>
+
+<p>Here we’re going off the C spec and into Unix land. In general, while <code>0</code> means success, a positive non-zero number means failure. So you can only have one type of success, and multiple types of failure. Bash says the exit code should be between 0 and 255, though a number of codes are reserved.</p>
+
+<p>In short, if you want to indicate different error exit statuses in a Unix environment, you can start with <code>1</code> and work your way up.</p>
+
+<p>On Linux, if you try any code outside the range 0-255, it will bitwise AND the code with <code>0xff</code>, effectively clamping it to that range.</p>
+
+<p>You can script the shell to later use these status codes to make decisions about what to do next.</p>
+
+<h2>18.3 Environment Variables</h2>
+
+<p>Before I get into this, I need to warn you that C doesn’t specify what an environment variable is. So I’m going to describe the environment variable system that works on every major platform I’m aware of.</p>
+
+<p>Basically, the environment is the program that’s going to run your program, e.g. the bash shell. And it might have some bash variables defined. In case you didn’t know, the shell can make its own variables. Each shell is different, but in bash you can just type <code>set</code> and it’ll show you all of them.</p>
+
+<p>Here’s an excerpt from the 61 variables that are defined in my bash shell:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">HISTFILE</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">beej</span><span class="o">/</span><span class="p">.</span><span class="n">bash_history</span>
+<span class="n">HISTFILESIZE</span><span class="o">=</span><span class="mi">500</span>
+<span class="n">HISTSIZE</span><span class="o">=</span><span class="mi">500</span>
+<span class="n">HOME</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">beej</span>
+<span class="n">HOSTNAME</span><span class="o">=</span><span class="n">FBILAPTOP</span>
+<span class="n">HOSTTYPE</span><span class="o">=</span><span class="n">x86_64</span>
+<span class="n">IFS</span><span class="o">=</span><span class="err">$'</span> <span class="err">\</span><span class="n">t</span><span class="err">\</span><span class="n">n</span><span class="err">'</span>
+</code></pre></div>
+
+<p>Notice they are in the form of key/value pairs. For example, one key is <code>HOSTTYPE</code> and its value is <code>x86_64</code>. From a C perspective, all values are strings, even if they’re numbers<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁴</a>.</p>
+
+<p>So, <em>anyway</em>! Long story short, it’s possible to get these values from inside your C program.</p>
+
+<p>Let’s write a program that uses the standard <code>getenv()</code> function to look up a value that you set in the shell.</p>
+
+<p><code>getenv()</code> will return a pointer to the value string, or else <code>NULL</code> if the environment variable doesn’t exist.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="o">*</span><span class="n">val</span> <span class="o">=</span> <span class="n">getenv</span><span class="p">(</span><span class="s">"FROTZ"</span><span class="p">);</span>  <span class="c1">// Try to get the value</span>
+
+    <span class="c1">// Check to make sure it exists</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">val</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Cannot find the FROTZ environment variable</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Value: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">val</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>If I run this directly, I get this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">foo</span>
+<span class="n">Cannot</span> <span class="n">find</span> <span class="n">the</span> <span class="n">FROTZ</span> <span class="n">environment</span> <span class="n">variable</span>
+</code></pre></div>
+
+<p>which makes sense, since I haven’t set it yet.</p>
+
+<p>In bash, I can set it to something with<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁵</a>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="err">$</span> <span class="n">export</span> <span class="n">FROTZ</span><span class="o">=</span><span class="s">"C is awesome!"</span>
+</code></pre></div>
+
+<p>Then if I run it, I get:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">foo</span>
+<span class="n">Value</span><span class="o">:</span> <span class="n">C</span> <span class="n">is</span> <span class="n">awesome</span><span class="o">!</span>
+</code></pre></div>
+
+<p>In this way, you can set up data in environment variables, and you can get it in your C code and modify your behavior accordingly.</p>
+
+<h3>18.3.1 Setting Environment Variables</h3>
+
+<p>This isn’t standard, but a lot of systems provide ways to set environment variables.</p>
+
+<p>If on a Unix-like, look up the documentation for <code>putenv()</code>, <code>setenv()</code>, and <code>unsetenv()</code>. On Windows, see <code>_putenv()</code>.</p>
+
+<h3>18.3.2 Unix-like Alternative Environment Variables</h3>
+
+<p>If you’re on a Unix-like system, odds are you have another couple ways of getting access to environment variables. Note that although the spec points this out as a common extension, it’s not truly part of the C standard. It is, however, part of the POSIX standard.</p>
+
+<p>One of these is a variable called <code>environ</code> that must be declared like so:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">extern</span> <span class="kt">char</span> <span class="o">**</span><span class="n">environ</span><span class="p">;</span>
+</code></pre></div>
+
+<p>It’s an array of strings terminated with a <code>NULL</code> pointer.</p>
+
+<p>You should declare it yourself before you use it, or you might find it in the non-standard <code>&lt;unistd.h&gt;</code> header file.</p>
+
+<p>Each string is in the form <code>&quot;key=value&quot;</code> so you’ll have to split it and parse it yourself if you want to get the keys and values out.</p>
+
+<p>Here’s an example of looping through and printing out the environment variables a couple different ways:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="k">extern</span> <span class="kt">char</span> <span class="o">**</span><span class="n">environ</span><span class="p">;</span>  <span class="c1">// MUST be extern AND named "environ"</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">char</span> <span class="o">**</span><span class="n">p</span> <span class="o">=</span> <span class="n">environ</span><span class="p">;</span> <span class="o">*</span><span class="n">p</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">p</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Or you could do this:</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">environ</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">environ</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>For a bunch of output that looks like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">SHELL</span><span class="o">=/</span><span class="n">bin</span><span class="o">/</span><span class="n">bash</span>
+<span class="n">COLORTERM</span><span class="o">=</span><span class="n">truecolor</span>
+<span class="n">TERM_PROGRAM_VERSION</span><span class="o">=</span><span class="mi">1</span><span class="p">.</span><span class="mi">53</span><span class="p">.</span><span class="mi">2</span>
+<span class="n">LOGNAME</span><span class="o">=</span><span class="n">beej</span>
+<span class="n">HOME</span><span class="o">=/</span><span class="n">home</span><span class="o">/</span><span class="n">beej</span>
+<span class="p">...</span> <span class="n">etc</span> <span class="p">...</span>
+</code></pre></div>
+
+<p>Use <code>getenv()</code> if at all possible because it’s more portable. But if you have to iterate over environment variables, using <code>environ</code> might be the way to go.</p>
+
+<p>Another non-standard way to get the environment variables is as a parameter to <code>main()</code>. It works much the same way, but you avoid needing to add your <code>extern</code> <code>environ</code> variable. <a href="https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html" rel="nofollow">Not even the POSIX spec supports this</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹²⁶</a> as far as I can tell, but it’s common in Unix land.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">env</span><span class="p">)</span>  <span class="c1">// &lt;-- env!</span>
+<span class="p">{</span>
+    <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">argc</span><span class="p">;</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">argv</span><span class="p">;</span>  <span class="c1">// Suppress unused warnings</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">char</span> <span class="o">**</span><span class="n">p</span> <span class="o">=</span> <span class="n">env</span><span class="p">;</span> <span class="o">*</span><span class="n">p</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">p</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Or you could do this:</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">env</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"%s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">env</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Just like using <code>environ</code> but <em>even less portable</em>. It’s good to have goals.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

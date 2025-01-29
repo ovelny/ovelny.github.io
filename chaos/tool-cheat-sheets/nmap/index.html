@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/tool-cheat-sheets/nmap</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/tool-cheat-sheets/nmap"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Nmap</h1>
+
+<h2>Using scripts</h2>
+
+<p>Scripts are located in <code>/usr/share/nmap/scripts</code>. They can be updated with <code>sudo nmap --script-updatedb</code>.</p>
+
+<p>To use a single script, enter its name without the extension like the following:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>nmap &lt;target&gt; <span class="nt">--script</span> banner
+</code></pre></div>
+
+<p>To use multiple scripts, enter them as comma-separated values:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>nmap &lt;target&gt; <span class="nt">--script</span> &lt;script-name&gt;,&lt;script-name&gt;,...
+</code></pre></div>
+
+<p>To use an entire script category, enter it with the same flag, like <code>--script vuln</code>. Here are all the availables categories:</p>
+
+<ul>
+<li>auth</li>
+<li>broadcast</li>
+<li>brute</li>
+<li>default</li>
+<li>discovery</li>
+<li>dos</li>
+<li>exploit</li>
+<li>external</li>
+<li>fuzzer</li>
+<li>intrusive</li>
+<li>malware</li>
+<li>safe</li>
+<li>version</li>
+<li>vuln</li>
+</ul>
+
+<p>To use default scripts, you only need to add the <code>-sC</code> flag.</p>
+
+<h2>Reading packet traces</h2>
+
+<p>If you want to get a raw view of a SYN scan, it might be useful to enable <code>--packet-trace</code> and disable a few options:</p>
+
+<ul>
+<li>ICMP echo requests with <code>-Pn</code>.</li>
+<li>DNS resolution with <code>-n</code>.</li>
+<li>ARP ping scan with <code>--disable-arp-ping</code>.</li>
+</ul>
+
+<p>Here is how it might look like with a closed port:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>sudo nmap &lt;IP&gt; -p &lt;port number&gt; --packet-trace -Pn -n --disable-arp-ping
+&lt;SNIP&gt;
+SENT (0.0429s) TCP &lt;attack box IP&gt;:&lt;attack box port&gt; &gt; &lt;target IP&gt;:&lt;target port&gt; S &lt;additional TCP header parameters&gt; &lt;mss 1460&gt;
+RCVD (0.0573s) TCP &lt;target IP&gt;:&lt;target port&gt; &gt; &lt;attack box IP&gt;:&lt;attack box port&gt; RA &lt;additional TCP header parameters&gt;
+&lt;SNIP&gt;
+</code></pre></div>
+
+<p>Pay close attention to the characters right after the receiving ports: in this example <code>S</code> stands for the SYN flag, while <code>RA</code> stands for the TCP packet containing both the RST and ACK flag.</p>
+
+<h2>Useful and lesser-known flags</h2>
+
+<ul>
+<li><code>--stats-every=5s</code> to periodically check for progress.</li>
+<li><code>--initial-rtt-timeout 50ms</code> to specify the initial RTT timeout.</li>
+<li><code>--max-rtt-timeout 100ms</code> to specify the maximum RTT timeout.</li>
+<li><code>--max-retries 1</code> to specify the number of retries performed.</li>
+<li><code>--min-rate 300</code> to set the minimum number of packets sent every second.</li>
+<li><code>--script-trace</code> to trace progress on NSE scripts used.</li>
+</ul>
+
+<p>Keep in mind that all performance flags can be detrimental for scan results.</p>
+
+<h2>Timing templates values</h2>
+
+<ul>
+<li><code>-T 0</code> or <code>-T paranoid</code>.</li>
+<li><code>-T 1</code> or <code>-T sneaky</code>.</li>
+<li><code>-T 2</code> or <code>-T polite</code>.</li>
+<li><code>-T 3</code> or <code>-T normal</code> (default).</li>
+<li><code>-T 4</code> or <code>-T aggressive</code>.</li>
+<li><code>-T 5</code> or <code>-T insane</code>.</li>
+</ul>
+
+<p>More info here: <a href="https://nmap.org/book/performance-timing-templates.html" rel="nofollow">https://nmap.org/book/performance-timing-templates.html</a></p>
+
+<h2>Evading firewalls and IDS / IPS</h2>
+
+<p>To evade firewalls / IDS / IPS, besides using other hosts and <code>VPS</code>, nmap has the <code>-D</code> flag for decoy scanning method. When it is used, nmap generates and inserts various random IP addresses in the IP header, among our real IP:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>nmap &lt;target IP&gt; <span class="nt">-p</span> &lt;target port&gt; <span class="nt">-D</span> RND:5 <span class="c"># generate 5 random IPs</span>
+</code></pre></div>
+
+<p>You can also use the <code>-S &lt;IP address&gt;</code> flag to spoof the packets with a single, real IP address, but you will not receive any report from this.</p>
+
+<p>Other ways of evading controls:</p>
+
+<ul>
+<li><code>--source-port 53</code> to perform scan from the specified port.</li>
+<li><code>--dns-server &lt;NS&gt;,...</code> to perform reverse DNS resolution from other(s) DNS server(s).</li>
+</ul>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

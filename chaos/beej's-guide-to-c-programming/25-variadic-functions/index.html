@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/25-variadic-functions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/25-variadic-functions"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>25 Variadic Functions</h1>
+
+<p><em>Variadic</em> is a fancy word for functions that take arbitrary numbers of arguments.</p>
+
+<p>A regular function takes a specific number of arguments, for example:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>You can only call that with exactly two arguments which correspond to parameters <code>x</code> and <code>y</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+<span class="n">add</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">12</span><span class="p">);</span>
+</code></pre></div>
+
+<p>But if you try it with more, the compiler won’t let you:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">);</span>  <span class="c1">// ERROR</span>
+<span class="n">add</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>        <span class="c1">// ERROR</span>
+</code></pre></div>
+
+<p>Variadic functions get around this limitation to a certain extent.</p>
+
+<p>We’ve already seen a famous example in <code>printf()</code>! You can pass all kinds of things to it.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"Hello, world!</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"The number is %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"The number is %d and pi is %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">.</span><span class="mi">14159</span><span class="p">);</span>
+</code></pre></div>
+
+<p>It seems to not care how many arguments you give it!</p>
+
+<p>Well, that’s not entirely true. Zero arguments will give you an error:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">();</span>  <span class="c1">// ERROR</span>
+</code></pre></div>
+
+<p>This leads us to one of the limitations of variadic functions in C: they must have at least one argument.</p>
+
+<p>But aside from that, they’re pretty flexible, even allows arguments to have different types just like <code>printf()</code> does.</p>
+
+<p>Let’s see how they work!</p>
+
+<h2>25.1 Ellipses in Function Signatures</h2>
+
+<p>So how does it work, syntactically?</p>
+
+<p>What you do is put all the arguments that <em>must</em> be passed first (and remember there has to be at least one) and after that, you put <code>...</code>. Just like this:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">void</span> <span class="n">func</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="p">...)</span>   <span class="c1">// Literally 3 dots here</span>
+</code></pre></div>
+
+<p>Here’s some code to demo that:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"a is %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>  <span class="c1">// Prints "a is 2"</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">func</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>So, great, we can get that first argument that’s in variable <code>a</code>, but what about the rest of the arguments? How do you get to them?</p>
+
+<p>Here’s where the fun begins!</p>
+
+<h2>25.2 Getting the Extra Arguments</h2>
+
+<p>You’re going to want to include <code>&lt;stdarg.h&gt;</code> to make any of this work.</p>
+
+<p>First things first, we’re going to use a special variable of type <code>va_list</code> (variable argument list) to keep track of which variable we’re accessing at a time.</p>
+
+<p>The idea is that we first start processing arguments with a call to <code>va_start()</code>, process each argument in turn with <code>va_arg()</code>, and then, when done, wrap it up with <code>va_end()</code>.</p>
+
+<p>When you call <code>va_start()</code>, you need to pass in the <em>last named parameter</em> (the one just before the <code>...</code>) so it knows where to start looking for the additional arguments.</p>
+
+<p>And when you call <code>va_arg()</code> to get the next argument, you have to tell it the type of argument to get next.</p>
+
+<p>Here’s a demo that adds together an arbitrary number of integers. The first argument is the number of integers to add together. We’ll make use of that to figure out how many times we have to call <code>va_arg()</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">count</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="kt">va_list</span> <span class="n">va</span><span class="p">;</span>
+
+    <span class="n">va_start</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>   <span class="c1">// Start with arguments after "count"</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">va_arg</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>   <span class="c1">// Get the next int</span>
+
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">n</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">va_end</span><span class="p">(</span><span class="n">va</span><span class="p">);</span>  <span class="c1">// All done</span>
+
+    <span class="k">return</span> <span class="n">total</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">add</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">17</span><span class="p">));</span>  <span class="c1">// 6 + 2 - 4 + 17 = 21</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">44</span><span class="p">));</span>        <span class="c1">// 22 + 44 = 66</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>(Note that when <code>printf()</code> is called, it uses the number of <code>%d</code>s (or whatever) in the format string to know how many more arguments there are!)</p>
+
+<p>If the syntax of <code>va_arg()</code> is looking strange to you (because of that loose type name floating around in there), you’re not alone. These are implemented with preprocessor macros in order to get all the proper magic in there.</p>
+
+<h2>25.3 <code>va_list</code> Functionality</h2>
+
+<p>What is that <code>va_list</code> variable we’re using up there? It’s an opaque variable<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵²</a> that holds information about which argument we’re going to get next with <code>va_arg()</code>. You see how we just call <code>va_arg()</code> over and over? The <code>va_list</code> variable is a placeholder that’s keeping track of progress so far.</p>
+
+<p>But we have to initialize that variable to some sensible value. That’s where <code>va_start()</code> comes into play.</p>
+
+<p>When we called <code>va_start(va, count)</code>, above, we were saying, “Initialize the <code>va</code> variable to point to the variable argument <em>immediately after</em> <code>count</code>.”</p>
+
+<p>And that’s <em>why</em> we need to have at least one named variable in our argument list<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁵³</a>.</p>
+
+<p>Once you have that pointer to the initial parameter, you can easily get subsequent argument values by calling <code>va_arg()</code> repeatedly. When you do, you have to pass in your <code>va_list</code> variable (so it can keep on keeping track of where you are), as well as the type of argument you’re about to copy off.</p>
+
+<p>It’s up to you as a programmer to figure out which type you’re going to pass to <code>va_arg()</code>. In the above example, we just did <code>int</code>s. But in the case of <code>printf()</code>, it uses the format specifier to determine which type to pull off next.</p>
+
+<p>And when you’re done, call <code>va_end()</code> to wrap it up. You <strong>must</strong> (the spec says) call this on a particular <code>va_list</code> variable before you decide to call either <code>va_start()</code> or <code>va_copy()</code> on it again. I know we haven’t talked about <code>va_copy()</code> yet.</p>
+
+<p>So the standard progression is:</p>
+
+<ul>
+<li>  <code>va_start()</code> to initialize your <code>va_list</code> variable</li>
+<li>  Repeatedly <code>va_arg()</code> to get the values</li>
+<li>  <code>va_end()</code> to deinitialize your <code>va_list</code> variable</li>
+</ul>
+
+<p>I also mentioned <code>va_copy()</code> up there; it makes a copy of your <code>va_list</code> variable in the exact same state. That is, if you haven’t started with <code>va_arg()</code> with the source variable, the new one won’t be started, either. If you’ve consumed 5 variables with <code>va_arg()</code> so far, the copy will also reflect that.</p>
+
+<p><code>va_copy()</code> can be useful if you need to scan ahead through the arguments but need to also remember your current place.</p>
+
+<h2>25.4 Library Functions That Use <code>va_list</code>s</h2>
+
+<p>One of the other uses for these is pretty cool: writing your own custom <code>printf()</code> variant. It would be a pain to have to handle all those format specifiers right? All zillion of them?</p>
+
+<p>Luckily, there are <code>printf()</code> variants that accept a working <code>va_list</code> as an argument. You can use these to wrap up and make your own custom <code>printf()</code>s!</p>
+
+<p>These functions start with the letter <code>v</code>, such as <code>vprintf()</code>, <code>vfprintf()</code>, <code>vsprintf()</code>, and <code>vsnprintf()</code>. Basically all your <code>printf()</code> golden oldies except with a <code>v</code> in front.</p>
+
+<p>Let’s make a function <code>my_printf()</code> that works just like <code>printf()</code> except it takes an extra argument up front.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;stdarg.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">my_printf</span><span class="p">(</span><span class="kt">int</span> <span class="n">serial</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">format</span><span class="p">,</span> <span class="p">...)</span>
+<span class="p">{</span>
+    <span class="kt">va_list</span> <span class="n">va</span><span class="p">;</span>
+
+    <span class="c1">// Do my custom work</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"The serial number is: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">serial</span><span class="p">);</span>
+
+    <span class="c1">// Then pass the rest off to vprintf()</span>
+    <span class="n">va_start</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">format</span><span class="p">);</span>
+    <span class="kt">int</span> <span class="n">rv</span> <span class="o">=</span> <span class="n">vprintf</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">va</span><span class="p">);</span>
+    <span class="n">va_end</span><span class="p">(</span><span class="n">va</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">rv</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">3</span><span class="p">.</span><span class="mi">2</span><span class="p">;</span>
+
+    <span class="n">my_printf</span><span class="p">(</span><span class="mi">3490</span><span class="p">,</span> <span class="s">"x is %d, y is %f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>See what we did there? On lines 12-14 we started a new <code>va_list</code> variable, and then just passed it right into <code>vprintf()</code>. And it knows just want to do with it, because it has all the <code>printf()</code> smarts built-in.</p>
+
+<p>We still have to call <code>va_end()</code> when we’re done, though, so don’t forget that!</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

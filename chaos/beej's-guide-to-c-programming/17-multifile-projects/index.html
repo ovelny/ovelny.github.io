@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/17-multifile-projects</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/17-multifile-projects"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>17 Multifile Projects</h1>
+
+<p>So far we’ve been looking at toy programs that for the most part fit in a single file. But complex C programs are made up of many files that are all compiled and linked together into a single executable.</p>
+
+<p>In this chapter we’ll check out some of the common patterns and practices for putting together larger projects.</p>
+
+<h2>17.1 Includes and Function Prototypes</h2>
+
+<p>A really common situation is that some of your functions are defined in one file, and you want to call them from another.</p>
+
+<p>This actually works out of the box with a warning… let’s first try it and then look at the right way to fix the warning.</p>
+
+<p>For these examples, we’ll put the filename as the first comment in the source.</p>
+
+<p>To compile them, you’ll need to specify all the sources on the command line:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp"># output file   source files
+#     v            v
+#   |----| |---------|
+</span><span class="n">gcc</span> <span class="o">-</span><span class="n">o</span> <span class="n">foo</span> <span class="n">foo</span><span class="p">.</span><span class="n">c</span> <span class="n">bar</span><span class="p">.</span><span class="n">c</span>
+</code></pre></div>
+
+<p>In that examples, <code>foo.c</code> and <code>bar.c</code> get built into the executable named <code>foo</code>.</p>
+
+<p>So let’s take a look at the source file <code>bar.c</code>:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// File bar.c</span>
+
+<span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="kt">int</span> <span class="n">y</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>And the file <code>foo.c</code> with main in it:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// File foo.c</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">));</span>  <span class="c1">// 5!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>See how from <code>main()</code> we call <code>add()</code>—but <code>add()</code> is in a completely different source file! It’s in <code>bar.c</code>, while the call to it is in <code>foo.c</code>!</p>
+
+<p>If we build this with:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">gcc</span> <span class="o">-</span><span class="n">o</span> <span class="n">foo</span> <span class="n">foo</span><span class="p">.</span><span class="n">c</span> <span class="n">bar</span><span class="p">.</span><span class="n">c</span>
+</code></pre></div>
+
+<p>we get this error:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">error:</span> <span class="n">implicit</span> <span class="n">declaration</span> <span class="n">of</span> <span class="n">function</span> <span class="err">'</span><span class="n">add</span><span class="err">'</span> <span class="n">is</span> <span class="n">invalid</span> <span class="n">in</span> <span class="n">C99</span>
+</code></pre></div>
+
+<p>(Or you might get a warning. Which you should not ignore. Never ignore warnings in C; address them all.)</p>
+
+<p>If you recall from the <a href="functions.html#prototypes" rel="nofollow">section on prototypes</a>, implicit declarations are banned in modern C and there’s no legitimate reason to introduce them into new code. We should fix it.</p>
+
+<p>What <code>implicit declaration</code> means is that we’re using a function, namely <code>add()</code> in this case, without letting C know anything about it ahead of time. C wants to know what it returns, what types it takes as arguments, and things such as that.</p>
+
+<p>We saw how to fix that earlier with a <em>function prototype</em>. Indeed, if we add one of those to <code>foo.c</code> before we make the call, everything works well:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// File foo.c</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>  <span class="c1">// Add the prototype</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">));</span>  <span class="c1">// 5!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>No more error!</p>
+
+<p>But that’s a pain—needing to type in the prototype every time you want to use a function. I mean, we used <code>printf()</code> right there and didn’t need to type in a prototype; what gives?</p>
+
+<p>If you remember from what back with <code>hello.c</code> at the beginning of the book, <em>we actually did include the prototype for <code>printf()</code></em>! It’s in the file <code>stdio.h</code>! And we included that with <code>#include</code>!</p>
+
+<p>Can we do the same with our <code>add()</code> function? Make a prototype for it and put it in a header file?</p>
+
+<p>Sure!</p>
+
+<p>Header files in C have a <code>.h</code> extension by default. And they often, but not always, have the same name as their corresponding <code>.c</code> file. So let’s make a <code>bar.h</code> file for our <code>bar.c</code> file, and we’ll stick the prototype in it:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// File bar.h</span>
+
+<span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+</code></pre></div>
+
+<p>And now let’s modify <code>foo.c</code> to include that file. Assuming it’s in the same directory, we include it inside double quotes (as opposed to angle brackets):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// File foo.c</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span>
+<span class="cp">#include</span> <span class="cpf">"bar.h"</span><span class="c1">  // Include from current directory</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">add</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">));</span>  <span class="c1">// 5!</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Notice how we don’t have the prototype in <code>foo.c</code> anymore—we included it from <code>bar.h</code>. Now <em>any</em> file that wants that <code>add()</code> functionality can just <code>#include &quot;bar.h&quot;</code> to get it, and you don’t need to worry about typing in the function prototype.</p>
+
+<p>As you might have guessed, <code>#include</code> literally includes the named file <em>right there</em> in your source code, just as if you’d typed it in.</p>
+
+<p>And building and running:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="p">.</span><span class="o">/</span><span class="n">foo</span>
+<span class="mi">5</span>
+</code></pre></div>
+
+<p>Indeed, we get the result of \(2+3\)! Yay!</p>
+
+<p>But don’t crack open your drink of choice quite yet. We’re almost there! There’s just one more piece of boilerplate we have to add.</p>
+
+<h2>17.2 Dealing with Repeated Includes</h2>
+
+<p>It’s not uncommon that a header file will itself <code>#include</code> other headers needed for the functionality of its corresponding C files. I mean, why not?</p>
+
+<p>And it could be that you have a header <code>#include</code>d multiple times from different places. Maybe that’s no problem, but maybe it would cause compiler errors. And we can’t control how many places <code>#include</code> it!</p>
+
+<p>Even, worse we might get into a crazy situation where header <code>a.h</code> includes header <code>b.h</code>, and <code>b.h</code> includes <code>a.h</code>! It’s an <code>#include</code> infinite cycle!</p>
+
+<p>Trying to build such a thing gives an error:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">error:</span> <span class="cp">#include nested depth 200 exceeds maximum of 200
+</span></code></pre></div>
+
+<p>What we need to do is make it so that if a file gets included once, subsequent <code>#include</code>s for that file are ignored.</p>
+
+<p><strong>The stuff that we’re about to do is so common that you should just automatically do it every time you make a header file!</strong></p>
+
+<p>And the common way to do this is with a preprocessor variable that we set the first time we <code>#include</code> the file. And then for subsequent <code>#include</code>s, we first check to make sure that the variable isn’t defined.</p>
+
+<p>For that variable name, it’s super common to take the name of the header file, like <code>bar.h</code>, make it uppercase, and replace the period with an underscore: <code>BAR_H</code>.</p>
+
+<p>So put a check at the very, very top of the file where you see if it’s already been included, and effectively comment the whole thing out if it has.</p>
+
+<p>(Don’t put a leading underscore (because a leading underscore followed by a capital letter is reserved) or a double leading underscore (because that’s also reserved.))</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#ifndef BAR_H   // If BAR_H isn't defined...
+#define BAR_H   // Define it (with no particular value)
+</span>
+<span class="c1">// File bar.h</span>
+
+<span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+
+<span class="cp">#endif          // End of the #ifndef BAR_H
+</span></code></pre></div>
+
+<p>This will effectively cause the header file to be included only a single time, no matter how many places try to <code>#include</code> it.</p>
+
+<h2>17.3 <code>static</code> and <code>extern</code></h2>
+
+<p>When it comes to multifile projects, you can make sure file-scope variables and functions are <em>not</em> visible from other source files with the <code>static</code> keyword.</p>
+
+<p>And you can refer to objects in other files with <code>extern</code>.</p>
+
+<p>For more info, check out the sections in the book on the <a href="types-iv-qualifiers-and-specifiers.html#static" rel="nofollow"><code>static</code></a> and <a href="types-iv-qualifiers-and-specifiers.html#extern" rel="nofollow"><code>extern</code></a> storage-class specifiers.</p>
+
+<h2>17.4 Compiling with Object Files</h2>
+
+<p>This isn’t part of the spec, but it’s 99.999% common in the C world.</p>
+
+<p>You can compile C files into an intermediate representation called <em>object files</em>. These are compiled machine code that hasn’t been put into an executable yet.</p>
+
+<p>Object files in Windows have a <code>.OBJ</code> extension; in Unix-likes, they’re <code>.o</code>.</p>
+
+<p>In gcc, we can build some like this, with the <code>-c</code> (compile only!) flag:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">gcc</span> <span class="o">-</span><span class="n">c</span> <span class="n">foo</span><span class="p">.</span><span class="n">c</span>     <span class="err">#</span> <span class="n">produces</span> <span class="n">foo</span><span class="p">.</span><span class="n">o</span>
+<span class="n">gcc</span> <span class="o">-</span><span class="n">c</span> <span class="n">bar</span><span class="p">.</span><span class="n">c</span>     <span class="err">#</span> <span class="n">produces</span> <span class="n">bar</span><span class="p">.</span><span class="n">o</span>
+</code></pre></div>
+
+<p>And then we can <em>link</em> those together into a single executable:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">gcc</span> <span class="o">-</span><span class="n">o</span> <span class="n">foo</span> <span class="n">foo</span><span class="p">.</span><span class="n">o</span> <span class="n">bar</span><span class="p">.</span><span class="n">o</span>
+</code></pre></div>
+
+<p><em>Voila</em>, we’ve produced an executable <code>foo</code> from the two object files.</p>
+
+<p>But you’re thinking, why bother? Can’t we just:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">gcc</span> <span class="o">-</span><span class="n">o</span> <span class="n">foo</span> <span class="n">foo</span><span class="p">.</span><span class="n">c</span> <span class="n">bar</span><span class="p">.</span><span class="n">c</span>
+</code></pre></div>
+
+<p>and kill two <a href="https://en.wikipedia.org/wiki/Boids" rel="nofollow">boids</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹¹⁷</a> with one stone?</p>
+
+<p>For little programs, that’s fine. I do it all the time.</p>
+
+<p>But for larger programs, we can take advantage of the fact that compiling from source to object files is relatively slow, and linking together a bunch of object files is relatively fast.</p>
+
+<p>This really shows with the <code>make</code> utility that only rebuilds sources that are newer than their outputs.</p>
+
+<p>Let’s say you had a thousand C files. You could compile them all to object files to start (slowly) and then combine all those object files into an executable (fast).</p>
+
+<p>Now say you modified just one of those C source files—here’s the magic: <em>you only have to rebuild that one object file for that source file</em>! And then you rebuild the executable (fast). All the other C files don’t have to be touched.</p>
+
+<p>In other words, by only rebuilding the object files we need to, we cut down on compilation times radically. (Unless of course you’re doing a “clean” build, in which case all the object files have to be created.)</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

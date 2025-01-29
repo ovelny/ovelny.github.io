@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/beej's-guide-to-c-programming/38-date-and-time-functionality</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/beej's-guide-to-c-programming/38-date-and-time-functionality"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>38 Date and Time Functionality</h1>
+
+<blockquote>
+<p>“Time is an illusion. Lunchtime doubly so.”<br><br>
+—Ford Prefect, The Hitchhikers Guide to the Galaxy</p>
+</blockquote>
+
+<p>This isn’t too complex, but it can be a little intimidating at first, both with the different types available and the way we can convert between them.</p>
+
+<p>Mix in GMT (UTC) and local time and we have all the <em>Usual Fun</em>™ one gets with times and dates.</p>
+
+<p>And of course never forget the golden rule of dates and times: <em>Never attempt to write your own date and time functionality. Only use what the library gives you.</em></p>
+
+<p>Time is too complex for mere mortal programmers to handle correctly. Seriously, we all owe a point to everyone who worked on any date and time library, so put that in your budget.</p>
+
+<h2>38.1 Quick Terminology and Information</h2>
+
+<p>Just a couple quick terms in case you don’t have them down.</p>
+
+<ul>
+<li><p><strong>UTC</strong>: Coordinated Universal Time is a universally<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁸⁹</a> agreed upon, absolute time. Everyone on the planet thinks it’s the same time right now in UTC… even though they have different local times.</p></li>
+<li><p><strong>GMT</strong>: Greenwich Mean Time, effectively the same as UTC<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁰</a>. You probably want to say UTC, or “universal time”. If you’re talking specifically about the GMT time zone, say GMT. Confusingly, many of C’s UTC functions predate UTC and still refer to Greenwich Mean Time. When you see that, know that C means UTC.</p></li>
+<li><p><strong>Local time</strong>: what time it is where the computer running the program is located. This is described as an offset from UTC. Although there are many time zones in the world, most computers do work in either local time or UTC.</p></li>
+</ul>
+
+<p>As a general rule, if you are describing an event that happens one time, like a log entry, or a rocket launch, or when pointers finally clicked for you, use UTC.</p>
+
+<p>On the other hand, if it’s something that happens the same time <em>in every time zone</em>, like New Year’s Eve or dinner time, use local time.</p>
+
+<p>Since a lot of languages are only good at converting between UTC and local time, you can cause yourself a lot of pain by choosing to store your dates in the wrong form. (Ask me how I know.)</p>
+
+<h2>38.2 Date Types</h2>
+
+<p>There are two<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹¹</a> main types in C when it comes to dates: <code>time_t</code> and <code>struct tm</code>.</p>
+
+<p>The spec doesn’t actually say much about them:</p>
+
+<ul>
+<li><p><code>time_t</code>: a real type capable of holding a time. So by the spec, this could be a floating type or integer type. In POSIX (Unix-likes), it’s an integer. This holds <em>calendar time</em>. Which you can think of as UTC time.</p></li>
+<li><p><code>struct tm</code>: holds the components of a calendar time. This is a <em>broken-down time</em>, i.e. the components of the time, like hour, minute, second, day, month, year, etc.</p></li>
+</ul>
+
+<p>On a lot of systems, <code>time_t</code> represents the number of seconds since <a href="https://en.wikipedia.org/wiki/Unix_time" rel="nofollow"><em>Epoch</em></a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹²</a>. Epoch is in some ways the start of time from the computer’s perspective, which is commonly January 1, 1970 UTC. <code>time_t</code> can go negative to represent times before Epoch. Windows behaves the same way as Unix from what I can tell.</p>
+
+<p>And what’s in a <code>struct tm</code>? The following fields:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">tm</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">tm_sec</span><span class="p">;</span>    <span class="c1">// seconds after the minute -- [0, 60]</span>
+    <span class="kt">int</span> <span class="n">tm_min</span><span class="p">;</span>    <span class="c1">// minutes after the hour -- [0, 59]</span>
+    <span class="kt">int</span> <span class="n">tm_hour</span><span class="p">;</span>   <span class="c1">// hours since midnight -- [0, 23]</span>
+    <span class="kt">int</span> <span class="n">tm_mday</span><span class="p">;</span>   <span class="c1">// day of the month -- [1, 31]</span>
+    <span class="kt">int</span> <span class="n">tm_mon</span><span class="p">;</span>    <span class="c1">// months since January -- [0, 11]</span>
+    <span class="kt">int</span> <span class="n">tm_year</span><span class="p">;</span>   <span class="c1">// years since 1900</span>
+    <span class="kt">int</span> <span class="n">tm_wday</span><span class="p">;</span>   <span class="c1">// days since Sunday -- [0, 6]</span>
+    <span class="kt">int</span> <span class="n">tm_yday</span><span class="p">;</span>   <span class="c1">// days since January 1 -- [0, 365]</span>
+    <span class="kt">int</span> <span class="n">tm_isdst</span><span class="p">;</span>  <span class="c1">// Daylight Saving Time flag</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>Note that everything is zero-based except the day of the month.</p>
+
+<p>It’s important to know that you can put any values in these types you want. There are functions to help get the time <em>now</em>, but the types hold <em>a</em> time, not <em>the</em> time.</p>
+
+<p>So the question becomes: “How do you initialize data of these types, and how do you convert between them?”</p>
+
+<h2>38.3 Initialization and Conversion Between Types</h2>
+
+<p>First, you can get the current time and store it in a <code>time_t</code> with the <code>time()</code> function.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">time_t</span> <span class="n">now</span><span class="p">;</span>  <span class="c1">// Variable to hold the time now</span>
+
+<span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>  <span class="c1">// You can get it like this...</span>
+
+<span class="n">time</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">);</span>        <span class="c1">// ...or this. Same as the previous line.</span>
+</code></pre></div>
+
+<p>Great! You have a variable that gets you the time now.</p>
+
+<p>Amusingly, there’s only one portable way to print out what’s in a <code>time_t</code>, and that’s the rarely-used <code>ctime()</code> function that prints the value in local time:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">ctime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+</code></pre></div>
+
+<p>This returns a string with a very specific form that includes a newline at the end:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Sun</span> <span class="n">Feb</span> <span class="mi">28</span> <span class="mi">18</span><span class="o">:</span><span class="mi">47</span><span class="o">:</span><span class="mi">25</span> <span class="mi">2021</span>
+</code></pre></div>
+
+<p>So that’s kind of inflexible. If you want more control, you should convert that <code>time_t</code> into a <code>struct tm</code>.</p>
+
+<h3>38.3.1 Converting <code>time_t</code> to <code>struct tm</code></h3>
+
+<p>There are two amazing ways to do this conversion:</p>
+
+<ul>
+<li>  <code>localtime()</code>: this function converts a <code>time_t</code> to a <code>struct tm</code> in local time.</li>
+</ul>
+
+<p>&nbsp;</p>
+
+<ul>
+<li>  <code>gmtime()</code>: this function converts a <code>time_t</code> to a <code>struct tm</code> in UTC. (See ye olde GMT creeping into that function name?)</li>
+</ul>
+
+<p>Let’s see what time it is now by printing out a <code>struct tm</code> with the <code>asctime()</code> function:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">printf</span><span class="p">(</span><span class="s">"Local: %s"</span><span class="p">,</span> <span class="n">asctime</span><span class="p">(</span><span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">)));</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"  UTC: %s"</span><span class="p">,</span> <span class="n">asctime</span><span class="p">(</span><span class="n">gmtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">)));</span>
+</code></pre></div>
+
+<p>Output (I’m in the Pacific Standard Time zone):</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="nl">Local:</span> <span class="n">Sun</span> <span class="n">Feb</span> <span class="mi">28</span> <span class="mi">20</span><span class="o">:</span><span class="mi">15</span><span class="o">:</span><span class="mi">27</span> <span class="mi">2021</span>
+  <span class="n">UTC</span><span class="o">:</span> <span class="n">Mon</span> <span class="n">Mar</span>  <span class="mi">1</span> <span class="mo">04</span><span class="o">:</span><span class="mi">15</span><span class="o">:</span><span class="mi">27</span> <span class="mi">2021</span>
+</code></pre></div>
+
+<p>Once you have your <code>time_t</code> in a <code>struct tm</code>, it opens all kinds of doors. You can print out the time in a variety of ways, figure out which day of the week a date is, and so on. Or convert it back into a <code>time_t</code>.</p>
+
+<p>More on that soon!</p>
+
+<h3>38.3.2 Converting <code>struct tm</code> to <code>time_t</code></h3>
+
+<p>If you want to go the other way, you can use <code>mktime()</code> to get that information.</p>
+
+<p><code>mktime()</code> sets the values of <code>tm_wday</code> and <code>tm_yday</code> for you, so don’t bother filling them out because they’ll just be overwritten.</p>
+
+<p>Also, you can set <code>tm_isdst</code> to <code>-1</code> to have it make the determination for you. Or you can manually set it to true or false.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="c1">// Don't be tempted to put leading zeros on these numbers (unless you</span>
+<span class="c1">// mean for them to be in octal)!</span>
+
+<span class="k">struct</span> <span class="n">tm</span> <span class="n">some_time</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">.</span><span class="n">tm_year</span><span class="o">=</span><span class="mi">82</span><span class="p">,</span>   <span class="c1">// years since 1900</span>
+    <span class="p">.</span><span class="n">tm_mon</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>     <span class="c1">// months since January -- [0, 11]</span>
+    <span class="p">.</span><span class="n">tm_mday</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>   <span class="c1">// day of the month -- [1, 31]</span>
+    <span class="p">.</span><span class="n">tm_hour</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>   <span class="c1">// hours since midnight -- [0, 23]</span>
+    <span class="p">.</span><span class="n">tm_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>     <span class="c1">// minutes after the hour -- [0, 59]</span>
+    <span class="p">.</span><span class="n">tm_sec</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>     <span class="c1">// seconds after the minute -- [0, 60]</span>
+    <span class="p">.</span><span class="n">tm_isdst</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>  <span class="c1">// Daylight Saving Time flag</span>
+<span class="p">};</span>
+
+<span class="kt">time_t</span> <span class="n">some_time_epoch</span><span class="p">;</span>
+
+<span class="n">some_time_epoch</span> <span class="o">=</span> <span class="n">mktime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">some_time</span><span class="p">);</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%s"</span><span class="p">,</span> <span class="n">ctime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">some_time_epoch</span><span class="p">));</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"Is DST: %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">some_time</span><span class="p">.</span><span class="n">tm_isdst</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="n">Mon</span> <span class="n">Apr</span> <span class="mi">12</span> <span class="mi">12</span><span class="o">:</span><span class="mo">00</span><span class="o">:</span><span class="mo">04</span> <span class="mi">1982</span>
+<span class="n">Is</span> <span class="n">DST</span><span class="o">:</span> <span class="mi">0</span>
+</code></pre></div>
+
+<p>When you manually load a <code>struct tm</code> like that, it should be in local time. <code>mktime()</code> will convert that local time into a <code>time_t</code> calendar time.</p>
+
+<p>Weirdly, however, the standard doesn’t give us a way to load up a <code>struct tm</code> with a UTC time and convert that to a <code>time_t</code>. If you want to do that with Unix-likes, try the non-standard <code>timegm()</code>. On Windows, <code>_mkgmtime()</code>.</p>
+
+<h2>38.4 Formatted Date Output</h2>
+
+<p>We’ve already seen a couple ways to print formatted date output to the screen. With <code>time_t</code> we can use <code>ctime()</code>, and with <code>struct tm</code> we can use <code>asctime()</code>.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="kt">time_t</span> <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+<span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="n">local</span> <span class="o">=</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">);</span>
+<span class="k">struct</span> <span class="n">tm</span> <span class="o">*</span><span class="n">utc</span> <span class="o">=</span> <span class="n">gmtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">);</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"Local time: %s"</span><span class="p">,</span> <span class="n">ctime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>     <span class="c1">// Local time with time_t</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"Local time: %s"</span><span class="p">,</span> <span class="n">asctime</span><span class="p">(</span><span class="n">local</span><span class="p">));</span>  <span class="c1">// Local time with struct tm</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"UTC       : %s"</span><span class="p">,</span> <span class="n">asctime</span><span class="p">(</span><span class="n">utc</span><span class="p">));</span>    <span class="c1">// UTC with a struct tm</span>
+</code></pre></div>
+
+<p>But what if I told you, dear reader, that there’s a way to have much more control over how the date was printed?</p>
+
+<p>Sure, we could fish individual fields out of the <code>struct tm</code>, but there’s a great function called <code>strftime()</code> that will do a lot of the hard work for you. It’s like <code>printf()</code>, except for dates!</p>
+
+<p>Let’s see some examples. In each of these, we pass in a destination buffer, a maximum number of characters to write, and then a format string (in the style of—but not the same as—<code>printf()</code>) which tells <code>strftime()</code> which components of a <code>struct tm</code> to print and how.</p>
+
+<p>You can add other constant characters to include in the output in the format string, as well, just like with <code>printf()</code>.</p>
+
+<p>We get a <code>struct tm</code> in this case from <code>localtime()</code>, but any source works fine.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">char</span> <span class="n">s</span><span class="p">[</span><span class="mi">128</span><span class="p">];</span>
+    <span class="kt">time_t</span> <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span>
+
+    <span class="c1">// %c: print date as per current locale</span>
+    <span class="n">strftime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">s</span><span class="p">,</span> <span class="s">"%c"</span><span class="p">,</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+    <span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>   <span class="c1">// Sun Feb 28 22:29:00 2021</span>
+
+    <span class="c1">// %A: full weekday name</span>
+    <span class="c1">// %B: full month name</span>
+    <span class="c1">// %d: day of the month</span>
+    <span class="n">strftime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">s</span><span class="p">,</span> <span class="s">"%A, %B %d"</span><span class="p">,</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+    <span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>   <span class="c1">// Sunday, February 28</span>
+
+    <span class="c1">// %I: hour (12 hour clock)</span>
+    <span class="c1">// %M: minute</span>
+    <span class="c1">// %S: second</span>
+    <span class="c1">// %p: AM or PM</span>
+    <span class="n">strftime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">s</span><span class="p">,</span> <span class="s">"It's %I:%M:%S %p"</span><span class="p">,</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+    <span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>   <span class="c1">// It's 10:29:00 PM</span>
+
+    <span class="c1">// %F: ISO 8601 yyyy-mm-dd</span>
+    <span class="c1">// %T: ISO 8601 hh:mm:ss</span>
+    <span class="c1">// %z: ISO 8601 time zone offset</span>
+    <span class="n">strftime</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="k">sizeof</span> <span class="n">s</span><span class="p">,</span> <span class="s">"ISO 8601: %FT%T%z"</span><span class="p">,</span> <span class="n">localtime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">now</span><span class="p">));</span>
+    <span class="n">puts</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>   <span class="c1">// ISO 8601: 2021-02-28T22:29:00-0800</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>There are a <em>ton</em> of date printing format specifiers for <code>strftime()</code>, so be sure to check them out in the <a href="https://beej.us/guide/bgclr/html/split/time.html#man-strftime" rel="nofollow"><code>strftime()</code> reference page</a><a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹³</a>.</p>
+
+<h2>38.5 More Resolution with <code>timespec_get()</code></h2>
+
+<p>You can get the number of seconds and nanoseconds since Epoch with <code>timespec_get()</code>.</p>
+
+<p>Maybe.</p>
+
+<p>Implementations might not have nanosecond resolution (that’s one billionth of a second) so who knows how many significant places you’ll get, but give it a shot and see.</p>
+
+<p><code>timespec_get()</code> takes two arguments. One is a pointer to a <code>struct timespec</code> to hold the time information. And the other is the <code>base</code>, which the spec lets you set to <code>TIME_UTC</code> indicating that you’re interested in seconds since Epoch. (Other implementations might give you more options for the <code>base</code>.)</p>
+
+<p>And the structure itself has two fields:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">timespec</span> <span class="p">{</span>
+    <span class="kt">time_t</span> <span class="n">tv_sec</span><span class="p">;</span>   <span class="c1">// Seconds</span>
+    <span class="kt">long</span>   <span class="n">tv_nsec</span><span class="p">;</span>  <span class="c1">// Nanoseconds (billionths of a second)</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>Here’s an example where we get the time and print it out both as integer values and also a floating value:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="k">struct</span> <span class="n">timespec</span> <span class="n">ts</span><span class="p">;</span>
+
+<span class="n">timespec_get</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ts</span><span class="p">,</span> <span class="n">TIME_UTC</span><span class="p">);</span>
+
+<span class="n">printf</span><span class="p">(</span><span class="s">"%ld s, %ld ns</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">ts</span><span class="p">.</span><span class="n">tv_sec</span><span class="p">,</span> <span class="n">ts</span><span class="p">.</span><span class="n">tv_nsec</span><span class="p">);</span>
+
+<span class="kt">double</span> <span class="n">float_time</span> <span class="o">=</span> <span class="n">ts</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">+</span> <span class="n">ts</span><span class="p">.</span><span class="n">tv_nsec</span><span class="o">/</span><span class="mi">1000000000</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">"%f seconds since epoch</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">float_time</span><span class="p">);</span>
+</code></pre></div>
+
+<p>Example output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">1614581530</span> <span class="n">s</span><span class="p">,</span> <span class="mi">806325800</span> <span class="n">ns</span>
+<span class="mi">1614581530</span><span class="p">.</span><span class="mi">806326</span> <span class="n">seconds</span> <span class="n">since</span> <span class="n">epoch</span>
+</code></pre></div>
+
+<p><code>struct timespec</code> also makes an appearance in a number of the threading functions that need to be able to specify time with that resolution.</p>
+
+<h2>38.6 Differences Between Times</h2>
+
+<p>One quick note about getting the difference between two <code>time_t</code>s: since the spec doesn’t dictate how that type represents a time, you might not be able to simply subtract two <code>time_t</code>s and get anything sensible<a href="https://ovelny.sh/chaos/beej&#x27;s-guide-to-c-programming/99-footnotes/" rel="nofollow">¹⁹⁴</a>.</p>
+
+<p>Luckily you can use <code>difftime()</code> to compute the difference in seconds between two dates.</p>
+
+<p>In the following example, we have two events that occur some time apart, and we use <code>difftime()</code> to compute the difference.</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+#include</span> <span class="cpf">&lt;time.h&gt;</span><span class="cp">
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">struct</span> <span class="n">tm</span> <span class="n">time_a</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">.</span><span class="n">tm_year</span><span class="o">=</span><span class="mi">82</span><span class="p">,</span>   <span class="c1">// years since 1900</span>
+        <span class="p">.</span><span class="n">tm_mon</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>     <span class="c1">// months since January -- [0, 11]</span>
+        <span class="p">.</span><span class="n">tm_mday</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>   <span class="c1">// day of the month -- [1, 31]</span>
+        <span class="p">.</span><span class="n">tm_hour</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>    <span class="c1">// hours since midnight -- [0, 23]</span>
+        <span class="p">.</span><span class="n">tm_min</span><span class="o">=</span><span class="mo">00</span><span class="p">,</span>    <span class="c1">// minutes after the hour -- [0, 59]</span>
+        <span class="p">.</span><span class="n">tm_sec</span><span class="o">=</span><span class="mo">04</span><span class="p">,</span>    <span class="c1">// seconds after the minute -- [0, 60]</span>
+        <span class="p">.</span><span class="n">tm_isdst</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>  <span class="c1">// Daylight Saving Time flag</span>
+    <span class="p">};</span>
+
+    <span class="k">struct</span> <span class="n">tm</span> <span class="n">time_b</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">.</span><span class="n">tm_year</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>  <span class="c1">// years since 1900</span>
+        <span class="p">.</span><span class="n">tm_mon</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>    <span class="c1">// months since January -- [0, 11]</span>
+        <span class="p">.</span><span class="n">tm_mday</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>   <span class="c1">// day of the month -- [1, 31]</span>
+        <span class="p">.</span><span class="n">tm_hour</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>   <span class="c1">// hours since midnight -- [0, 23]</span>
+        <span class="p">.</span><span class="n">tm_min</span><span class="o">=</span><span class="mi">27</span><span class="p">,</span>    <span class="c1">// minutes after the hour -- [0, 59]</span>
+        <span class="p">.</span><span class="n">tm_sec</span><span class="o">=</span><span class="mo">00</span><span class="p">,</span>    <span class="c1">// seconds after the minute -- [0, 60]</span>
+        <span class="p">.</span><span class="n">tm_isdst</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>  <span class="c1">// Daylight Saving Time flag</span>
+    <span class="p">};</span>
+
+    <span class="kt">time_t</span> <span class="n">cal_a</span> <span class="o">=</span> <span class="n">mktime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">time_a</span><span class="p">);</span>
+    <span class="kt">time_t</span> <span class="n">cal_b</span> <span class="o">=</span> <span class="n">mktime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">time_b</span><span class="p">);</span>
+
+    <span class="kt">double</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">difftime</span><span class="p">(</span><span class="n">cal_b</span><span class="p">,</span> <span class="n">cal_a</span><span class="p">);</span>
+
+    <span class="kt">double</span> <span class="n">years</span> <span class="o">=</span> <span class="n">diff</span> <span class="o">/</span> <span class="mi">60</span> <span class="o">/</span> <span class="mi">60</span> <span class="o">/</span> <span class="mi">24</span> <span class="o">/</span> <span class="mi">365</span><span class="p">.</span><span class="mi">2425</span><span class="p">;</span>  <span class="c1">// close enough</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"%f seconds (%f years) between events</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="n">years</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Output:</p>
+
+<div class="highlight"><pre class="highlight c"><code><span class="mi">1217996816</span><span class="p">.</span><span class="mo">000000</span> <span class="n">seconds</span> <span class="p">(</span><span class="mi">38</span><span class="p">.</span><span class="mi">596783</span> <span class="n">years</span><span class="p">)</span> <span class="n">between</span> <span class="n">events</span>
+</code></pre></div>
+
+<p>And there you have it! Remember to use <code>difftime()</code> to take the time difference. Even though you can just subtract on a POSIX system, might as well stay portable.</p>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
