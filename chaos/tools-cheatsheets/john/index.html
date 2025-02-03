@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/tools-cheatsheets/john</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/tools-cheatsheets/john"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>John</h1>
+
+<p>Identify passwords and hashes and crack them.</p>
+
+<h2>Tools to crack files</h2>
+
+<p>Many additional tools can process files and produce hashes for john to crack:</p>
+
+<table><thead>
+<tr>
+<th>Tool</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>pd2john</td>
+<td>Convert PDF documents.</td>
+</tr>
+<tr>
+<td>ssh2john</td>
+<td>Convert SSH private keys.</td>
+</tr>
+<tr>
+<td>mscash2john</td>
+<td>Convert MS Cash hashes.</td>
+</tr>
+<tr>
+<td>keychain2john</td>
+<td>Convert OS X keychain files.</td>
+</tr>
+<tr>
+<td>rar2john</td>
+<td>Convert RAR archives.</td>
+</tr>
+<tr>
+<td>pfx2john</td>
+<td>Convert PKCS#12 files.</td>
+</tr>
+<tr>
+<td>truecrypt_volume2john</td>
+<td>Convert truecrypt volumes.</td>
+</tr>
+<tr>
+<td>keepass2john</td>
+<td>Convert keepass databases.</td>
+</tr>
+<tr>
+<td>vncpcap2john</td>
+<td>Convert VNC PCAP files.</td>
+</tr>
+<tr>
+<td>putty2john</td>
+<td>Convert putty private keys.</td>
+</tr>
+<tr>
+<td>zip2john</td>
+<td>Convert zip archives.</td>
+</tr>
+<tr>
+<td>hccap2john</td>
+<td>Convert WPA/WPA2 handshake captures.</td>
+</tr>
+<tr>
+<td>office2john</td>
+<td>Convert MS Office documents.</td>
+</tr>
+<tr>
+<td>wpa2john</td>
+<td>Convert WPA/WPA2 hanshakes.</td>
+</tr>
+</tbody></table>
+
+<h2>Commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Identify hash:</span>
+hashid <span class="nt">-j</span> &lt;<span class="nb">hash</span><span class="o">&gt;</span>
+
+<span class="c"># Crack a hash:</span>
+john <span class="nt">--format</span><span class="o">=</span>&lt;<span class="nb">hash type</span><span class="o">&gt;</span> &lt;<span class="nb">hash </span>or <span class="nb">hash </span>file&gt;
+
+<span class="c"># Crack with a wordlist.</span>
+<span class="c"># Multiple wordlists can be specified by</span>
+<span class="c"># separating them with a comma:</span>
+john <span class="nt">--format</span><span class="o">=</span>&lt;<span class="nb">hash type</span><span class="o">&gt;</span> <span class="nt">--wordlist</span><span class="o">=</span>&lt;wordlist file&gt; &lt;<span class="nb">hash </span>or <span class="nb">hash </span>file&gt;
+
+<span class="c"># Check progress made:</span>
+john <span class="nt">--show</span>
+
+<span class="c"># Crack with incremental mode.</span>
+<span class="c"># Starting from a single character, john</span>
+<span class="c"># will try to guess every possible combination</span>
+<span class="c"># of characters:</span>
+john <span class="nt">--incremental</span> &lt;<span class="nb">hash </span>or <span class="nb">hash </span>file&gt;
+
+<span class="c"># Cracking files with a *2john tool:</span>
+pdf2john example.pdf <span class="o">&gt;</span> example.hash
+john example.hash
+
+<span class="c"># Unshadow and crack hashes in found in /etc/shadow.</span>
+<span class="c"># Grab /etc/passwd and /etc/shadow and run the following:</span>
+unshadow passwd.txt shadow.txt <span class="o">&gt;</span> unshadowed.txt
+john <span class="nt">--wordlist</span><span class="o">=</span>&lt;wordlist path&gt; unshadowed.txt
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
