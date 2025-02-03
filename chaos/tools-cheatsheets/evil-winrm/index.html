@@ -65,6 +65,14 @@ evil-winrm <span class="nt">-i</span> &lt;IP address&gt; <span class="nt">-u</sp
 <span class="c"># Create WinRM session to target with SSL:</span>
 evil-winrm <span class="nt">-i</span> &lt;IP address&gt; <span class="nt">-u</span> <span class="s1">'&lt;username&gt;'</span> <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">-S</span>
 
+<span class="c"># Create WinRM session to target with PFX certificate.</span>
+<span class="c"># First, extract the public certificate:</span>
+openssl pkcs12 <span class="nt">-in</span> &lt;pfx file&gt; <span class="nt">-clcerts</span> <span class="nt">-nokeys</span> <span class="nt">-out</span> public-cert.pem
+<span class="c"># Then, extract the private key:</span>
+openssl pkcs12 <span class="nt">-in</span> &lt;pfx file&gt; <span class="nt">-nocerts</span> <span class="nt">-out</span> priv-key.pem <span class="nt">-nodes</span>
+<span class="c"># Finally, establish session with those files:</span>
+evil-winrm <span class="nt">-i</span> &lt;IP address&gt; <span class="nt">-c</span> public-cert.pem <span class="nt">-k</span> priv-key.pem <span class="nt">-S</span>
+
 <span class="c"># Create WinRM session to target, specifying path</span>
 <span class="c"># for powershell scripts on attack box:</span>
 evil-winrm <span class="nt">-i</span> &lt;IP address&gt; <span class="nt">-u</span> <span class="s1">'&lt;username&gt;'</span> <span class="nt">-p</span> <span class="s1">'&lt;password&gt;'</span> <span class="nt">-s</span> &lt;scripts path&gt;
