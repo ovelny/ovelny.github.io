@@ -67,6 +67,9 @@ windapsearch <span class="nt">--dc-ip</span> &lt;DC IP&gt; <span class="nt">-d</
 
 <span class="c"># Enumerate all groups with credentials:</span>
 windapsearch <span class="nt">-u</span> &lt;username&gt; <span class="nt">-p</span> &lt;password&gt; <span class="nt">--dc-ip</span> &lt;DC IP&gt; <span class="nt">-d</span> &lt;DC domain&gt; <span class="nt">-G</span> | <span class="nb">grep </span>distinguishedName | <span class="nb">awk</span> <span class="nt">-F</span> <span class="s1">'CN='</span> <span class="s1">'{print $2}'</span> | <span class="nb">tr</span> <span class="nt">-d</span> <span class="s1">','</span> | <span class="nb">tee</span> <span class="nt">-a</span> groups.txt
+
+<span class="c"># Enumerate all usernames details:</span>
+<span class="nb">cat </span>usernames.txt | <span class="k">while </span><span class="nb">read </span>username<span class="p">;</span> <span class="k">do </span>windapsearch <span class="nt">--dc-ip</span> &lt;DC IP&gt; <span class="nt">-d</span> &lt;DC domain&gt; <span class="nt">-l</span> <span class="nv">$username</span><span class="p">;</span> <span class="k">done</span>
 </code></pre></div>
 
     
