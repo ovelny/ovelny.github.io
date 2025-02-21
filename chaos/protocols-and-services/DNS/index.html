@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/protocols-and-services/DNS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/protocols-and-services/DNS"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/now/">now</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>DNS</h1>
+
+<h2>Main points</h2>
+
+<ul>
+<li>&quot;It&#39;s always DNS&quot; (Domain Name System).</li>
+<li>Resolves computer names into IP addresses.</li>
+<li>The reverse, you guessed it, is translating IP addresses into computer names.</li>
+<li>No central database.</li>
+<li><p>Also holds info about services associated with a domain.</p></li>
+<li><p>Server type:</p>
+
+<ul>
+<li><strong>DNS root server</strong>: the big ones. 13 of them managed by ICANN. handles top-level domains (TLDs).</li>
+<li><strong>Authoritative nameserver</strong>: responsible for a particular zone, with a defined area of responsibility. hands over what it can&#39;t answer to the root server.</li>
+<li><strong>Non-authoritative nameserver</strong>: collect data on specific DNS zones with recursive / iterative querying. not responsible of a particular zone.</li>
+<li><strong>Caching DNS server</strong>: cache info from other name servers for a specified period of time, defined by the authoritative nameserver.</li>
+<li><strong>Forwarding server</strong>: forwards DNS queries to another DNS server.</li>
+<li><strong>Resolver</strong>: performs name resolution locally (computer, router, etc).</li>
+</ul></li>
+<li><p>Mainly unencrypted first, but countermeasures exist:</p>
+
+<ul>
+<li>DNS over TLS (DoT)</li>
+<li>DNS over HTTPS (DoH)</li>
+<li>DNSCrypt, to encrypt the traffic between computer and name server</li>
+</ul></li>
+</ul>
+
+<h2>Types of DNS record</h2>
+
+<p>For the full list, check the related <a href="https://en.wikipedia.org/wiki/List_of_DNS_record_types" rel="nofollow">wikipedia page</a>.</p>
+
+<table><thead>
+<tr>
+<th>DNS record</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>A</td>
+<td>IPv4 address of the domain</td>
+</tr>
+<tr>
+<td>AAAA</td>
+<td>IPv6 address of the domain</td>
+</tr>
+<tr>
+<td>MX</td>
+<td>mail servers  of the domain</td>
+</tr>
+<tr>
+<td>NS</td>
+<td>DNS servers of the domain</td>
+</tr>
+<tr>
+<td>TXT</td>
+<td>record for various information</td>
+</tr>
+<tr>
+<td>CNAME</td>
+<td>alias domain for the canonical name (which is on the right-hand)</td>
+</tr>
+<tr>
+<td>PTR</td>
+<td>reverse lookup, points to a CNAME</td>
+</tr>
+<tr>
+<td>SOA</td>
+<td>info about the DNS zone, email address contact (replace &quot;.&quot; with &quot;@&quot;)</td>
+</tr>
+</tbody></table>
+
+<p>SOA stands for Start Of Authority.</p>
+
+<h2>Insecure configuration</h2>
+
+<p>DNS is very complicated and a lot of settings can go wrong. Loss of DNS function can be catastrophic so security might not always be the main priority.</p>
+
+<p>Look for allow settings, like <code>allow-query</code>, <code>allow-recursion</code>, and <code>allow-transfer</code> in bind9 configuration files for instances. <code>zone-statistics</code> might also be interesting. Bind9 configuration files can be found in <code>/etc/bind/</code>.</p>
+
+<h2>Commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Perform a NS query with nslookup:</span>
+nslookup &lt;domain&gt;
+
+<span class="c"># Perform a NS query with dig:</span>
+dig ns &lt;domain&gt; @&lt;nameserver or IP address&gt;
+
+<span class="c"># Perform a A query with nslookup:</span>
+nslookup <span class="nt">-query</span><span class="o">=</span>A &lt;subdomain&gt; <span class="c"># www *is* a subdomain</span>
+
+<span class="c"># Perform a A query with dig:</span>
+dig a &lt;subdomain&gt; @&lt;nameserver or IP address&gt;
+
+<span class="c"># Perform a PTR query with nslookup:</span>
+nslookup <span class="nt">-query</span><span class="o">=</span>PTR &lt;IP address&gt;
+
+<span class="c"># Perform a PTR query with dig:</span>
+dig <span class="nt">-x</span> &lt;IP address&gt; @&lt;nameserver or IP address&gt;
+
+<span class="c"># Perform a TXT query with nslookup:</span>
+nslookup <span class="nt">-query</span><span class="o">=</span>TXT &lt;domain&gt;
+
+<span class="c"># Perform a TXT query with dig:</span>
+dig txt &lt;domain&gt; @&lt;nameserver or IP address&gt;
+
+<span class="c"># Perform a MX query with nslookup:</span>
+nslookup <span class="nt">-query</span><span class="o">=</span>MX &lt;domain&gt;
+
+<span class="c"># Perform a MX query with dig:</span>
+dig mx &lt;domain&gt; @&lt;nameserver or IP address&gt;
+
+<span class="c"># Perform a version query (might not be available):</span>
+dig CH TXT &lt;domain&gt; &lt;IP address&gt;
+
+<span class="c"># View all available records (that the server wants to disclose) with nslookup:</span>
+nslookup <span class="nt">-query</span><span class="o">=</span>ANY &lt;domain&gt; <span class="c"># Might just return RFC8482 which abolishes ANY requests.</span>
+
+<span class="c"># View all available records (that the server wants to disclose) with dig:</span>
+dig any &lt;domain&gt; @&lt;nameserver or IP address&gt; <span class="c"># Might just return RFC8482 which abolishes ANY requests.</span>
+
+<span class="c"># Try to perform a zone transfer with nslookup:</span>
+nslookup <span class="nt">-type</span><span class="o">=</span>any <span class="nt">-query</span><span class="o">=</span>AXFR &lt;domain to transfer&gt; &lt;nameserver obtained earlier&gt;
+
+<span class="c"># Try to perform a zone transfer with dig:</span>
+dig axfr &lt;domain&gt; @&lt;nameserver or IP address&gt;
+
+<span class="c"># Brute force subdomains:</span>
+<span class="nb">cat</span> /usr/share/seclists/Discovery/DNS/&lt;list name&gt; | <span class="k">while </span><span class="nb">read </span>sub<span class="p">;</span> <span class="k">do </span>dig any <span class="s2">"</span><span class="nv">$sub</span><span class="s2">"</span>.&lt;domain&gt; @&lt;nameserver or IP address&gt; | <span class="nb">grep</span> <span class="nt">-E</span> <span class="s1">'IN.*[^SO]A[^NY]'</span><span class="p">;</span> <span class="k">done</span>
+
+<span class="c"># Brute force subdomains with dnsenum:</span>
+dnsenum <span class="nt">--dnsserver</span> &lt;IP address&gt; <span class="nt">--enum</span> <span class="nt">-p</span> 0 <span class="nt">-s</span> 0 <span class="nt">-o</span> subdomains.txt <span class="nt">-f</span> /usr/share/seclists/Discovery/DNS/&lt;list name&gt; &lt;domain&gt;
+
+<span class="c"># Enumerate all DNS servers with fierce:</span>
+fierce <span class="nt">--domain</span> &lt;domain name&gt;
+
+<span class="c"># Enumerate subdomains with subfinder:</span>
+subfinder <span class="nt">-d</span> &lt;domain name&gt; <span class="nt">-v</span>
+
+<span class="c"># Perform DNS brute-forcing with subbrute:</span>
+subbrute &lt;domain name&gt; <span class="nt">-s</span> ./&lt;name list&gt; <span class="nt">-r</span> ./&lt;resolver list&gt;
+</code></pre></div>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Domain_Name_System" rel="nofollow">https://en.wikipedia.org/wiki/Domain_Name_System</a></li>
+<li><a href="https://book.hacktricks.xyz/network-services-pentesting/pentesting-dns" rel="nofollow">https://book.hacktricks.xyz/network-services-pentesting/pentesting-dns</a></li>
+<li><a href="https://github.com/EdOverflow/can-i-take-over-xyz" rel="nofollow">https://github.com/EdOverflow/can-i-take-over-xyz</a></li>
+</ul>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
