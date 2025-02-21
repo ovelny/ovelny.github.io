@@ -114,6 +114,15 @@ sqsh <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> .<
 <span class="c"># Connect to MSSQL on Windows:</span>
 sqlcmd <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> &lt;username&gt; <span class="nt">-P</span> &lt;password&gt;
 
+<span class="c"># List all databases:</span>
+<span class="k">select </span>name from sys.databases<span class="p">;</span>
+
+<span class="c"># List all tables from a database:</span>
+<span class="k">select </span>table_name from &lt;database name&gt;.information_schema.tables<span class="p">;</span>
+
+<span class="c"># Dump data from a table:</span>
+<span class="k">select</span> <span class="k">*</span> from &lt;database name&gt;..&lt;table name&gt;<span class="p">;</span>
+
 <span class="c"># In MSSQL prompt, execute system commands with xp_cmdshell.</span>
 <span class="c"># This is rarely enabled but worth a try:</span>
 xp_cmdshell <span class="s1">'whoami'</span>
