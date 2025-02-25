@@ -97,10 +97,7 @@ ssh <span class="nt">-D</span> 9050 &lt;username&gt;@&lt;target IP address&gt;
 <span class="c"># only full packets are understood by proxychains, so only full TCP</span>
 <span class="c"># connect scans will work using nmap.</span>
 
-<span class="c"># Nmap ping scan on Linux targets:</span>
-<span class="nb">sudo </span>proxychains nmap <span class="nt">-sn</span> <span class="nt">-n</span> 172.16.5.1-200 <span class="c"># nmap ping scan.</span>
-
-<span class="c"># Nmap full TCP connect scan without ping for windows targets:</span>
+<span class="c"># Nmap full TCP connect scan without ping (for windows targets):</span>
 <span class="nb">sudo </span>proxychains nmap <span class="nt">-Pn</span> <span class="nt">-sT</span> <span class="nt">-n</span> 172.16.5.19
 </code></pre></div>
 
@@ -180,7 +177,7 @@ socat TCP4-LISTEN:8080,fork TCP4:&lt;attack box IP | internal target IP&gt;:80
 sshuttle <span class="nt">-r</span> &lt;username&gt;@&lt;compromised server IP&gt; 172.16.5.0/23 <span class="nt">-v</span> <span class="c"># Can also be a single IP address.</span>
 
 <span class="c"># Traffic routing now works and you don't even need proxychains:</span>
-nmap <span class="nt">-sV</span> <span class="nt">-p3389</span> <span class="nt">-Pn</span> 172.16.5.19
+nmap <span class="nt">-sV</span> <span class="nt">-p3389</span> <span class="nt">-Pn</span> <span class="nt">-n</span> 172.16.5.19
 </code></pre></div>
 
 <h2>dnscat2 for DNS encrypted tunneling</h2>
@@ -292,7 +289,7 @@ chisel server <span class="nt">-v</span> <span class="nt">-p</span> 9050 <span c
 .<span class="se">\c</span>hisel.exe client <span class="nt">--max-retry-count</span> 5 &lt;first target IP&gt;:9002 R:9999:socks
 
 <span class="c"># On attack box, check that double hop is working:</span>
-<span class="nb">sudo </span>proxychains nmap <span class="nt">-sT</span> <span class="nt">-p</span> 22 &lt;reachable IP through second target only&gt;
+<span class="nb">sudo </span>proxychains nmap <span class="nt">-Pn</span> <span class="nt">-sT</span> <span class="nt">-n</span> <span class="nt">-p</span> 22 &lt;reachable IP through second target only&gt;
 
 <span class="c">################</span>
 <span class="c"># Bind pivoting with SOCKS5</span>
