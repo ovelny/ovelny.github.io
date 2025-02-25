@@ -98,7 +98,25 @@ ssh <span class="nt">-D</span> 9050 &lt;username&gt;@&lt;target IP address&gt;
 <span class="c"># connect scans will work using nmap.</span>
 </code></pre></div>
 
-<h2>Remote port forwarding with SSH (reverse shell example)</h2>
+<h2>Dynamic port forwarding with SSH (web scenario)</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Suppose we have a compromised Linux target, who can access other hosts</span>
+<span class="c"># serving websites and web servers. We can use dynamic port forwarding to</span>
+<span class="c"># reach them from our attack box:</span>
+ssh <span class="nt">-D</span> 8080 root@&lt;target IP&gt;
+</code></pre></div>
+
+<p>From your attack box&#39;s browser, using foxyproxy extension, configure a proxy with the following settings:</p>
+
+<ul>
+<li>Hostname: 127.0.0.1</li>
+<li>Port: 8080</li>
+<li>Type: SOCKS5</li>
+</ul>
+
+<p>Enable it, and directly browse a HTTP server from another host, such as <a href="http://172.16.1.17:10000/" rel="nofollow">http://172.16.1.17:10000/</a></p>
+
+<h2>Remote port forwarding with SSH (reverse shell scenario)</h2>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># Suppose we have the following topology:</span>
 <span class="c"># attack box &lt;-&gt; Ubuntu compromised server &lt;-&gt; Windows server in local network only</span>
