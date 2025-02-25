@@ -129,7 +129,14 @@
 
 <p>On a windows host, remember that you can access a SMB share with winkey + r, and type the file share location in the dialog box, like <code>\\&lt;IP address&gt;\share\</code>.</p>
 
-<div class="highlight"><pre class="highlight shell"><code><span class="c"># List the shares with a NULL (anonymous) session.</span>
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Connect with smbclient.py, which alleviates a lot</span>
+<span class="c"># of pointless headaches compared to other tools:</span>
+smbclient.py &lt;domain, optional&gt;/&lt;username&gt;:&lt;password&gt;@&lt;target IP&gt;
+
+<span class="c"># Connect with smbclient.py with anonymous session:</span>
+smbclient.py &lt;target IP&gt;
+
+<span class="c"># List the shares with a NULL (anonymous) session.</span>
 <span class="c"># print$ and IPC$ are always default shares:</span>
 smbclient <span class="nt">-N</span> <span class="nt">-L</span> //&lt;IP address&gt;
 
