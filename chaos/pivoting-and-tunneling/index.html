@@ -55,7 +55,10 @@
 <h2>Ping sweeps to find internal hosts</h2>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># With Linux:</span>
-<span class="k">for </span>i <span class="k">in</span> <span class="o">{</span>1..254<span class="o">}</span> <span class="p">;</span><span class="k">do</span> <span class="o">(</span>ping <span class="nt">-c</span> 1 172.16.5.<span class="nv">$i</span> | <span class="nb">grep</span> <span class="s2">"bytes from"</span> &amp;<span class="o">)</span> <span class="p">;</span><span class="k">done</span>
+<span class="k">for </span>i <span class="k">in</span> <span class="o">{</span>1..254<span class="o">}</span><span class="p">;</span> <span class="k">do</span> <span class="o">(</span>ping <span class="nt">-c</span> 1 172.16.1.<span class="nv">$i</span> | <span class="nb">grep</span> <span class="s2">"bytes from"</span> &amp;<span class="o">)</span><span class="p">;</span> <span class="k">done</span>
+
+<span class="c"># Another command with Linux:</span>
+<span class="k">for </span>i <span class="k">in</span> <span class="sb">`</span><span class="nb">seq </span>1 254<span class="sb">`</span><span class="p">;</span> <span class="k">do</span> <span class="o">(</span>ping <span class="nt">-c</span> 1 172.16.1.<span class="nv">$i</span> | <span class="nb">grep</span> <span class="s2">"bytes from"</span> &amp;<span class="o">)</span><span class="p">;</span> <span class="k">done</span>
 
 <span class="c"># With Windows and cmd.exe:</span>
 <span class="k">for</span> /L %i <span class="k">in</span> <span class="o">(</span>1 1 254<span class="o">)</span> <span class="k">do </span>ping 172.16.5.%i <span class="nt">-n</span> 1 <span class="nt">-w</span> 100 | find <span class="s2">"Reply"</span>
