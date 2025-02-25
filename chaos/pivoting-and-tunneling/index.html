@@ -98,10 +98,10 @@ ssh <span class="nt">-D</span> 9050 &lt;username&gt;@&lt;target IP address&gt;
 <span class="c"># connect scans will work using nmap.</span>
 
 <span class="c"># Nmap ping scan on Linux targets:</span>
-<span class="nb">sudo </span>proxychains nmap <span class="nt">-sn</span> 172.16.5.1-200 <span class="c"># nmap ping scan.</span>
+<span class="nb">sudo </span>proxychains nmap <span class="nt">-sn</span> <span class="nt">-n</span> 172.16.5.1-200 <span class="c"># nmap ping scan.</span>
 
 <span class="c"># Nmap full TCP connect scan without ping for windows targets:</span>
-<span class="nb">sudo </span>proxychains nmap <span class="nt">-Pn</span> <span class="nt">-sT</span> 172.16.5.19
+<span class="nb">sudo </span>proxychains nmap <span class="nt">-Pn</span> <span class="nt">-sT</span> <span class="nt">-n</span> 172.16.5.19
 </code></pre></div>
 
 <h2>Remote port forwarding with SSH (reverse shell example)</h2>
