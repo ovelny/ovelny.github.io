@@ -295,7 +295,7 @@ chisel server <span class="nt">-v</span> <span class="nt">-p</span> 9050 <span c
 ./chisel client <span class="nt">--max-retry-count</span> 5 10.10.16.14:9050 R:socks
 
 <span class="c"># Still on first target, run the second server for second target:</span>
-./chisel server <span class="nt">-v</span> <span class="nt">-p</span> 9002 <span class="nt">--socks5</span> <span class="nt">--reversse</span>
+./chisel server <span class="nt">-v</span> <span class="nt">-p</span> 9002 <span class="nt">--socks5</span> <span class="nt">--reverse</span>
 
 <span class="c"># On second target, run second client:</span>
 .<span class="se">\c</span>hisel.exe client <span class="nt">--max-retry-count</span> 5 &lt;first target IP&gt;:9002 R:9999:socks
