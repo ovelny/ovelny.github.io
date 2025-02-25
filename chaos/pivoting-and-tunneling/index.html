@@ -96,9 +96,6 @@ ssh <span class="nt">-D</span> 9050 &lt;username&gt;@&lt;target IP address&gt;
 <span class="c"># be forwarded to the compromised host over SSH. Keep in mind that</span>
 <span class="c"># only full packets are understood by proxychains, so only full TCP</span>
 <span class="c"># connect scans will work using nmap.</span>
-
-<span class="c"># Nmap full TCP connect scan without ping (for windows targets):</span>
-<span class="nb">sudo </span>proxychains nmap <span class="nt">-Pn</span> <span class="nt">-sT</span> <span class="nt">-n</span> 172.16.5.19
 </code></pre></div>
 
 <h2>Remote port forwarding with SSH (reverse shell example)</h2>
@@ -304,6 +301,15 @@ chisel server <span class="nt">-p</span> 1234 <span class="nt">--socks5</span>
 
 <span class="c"># On your attack machine, run:</span>
 chisel client <span class="nt">--max-retry-count</span> 5 &lt;target IP&gt;:1234 &lt;proxychains_port&gt;:socks
+</code></pre></div>
+
+<h2>Proxied commands</h2>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Classic nmap full TCP connect scan without ping:</span>
+<span class="nb">sudo </span>proxychains nmap <span class="nt">-Pn</span> <span class="nt">-sT</span> <span class="nt">-n</span> 172.16.5.19
+
+<span class="c"># Nmap command that handles SOCKS5 latency a bit better:</span>
+<span class="nb">sudo </span>proxychains nmap <span class="nt">-n</span> <span class="nt">-Pn</span> <span class="nt">-F</span> <span class="nt">-sV</span> <span class="nt">-sT</span> <span class="nt">-oN</span> &lt;output file&gt; <span class="nt">-vvv</span> <span class="nt">-iL</span> &lt;hosts file&gt; <span class="nt">-T4</span> <span class="nt">--max-retries</span> 1 <span class="nt">--max-rtt-timeout</span> 2s <span class="nt">--ttl</span> 50ms <span class="nt">--open</span>
 </code></pre></div>
 
 <h2>References</h2>
