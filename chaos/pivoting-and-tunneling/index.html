@@ -308,7 +308,7 @@ chisel client <span class="nt">--max-retry-count</span> 5 &lt;target IP&gt;:1234
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># Classic nmap full TCP connect scan without ping:</span>
 <span class="nb">sudo </span>proxychains nmap <span class="nt">-Pn</span> <span class="nt">-sT</span> <span class="nt">-n</span> 172.16.5.19
 
-<span class="c"># Nmap command that handles SOCKS5 latency a bit better:</span>
+<span class="c"># Nmap command that handles SOCKS5 and TCP connect latency a bit better:</span>
 <span class="nb">sudo </span>proxychains nmap <span class="nt">-n</span> <span class="nt">-Pn</span> <span class="nt">-F</span> <span class="nt">-sV</span> <span class="nt">-sT</span> <span class="nt">-oN</span> &lt;output file&gt; <span class="nt">-vvv</span> <span class="nt">-iL</span> &lt;hosts file&gt; <span class="nt">-T4</span> <span class="nt">--max-retries</span> 1 <span class="nt">--max-rtt-timeout</span> 2s <span class="nt">--ttl</span> 50ms <span class="nt">--open</span>
 </code></pre></div>
 
