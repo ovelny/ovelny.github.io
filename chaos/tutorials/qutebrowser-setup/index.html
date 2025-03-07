@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/tutorials/qutebrowser-setup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/tutorials/qutebrowser-setup"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/">home</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Qutebrowser setup</h1>
+
+<p>A browser for nerds that enjoy vim too much.</p>
+
+<h2>Installation and update</h2>
+
+<p>The following script ensures that all apt dependencies for Debian are present (still, make sure this is up-to-date with <a href="https://qutebrowser.org/doc/install.html#debian" rel="nofollow">https://qutebrowser.org/doc/install.html#debian</a>), and install qutebrowser repository in ~/code, if not already found. It also updates the browser directly from the official repo, and can be called for this only purpose. You can name this script <code>qutebrowser-update</code> and put it in your $PATH:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c">#!/usr/bin/env bash</span>
+<span class="nb">set</span> <span class="nt">-euo</span> pipefail
+<span class="nv">IFS</span><span class="o">=</span><span class="s1">$'</span><span class="se">\n\t</span><span class="s1">'</span>
+
+<span class="c"># dependencies are listed here: https://qutebrowser.org/doc/install.html#debian</span>
+<span class="nv">venv_dependencies</span><span class="o">=(</span><span class="s2">"git"</span> <span class="s2">"ca-certificates"</span> <span class="s2">"python3"</span> <span class="s2">"python3-venv"</span> <span class="s2">"libgl1"</span> <span class="s2">"libxkbcommon-x11-0"</span> <span class="s2">"libegl1"</span> <span class="s2">"libfontconfig1"</span> <span class="s2">"libglib2.0-0"</span> <span class="s2">"libdbus-1-3"</span> <span class="s2">"libxcb-cursor0"</span> <span class="s2">"libxcb-icccm4"</span> <span class="s2">"libxcb-keysyms1"</span> <span class="s2">"libxcb-shape0"</span> <span class="s2">"libnss3"</span> <span class="s2">"libxcomposite1"</span> <span class="s2">"libxdamage1"</span> <span class="s2">"libxrender1"</span> <span class="s2">"libxrandr2"</span> <span class="s2">"libxtst6"</span> <span class="s2">"libxi6"</span> <span class="s2">"libasound2"</span><span class="o">)</span>
+
+<span class="c"># installing qutebrowser if the repo is not found in ~/code</span>
+<span class="c"># this will also check for all dependencies and early exit</span>
+<span class="c"># if one or several are not found.</span>
+<span class="k">if</span> <span class="o">[[</span> <span class="o">!</span> <span class="nt">-d</span> <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">"</span>/code/qutebrowser <span class="o">]]</span><span class="p">;</span> <span class="k">then
+    </span><span class="nb">echo</span> <span class="s2">"qutebrowser not installed: proceeding with install..."</span>
+    <span class="k">for </span>dep <span class="k">in</span> <span class="s2">"</span><span class="k">${</span><span class="nv">venv_dependencies</span><span class="p">[@]</span><span class="k">}</span><span class="s2">"</span><span class="p">;</span> <span class="k">do
+        if</span> <span class="o">[[</span> <span class="si">$(</span>dpkg-query <span class="nt">-W</span> <span class="nt">-f</span><span class="o">=</span><span class="s1">'${Status}'</span> <span class="s2">"</span><span class="nv">$dep</span><span class="s2">"</span> 2&gt;/dev/null | <span class="nb">grep</span> <span class="nt">-c</span> <span class="s2">"ok installed"</span><span class="si">)</span> <span class="nt">-eq</span> 0 <span class="o">]]</span><span class="p">;</span> <span class="k">then
+            </span><span class="nb">echo</span> <span class="s2">"</span><span class="se">\"</span><span class="nv">$dep</span><span class="se">\"</span><span class="s2"> package not installed: install it with 'apt install --no-install-recommends', then re-run this script."</span>
+            <span class="nb">exit </span>1
+        <span class="k">fi
+        </span><span class="nb">echo</span> <span class="s2">"all venv dependencies are present, installing..."</span>
+        <span class="o">(</span>
+            <span class="nb">cd</span> <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">"</span>/code
+            git clone https://github.com/qutebrowser/qutebrowser.git
+            <span class="nb">cd </span>qutebrowser
+            python3 scripts/mkvenv.py
+        <span class="o">)</span>
+        <span class="nb">echo</span> <span class="s2">"qutebrowser installed in ~/code with fresh git clone, all done."</span>
+        <span class="nb">exit
+    </span><span class="k">done
+fi</span>
+
+<span class="o">(</span>
+    <span class="nb">cd</span> <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">"</span>/code/qutebrowser
+    python3 scripts/mkvenv.py <span class="nt">--update</span>
+<span class="o">)</span>
+</code></pre></div>
+
+<p>Be aware that this will not support proprietary codecs: to circumvent this, I simply run videos using a <code>mpv</code> keybind.</p>
+
+<p>To start qutebrowser from its Python venv, add the following script in your $PATH, as <code>qutebrowser</code>:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c">#!/usr/bin/env bash</span>
+<span class="nb">set</span> <span class="nt">-euo</span> pipefail
+<span class="nv">IFS</span><span class="o">=</span><span class="s1">$'</span><span class="se">\n\t</span><span class="s1">'</span>
+
+<span class="s2">"</span><span class="nv">$HOME</span><span class="s2">"</span>/code/qutebrowser/.venv/bin/python3 <span class="nt">-m</span> qutebrowser <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+</code></pre></div>
+
+<p>You can then add the following file as <code>~/.local/share/applications/qutebrowser.desktop</code> to start the browser just like any other application. Make sure to have an icon present with its absolute path with <code>Icon=</code> key:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>[Desktop Entry]
+Name=qutebrowser
+Comment=qutebrowser installed from venv in ~/code/qutebrowser
+Exec=qutebrowser %u
+Icon=/home/ovelny/.local/share/icons/hicolor/64x64/apps/qutebrowser.png
+Terminal=false
+Type=Application
+MimeType=x-scheme-handler/unknown;x-scheme-handler/about;x-scheme-handler/https;x-scheme-handler/http;text/html;
+</code></pre></div>
+
+<p>Finally, to make qutebrowser your default browser, run <code>xdg-settings set default-web-browser qutebrowser.desktop</code>.</p>
+
+<p>Also run <code>:adblock-update</code> during qutebrowser first run, and you should be all set.</p>
+
+<h2>Profiles and cookies allowlists</h2>
+
+<p>The following repositories allow for qutebrowser to have separate profiles (with their own cookies, history and cache), as well as allowing or denying cookies by domain:</p>
+
+<ul>
+<li><a href="https://github.com/jtyers/qutebrowser-profile" rel="nofollow">https://github.com/jtyers/qutebrowser-profile</a></li>
+<li><a href="https://github.com/jvinet/oatmeal" rel="nofollow">https://github.com/jvinet/oatmeal</a></li>
+</ul>
+
+<p>I forked them to add a small <code>pyproject.toml</code> in each repo, allowing them to be installed with pipx:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>pipx <span class="nb">install </span>git+https://github.com/ovelny/qutebrowser-profile.git
+pipx <span class="nb">install </span>git+https://github.com/ovelny/oatmeal.git
+</code></pre></div>
+
+<p>If you install them with these forks, qutebrower-profile will be executed with <code>qt</code> command, and oatmeal with <code>qtcookies</code>.</p>
+
+<p>We can then create profiles like the following:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>qt <span class="nt">--load</span> browsing <span class="nt">--new</span>
+qt <span class="nt">--load</span> development <span class="nt">--new</span>
+</code></pre></div>
+
+<p>Creating and managing cookies allowlists is done as follows:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Run oatmeal TUI for a specific session:</span>
+qtcookies <span class="nt">-c</span> ~/.local/share/qutebrowser/default-browsing/webengine/Cookies <span class="nt">-b</span> ~/.local/share/qutebrowser/default-browsing/webengine/denylist.json <span class="nt">-w</span> ~/.local/share/qutebrowser/default-browsing/webengine/allowlist.json
+
+<span class="c"># From oatmeal TUI, list current page of cookies:</span>
+l
+
+<span class="c"># See previous or next page, respectively:</span>
+p
+n
+
+<span class="c"># Add a domain to the allowlist:</span>
+swa
+ah &lt;domain name&gt;
+
+<span class="c"># List allowlist:</span>
+l
+
+<span class="c"># Save and quit:</span>
+q
+
+<span class="c"># Exit without saving:</span>
+x
+</code></pre></div>
+
+<p>Making an alias for <code>qtcookies</code> to keep track of default paths for cookies, denylist or allowlist is also a good idea:</p>
+
+<div class="highlight"><pre class="highlight shell"><code>qtc<span class="o">()</span> <span class="o">{</span> qtcookies <span class="nt">-c</span> <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.local/share/qutebrowser/</span><span class="nv">$1</span><span class="s2">/webengine/Cookies"</span> <span class="nt">-b</span> <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.local/share/qutebrowser/</span><span class="nv">$1</span><span class="s2">/webengine/denylist.json"</span> <span class="nt">-w</span> <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.local/share/qutebrowser/</span><span class="nv">$1</span><span class="s2">/webengine/allowlist.json"</span> <span class="o">}</span>
+</code></pre></div>
+
+<h2>Automatic cookie deletion</h2>
+
+<p>Just like the <a href="https://chromewebstore.google.com/detail/cookie-autodelete/fhcgjolkccmbidfldomjliifgaodjagh" rel="nofollow">Cookie AutoDelete</a> extension, we can automate the deletion of disallowed cookies. For instance, we can delete them when closing a tab: this will allow temporary cookies to persist until we finish our task, and disappear afterwards.</p>
+
+<p>Let&#39;s create the following userscript, <code>tab-close-delete-cookies</code>:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c">#!/usr/bin/env bash</span>
+<span class="nb">set</span> <span class="nt">-euo</span> pipefail
+<span class="nv">IFS</span><span class="o">=</span><span class="s1">$'</span><span class="se">\n\t</span><span class="s1">'</span>
+
+<span class="nv">profile_name</span><span class="o">=</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$QUTE_DATA_DIR</span><span class="s2">"</span> | <span class="nb">awk</span> <span class="nt">-F</span> <span class="s1">'/'</span> <span class="s1">'{print $6}'</span><span class="si">)</span>
+
+<span class="nb">echo</span> <span class="s2">"tab-close"</span> <span class="o">&gt;&gt;</span><span class="s2">"</span><span class="nv">$QUTE_FIFO</span><span class="s2">"</span>
+qtcookies <span class="nt">-c</span> <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.local/share/qutebrowser/</span><span class="nv">$profile_name</span><span class="s2">/webengine/Cookies"</span> <span class="nt">-b</span> <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.local/share/qutebrowser/</span><span class="nv">$profile_name</span><span class="s2">/webengine/denylist.json"</span> <span class="nt">-w</span> <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.local/share/qutebrowser/</span><span class="nv">$profile_name</span><span class="s2">/webengine/allowlist.json"</span> <span class="nt">-e</span> <span class="s1">'sca; de; da'</span>
+</code></pre></div>
+
+<p>Give it execute permissions, and save it in <code>~/.config/qutebrowser/userscripts</code>. Then, we can bind it to a key in qutebrowser, for instance:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">bind </span>x spawn <span class="nt">--userscript</span> tab-close-delete-cookies
+</code></pre></div>
+
+<p>Additionally, we can perform the same action when closing qutebrowser, for instance with a very similar <code>qutebrowser-close-delete-cookies</code> script:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c">#!/usr/bin/env bash</span>
+<span class="nb">set</span> <span class="nt">-euo</span> pipefail
+<span class="nv">IFS</span><span class="o">=</span><span class="s1">$'</span><span class="se">\n\t</span><span class="s1">'</span>
+
+<span class="nv">profile_name</span><span class="o">=</span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$QUTE_DATA_DIR</span><span class="s2">"</span> | <span class="nb">awk</span> <span class="nt">-F</span> <span class="s1">'/'</span> <span class="s1">'{print $6}'</span><span class="si">)</span>
+
+<span class="nb">echo</span> <span class="s2">"close"</span> <span class="o">&gt;&gt;</span><span class="s2">"</span><span class="nv">$QUTE_FIFO</span><span class="s2">"</span>
+qtcookies <span class="nt">-c</span> <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.local/share/qutebrowser/</span><span class="nv">$profile_name</span><span class="s2">/webengine/Cookies"</span> <span class="nt">-b</span> <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.local/share/qutebrowser/</span><span class="nv">$profile_name</span><span class="s2">/webengine/denylist.json"</span> <span class="nt">-w</span> <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.local/share/qutebrowser/</span><span class="nv">$profile_name</span><span class="s2">/webengine/allowlist.json"</span> <span class="nt">-e</span> <span class="s1">'sca; de; da'</span>
+</code></pre></div>
+
+<p>Give it execute permissions too, save it in the same location, and bind it to the <code>q</code> key:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">bind </span>q spawn <span class="nt">--userscript</span> qutebrowser-close-delete-cookies
+</code></pre></div>
+
+<h2>Reducing fingerprinting</h2>
+
+<p>The following settings can come in handy to reduce your fingerprint:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Set a popular user-agent:</span>
+<span class="nb">set </span>content.headers.user_agent <span class="s1">'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.3'</span>
+
+<span class="c"># Disable javascript by default.</span>
+<span class="c"># Use 'tsh' to temporarily allow javascript on page,</span>
+<span class="c"># or 'tSh' to permanently allow javascript for current domain:</span>
+<span class="nb">set </span>content.javascript.enabled <span class="nb">false</span>
+
+<span class="c"># Disable WebGL:</span>
+<span class="nb">set </span>content.webgl <span class="nb">false</span>
+
+<span class="c"># Disable reading from canvas:</span>
+<span class="nb">set </span>content.canvas_reading <span class="nb">false</span>
+
+<span class="c"># Set a common accept_language header:</span>
+<span class="nb">set </span>content.headers.accept_language en-US,en<span class="p">;</span><span class="nv">q</span><span class="o">=</span>0.5
+
+<span class="c"># Set a common HTTP_ACCEPT header:</span>
+<span class="nb">set </span>content.headers.custom <span class="s1">'{"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"}'</span>
+</code></pre></div>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="https://wiki.archlinux.org/title/Qutebrowser" rel="nofollow">https://wiki.archlinux.org/title/Qutebrowser</a></li>
+<li><a href="https://github.com/jtyers/qutebrowser-profile" rel="nofollow">https://github.com/jtyers/qutebrowser-profile</a></li>
+<li><a href="https://github.com/jvinet/oatmeal" rel="nofollow">https://github.com/jvinet/oatmeal</a></li>
+</ul>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
