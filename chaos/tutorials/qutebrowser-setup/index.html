@@ -146,7 +146,7 @@ qt <span class="nt">--load</span> development <span class="nt">--new</span>
 <p>Creating and managing cookies allowlists is done as follows:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c"># Run oatmeal TUI for a specific session:</span>
-qtcookies <span class="nt">-c</span> ~/.local/share/qutebrowser/default-browsing/webengine/Cookies <span class="nt">-b</span> ~/.local/share/qutebrowser/default-browsing/webengine/denylist.json <span class="nt">-w</span> ~/.local/share/qutebrowser/default-browsing/webengine/allowlist.json
+qtcookies <span class="nt">-c</span> ~/.local/share/qutebrowser/&lt;profile name&gt;/webengine/Cookies <span class="nt">-b</span> ~/.local/share/qutebrowser/&lt;profile name&gt;/webengine/denylist.json <span class="nt">-w</span> ~/.local/share/qutebrowser/&lt;profile name&gt;/webengine/allowlist.json
 
 <span class="c"># From oatmeal TUI, list current page of cookies:</span>
 l
@@ -176,7 +176,7 @@ x
 
 <h2>Automatic cookie deletion</h2>
 
-<p>Just like the <a href="https://chromewebstore.google.com/detail/cookie-autodelete/fhcgjolkccmbidfldomjliifgaodjagh" rel="nofollow">Cookie AutoDelete</a> extension, we can automate the deletion of disallowed cookies. For instance, we can delete them when closing a tab: this will allow temporary cookies to persist until we finish our task, and disappear afterwards.</p>
+<p>Just like the <a href="https://chromewebstore.google.com/detail/cookie-autodelete/fhcgjolkccmbidfldomjliifgaodjagh" rel="nofollow">Cookie AutoDelete</a> extension, we can automate the deletion of disallowed cookies. For instance, we can delete them when closing a tab: this will allow temporary cookies to persist until we finish our task, no more.</p>
 
 <p>Let&#39;s create the following userscript, <code>tab-close-delete-cookies</code>:</p>
 
@@ -195,7 +195,7 @@ qtcookies <span class="nt">-c</span> <span class="s2">"</span><span class="nv">$
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">bind </span>x spawn <span class="nt">--userscript</span> tab-close-delete-cookies
 </code></pre></div>
 
-<p>Additionally, we can perform the same action when closing qutebrowser, for instance with a very similar <code>qutebrowser-close-delete-cookies</code> script:</p>
+<p>Additionally, we can perform the same action when closing qutebrowser, with a very similar <code>qutebrowser-close-delete-cookies</code> script:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="c">#!/usr/bin/env bash</span>
 <span class="nb">set</span> <span class="nt">-euo</span> pipefail
@@ -210,6 +210,45 @@ qtcookies <span class="nt">-c</span> <span class="s2">"</span><span class="nv">$
 <p>Give it execute permissions too, save it in the same location, and bind it to the <code>q</code> key:</p>
 
 <div class="highlight"><pre class="highlight shell"><code><span class="nb">bind </span>q spawn <span class="nt">--userscript</span> qutebrowser-close-delete-cookies
+</code></pre></div>
+
+<h2>Redirecting domains</h2>
+
+<p>We can redirect domains much like several web extensions implement this. Create a <code>~/.config/qutebrowser/config.py</code> like the following, changing <code>REDIRECT_MAP</code> with the redirects you&#39;d like:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>import operator, re, typing
+from urllib.parse import urljoin
+
+from qutebrowser.api import interceptor, message
+from PyQt6.QtCore import QUrl
+
+# Any return value other than a literal 'False' means we redirected
+REDIRECT_MAP = {
+    "www.reddit.com": operator.methodcaller("setHost", "old.reddit.com"),
+}  # type: typing.Dict[str, typing.Callable[..., typing.Optional[bool]]]
+
+
+def int_fn(info: interceptor.Request):
+    """Block the given request if necessary."""
+    if (
+        info.resource_type != interceptor.ResourceType.main_frame
+        or info.request_url.scheme() in {"data", "blob"}
+    ):
+        return
+
+    url = info.request_url
+    redir = REDIRECT_MAP.get(url.host())
+
+    if redir is not None and redir(url) is not False:
+        if "localhost" in url.toString():
+            url.setScheme("http")
+        message.info("Redirecting to " + url.toString())
+        info.redirect(url)
+
+
+interceptor.register(int_fn)
+# load autoconfig.yml
+config.load_autoconfig()
 </code></pre></div>
 
 <h2>Reducing fingerprinting</h2>
