@@ -93,7 +93,10 @@ fi</span>
 <span class="o">)</span>
 </code></pre></div>
 
-<p>Be aware that this will not support proprietary codecs: to circumvent this, I simply run videos using a <code>mpv</code> keybind.</p>
+<p>Be aware that this will not support proprietary codecs: to circumvent this, I simply run videos using a <code>mpv</code> keybind:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">bind</span> ,, hint links spawn mpv <span class="nt">--window-maximized</span><span class="o">=</span><span class="nb">yes</span> <span class="nt">--ytdl-format</span><span class="o">=</span><span class="s1">'bestvideo[height&lt;=?720][fps&lt;=?60]+bestaudio/best'</span> <span class="o">{</span>hint-url<span class="o">}</span>
+</code></pre></div>
 
 <p>To start qutebrowser from its Python venv, add the following script in your $PATH, as <code>qutebrowser</code>:</p>
 
@@ -214,41 +217,41 @@ qtcookies <span class="nt">-c</span> <span class="s2">"</span><span class="nv">$
 
 <h2>Redirecting domains</h2>
 
-<p>We can redirect domains much like several web extensions implement this. Create a <code>~/.config/qutebrowser/config.py</code> like the following, changing <code>REDIRECT_MAP</code> with the redirects you&#39;d like:</p>
+<p>We can redirect domains much like several web extensions. Create a <code>~/.config/qutebrowser/config.py</code> file like the following, changing <code>REDIRECT_MAP</code> with the redirects you&#39;d like:</p>
 
-<div class="highlight"><pre class="highlight plaintext"><code>import operator, re, typing
-from urllib.parse import urljoin
+<div class="highlight"><pre class="highlight python"><code><span class="kn">import</span> <span class="n">operator</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">typing</span>
+<span class="kn">from</span> <span class="n">urllib.parse</span> <span class="kn">import</span> <span class="n">urljoin</span>
 
-from qutebrowser.api import interceptor, message
-from PyQt6.QtCore import QUrl
+<span class="kn">from</span> <span class="n">qutebrowser.api</span> <span class="kn">import</span> <span class="n">interceptor</span><span class="p">,</span> <span class="n">message</span>
+<span class="kn">from</span> <span class="n">PyQt6.QtCore</span> <span class="kn">import</span> <span class="n">QUrl</span>
 
-# Any return value other than a literal 'False' means we redirected
-REDIRECT_MAP = {
-    "www.reddit.com": operator.methodcaller("setHost", "old.reddit.com"),
-}  # type: typing.Dict[str, typing.Callable[..., typing.Optional[bool]]]
+<span class="c1"># Any return value other than a literal 'False' means we redirected
+</span><span class="n">REDIRECT_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="sh">"</span><span class="s">www.reddit.com</span><span class="sh">"</span><span class="p">:</span> <span class="n">operator</span><span class="p">.</span><span class="nf">methodcaller</span><span class="p">(</span><span class="sh">"</span><span class="s">setHost</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">old.reddit.com</span><span class="sh">"</span><span class="p">),</span>
+<span class="p">}</span>  <span class="c1"># type: typing.Dict[str, typing.Callable[..., typing.Optional[bool]]]
+</span>
+
+<span class="k">def</span> <span class="nf">int_fn</span><span class="p">(</span><span class="n">info</span><span class="p">:</span> <span class="n">interceptor</span><span class="p">.</span><span class="n">Request</span><span class="p">):</span>
+    <span class="sh">"""</span><span class="s">Block the given request if necessary.</span><span class="sh">"""</span>
+    <span class="nf">if </span><span class="p">(</span>
+        <span class="n">info</span><span class="p">.</span><span class="n">resource_type</span> <span class="o">!=</span> <span class="n">interceptor</span><span class="p">.</span><span class="n">ResourceType</span><span class="p">.</span><span class="n">main_frame</span>
+        <span class="ow">or</span> <span class="n">info</span><span class="p">.</span><span class="n">request_url</span><span class="p">.</span><span class="nf">scheme</span><span class="p">()</span> <span class="ow">in</span> <span class="p">{</span><span class="sh">"</span><span class="s">data</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">blob</span><span class="sh">"</span><span class="p">}</span>
+    <span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="n">url</span> <span class="o">=</span> <span class="n">info</span><span class="p">.</span><span class="n">request_url</span>
+    <span class="n">redir</span> <span class="o">=</span> <span class="n">REDIRECT_MAP</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="n">url</span><span class="p">.</span><span class="nf">host</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">redir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nf">redir</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">False</span><span class="p">:</span>
+        <span class="k">if</span> <span class="sh">"</span><span class="s">localhost</span><span class="sh">"</span> <span class="ow">in</span> <span class="n">url</span><span class="p">.</span><span class="nf">toString</span><span class="p">():</span>
+            <span class="n">url</span><span class="p">.</span><span class="nf">setScheme</span><span class="p">(</span><span class="sh">"</span><span class="s">http</span><span class="sh">"</span><span class="p">)</span>
+        <span class="n">message</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sh">"</span><span class="s">Redirecting to </span><span class="sh">"</span> <span class="o">+</span> <span class="n">url</span><span class="p">.</span><span class="nf">toString</span><span class="p">())</span>
+        <span class="n">info</span><span class="p">.</span><span class="nf">redirect</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
 
-def int_fn(info: interceptor.Request):
-    """Block the given request if necessary."""
-    if (
-        info.resource_type != interceptor.ResourceType.main_frame
-        or info.request_url.scheme() in {"data", "blob"}
-    ):
-        return
-
-    url = info.request_url
-    redir = REDIRECT_MAP.get(url.host())
-
-    if redir is not None and redir(url) is not False:
-        if "localhost" in url.toString():
-            url.setScheme("http")
-        message.info("Redirecting to " + url.toString())
-        info.redirect(url)
-
-
-interceptor.register(int_fn)
-# load autoconfig.yml
-config.load_autoconfig()
+<span class="n">interceptor</span><span class="p">.</span><span class="nf">register</span><span class="p">(</span><span class="n">int_fn</span><span class="p">)</span>
+<span class="c1"># load autoconfig.yml
+</span><span class="n">config</span><span class="p">.</span><span class="nf">load_autoconfig</span><span class="p">()</span>
 </code></pre></div>
 
 <h2>Reducing fingerprinting</h2>
