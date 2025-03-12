@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ovelny - chaos/nim-tricks/vendoring-dependencies</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="ovelny - notes on infosec, penetration testing, programming and others"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" type=text/css href="/assets/css/dead-simple.min.css">
+    <link rel="stylesheet" type=text/css href="/assets/css/rouge.min.css">
+    <link
+      href="/atom.xml"
+      rel="alternate"
+      title="ovelny"
+      type="application/atom+xml"
+    />
+    <script src="/assets/js/scramble-text.min.js" defer></script>
+    <script src="/assets/js/zoom-images.min.js" defer></script>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@ovelny"/>
+    <meta name="twitter:title" content="ovelny - chaos/nim-tricks/vendoring-dependencies"/>
+    <meta name="twitter:image" content="https://ovelny.sh/assets/images/ovelny-logo.png"/>
+    <meta name="twitter:image:alt" content="ovelny logo: 6 white circles grouped together forming a triangle shape, with a black background."/>
+  </head>
+  <body>
+
+    <header>
+      <section>
+        <a href="/">
+          <img
+            class="logo"
+            src="/assets/images/ovelny-pfp.png"
+            alt="ovelny profile picture: a glitched picture of a three-eyed girl, staring intensely at the viewer."
+          />
+        </a>
+        <h2><a class="ovelny" href="/">ovelny</a></h2>
+      </section>
+      <nav>
+        <a href="/">home</a>
+        <a href="/chaos/">chaos</a>
+        <a href="/phasm/">phasm</a>
+        <a href="/support/">support</a>
+        <a href="/atom.xml" target="_blank" rel="noopener noreferrer">rss</a>
+        <a href="/about/">about</a>
+      </nav>
+    </header>
+    <main>
+
+    
+    <h1>Vendoring dependencies</h1>
+
+<p><a href="https://github.com/nim-lang/atlas" rel="nofollow">Atlas</a> is the main tool that can manage dependencies on an isolated workspace and vendor them, but it&#39;s a red hot mess. Here&#39;s how to do it, fixing bugs along the way.</p>
+
+<p>First of all, if you only have the regular <code>$HOME/.nimble/bin</code> in your <code>$PATH</code>, <code>atlas</code> won&#39;t even be found:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Find atlas path:</span>
+<span class="nb">ls</span> <span class="nt">-lsah</span> <span class="nv">$HOME</span>/.choosenim/toolchains/nim-2.2.2/bin/atlas
+
+<span class="c"># Create symlink to add it to your $PATH:</span>
+<span class="nb">cd</span> ~/.nimble/bin
+<span class="nb">ln</span> <span class="nt">-s</span> /home/ovelny/.choosenim/toolchains/nim-2.2.2/bin/atlas atlas
+</code></pre></div>
+
+<p>Now that <code>atlas</code> is in your <code>$PATH</code>, let&#39;s vendor dependencies:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># Init project with atlas, using a vendor directory:</span>
+atlas init <span class="nt">--deps</span><span class="o">=</span>vendor
+</code></pre></div>
+
+<p>The <code>atlas.workspace</code> file will not be updated appropriately for vendoring. Edit the &quot;deps&quot; key on top to add our <code>vendor</code> directory:</p>
+
+<div class="highlight"><pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"deps"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vendor"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"overrides"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"plugins"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"resolver"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SemVer"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>
+
+<p>We can then add our dependencies:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="c"># If we need a specific commit, this is the notation to use (undocumented AFAIK):</span>
+atlas use https://github.com/nim-lang/checksums#bd9bf4eaea124bf8d01e08f92ac1b14c6879d8d3
+
+<span class="c"># Otherwise, for known repos, simply use:</span>
+atlas use checksums
+</code></pre></div>
+
+<p>But that still won&#39;t use our <code>vendor</code> directory appropriately. Change the <code>nim.cfg</code> to the appropriate path:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>############# begin Atlas config section ##########
+--noNimblePath
+--path:"vendor/checksums/src"
+############# end Atlas config section   ##########
+</code></pre></div>
+
+<p>We can now move our dependencies and <code>atlas.workspace</code> file to <code>vendor</code>:</p>
+
+<div class="highlight"><pre class="highlight shell"><code><span class="nb">mv </span>checksums vendor
+<span class="nb">mv </span>atlas.workspace vendor
+</code></pre></div>
+
+<p>This should leave you with a similar base directory for your project:</p>
+
+<div class="highlight"><pre class="highlight plaintext"><code>ovelny@moon:~/code/thing| ls -lsah
+total 24K
+4.0K drwxr-xr-x 3 ovelny ovelny 4.0K Mar 12 15:47 .
+4.0K drwxr-xr-x 6 ovelny ovelny 4.0K Mar 12 12:40 ..
+4.0K -rw-r--r-- 1 ovelny ovelny 2.1K Mar 12 15:47 chksum.nim
+4.0K -rw-r--r-- 1 ovelny ovelny   91 Mar 12 15:45 chksum.nimble
+4.0K -rw-r--r-- 1 ovelny ovelny  149 Mar 12 15:46 nim.cfg
+4.0K drwxr-xr-x 4 ovelny ovelny 4.0K Mar 12 15:46 vendor
+</code></pre></div>
+
+<p>And importing will work as expected, for instance with <code>checksums</code> module:</p>
+
+<div class="highlight"><pre class="highlight nim"><code><span class="k">import</span> <span class="n">checksums</span><span class="o">/[</span><span class="n">md5</span><span class="p">,</span> <span class="n">sha1</span><span class="p">,</span> <span class="n">sha2</span><span class="o">]</span>
+</code></pre></div>
+
+    
+    </main>
+    <footer id="footer">
+      <div class="footer-section"><a href="/license/">CC BY-NC-SA 4.0</a><p>&nbsp;::&nbsp;2019 - 2025 ovelny</p></div>
+      <div class="footer-section">「七転び八起き」</div>
+    </footer>
+  </body>
+</html>
+
